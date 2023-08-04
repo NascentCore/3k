@@ -1,4 +1,4 @@
-- 将该目录下的所有文件放在你的任意一个文件中
+- 将该目录下的所有文件放在你的任意一个文件夹中
 - chomd a+x install_kubeflow
 - ./install_kubeflow
 - 根据提示完成kubeflow的安装即可
