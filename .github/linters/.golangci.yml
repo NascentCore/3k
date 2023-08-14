@@ -1,0 +1,96 @@
+---
+# Config file for golangci-lint, placed here so local run of golangci-lint
+# can find this config file.
+#
+# Super-linter uses a symbol-linked file under .github/linter/.golangci.yml
+run:
+  allow-parallel-runners: true
+  timeout: 6m
+  skip-dirs:
+  - bazel
+  - devops
+  - docs
+  - experimental
+  - home
+  - tools
+  - ui
+  - src/agent/wasm/programs
+
+output:
+  sort-results: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  disable-all: true
+  enable:
+  - asciicheck
+  - errcheck
+  - godot
+  - gofumpt
+  - gofmt
+  - gosimple
+  - govet
+  - ineffassign
+  - makezero
+  - misspell
+  - nakedret
+  - nolintlint
+  - nonamedreturns
+  - predeclared
+  - staticcheck
+  - stylecheck
+  - unused
+  - lll
+  - whitespace
+  - goimports
+  - revive
+  - depguard
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  goimports:
+    local-prefixes: github.com/tricorder
+  nakedret:
+    max-func-lines: 0
+  revive:
+    rules:
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#package-comments
+      - name: package-comments
+        severity: error
+        disabled: false
+      - name: argument-limit
+        severity: error
+        disabled: false
+        # TODO(yzhao): Reduce it to 5
+        arguments: [8]
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 120
+    # Tab width in spaces.
+    tab-width: 2
+  depguard:
+    list-type: blacklist
+    packages:
+      # logging is allowed only by github.com/tricorder/src/utils/log, 
+      # logrus is allowed to use only in log package
+      - github.com/sirupsen/logrus
+    ignore-file-rules:
+      - "**/utils/log/*.go"
+  staticcheck:
+    # Deprecated: use the global `run.go` instead.
+    go: "1.18"
+    # SAxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
+    # Default: ["*"]
+    checks: ["all"]
+  stylecheck:
+    # Deprecated: use the global `run.go` instead.
+    go: "1.18"
+    # STxxxx checks in https://staticcheck.io/docs/configuration/options/#checks
+    # Default: ["*"]
+    # ST1003 is for enforcing camel case.
+    checks: ["all", "-ST1003"]

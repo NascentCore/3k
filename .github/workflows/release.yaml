@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  # Requires manual trigger
+  # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+  workflow_dispatch
+
+# Only allow running one release action, see more details at:
+# https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: release
+  cancel-in-progress: true
+
+jobs:
+  release-helm-charts:
+    name: Release Helm Charts
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        shell: bash
+      - name: Install Helm
+        uses: azure/setup-helm@v3.5
+        with:
+          version: v3.9.0
+      - name: Release tricorder charts
+        uses: helm/chart-releaser-action@v1.4.1
+        with:
+          charts_dir: helm-charts/charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
+
+  get-git-tag:
+    name: Get git TAG
+    runs-on: ubuntu-latest
+    # Wait for helm-charts releaser to finish, which pushes tag
+    needs: release-helm-charts
+    outputs:
+      TAG: ${{ steps.git_tag.outputs.TAG }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure safe directory
+        id: git_tag
+        run: |
+          # The following is required for:
+          # https://github.com/actions/checkout/issues/363
+          git config --global --add safe.directory $(realpath .)
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git fetch --tags > /dev/null 2>&1
+          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_OUTPUT
+
+  build-and-push-container-images:
+    needs: get-git-tag
+    uses: ./.github/workflows/build_and_push_images.yaml
+    with:
+      tag: ${{ needs.get-git-tag.outputs.TAG }}
+    secrets: inherit
+
+  release-gh-pages:
+    name: Release GitHub pages
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Copy README.md To Branches Action
+        uses: planetoftheweb/copy-to-branches@v1.2
+        env:
+          key: main
+          branches: gh-pages
+          files: README.md helm-charts/README.md helm-charts/docs

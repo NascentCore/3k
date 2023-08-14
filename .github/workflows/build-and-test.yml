@@ -1,0 +1,113 @@
+name: Bazel Build and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  query-changed-src-files:
+    name: List changed files
+    # This matches the dev_image and base image used in the code base.
+    runs-on: ubuntu-22.04
+    outputs:
+      all: ${{ steps.src-changed.outputs.all_changed_files}}
+      any_changed: ${{ steps.src-changed.outputs.any_changed}}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Retrieve the preceding commit
+          fetch-depth: 0
+      - name: Get changed files under src/
+        id: src-changed
+        uses: tj-actions/changed-files@v35
+        with:
+          files: src/**
+      - name: DEBUG print changed files under src/
+        run: |
+          echo ${{ steps.src-changed.outputs.all_changed_files }}
+          echo ${{ steps.src-changed.outputs.any_changed }}
+
+  build-and-test:
+    name: Bazel build and test
+    # This matches the dev_image and base image used in the code base.
+    runs-on: ubuntu-22.04
+    # require the first job to have ran
+    needs: query-changed-src-files
+    # only run there are changed files
+    if: needs.query-changed-src-files.outputs.any_changed == 'true'
+    container:
+      image: docker.io/tricorderobservability/ci_image:202303180311
+      options: --privileged
+      volumes:
+        # Needed for accessing kernel headers
+        - /lib/modules:/lib/modules
+        # Needed to access /sys/kernel/tracing/kprobe
+        - /sys/kernel:/sys/kernel
+        # Needed for accessing kernel headers
+        - /usr/src:/usr/src
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Retrieve the preceding commit
+          fetch-depth: 0
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Query affected bazel rules
+        id: q
+        run: .github/scripts/bazel_ci_query.sh ${{ needs.query-changed-src-files.outputs.all }} >>$GITHUB_OUTPUT
+        shell: bash
+      - name: DEBUG print changed files under src/ and affected rules
+        run: |
+          echo ${{ needs.query-changed-src-files.outputs.any_changed }}
+          echo ${{ needs.query-changed-src-files.outputs.all }}
+          echo ${{ steps.q.outputs.any_affected }}
+          echo ${{ steps.q.outputs.all }}
+      # See https://github.com/mxschmitt/action-tmate
+      # Uncomment the step below to SSH to the running github action host.
+      # - name: Setup tmate session
+        # uses: mxschmitt/action-tmate@v3
+      - name: Bazel build affected rules
+        if: steps.q.outputs.any_affected == 'true'
+        run: .github/scripts/bazel.sh build ${{ steps.q.outputs.all }}
+        shell: bash
+      - name: Bazel test affected rules
+        if: steps.q.outputs.any_affected == 'true'
+        run: .github/scripts/bazel_test.sh ${{ steps.q.outputs.all }}
+        shell: bash
+      - name: Bazel test affected BPF rules
+        if: steps.q.outputs.any_affected == 'true'
+        run: .github/scripts/bazel_test.sh --config=bpf ${{ steps.q.outputs.all }}
+        shell: bash
+
+  bpf-tests-with-installed-linux-headers:
+    name: Bazel build and test with installed Kernel headers (for BPF)
+    runs-on: ubuntu-22.04
+    needs: query-changed-src-files
+    if: needs.query-changed-src-files.outputs.any_changed == 'true'
+    container:
+      image: docker.io/tricorderobservability/ci_image:202303180311
+      options: --privileged
+      volumes:
+        # Needed to access /sys/kernel/tracing/kprobe
+        - /sys/kernel:/sys/kernel
+        # Needed to access ubuntu /boot/config-$(uname -r)
+        - /boot:/host/boot:ro
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Query affected bazel rules
+        id: q
+        run: .github/scripts/bazel_ci_query.sh ${{ needs.query-changed-src-files.outputs.all }} >>$GITHUB_OUTPUT
+        shell: bash
+      - name: Bazel test affected BPF rules
+        if: steps.q.outputs.any_affected == 'true'
+        run: .github/scripts/bazel_test.sh --config=bpf ${{ steps.q.outputs.all }}
+        shell: bash
