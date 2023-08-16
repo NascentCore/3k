@@ -1,7 +1,7 @@
 - 默认宿主机安装了python，kubectl
 - 下载三个文件任意文件夹，在master上运行build_k8s, 使用kubekey安装单节点集群:
   - chmod a+x build_k8s
-  - ./build_k8s
+  - ./build_k8s 1.24.3
 - 当需要添加节点时：
   - 在node上安装依赖：
   - sudo apt-get install socat conntrack ebtables ipset
