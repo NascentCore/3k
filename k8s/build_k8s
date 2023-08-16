@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ $# < 1 ]]; then
+  echo "Build K8S Cluster:  $0 <k8s version>"
+  echo "Exiting ..."
+  exit 1
+fi
+
 workpath="${HOME}/kubernetes"
 
 mkdir ${workpath}
@@ -22,6 +28,6 @@ done
 
 chmod +x kk
 
-echo $pwd | sudo -S ./kk create cluster --with-kubernetes v1.22.12 <<< "yes"
+echo $pwd | sudo -S ./kk create cluster --with-kubernetes v$1 <<< "yes"
 echo "build k8s successfully !"
 echo $pwd | sudo -S kubectl get nodes 
