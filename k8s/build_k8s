@@ -1,0 +1,27 @@
+#!/bin/bash
+
+workpath="${HOME}/kubernetes"
+
+mkdir ${workpath}
+cd ${workpath}
+echo "create workpath ${workpath} !"
+
+echo "请输入sudo密码："
+read pwd
+echo $pwd | sudo -S apt-get install socat conntrack ebtables ipset 
+echo $pwd | sudo -S export KKZONE=cn
+
+while [ ! -f "${workpath}/kk" ]; do
+    if curl -fL -C - https://get-kk.kubesphere.io | VERSION=v3.0.2 sh -;then
+        break
+    else
+        echo "下载失败，等待5s后重试..."
+        sleep 5
+    fi
+done
+
+chmod +x kk
+
+echo $pwd | sudo -S ./kk create cluster --with-kubernetes v1.22.12 <<< "yes"
+echo "build k8s successfully !"
+echo $pwd | sudo -S kubectl get nodes 

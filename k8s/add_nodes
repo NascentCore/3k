@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [[ $# < 4 ]]; then
+  echo "Add a new node to K8S Cluster:  $0 <node name> <username> <password> <ip address> ..."
+  echo "Got $0 $@"
+  echo "Exiting ..."
+  exit 1
+fi
+
+workpath="${HOME}/kubernetes"
+mv fix_sample.py $workpath/fix_sample.py
+cd ${workpath}
+
+echo "请输入sudo密码："
+read pwd
+echo $pwd | sudo -S ./kk create config --from-cluster  <<< yes
+echo $pwd | sudo -S chmod a+w sample.yaml
+
+python fix_sample.py ${workpath} $1 $2 $3 $4
+
+echo $pwd | sudo -S ./kk add nodes -f sample.yaml
+echo "add k8s node successfully !"
+echo $pwd | sudo -S kubectl get nodes 
+
