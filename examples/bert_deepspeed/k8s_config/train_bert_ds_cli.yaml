@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bert-ds-gpu-cli
+spec:
+  restartPolicy: Never
+  hostIPC: True
+  containers:
+    - name: bert-ds-container
+      image: swr.cn-east-3.myhuaweicloud.com/sxwl/train_bert_deepspeed:v2
+      resources:
+        limits:
+          nvidia.com/gpu: 2
+      imagePullPolicy: IfNotPresent
+      args:
+        - sleep
+        - "100000"
+      env:
+      - name: NCCL_P2P_DISABLE
+        value: "1"
+      - name: NCCL_DEBUG
+        value: "INFO"
+      - name: NCCL_IB_DISABLE
+        value: "1"
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule

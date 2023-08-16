@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: flan-t5-small
+spec:
+  restartPolicy: Never
+  containers:
+    - name: flan-t5-small-container
+      image: k8s.gcr.io/flan_t5_small_v002:latest
+      imagePullPolicy: IfNotPresent
+      args:
+        - python3
+        - /workspace/training/scripts/run_seq2seq_deepspeed.py
+        - --model_id=/model/flan-t5-small
+        - --dataset_path=/workspace/training/data
+        - --epochs=3
+        - --per_device_train_batch_size=8
+        - --per_device_eval_batch_size=8
+        - --generation_max_length=150
+        - --lr=1e-4
+      volumeMounts:
+        - mountPath: "/workspace/"
+          name: nfs-storage
+          subPath: "deep-learning-pytorch-huggingface"
+        - mountPath: "/model"
+          name: nfs-storage
+          subPath: "model"
+        - mountPath: "/root/nltk_data/punkt/"
+          name: nfs-storage
+          subPath: "punkt"
+  volumes:
+    - name: nfs-storage
+      persistentVolumeClaim:
+        claimName: pvc-nfs

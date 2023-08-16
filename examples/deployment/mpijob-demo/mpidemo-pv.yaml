@@ -1,0 +1,15 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: mpi-data-pv
+spec:
+    capacity:
+      storage: 5Gi
+    accessModes:
+      - ReadWriteMany
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: "mpi-data-pv"
+    nfs:
+      path: "/home/lanyun/hmx/data"
+      server: 214.2.5.1
+

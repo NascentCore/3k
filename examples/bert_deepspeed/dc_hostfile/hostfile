@@ -1,0 +1,2 @@
+bert_deepspeed_worker1 slots=1
+bert_deepspeed_worker2 slots=1

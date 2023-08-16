@@ -1,0 +1,2 @@
+# 概述
+bert_deepspeed项目用于将roberta模型分别在物理机、docker、k8s上用于验证模型的预训练

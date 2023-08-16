@@ -1,0 +1,2434 @@
+[dp-mpijob-launcher:00001] Warning: could not find environment variable "LD_LIBRARY_PATH"
++ POD_NAME=dp-mpijob-worker-0
++ shift
++ /opt/kube/kubectl exec dp-mpijob-worker-0 -- /bin/sh -c  orted -mca ess "env" -mca ess_base_jobid "2908028928" -mca ess_base_vpid 1 -mca ess_base_num_procs "4" -mca orte_node_regex "dp-mpijob-launcher,dp-mpijob-worker-[1:0-2]@0(4)" -mca orte_hnp_uri "2908028928.0;tcp://10.233.103.138:32985" -mca mpi_warn_on_fork "0" -mca plm "rsh" --tree-spawn -mca routed "radix" -mca orte_parent_uri "2908028928.0;tcp://10.233.103.138:32985" -mca plm_rsh_agent "/etc/mpi/kubexec.sh" -mca orte_default_hostfile "/etc/mpi/hostfile" -mca hwloc_base_binding_policy "none" -mca rmaps_base_mapping_policy "slot" -mca pmix "^s1,s2,cray,isolated"
++ POD_NAME=dp-mpijob-worker-1
++ shift
++ /opt/kube/kubectl exec dp-mpijob-worker-1 -- /bin/sh -c  orted -mca ess "env" -mca ess_base_jobid "2908028928" -mca ess_base_vpid 2 -mca ess_base_num_procs "4" -mca orte_node_regex "dp-mpijob-launcher,dp-mpijob-worker-[1:0-2]@0(4)" -mca orte_hnp_uri "2908028928.0;tcp://10.233.103.138:32985" -mca mpi_warn_on_fork "0" -mca plm "rsh" --tree-spawn -mca routed "radix" -mca orte_parent_uri "2908028928.0;tcp://10.233.103.138:32985" -mca plm_rsh_agent "/etc/mpi/kubexec.sh" -mca orte_default_hostfile "/etc/mpi/hostfile" -mca hwloc_base_binding_policy "none" -mca rmaps_base_mapping_policy "slot" -mca pmix "^s1,s2,cray,isolated"
++ POD_NAME=dp-mpijob-worker-2
++ shift
++ /opt/kube/kubectl exec dp-mpijob-worker-2 -- /bin/sh -c  orted -mca ess "env" -mca ess_base_jobid "2908028928" -mca ess_base_vpid 3 -mca ess_base_num_procs "4" -mca orte_node_regex "dp-mpijob-launcher,dp-mpijob-worker-[1:0-2]@0(4)" -mca orte_hnp_uri "2908028928.0;tcp://10.233.103.138:32985" -mca mpi_warn_on_fork "0" -mca plm "rsh" --tree-spawn -mca routed "radix" -mca orte_parent_uri "2908028928.0;tcp://10.233.103.138:32985" -mca plm_rsh_agent "/etc/mpi/kubexec.sh" -mca orte_default_hostfile "/etc/mpi/hostfile" -mca hwloc_base_binding_policy "none" -mca rmaps_base_mapping_policy "slot" -mca pmix "^s1,s2,cray,isolated"
+[2023-08-14 09:01:29,052] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,069] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,069] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,085] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,094] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,112] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,115] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,140] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,143] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,148] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,150] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,151] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,152] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,157] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,159] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,167] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,171] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,190] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,192] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,192] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,192] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,214] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,214] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,214] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,214] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,214] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,214] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,225] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,225] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,225] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,227] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,231] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,231] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,231] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,234] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,238] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,254] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,254] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,254] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,256] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,257] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,257] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,278] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,278] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,278] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,283] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,283] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,283] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,285] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,285] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,286] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,294] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,294] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,294] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,300] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,300] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,300] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,301] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,301] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,301] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,301] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,301] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,301] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,302] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,307] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,307] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,307] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,313] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,313] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,313] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,317] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,317] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,317] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,334] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,335] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,335] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,338] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,352] [INFO] [real_accelerator.py:133:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2023-08-14 09:01:29,369] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,369] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,369] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,380] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,380] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,380] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,384] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,384] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,384] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,452] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,452] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,452] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,487] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,487] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,487] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:29,501] [WARNING] [comm.py:152:init_deepspeed_backend] NCCL backend in DeepSpeed not yet implemented
+[2023-08-14 09:01:29,501] [INFO] [comm.py:616:init_distributed] cdb=None
+[2023-08-14 09:01:29,501] [INFO] [comm.py:627:init_distributed] Not using the DeepSpeed or dist launchers, attempting to detect MPI environment...
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=6, local_rank=6, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=11, local_rank=3, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=23, local_rank=7, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=4, local_rank=4, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=13, local_rank=5, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=20, local_rank=4, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=8, local_rank=0, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=17, local_rank=1, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=2, local_rank=2, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=5, local_rank=5, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=14, local_rank=6, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=21, local_rank=5, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=3, local_rank=3, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=15, local_rank=7, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=16, local_rank=0, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=1, local_rank=1, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=9, local_rank=1, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=18, local_rank=2, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=0, local_rank=0, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=12, local_rank=4, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=22, local_rank=6, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=7, local_rank=7, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,899] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=10, local_rank=2, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:677:mpi_discovery] Discovered MPI settings of world_rank=19, local_rank=3, world_size=24, master_addr=10.233.110.69, master_port=29500
+[2023-08-14 09:01:31,898] [INFO] [comm.py:643:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
+Files already downloaded and verified
+dp-mpijob-worker-0:16:16 [0] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:16:16 [0] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:16:16 [0] NCCL INFO cudaDriverVersion 11070
+NCCL version 2.14.3+cuda11.7
+dp-mpijob-worker-0:16:626 [0] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:16:626 [0] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-2:16:16 [0] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-1:16:16 [0] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:16:16 [0] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:16:16 [0] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:16:16 [0] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:16:16 [0] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:16:622 [0] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:16:622 [0] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-1:16:622 [0] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:16:622 [0] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-0:18:18 [2] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:19:19 [3] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:17:17 [1] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:20:20 [4] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:18:18 [2] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:23:23 [7] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:18:18 [2] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:21:21 [5] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:17:17 [1] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:18:627 [2] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:18:627 [2] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-0:22:22 [6] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:19:19 [3] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:19:19 [3] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:22:22 [6] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:19:19 [3] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:19:628 [3] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:19:628 [3] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-1:18:18 [2] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-1:19:19 [3] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:17:17 [1] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:17:17 [1] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:22:22 [6] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:17:629 [1] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:17:17 [1] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:17:629 [1] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-2:18:18 [2] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:23:23 [7] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:20:20 [4] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-1:23:23 [7] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:20:20 [4] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:20:20 [4] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:21:21 [5] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-0:20:630 [4] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:20:630 [4] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-2:22:22 [6] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:22:22 [6] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:17:17 [1] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:17:17 [1] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:23:23 [7] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:23:23 [7] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:22:22 [6] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:22:22 [6] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:21:21 [5] NCCL INFO Bootstrap : Using eth0:10.233.110.69<0>
+dp-mpijob-worker-0:21:21 [5] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:19:19 [3] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:19:19 [3] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:23:631 [7] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:23:631 [7] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-1:18:18 [2] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:18:18 [2] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-0:22:632 [6] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:22:632 [6] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-0:21:633 [5] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-0:21:633 [5] NCCL INFO NET/Socket : Using [0]eth0:10.233.110.69<0>
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-1:19:19 [3] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:19:19 [3] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:18:623 [2] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:18:623 [2] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-2:22:623 [6] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:17:624 [1] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:22:623 [6] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-2:17:624 [1] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-2:19:625 [3] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:19:625 [3] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-1:22:22 [6] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:22:22 [6] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:19:624 [3] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:19:624 [3] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-1:17:17 [1] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:17:17 [1] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:22:625 [6] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:22:625 [6] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-1:17:626 [1] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:17:626 [1] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-1:23:23 [7] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:23:23 [7] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:20:20 [4] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-2:21:21 [5] NCCL INFO cudaDriverVersion 11070
+dp-mpijob-worker-1:23:627 [7] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:21:21 [5] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:21:21 [5] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:23:627 [7] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-2:18:18 [2] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:18:18 [2] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:23:23 [7] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:23:23 [7] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:20:20 [4] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:20:20 [4] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:21:628 [5] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:21:628 [5] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-2:18:626 [2] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:18:626 [2] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-2:23:627 [7] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:23:627 [7] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-2:20:628 [4] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:20:628 [4] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-2:21:21 [5] NCCL INFO Bootstrap : Using eth0:10.233.103.139<0>
+dp-mpijob-worker-2:21:21 [5] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-2:21:629 [5] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-2:21:629 [5] NCCL INFO NET/Socket : Using [0]eth0:10.233.103.139<0>
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-1:20:20 [4] NCCL INFO Bootstrap : Using eth0:10.233.70.80<0>
+dp-mpijob-worker-1:20:20 [4] NCCL INFO NET/Plugin : No plugin found (libnccl-net.so), using internal implementation
+dp-mpijob-worker-1:20:629 [4] NCCL INFO NET/IB : No device found.
+dp-mpijob-worker-1:20:629 [4] NCCL INFO NET/Socket : Using [0]eth0:10.233.70.80<0>
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-0:20:630 [4] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:23:631 [7] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:19:624 [3] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-0:17:629 [1] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-2:22:623 [6] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:18:626 [2] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-2:17:624 [1] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:21:628 [5] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-1:23:627 [7] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:16:626 [0] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-2:19:625 [3] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-1:22:625 [6] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:19:628 [3] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-0:21:633 [5] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:18:627 [2] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-0:22:632 [6] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:16:622 [0] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:21:629 [5] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:23:627 [7] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:20:628 [4] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:18:623 [2] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:20:629 [4] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:16:622 [0] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:17:626 [1] NCCL INFO NCCL_P2P_LEVEL set by environment to LOC
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Trees [0] 10/-1/-1->9->8 [1] 10/-1/-1->9->8
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Trees [0] 15/-1/-1->14->13 [1] 15/-1/-1->14->13
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Trees [0] 13/-1/-1->12->11 [1] 13/-1/-1->12->11
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Trees [0] -1/-1/-1->23->22 [1] -1/-1/-1->23->22
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Trees [0] -1/-1/-1->7->6 [1] -1/-1/-1->7->6
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Trees [0] 12/-1/-1->11->10 [1] 12/-1/-1->11->10
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Trees [0] 22/-1/-1->21->20 [1] 22/-1/-1->21->20
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Trees [0] 7/-1/-1->6->5 [1] 7/-1/-1->6->5
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Trees [0] 14/-1/-1->13->12 [1] 14/-1/-1->13->12
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Trees [0] 23/-1/-1->22->21 [1] 23/-1/-1->22->21
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Trees [0] 6/-1/-1->5->4 [1] 6/-1/-1->5->4
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Trees [0] 11/-1/-1->10->9 [1] 11/-1/-1->10->9
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Trees [0] 20/-1/-1->19->18 [1] 20/-1/-1->19->18
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Trees [0] 5/-1/-1->4->3 [1] 5/-1/-1->4->3
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Trees [0] -1/-1/-1->15->14 [1] -1/-1/-1->15->14
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Trees [0] 17/-1/-1->16->0 [1] 17/-1/-1->16->1
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Trees [0] 19/-1/-1->18->17 [1] 19/-1/-1->18->17
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Trees [0] 2/-1/-1->1->0 [1] 2/16/-1->1->0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Trees [0] 9/-1/-1->8->17 [1] 9/0/-1->8->-1
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Trees [0] 3/-1/-1->2->1 [1] 3/-1/-1->2->1
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Trees [0] 18/8/-1->17->16 [1] 18/-1/-1->17->16
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Trees [0] 21/-1/-1->20->19 [1] 21/-1/-1->20->19
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Trees [0] 4/-1/-1->3->2 [1] 4/-1/-1->3->2
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 00/02 :    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 01/02 :    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Trees [0] 1/16/-1->0->-1 [1] 1/-1/-1->0->8
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 00/0 : 23[c2000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 01/0 : 23[c2000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 00/0 : 15[c2000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 01/0 : 15[c2000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 00/0 : 7[c2000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 01/0 : 7[c2000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 00 : 0[12000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 00 : 16[12000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 00 : 8[12000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 01 : 16[12000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 01 : 0[12000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 01 : 8[12000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Channel 00 : 21[8a000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Channel 00 : 20[89000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Channel 00 : 22[c1000] -> 23[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Channel 01 : 21[8a000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Channel 01 : 20[89000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Channel 01 : 22[c1000] -> 23[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Channel 00 : 18[48000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Channel 00 : 6[c1000] -> 7[c2000] via SHM/direct/direct
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Channel 00 : 5[8a000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Channel 00 : 4[89000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 00 : 1[13000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Channel 01 : 18[48000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Channel 00 : 2[48000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Channel 01 : 6[c1000] -> 7[c2000] via SHM/direct/direct
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Channel 00 : 3[49000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Channel 00 : 12[89000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Channel 00 : 10[48000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Channel 00 : 13[8a000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Channel 00 : 14[c1000] -> 15[c2000] via SHM/direct/direct
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Channel 00 : 11[49000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Channel 01 : 5[8a000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Channel 00 : 9[13000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Channel 01 : 4[89000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 01 : 1[13000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Channel 01 : 2[48000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Channel 01 : 3[49000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Channel 01 : 10[48000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Channel 01 : 13[8a000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Channel 01 : 12[89000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Channel 01 : 11[49000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Channel 01 : 14[c1000] -> 15[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 00 : 17[13000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Channel 01 : 9[13000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Channel 00 : 19[49000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 01 : 17[13000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Channel 01 : 19[49000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Channel 00/0 : 23[c2000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Channel 01/0 : 23[c2000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Channel 00/0 : 7[c2000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Channel 01/0 : 7[c2000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Channel 00/0 : 15[c2000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Channel 01/0 : 15[c2000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Channel 00 : 23[c2000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Channel 00 : 21[8a000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Channel 01 : 23[c2000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Channel 01 : 21[8a000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Channel 00 : 7[c2000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Channel 01 : 7[c2000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 00/0 : 8[12000] -> 17[13000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 01/0 : 16[12000] -> 1[13000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Channel 00 : 15[c2000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Channel 01 : 15[c2000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Channel 00 : 9[13000] -> 8[12000] via SHM/direct/direct
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Channel 01 : 9[13000] -> 8[12000] via SHM/direct/direct
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Channel 00 : 20[89000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Channel 00 : 18[48000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Channel 01 : 20[89000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Channel 00 : 22[c1000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Channel 00 : 19[49000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Channel 01 : 18[48000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Channel 01 : 19[49000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Channel 01 : 22[c1000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Channel 00 : 5[8a000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Channel 00 : 4[89000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Channel 00 : 13[8a000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Channel 00 : 2[48000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Channel 00 : 6[c1000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Channel 00 : 10[48000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Channel 01 : 5[8a000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Channel 00 : 11[49000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Channel 00 : 12[89000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Channel 01 : 4[89000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Channel 01 : 13[8a000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Channel 00 : 14[c1000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Channel 01 : 2[48000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Channel 01 : 6[c1000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Channel 01 : 10[48000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Channel 01 : 11[49000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Channel 01 : 12[89000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Channel 01 : 14[c1000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Channel 00 : 3[49000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Channel 01 : 3[49000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-2:23:627 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-2:23:627 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:23:627 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:22:623 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-2:22:623 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:22:623 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:20:628 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-2:20:628 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:20:628 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:19:625 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-2:19:625 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:19:625 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:23:631 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-0:23:631 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:23:631 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:21:629 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-2:21:629 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:21:629 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:22:632 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-0:22:632 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:22:632 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:21:633 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-0:21:633 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:21:633 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:23:627 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-1:23:627 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:23:627 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:18:623 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-1:18:623 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:18:623 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:21:628 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-1:21:628 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:21:628 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:22:625 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-1:22:625 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:20:629 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-1:20:629 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:20:629 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:22:625 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:19:624 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-1:19:624 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:19:624 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:20:630 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-0:20:630 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:20:630 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:19:628 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-0:19:628 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:19:628 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 00/0 : 16[12000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 01/0 : 0[12000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 01/0 : 0[12000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 00/0 : 16[12000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 00/0 : 8[12000] -> 17[13000] [send] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 01/0 : 16[12000] -> 1[13000] [send] via NET/Socket/0
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 00/0 : 17[13000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 01/0 : 1[13000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 00/0 : 17[13000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 01/0 : 1[13000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Channel 01/0 : 8[12000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Channel 00/0 : 0[12000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 01/0 : 8[12000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Channel 00/0 : 0[12000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 00 : 1[13000] -> 0[12000] via SHM/direct/direct
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Channel 01 : 1[13000] -> 0[12000] via SHM/direct/direct
+dp-mpijob-worker-0:18:627 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-0:18:627 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:18:627 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:16:622 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-1:16:622 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:16:622 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:16:626 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-0:16:626 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:16:626 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:17:626 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-1:17:626 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:17:626 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:17:629 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-0:17:629 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:17:629 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 00 : 17[13000] -> 16[12000] via SHM/direct/direct
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Channel 01 : 17[13000] -> 16[12000] via SHM/direct/direct
+dp-mpijob-worker-2:16:622 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-2:16:622 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:16:622 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:18:626 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-2:18:626 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:18:626 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:17:624 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-2:17:624 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:17:624 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:16:622 [0] NCCL INFO comm 0x3d1387d0 rank 8 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-0:17:629 [1] NCCL INFO comm 0x4df91bd0 rank 1 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+dp-mpijob-worker-1:23:627 [7] NCCL INFO comm 0x4e704a90 rank 15 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-1:20:629 [4] NCCL INFO comm 0x4b0faf50 rank 12 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+dp-mpijob-worker-1:18:623 [2] NCCL INFO comm 0x4c6343a0 rank 10 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-1:19:624 [3] NCCL INFO comm 0x4d9e7190 rank 11 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-1:21:628 [5] NCCL INFO comm 0x4c35ce20 rank 13 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-1:22:625 [6] NCCL INFO comm 0x4eec4750 rank 14 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-1:17:626 [1] NCCL INFO comm 0x4ebbec00 rank 9 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+dp-mpijob-worker-2:16:622 [0] NCCL INFO comm 0x3cfa63f0 rank 16 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-0:16:626 [0] NCCL INFO comm 0x3f9be040 rank 0 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-2:18:626 [2] NCCL INFO comm 0x4ea39fc0 rank 18 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-2:22:623 [6] NCCL INFO comm 0x4b6a45d0 rank 22 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-2:21:629 [5] NCCL INFO comm 0x4cb2c030 rank 21 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-2:20:628 [4] NCCL INFO comm 0x4da28680 rank 20 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+dp-mpijob-worker-2:23:627 [7] NCCL INFO comm 0x4da76e70 rank 23 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-0:23:631 [7] NCCL INFO comm 0x4d3d0360 rank 7 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-0:19:628 [3] NCCL INFO comm 0x4f134760 rank 3 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-0:21:633 [5] NCCL INFO comm 0x5040c750 rank 5 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-0:22:632 [6] NCCL INFO comm 0x4e23dbb0 rank 6 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-0:20:630 [4] NCCL INFO comm 0x4e72fa80 rank 4 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+dp-mpijob-worker-0:18:627 [2] NCCL INFO comm 0x4ca6f930 rank 2 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-2:19:625 [3] NCCL INFO comm 0x4d4ba2f0 rank 19 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-2:17:624 [1] NCCL INFO comm 0x4d2a6c30 rank 17 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+ frog   dog   cat   car
+[2023-08-14 09:01:40,269] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed info: version=0.10.0, git-hash=unknown, git-branch=unknown
+[2023-08-14 09:01:40,270] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+Files already downloaded and verified
+ bird   cat  deer   cat
+[2023-08-14 09:01:41,135] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ frog   car  deer   cat
+[2023-08-14 09:01:41,159] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ ship plane horse  deer
+[2023-08-14 09:01:41,216] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+  car  frog   cat  bird
+[2023-08-14 09:01:41,224] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+truck   car  deer horse
+ ship horse  bird  deer
+[2023-08-14 09:01:41,234] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+[2023-08-14 09:01:41,238] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ frog  bird   car plane
+[2023-08-14 09:01:41,254] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ bird  ship  deer  deer
+[2023-08-14 09:01:41,873] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ bird horse  ship  ship
+[2023-08-14 09:01:41,885] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ bird truck truck plane
+[2023-08-14 09:01:41,928] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+  cat   dog truck  frog
+[2023-08-14 09:01:41,935] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+horse plane  frog truck
+ ship   dog  bird  frog
+[2023-08-14 09:01:41,954] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+[2023-08-14 09:01:41,954] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+horse  ship plane   cat
+[2023-08-14 09:01:41,972] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+  dog  deer   cat  ship
+plane  ship  frog  bird
+  dog   dog  frog   car
+[2023-08-14 09:01:41,983] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+[2023-08-14 09:01:41,983] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+[2023-08-14 09:01:41,985] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ bird  bird plane  deer
+ bird plane   dog   dog
+[2023-08-14 09:01:41,995] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+[2023-08-14 09:01:42,002] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+  cat   dog  ship  frog
+[2023-08-14 09:01:42,013] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+ ship  deer  bird horse
+[2023-08-14 09:01:42,064] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+horse  frog horse plane
+[2023-08-14 09:01:42,146] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+plane   cat plane   cat
+[2023-08-14 09:01:42,169] [WARNING] [config_utils.py:69:_process_deprecated_field] Config parameter cpu_offload is deprecated use offload_optimizer instead
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Using network Socket
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Using network Socket
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Using network Socket
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Using network Socket
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Using network Socket
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Using network Socket
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Using network Socket
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Using network Socket
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Setting affinity for GPU 6 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Setting affinity for GPU 3 to 555555,55555555,55555555
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Setting affinity for GPU 5 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Setting affinity for GPU 1 to 555555,55555555,55555555
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Setting affinity for GPU 2 to 555555,55555555,55555555
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Setting affinity for GPU 4 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Setting affinity for GPU 7 to aaaaaa,aaaaaaaa,aaaaaaaa
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Setting affinity for GPU 0 to 555555,55555555,55555555
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Trees [0] -1/-1/-1->23->22 [1] -1/-1/-1->23->22
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Trees [0] 23/-1/-1->22->21 [1] 23/-1/-1->22->21
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Trees [0] 22/-1/-1->21->20 [1] 22/-1/-1->21->20
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Trees [0] 21/-1/-1->20->19 [1] 21/-1/-1->20->19
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Trees [0] 20/-1/-1->19->18 [1] 20/-1/-1->19->18
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Trees [0] 19/-1/-1->18->17 [1] 19/-1/-1->18->17
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Trees [0] 17/-1/-1->16->0 [1] 17/-1/-1->16->1
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Trees [0] 5/-1/-1->4->3 [1] 5/-1/-1->4->3
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Trees [0] 18/8/-1->17->16 [1] 18/-1/-1->17->16
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Trees [0] 2/-1/-1->1->0 [1] 2/16/-1->1->0
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Trees [0] 12/-1/-1->11->10 [1] 12/-1/-1->11->10
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Trees [0] 7/-1/-1->6->5 [1] 7/-1/-1->6->5
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Trees [0] 3/-1/-1->2->1 [1] 3/-1/-1->2->1
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Trees [0] 15/-1/-1->14->13 [1] 15/-1/-1->14->13
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Trees [0] 4/-1/-1->3->2 [1] 4/-1/-1->3->2
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Trees [0] 14/-1/-1->13->12 [1] 14/-1/-1->13->12
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Trees [0] -1/-1/-1->7->6 [1] -1/-1/-1->7->6
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Trees [0] 10/-1/-1->9->8 [1] 10/-1/-1->9->8
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Trees [0] 6/-1/-1->5->4 [1] 6/-1/-1->5->4
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Trees [0] 11/-1/-1->10->9 [1] 11/-1/-1->10->9
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 00/02 :    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 01/02 :    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Trees [0] 1/16/-1->0->-1 [1] 1/-1/-1->0->8
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Trees [0] -1/-1/-1->15->14 [1] -1/-1/-1->15->14
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Trees [0] 13/-1/-1->12->11 [1] 13/-1/-1->12->11
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Trees [0] 9/-1/-1->8->17 [1] 9/0/-1->8->-1
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 00/0 : 23[c2000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 01/0 : 23[c2000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 00/0 : 15[c2000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 00/0 : 7[c2000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 01/0 : 15[c2000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 01/0 : 7[c2000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 00 : 16[12000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 01 : 16[12000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 00 : 0[12000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 01 : 0[12000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 00 : 8[12000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 01 : 8[12000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 00 : 17[13000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Channel 00 : 21[8a000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Channel 00 : 19[49000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Channel 00 : 20[89000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Channel 00 : 22[c1000] -> 23[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 01 : 17[13000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Channel 00 : 18[48000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Channel 01 : 21[8a000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Channel 01 : 20[89000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Channel 01 : 19[49000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Channel 01 : 22[c1000] -> 23[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Channel 01 : 18[48000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 00 : 1[13000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Channel 00 : 3[49000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 01 : 1[13000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Channel 00 : 5[8a000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Channel 01 : 3[49000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Channel 00 : 4[89000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Channel 00 : 6[c1000] -> 7[c2000] via SHM/direct/direct
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Channel 01 : 5[8a000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Channel 00 : 2[48000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Channel 01 : 6[c1000] -> 7[c2000] via SHM/direct/direct
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Channel 01 : 4[89000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Channel 01 : 2[48000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Channel 00/0 : 23[c2000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Channel 01/0 : 23[c2000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Channel 00/0 : 7[c2000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Channel 01/0 : 7[c2000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Channel 00 : 13[8a000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Channel 00 : 9[13000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Channel 00 : 12[89000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Channel 00 : 10[48000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Channel 00 : 11[49000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Channel 00 : 14[c1000] -> 15[c2000] via SHM/direct/direct
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Channel 01 : 9[13000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Channel 01 : 13[8a000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Channel 01 : 10[48000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Channel 00/0 : 15[c2000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Channel 01 : 11[49000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Channel 01 : 14[c1000] -> 15[c2000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Channel 01/0 : 15[c2000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Channel 01 : 12[89000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 00/0 : 8[12000] -> 17[13000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Channel 00 : 23[c2000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Channel 00 : 7[c2000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Channel 01 : 7[c2000] -> 6[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Channel 01 : 23[c2000] -> 22[c1000] via SHM/direct/direct
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 01/0 : 16[12000] -> 1[13000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Channel 00 : 20[89000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Channel 01 : 20[89000] -> 19[49000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Channel 00 : 21[8a000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Channel 01 : 21[8a000] -> 20[89000] via SHM/direct/direct
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Channel 00 : 22[c1000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Channel 00 : 19[49000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Channel 01 : 22[c1000] -> 21[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Channel 01 : 19[49000] -> 18[48000] via SHM/direct/direct
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Channel 00 : 5[8a000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Channel 00 : 4[89000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Channel 00 : 6[c1000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Channel 00 : 18[48000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Channel 00 : 3[49000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Channel 01 : 5[8a000] -> 4[89000] via SHM/direct/direct
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Channel 01 : 4[89000] -> 3[49000] via SHM/direct/direct
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Channel 01 : 6[c1000] -> 5[8a000] via SHM/direct/direct
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Channel 01 : 3[49000] -> 2[48000] via SHM/direct/direct
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Channel 01 : 18[48000] -> 17[13000] via SHM/direct/direct
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Channel 00 : 2[48000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Channel 01 : 2[48000] -> 1[13000] via SHM/direct/direct
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Connected all rings
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 00/0 : 16[12000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 01/0 : 0[12000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Connected all rings
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 00/0 : 16[12000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Connected all rings
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Connected all rings
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Connected all rings
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Connected all rings
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Connected all rings
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Connected all rings
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Channel 00 : 15[c2000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Channel 01 : 15[c2000] -> 14[c1000] via SHM/direct/direct
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 01/0 : 16[12000] -> 1[13000] [send] via NET/Socket/0
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 01/0 : 0[12000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Channel 00 : 9[13000] -> 8[12000] via SHM/direct/direct
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Channel 01 : 9[13000] -> 8[12000] via SHM/direct/direct
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 01/0 : 1[13000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Channel 00 : 11[49000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Channel 01 : 11[49000] -> 10[48000] via SHM/direct/direct
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 00/0 : 8[12000] -> 17[13000] [send] via NET/Socket/0
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Channel 00 : 10[48000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Channel 01 : 10[48000] -> 9[13000] via SHM/direct/direct
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Channel 00 : 14[c1000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Channel 01 : 14[c1000] -> 13[8a000] via SHM/direct/direct
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Channel 00 : 13[8a000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Channel 00 : 12[89000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Channel 01 : 13[8a000] -> 12[89000] via SHM/direct/direct
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Channel 01 : 12[89000] -> 11[49000] via SHM/direct/direct
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO Connected all trees
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO Connected all trees
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO Connected all trees
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO Connected all trees
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO Connected all trees
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 00/0 : 17[13000] -> 8[12000] [send] via NET/Socket/0
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 01/0 : 1[13000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Channel 00/0 : 0[12000] -> 16[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 01/0 : 8[12000] -> 0[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Channel 00/0 : 0[12000] -> 16[12000] [send] via NET/Socket/0
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 00 : 1[13000] -> 0[12000] via SHM/direct/direct
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Channel 01 : 1[13000] -> 0[12000] via SHM/direct/direct
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 00/0 : 17[13000] -> 8[12000] [receive] via NET/Socket/0
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Channel 01/0 : 8[12000] -> 0[12000] [send] via NET/Socket/0
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 00 : 17[13000] -> 16[12000] via SHM/direct/direct
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Channel 01 : 17[13000] -> 16[12000] via SHM/direct/direct
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO Connected all trees
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO Connected all trees
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO Connected all trees
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO threadThresholds 8/8/64 | 192/8/64 | 512 | 512
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO 2 coll channels, 2 p2p channels, 2 p2p channels per peer
+dp-mpijob-worker-1:16:1731 [0] NCCL INFO comm 0x3d8f4b40 rank 8 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-2:16:1729 [0] NCCL INFO comm 0x3d763b40 rank 16 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-2:17:1727 [1] NCCL INFO comm 0x4d98e940 rank 17 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+dp-mpijob-worker-2:22:1728 [6] NCCL INFO comm 0x4bd8a300 rank 22 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-1:22:1729 [6] NCCL INFO comm 0x4f5a6f80 rank 14 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-1:20:1732 [4] NCCL INFO comm 0x4b817280 rank 12 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+dp-mpijob-worker-1:18:1728 [2] NCCL INFO comm 0x4cd50240 rank 10 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-1:21:1730 [5] NCCL INFO comm 0x4ca7a600 rank 13 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-0:16:1717 [0] NCCL INFO comm 0x40117340 rank 0 nranks 24 cudaDev 0 busId 12000 - Init COMPLETE
+dp-mpijob-worker-1:19:1727 [3] NCCL INFO comm 0x4e0cc8c0 rank 11 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-0:17:1718 [1] NCCL INFO comm 0x4e6a8400 rank 1 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+dp-mpijob-worker-2:20:1732 [4] NCCL INFO comm 0x4e10fcc0 rank 20 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+[2023-08-14 09:01:42,972] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Flops Profiler Enabled: False
+dp-mpijob-worker-2:21:1733 [5] NCCL INFO comm 0x4d212fc0 rank 21 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-2:19:1726 [3] NCCL INFO comm 0x4dbd6b80 rank 19 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-2:18:1730 [2] NCCL INFO comm 0x4f1553c0 rank 18 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-2:23:1731 [7] NCCL INFO comm 0x4e15de80 rank 23 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-1:23:1726 [7] NCCL INFO comm 0x4edeaac0 rank 15 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-1:17:1733 [1] NCCL INFO comm 0x4f2a5140 rank 9 nranks 24 cudaDev 1 busId 13000 - Init COMPLETE
+dp-mpijob-worker-0:22:1723 [6] NCCL INFO comm 0x4e954500 rank 6 nranks 24 cudaDev 6 busId c1000 - Init COMPLETE
+dp-mpijob-worker-0:18:1722 [2] NCCL INFO comm 0x4d1874c0 rank 2 nranks 24 cudaDev 2 busId 48000 - Init COMPLETE
+dp-mpijob-worker-0:23:1721 [7] NCCL INFO comm 0x4dae97c0 rank 7 nranks 24 cudaDev 7 busId c2000 - Init COMPLETE
+dp-mpijob-worker-0:19:1719 [3] NCCL INFO comm 0x4f84b8c0 rank 3 nranks 24 cudaDev 3 busId 49000 - Init COMPLETE
+dp-mpijob-worker-0:21:1720 [5] NCCL INFO comm 0x50aec7c0 rank 5 nranks 24 cudaDev 5 busId 8a000 - Init COMPLETE
+dp-mpijob-worker-0:20:1724 [4] NCCL INFO comm 0x4ee0fc00 rank 4 nranks 24 cudaDev 4 busId 89000 - Init COMPLETE
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Creating extension directory /root/.cache/torch_extensions/py39_cu117/fused_adam...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Creating extension directory /root/.cache/torch_extensions/py39_cu117/fused_adam...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Creating extension directory /root/.cache/torch_extensions/py39_cu117/fused_adam...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Detected CUDA files, patching ldflags
+Emitting ninja build file /root/.cache/torch_extensions/py39_cu117/fused_adam/build.ninja...
+Building extension module fused_adam...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+Using /root/.cache/torch_extensions/py39_cu117 as PyTorch extensions root...
+Detected CUDA files, patching ldflags
+Emitting ninja build file /root/.cache/torch_extensions/py39_cu117/fused_adam/build.ninja...
+Building extension module fused_adam...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+Detected CUDA files, patching ldflags
+Emitting ninja build file /root/.cache/torch_extensions/py39_cu117/fused_adam/build.ninja...
+Building extension module fused_adam...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+[1/3] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_86,code=compute_86 -gencode=arch=compute_86,code=sm_86 --compiler-options '-fPIC' -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -lineinfo --use_fast_math -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_86,code=compute_86 -DBF16_AVAILABLE -std=c++17 -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/multi_tensor_adam.cu -o multi_tensor_adam.cuda.o 
+[1/3] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_86,code=compute_86 -gencode=arch=compute_86,code=sm_86 --compiler-options '-fPIC' -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -lineinfo --use_fast_math -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_86,code=compute_86 -DBF16_AVAILABLE -std=c++17 -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/multi_tensor_adam.cu -o multi_tensor_adam.cuda.o 
+[1/3] /usr/local/cuda/bin/nvcc  -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_86,code=compute_86 -gencode=arch=compute_86,code=sm_86 --compiler-options '-fPIC' -O3 -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -lineinfo --use_fast_math -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_86,code=compute_86 -DBF16_AVAILABLE -std=c++17 -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/multi_tensor_adam.cu -o multi_tensor_adam.cuda.o 
+[2/3] c++ -MMD -MF fused_adam_frontend.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17 -O3 -std=c++17 -g -Wno-reorder -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DBF16_AVAILABLE -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/fused_adam_frontend.cpp -o fused_adam_frontend.o 
+[3/3] c++ fused_adam_frontend.o multi_tensor_adam.cuda.o -shared -L/usr/local/lib/python3.9/dist-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o fused_adam.so
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.97530698776245 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.95941400527954 seconds
+[2023-08-14 09:02:09,443] [INFO] [logging.py:96:log_dist] [Rank 0] Using DeepSpeed Optimizer param name adam as basic optimizer
+[2023-08-14 09:02:09,444] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Basic Optimizer = FusedAdam
+[2023-08-14 09:02:09,444] [INFO] [logging.py:96:log_dist] [Rank 0] Creating fp16 optimizer with dynamic loss scale
+Loading extension module fused_adam...
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.960073232650757 seconds
+Time to load fused_adam op: 25.961514711380005 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.961599349975586 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.96181058883667 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.961881399154663 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 25.960768461227417 seconds
+[2023-08-14 09:02:09,578] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed Final Optimizer = adam
+[2023-08-14 09:02:09,578] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed using configured LR scheduler = WarmupLR
+[2023-08-14 09:02:09,578] [INFO] [logging.py:96:log_dist] [Rank 0] DeepSpeed LR Scheduler = <deepspeed.runtime.lr_schedules.WarmupLR object at 0x7f7c404cb6a0>
+[2023-08-14 09:02:09,579] [INFO] [logging.py:96:log_dist] [Rank 0] step=0, skipped=0, lr=[0.001], mom=[[0.8, 0.999]]
+[2023-08-14 09:02:09,579] [INFO] [config.py:960:print] DeepSpeedEngine configuration:
+[2023-08-14 09:02:09,581] [INFO] [config.py:964:print]   activation_checkpointing_config  {
+    "partition_activations": false, 
+    "contiguous_memory_optimization": false, 
+    "cpu_checkpointing": false, 
+    "number_checkpoints": null, 
+    "synchronize_checkpoint_boundary": false, 
+    "profile": false
+}
+[2023-08-14 09:02:09,581] [INFO] [config.py:964:print]   aio_config ................... {'block_size': 1048576, 'queue_depth': 8, 'thread_count': 1, 'single_submit': False, 'overlap_events': True}
+[2023-08-14 09:02:09,581] [INFO] [config.py:964:print]   amp_enabled .................. False
+[2023-08-14 09:02:09,581] [INFO] [config.py:964:print]   amp_params ................... False
+fp16=True
+fp16=True
+[2023-08-14 09:02:09,582] [INFO] [config.py:964:print]   autotuning_config ............ {
+    "enabled": false, 
+    "start_step": null, 
+    "end_step": null, 
+    "metric_path": null, 
+    "arg_mappings": null, 
+    "metric": "throughput", 
+    "model_info": null, 
+    "results_dir": "autotuning_results", 
+    "exps_dir": "autotuning_exps", 
+    "overwrite": true, 
+    "fast": true, 
+    "start_profile_step": 3, 
+    "end_profile_step": 5, 
+    "tuner_type": "gridsearch", 
+    "tuner_early_stopping": 5, 
+    "tuner_num_trials": 50, 
+    "model_info_path": null, 
+    "mp_size": 1, 
+    "max_train_batch_size": null, 
+    "min_train_batch_size": 1, 
+    "max_train_micro_batch_size_per_gpu": 1.024000e+03, 
+    "min_train_micro_batch_size_per_gpu": 1, 
+    "num_tuning_micro_batch_sizes": 3
+}
+[2023-08-14 09:02:09,582] [INFO] [config.py:964:print]   bfloat16_enabled ............. False
+[2023-08-14 09:02:09,582] [INFO] [config.py:964:print]   checkpoint_parallel_write_pipeline  False
+[2023-08-14 09:02:09,582] [INFO] [config.py:964:print]   checkpoint_tag_validation_enabled  True
+fp16=True
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   checkpoint_tag_validation_fail  False
+fp16=True
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   comms_config ................. <deepspeed.comm.config.DeepSpeedCommsConfig object at 0x7f7c404aadf0>
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   communication_data_type ...... None
+fp16=True
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   compression_config ........... {'weight_quantization': {'shared_parameters': {'enabled': False, 'quantizer_kernel': False, 'schedule_offset': 0, 'quantize_groups': 1, 'quantize_verbose': False, 'quantization_type': 'symmetric', 'quantize_weight_in_forward': False, 'rounding': 'nearest', 'fp16_mixed_quantize': False, 'quantize_change_ratio': 0.001}, 'different_groups': {}}, 'activation_quantization': {'shared_parameters': {'enabled': False, 'quantization_type': 'symmetric', 'range_calibration': 'dynamic', 'schedule_offset': 1000}, 'different_groups': {}}, 'sparse_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'row_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'head_pruning': {'shared_parameters': {'enabled': False, 'method': 'topk', 'schedule_offset': 1000}, 'different_groups': {}}, 'channel_pruning': {'shared_parameters': {'enabled': False, 'method': 'l1', 'schedule_offset': 1000}, 'different_groups': {}}, 'layer_reduction': {'enabled': False}}
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   curriculum_enabled_legacy .... False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   curriculum_params_legacy ..... False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   data_efficiency_config ....... {'enabled': False, 'seed': 1234, 'data_sampling': {'enabled': False, 'num_epochs': 1000, 'num_workers': 0, 'curriculum_learning': {'enabled': False}}, 'data_routing': {'enabled': False, 'random_ltd': {'enabled': False, 'layer_token_lr_schedule': {'enabled': False}}}}
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   data_efficiency_enabled ...... False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   dataloader_drop_last ......... False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   disable_allgather ............ False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   dump_state ................... False
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   dynamic_loss_scale_args ...... {'init_scale': 32768, 'scale_window': 500, 'delayed_shift': 2, 'consecutive_hysteresis': False, 'min_scale': 1}
+[2023-08-14 09:02:09,583] [INFO] [config.py:964:print]   eigenvalue_enabled ........... False
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_gas_boundary_resolution  1
+fp16=True
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_layer_name ........ bert.encoder.layer
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_layer_num ......... 0
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_max_iter .......... 100
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_stability ......... 1e-06
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_tol ............... 0.01
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   eigenvalue_verbose ........... False
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   elasticity_enabled ........... False
+fp16=True
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   flops_profiler_config ........ {
+    "enabled": false, 
+    "recompute_fwd_factor": 0.0, 
+    "profile_step": 1, 
+    "module_depth": -1, 
+    "top_modules": 1, 
+    "detailed": true, 
+    "output_file": null
+}
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   fp16_auto_cast ............... False
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   fp16_enabled ................. True
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   fp16_master_weights_and_gradients  False
+[2023-08-14 09:02:09,584] [INFO] [config.py:964:print]   global_rank .................. 0
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   grad_accum_dtype ............. None
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   gradient_accumulation_steps .. 1
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   gradient_clipping ............ 1
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   gradient_predivide_factor .... 1.0
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   hybrid_engine ................ enabled=False max_out_tokens=512 inference_tp_size=1 release_inference_cache=False pin_parameters=True tp_gather_partition_size=8
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   initial_dynamic_scale ........ 32768
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   load_universal_checkpoint .... False
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   loss_scale ................... 0
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   memory_breakdown ............. False
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   mics_hierarchial_params_gather  False
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   mics_shard_size .............. -1
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   monitor_config ............... tensorboard=TensorBoardConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') wandb=WandbConfig(enabled=False, group=None, team=None, project='deepspeed') csv_monitor=CSVConfig(enabled=False, output_path='', job_name='DeepSpeedJobName') enabled=False
+[2023-08-14 09:02:09,585] [INFO] [config.py:964:print]   nebula_config ................ {
+    "enabled": false, 
+    "persistent_storage_path": null, 
+    "persistent_time_interval": 100, 
+    "num_of_version_in_retention": 2, 
+    "enable_nebula_load": true, 
+    "load_path": null
+}
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   optimizer_legacy_fusion ...... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   optimizer_name ............... adam
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   optimizer_params ............. {'lr': 0.001, 'betas': [0.8, 0.999], 'eps': 1e-08, 'weight_decay': 3e-07}
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   pipeline ..................... {'stages': 'auto', 'partition': 'best', 'seed_layers': False, 'activation_checkpoint_interval': 0}
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   pld_enabled .................. False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   pld_params ................... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   prescale_gradients ........... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   scheduler_name ............... WarmupLR
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   scheduler_params ............. {'warmup_min_lr': 0, 'warmup_max_lr': 0.001, 'warmup_num_steps': 1000}
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   sparse_attention ............. None
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   sparse_gradients_enabled ..... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   steps_per_print .............. 2000
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   train_batch_size ............. 48
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   train_micro_batch_size_per_gpu  2
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   use_node_local_storage ....... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   wall_clock_breakdown ......... False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   world_size ................... 24
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   zero_allow_untested_optimizer  False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   zero_config .................. stage=0 contiguous_gradients=True reduce_scatter=True reduce_bucket_size=50000000 allgather_partitions=True allgather_bucket_size=50000000 overlap_comm=True load_from_fp32_weights=True elastic_checkpoint=False offload_param=None offload_optimizer=None sub_group_size=1,000,000,000 cpu_offload_param=None cpu_offload_use_pin_memory=None prefetch_bucket_size=50,000,000 param_persistence_threshold=100,000 model_persistence_threshold=sys.maxsize max_live_parameters=1,000,000,000 max_reuse_distance=1,000,000,000 gather_16bit_weights_on_model_save=False stage3_gather_fp16_weights_on_model_save=False ignore_unused_parameters=True legacy_stage1=False round_robin_gradients=False zero_hpz_partition_size=1 zero_quantized_weights=False zero_quantized_gradients=False mics_shard_size=-1 mics_hierarchical_params_gather=False memory_efficient_linear=True
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   zero_enabled ................. False
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   zero_force_ds_cpu_optimizer .. True
+[2023-08-14 09:02:09,586] [INFO] [config.py:964:print]   zero_optimization_stage ...... 0
+[2023-08-14 09:02:09,586] [INFO] [config.py:950:print_user_config]   json = {
+    "train_batch_size": 48, 
+    "steps_per_print": 2.000000e+03, 
+    "optimizer": {
+        "type": "Adam", 
+        "params": {
+            "lr": 0.001, 
+            "betas": [0.8, 0.999], 
+            "eps": 1e-08, 
+            "weight_decay": 3e-07
+        }
+    }, 
+    "scheduler": {
+        "type": "WarmupLR", 
+        "params": {
+            "warmup_min_lr": 0, 
+            "warmup_max_lr": 0.001, 
+            "warmup_num_steps": 1000
+        }
+    }, 
+    "gradient_clipping": 1, 
+    "prescale_gradients": false, 
+    "fp16": {
+        "enabled": true, 
+        "fp16_master_weights_and_grads": false, 
+        "loss_scale": 0, 
+        "loss_scale_window": 500, 
+        "hysteresis": 2, 
+        "min_loss_scale": 1, 
+        "initial_scale_power": 15
+    }, 
+    "wall_clock_breakdown": false, 
+    "zero_optimization": {
+        "stage": 0, 
+        "allgather_partitions": true, 
+        "reduce_scatter": true, 
+        "allgather_bucket_size": 5.000000e+07, 
+        "reduce_bucket_size": 5.000000e+07, 
+        "overlap_comm": true, 
+        "contiguous_gradients": true, 
+        "cpu_offload": false
+    }
+}
+fp16=True
+[2/3] c++ -MMD -MF fused_adam_frontend.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17 -O3 -std=c++17 -g -Wno-reorder -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DBF16_AVAILABLE -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/fused_adam_frontend.cpp -o fused_adam_frontend.o 
+[2/3] c++ -MMD -MF fused_adam_frontend.o.d -DTORCH_EXTENSION_NAME=fused_adam -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/includes -I/usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam -isystem /usr/local/lib/python3.9/dist-packages/torch/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.9/dist-packages/torch/include/TH -isystem /usr/local/lib/python3.9/dist-packages/torch/include/THC -isystem /usr/local/cuda/include -isystem /usr/include/python3.9 -D_GLIBCXX_USE_CXX11_ABI=0 -fPIC -std=c++17 -O3 -std=c++17 -g -Wno-reorder -DVERSION_GE_1_1 -DVERSION_GE_1_3 -DVERSION_GE_1_5 -DBF16_AVAILABLE -c /usr/local/lib/python3.9/dist-packages/deepspeed/ops/csrc/adam/fused_adam_frontend.cpp -o fused_adam_frontend.o 
+[3/3] c++ fused_adam_frontend.o multi_tensor_adam.cuda.o -shared -L/usr/local/lib/python3.9/dist-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o fused_adam.so
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.951323747634888 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.86196279525757 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.860327005386353 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.86398458480835 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.862210750579834 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.962443113327026 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.862961530685425 seconds
+[3/3] c++ fused_adam_frontend.o multi_tensor_adam.cuda.o -shared -L/usr/local/lib/python3.9/dist-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/usr/local/cuda/lib64 -lcudart -o fused_adam.so
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.965343713760376 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 27.032280683517456 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 26.96516728401184 seconds
+fp16=True
+fp16=True
+Loading extension module fused_adam...
+Time to load fused_adam op: 27.064875841140747 seconds
+Loading extension module fused_adam...
+Time to load fused_adam op: 27.06440782546997 seconds
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+Time to load fused_adam op: 27.065356731414795 seconds
+Time to load fused_adam op: 27.066280841827393 seconds
+Loading extension module fused_adam...
+Loading extension module fused_adam...
+Time to load fused_adam op: 27.067500591278076 seconds
+Loading extension module fused_adam...
+Loading extension module fused_adam...
+Time to load fused_adam op: 27.062982082366943 seconds
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+fp16=True
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 32768, reducing to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,420] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,421] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,422] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 2
+[2023-08-14 09:02:13,423] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 32768 to 16384.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,787] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,787] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,787] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,787] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,787] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,789] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 41
+[2023-08-14 09:02:13,788] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 16384.0 to 8192.0
+[2023-08-14 09:02:13,788] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 16384.0, reducing to 8192.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,935] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,937] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 57
+[2023-08-14 09:02:13,936] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 8192.0 to 4096.0
+[2023-08-14 09:02:13,936] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 8192.0, reducing to 4096.0
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,534] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,535] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 121
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 4096.0 to 2048.0
+[2023-08-14 09:02:14,533] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 4096.0, reducing to 2048.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,437] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,437] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,437] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,440] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,439] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 226
+[2023-08-14 09:02:15,440] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:15,438] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 2048.0, reducing to 1024.0
+[2023-08-14 09:02:15,440] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,033] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,034] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,036] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:20,035] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,317] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 758
+[2023-08-14 09:02:20,318] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:20,318] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 2048.0, reducing to 1024.0
+[2023-08-14 09:02:20,319] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,972] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,971] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,972] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,973] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:24,972] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:24,972] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 2048.0, reducing to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,107] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1274
+[2023-08-14 09:02:25,109] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,566] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,568] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,568] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,568] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,567] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,568] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:370:_update_scale] No Grad overflow for 500 iterations
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,569] [INFO] [fused_optimizer.py:371:_update_scale] Increasing dynamic loss scale from 1024.0 to 2048.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [logging.py:96:log_dist] [Rank 0] Overflow detected. Skipping step. Attempted loss scale: 2048.0, reducing to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,666] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,665] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:362:_update_scale] 
+Grad overflow on iteration 1786
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:29,667] [INFO] [fused_optimizer.py:363:_update_scale] Reducing dynamic loss scale from 2048.0 to 1024.0
+[2023-08-14 09:02:31,652] [INFO] [logging.py:96:log_dist] [Rank 0] step=2000, skipped=8, lr=[0.001], mom=[[0.8, 0.999]]
+[2023-08-14 09:02:31,653] [INFO] [timer.py:215:stop] epoch=0/micro_step=2000/global_step=2000, RunningAvgSamplesPerSec=5317.729535622362, CurrSamplesPerSec=5428.641320174729, MemAllocated=0.02GB, MaxMemAllocated=0.02GB
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+Finished Training
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat  ship  ship  ship
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of the network on the 10000 test images: 55 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:17:1737 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-2:17:17 [1] NCCL INFO comm 0x4d98e940 rank 17 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+dp-mpijob-worker-2:17:632 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-2:17:17 [1] NCCL INFO comm 0x4d2a6c30 rank 17 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:22:1734 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-2:22:22 [6] NCCL INFO comm 0x4bd8a300 rank 22 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+dp-mpijob-worker-2:22:630 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-2:22:22 [6] NCCL INFO comm 0x4b6a45d0 rank 22 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:19:1735 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+dp-mpijob-worker-2:19:19 [3] NCCL INFO comm 0x4dbd6b80 rank 19 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+dp-mpijob-worker-2:19:633 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:19:19 [3] NCCL INFO comm 0x4d4ba2f0 rank 19 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+dp-mpijob-worker-1:23:1734 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-1:23:23 [7] NCCL INFO comm 0x4edeaac0 rank 15 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+dp-mpijob-worker-1:23:632 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+dp-mpijob-worker-1:23:23 [7] NCCL INFO comm 0x4e704a90 rank 15 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:16:1741 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+dp-mpijob-worker-2:16:16 [0] NCCL INFO comm 0x3d763b40 rank 16 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
+dp-mpijob-worker-2:16:634 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+dp-mpijob-worker-2:16:16 [0] NCCL INFO comm 0x3cfa63f0 rank 16 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-0:16:1728 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-0:17:1726 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-0:16:16 [0] NCCL INFO comm 0x40117340 rank 0 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
+dp-mpijob-worker-0:16:637 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+dp-mpijob-worker-0:17:17 [1] NCCL INFO comm 0x4e6a8400 rank 1 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+dp-mpijob-worker-0:17:636 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-1:19:1738 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+dp-mpijob-worker-0:16:16 [0] NCCL INFO comm 0x3f9be040 rank 0 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
+dp-mpijob-worker-0:17:17 [1] NCCL INFO comm 0x4df91bd0 rank 1 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-1:19:19 [3] NCCL INFO comm 0x4e0cc8c0 rank 11 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+dp-mpijob-worker-1:19:630 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:23:1740 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+dp-mpijob-worker-1:19:19 [3] NCCL INFO comm 0x4d9e7190 rank 11 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:23:23 [7] NCCL INFO comm 0x4e15de80 rank 23 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+dp-mpijob-worker-2:23:636 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+dp-mpijob-worker-2:23:23 [7] NCCL INFO comm 0x4da76e70 rank 23 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+dp-mpijob-worker-0:19:1725 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-0:19:19 [3] NCCL INFO comm 0x4f84b8c0 rank 3 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+dp-mpijob-worker-0:19:638 [3] NCCL INFO [Service thread] Connection closed by localRank 3
+Accuracy of plane : 56 %
+Accuracy of   car : 75 %
+Accuracy of  bird : 52 %
+Accuracy of   cat : 33 %
+Accuracy of  deer : 43 %
+Accuracy of   dog : 46 %
+Accuracy of  frog : 57 %
+Accuracy of horse : 66 %
+Accuracy of  ship : 74 %
+Accuracy of truck : 47 %
+dp-mpijob-worker-2:18:1738 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-1:18:1739 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-1:18:18 [2] NCCL INFO comm 0x4cd50240 rank 10 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-1:18:634 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-1:18:18 [2] NCCL INFO comm 0x4c6343a0 rank 10 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-0:19:19 [3] NCCL INFO comm 0x4f134760 rank 3 nranks 24 cudaDev 3 busId 49000 - Abort COMPLETE
+dp-mpijob-worker-0:23:1732 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+dp-mpijob-worker-2:20:1739 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-0:23:23 [7] NCCL INFO comm 0x4dae97c0 rank 7 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+dp-mpijob-worker-0:23:635 [7] NCCL INFO [Service thread] Connection closed by localRank 7
+dp-mpijob-worker-2:21:1736 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-1:21:1735 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-2:18:18 [2] NCCL INFO comm 0x4f1553c0 rank 18 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-2:18:631 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-0:22:1729 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-2:20:20 [4] NCCL INFO comm 0x4e10fcc0 rank 20 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-2:20:637 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-0:23:23 [7] NCCL INFO comm 0x4d3d0360 rank 7 nranks 24 cudaDev 7 busId c2000 - Abort COMPLETE
+dp-mpijob-worker-1:21:21 [5] NCCL INFO comm 0x4ca7a600 rank 13 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-1:21:631 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-2:18:18 [2] NCCL INFO comm 0x4ea39fc0 rank 18 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-0:22:22 [6] NCCL INFO comm 0x4e954500 rank 6 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+dp-mpijob-worker-0:22:641 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-2:20:20 [4] NCCL INFO comm 0x4da28680 rank 20 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-1:21:21 [5] NCCL INFO comm 0x4c35ce20 rank 13 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-2:21:21 [5] NCCL INFO comm 0x4d212fc0 rank 21 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-2:21:635 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-0:22:22 [6] NCCL INFO comm 0x4e23dbb0 rank 6 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+dp-mpijob-worker-2:21:21 [5] NCCL INFO comm 0x4cb2c030 rank 21 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-0:18:1731 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-1:17:1740 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-0:18:18 [2] NCCL INFO comm 0x4d1874c0 rank 2 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-0:18:640 [2] NCCL INFO [Service thread] Connection closed by localRank 2
+dp-mpijob-worker-1:17:17 [1] NCCL INFO comm 0x4f2a5140 rank 9 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+dp-mpijob-worker-1:17:637 [1] NCCL INFO [Service thread] Connection closed by localRank 1
+dp-mpijob-worker-0:18:18 [2] NCCL INFO comm 0x4ca6f930 rank 2 nranks 24 cudaDev 2 busId 48000 - Abort COMPLETE
+dp-mpijob-worker-1:17:17 [1] NCCL INFO comm 0x4ebbec00 rank 9 nranks 24 cudaDev 1 busId 13000 - Abort COMPLETE
+dp-mpijob-worker-0:20:1730 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-0:20:20 [4] NCCL INFO comm 0x4ee0fc00 rank 4 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-0:20:634 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-1:20:1741 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-0:20:20 [4] NCCL INFO comm 0x4e72fa80 rank 4 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-0:21:1727 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-1:20:20 [4] NCCL INFO comm 0x4b817280 rank 12 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-1:20:635 [4] NCCL INFO [Service thread] Connection closed by localRank 4
+dp-mpijob-worker-0:21:21 [5] NCCL INFO comm 0x50aec7c0 rank 5 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-0:21:639 [5] NCCL INFO [Service thread] Connection closed by localRank 5
+dp-mpijob-worker-1:20:20 [4] NCCL INFO comm 0x4b0faf50 rank 12 nranks 24 cudaDev 4 busId 89000 - Abort COMPLETE
+dp-mpijob-worker-1:22:1737 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-1:16:1736 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+dp-mpijob-worker-0:21:21 [5] NCCL INFO comm 0x5040c750 rank 5 nranks 24 cudaDev 5 busId 8a000 - Abort COMPLETE
+dp-mpijob-worker-1:22:22 [6] NCCL INFO comm 0x4f5a6f80 rank 14 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+dp-mpijob-worker-1:22:633 [6] NCCL INFO [Service thread] Connection closed by localRank 6
+dp-mpijob-worker-1:16:16 [0] NCCL INFO comm 0x3d8f4b40 rank 8 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
+dp-mpijob-worker-1:16:636 [0] NCCL INFO [Service thread] Connection closed by localRank 0
+dp-mpijob-worker-1:22:22 [6] NCCL INFO comm 0x4eec4750 rank 14 nranks 24 cudaDev 6 busId c1000 - Abort COMPLETE
+dp-mpijob-worker-1:16:16 [0] NCCL INFO comm 0x3d1387d0 rank 8 nranks 24 cudaDev 0 busId 12000 - Abort COMPLETE
