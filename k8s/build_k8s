@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $# < 1 ]]; then
+if [[ $# < 2 ]]; then
   echo "Build K8S Cluster:  $0 <k8s version>"
   echo "Exiting ..."
   exit 1
