@@ -24,28 +24,28 @@ sudo rm -rf /var/lib/kube*
 rm -rf /var/lib/containerd
 
 # stop容器运行时并disable
-sudo systemctl stop docker.service
-sudo systemctl disable docker.service
-sudo systemctl stop containerd.service
-sudo systemctl disable containerd.service
-sudo apt-get purge docker-ce docker-ce-cli containerd.io
-sudo apt-get remove docker docker-engine docker.io containerd runc
+#sudo systemctl stop docker.service
+#sudo systemctl disable docker.service
+#sudo systemctl stop containerd.service
+#sudo systemctl disable containerd.service
+#sudo apt-get purge docker-ce docker-ce-cli containerd.io
+#sudo apt-get remove docker docker-engine docker.io containerd runc
 
 # 删除docker相关目录和文件
-sudo rm -rf /var/lib/docker /var/lib/containerd /etc/docker
-sudo rm /usr/bin/docker
-sudo rm /usr/bin/containerd
+#sudo rm -rf /var/lib/docker /var/lib/containerd /etc/docker
+#sudo rm /usr/bin/docker
+#sudo rm /usr/bin/containerd
 # 删除contained命令及配置
-rm -rf /usr/local/bin/
-rm -rf /etc/containerd/
+#rm -rf /usr/local/bin/
+#rm -rf /etc/containerd/
 # 删除containerd服务
-rm -rf /usr/local/lib/systemd/system/containerd.service
+#rm -rf /usr/local/lib/systemd/system/containerd.service
 # 删除runc
-rm -rf /usr/local/sbin/runc
+#rm -rf /usr/local/sbin/runc
 # 删除CNI插件
-rm -rf /opt/containerd/
+#rm -rf /opt/containerd/
 # 删除ctr命令
-rm -rf /usr/bin/ctr
+#rm -rf /usr/bin/ctr
 
 # 自动删除不必要的apt包
-sudo apt autoremove
+#sudo apt autoremove
