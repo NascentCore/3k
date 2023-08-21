@@ -10,8 +10,8 @@ bert_deepspeed项目用于将 roberta（类 bert）模型分别在物理机、do
 # 配置虚拟环境
 conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
-git clone git@github.com:NascentCore/bert_deepspeed.git
-cd bert_deepspeed
+git clone git@github.com:NascentCore/3k.git
+cd 3k/examples/bert_deepspeed
 pip install -r requirements.txt
 
 # 单卡
