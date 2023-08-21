@@ -1,0 +1,52 @@
+kind: MPIJob
+metadata:
+  name: dp-mpijob-bert
+spec:
+  slotsPerWorker: 1
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          hostIPC: True
+          containers:
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v2.0
+            name: deepspeed-mpijob-container
+            imagePullPolicy: IfNotPresent
+            command:
+            - mpirun
+            - --allow-run-as-root
+            - -bind-to
+            - none
+            - -map-by
+            - slot
+            - -x
+            - NCCL_DEBUG=INFO
+            - -x
+            - NCCL_P2P_DISABLE=1
+            - -x
+            - LD_LIBRARY_PATH
+            - -x
+            - PATH
+            - -mca
+            - mpi_warn_on_fork
+            - "0"
+            - deepspeed
+            - train_bert_ds.py
+            - --deepspeed_mpi
+            - --checkpoint_dir
+            - ./ds_experiments
+    Worker:
+      replicas: 1
+      template:
+        spec:
+          hostIPC: True
+          containers:
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v2.0
+            name: deepspeed-mpijob-container
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                nvidia.com/gpu: 1
