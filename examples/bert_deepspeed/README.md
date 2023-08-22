@@ -19,4 +19,8 @@ python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
 # 多卡使用本地全部 GPU
 deepspeed train_bert_ds.py --checkpoint_dir ./ds_experiments
+
+# 支持本机任意多卡运行
+# 只有编号为0,2,3的GPU对程序是可见的，在代码中gpu[0]指的是第0块，gpu[1]指的是第2块，gpu[2]指的是第3块
+export CUDA_VISIBLE_DEVICES=0,2,3;deepspeed train_bert_ds.py --checkpoint_dir ./ds_experiments
 ```
