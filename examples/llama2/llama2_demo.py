@@ -6,7 +6,7 @@ from deepspeed.runtime.zero.stage3 import estimate_zero3_model_states_mem_needs_
 from transformers import DataCollatorForLanguageModeling
 from transformers import Trainer, TrainingArguments
 from transformers import LineByLineTextDataset
-import os
+
 
 #parser=argparse.ArgumentParser()
 
@@ -16,7 +16,6 @@ import os
 #parser.add_argument("--local-rank", type=int, default="0")
 #args = parser.parse_args()
 
-#os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:32"
 
 config = LlamaConfig.from_pretrained("./Llama2-Chinese-7b-Chat/config.json")
 tokenizer = LlamaTokenizer.from_pretrained("./Llama2-Chinese-7b-Chat/")
@@ -40,6 +39,7 @@ tokenizer.pad_token = tokenizer.eos_token
 #train_dataset = LineByLineTextDataset(tokenizer=tokenizer,file_path=train_file,block_size=max_seq_length)
 #eval_dataset = LineByLineTextDataset(tokenizer=tokenizer,file_path=eval_file,block_size=max_seq_length)
 
+
 #torch.save(train_dataset,"data/train_dataset_ml8.pt")
 #torch.save(eval_dataset,"data/eval_dataset_ml8.pt")
 
@@ -59,7 +59,6 @@ training_args = TrainingArguments(
         report_to="none",
         deepspeed = "./config/dp_zero3_config.json"
     )
-
 
 trainer = Trainer(
     model=model,
