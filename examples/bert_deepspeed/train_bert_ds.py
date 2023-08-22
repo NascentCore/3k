@@ -31,6 +31,7 @@ from transformers.models.roberta.modeling_roberta import (
     RobertaPreTrainedModel,
 )
 
+os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
 
 def is_rank_0() -> bool:
     return int(os.environ.get("RANK", "0")) == 0
