@@ -8,3 +8,4 @@ sh==1.14.2
 torch==2.0.1
 transformers==4.27.1
 tensorboard
+mpi4py

@@ -1,3 +1,4 @@
+apiVersion: kubeflow.org/v1
 kind: MPIJob
 metadata:
   name: dp-mpijob-bert
