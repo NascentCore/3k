@@ -491,7 +491,7 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
-    exp_dir.mkdir(exist_ok=False)
+    exp_dir.mkdir(exist_ok=True)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
