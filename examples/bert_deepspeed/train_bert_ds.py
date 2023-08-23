@@ -31,7 +31,6 @@ from transformers.models.roberta.modeling_roberta import (
     RobertaPreTrainedModel,
 )
 
-os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
 
 def is_rank_0() -> bool:
     return int(os.environ.get("RANK", "0")) == 0
@@ -336,6 +335,10 @@ class RobertaLMHeadWithMaskedPredict(RobertaLMHead):
 class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
+        
+        #添加用于解决MPI的问题
+        os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
+        
         self.encoder = encoder
         self.lm_head = RobertaLMHeadWithMaskedPredict(
             config, self.encoder.embeddings.word_embeddings.weight)
