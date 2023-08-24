@@ -271,7 +271,7 @@ def create_data_iterator(
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
-    
+
     tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
     #tokenizer = AutoTokenizer.from_pretrained(tokenizer)
     masking_function_partial = partial(
@@ -338,10 +338,10 @@ class RobertaLMHeadWithMaskedPredict(RobertaLMHead):
 class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
-   
+
         #添加用于解决MPI的问题: AssertionError: LOCAL_RANK (3) != OMPI_COMM_WORLD_LOCAL_RANK (2), not sure how to proceed as we're seeing conflicting local rank info.
         os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
-        
+
         self.encoder = encoder
         self.lm_head = RobertaLMHeadWithMaskedPredict(
             config, self.encoder.embeddings.word_embeddings.weight)
@@ -603,12 +603,12 @@ def add_argument():
     parser = argparse.ArgumentParser(description='CIFAR')
 
     parser.add_argument('--checkpoint_dir',default="./ds_experiments",help='save checkpoint file')
-   
+
     parser.add_argument('--local_rank',type=int,default=-1,help='local rank passed from distributed launcher')
 
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
-    
+
     return args
 
 args = add_argument()
@@ -884,5 +884,4 @@ if __name__ == "__main__":
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
-    #fire.Fire(train)
     train(checkpoint_dir=args.checkpoint_dir, local_rank=args.local_rank)
