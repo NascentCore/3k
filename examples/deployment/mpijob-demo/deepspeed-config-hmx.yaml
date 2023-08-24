@@ -3,9 +3,11 @@ kind: MPIJob
 metadata:
   name: dp-mpijob
 spec:
-  slotsPerWorker: 8
+  # This is required to enabled true distributed training.
+  # Setting this to 1 will create 3 separate 8-GPU training jobs.
+  slotsPerWorker: 1
   runPolicy:
-    cleanPodPolicy: Running
+    cleanPodPolicy: All
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
