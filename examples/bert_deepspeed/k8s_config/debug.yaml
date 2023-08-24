@@ -1,27 +1,23 @@
+# Use this to inspect a GPU server on Kubernetes cluster
 apiVersion: v1
 kind: Pod
 metadata:
-  name: bert-ds-gpu-cli
+  name: sleep
 spec:
   restartPolicy: Never
   hostIPC: True
   containers:
     - name: bert-ds-container
+      # TODO(yzhao): Should change to a dummy image.
       image: swr.cn-east-3.myhuaweicloud.com/sxwl/train_bert_deepspeed:v2
       resources:
         limits:
+          # Change this to attach different # of GPUs to this pod
           nvidia.com/gpu: 2
       imagePullPolicy: IfNotPresent
       args:
         - sleep
         - "100000"
-      env:
-      - name: NCCL_P2P_DISABLE
-        value: "1"
-      - name: NCCL_DEBUG
-        value: "INFO"
-      - name: NCCL_IB_DISABLE
-        value: "1"
   tolerations:
   - key: nvidia.com/gpu
     operator: Exists
