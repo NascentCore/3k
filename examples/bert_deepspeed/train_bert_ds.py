@@ -880,4 +880,4 @@ if __name__ == "__main__":
     np.random.seed(0)
     random.seed(0)
     #fire.Fire(train)
-    train(checkpoint_dir=args.checkpoint_dir)
+    train(checkpoint_dir=args.checkpoint_dir, local_rank=args.local_rank)
