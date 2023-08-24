@@ -7,23 +7,22 @@ bert_deepspeed项目用于将 roberta（类 bert）模型分别在物理机、do
 以下代码经测试在 3090 上运行成功
 
 ```
-# 配置虚拟环境
+# Create conda environment: bert_deepspeed
 conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
 git clone git@github.com:NascentCore/3k.git
 cd 3k/examples/bert_deepspeed
 pip install -r requirements.txt
 
-# 单卡
+# Run 1 GPU locally, no deepspeed distributed.
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
 # 多卡使用本地全部 GPU
-deepspeed train_bert_ds.py --checkpoint_dir ./ds_experiments
+deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 # 支持本机任意多卡运行
 # 只有编号为0,2,3的GPU对程序是可见的，在代码中gpu[0]指的是第0块，gpu[1]指的是第2块，gpu[2]指的是第3块
-export CUDA_VISIBLE_DEVICES=0,2,3;deepspeed train_bert_ds.py --checkpoint_dir ./ds_experiments
-
+CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 #多机多卡(以3机24卡为例)
 # 要求：配置hostfile文件；每台机器上代码存储路径都一致，并且对应的conda虚拟环境也一致;各台机器间ssh免密登陆；有.deepspeed_env文件；
