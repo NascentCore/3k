@@ -592,7 +592,21 @@ def load_model_checkpoint(
 ######################################################################
 ######################## Driver Functions ############################
 ######################################################################
+import argparse
+def add_argument():
 
+    parser = argparse.ArgumentParser(description='CIFAR')
+
+    parser.add_argument('--checkpoint_dir',default="./ds_experiments",help='save checkpoint file')
+   
+    parser.add_argument('--local_rank',type=int,default=-1,help='local rank passed from distributed launcher')
+
+    parser = deepspeed.add_config_arguments(parser)
+    args = parser.parse_args()
+    
+    return args
+
+args = add_argument()
 
 def train(
         checkpoint_dir: str = None,
@@ -802,7 +816,8 @@ def train(
              "use_node_local_storage": True
         }
     }
-    model, _, _, _ = deepspeed.initialize(model=model,
+    model, _, _, _ = deepspeed.initialize(args=args,
+                                          model=model,
                                           model_parameters=model.parameters(),
                                           config=ds_config)
     log_dist("DeepSpeed engine created", ranks=[0], level=logging.INFO)
@@ -864,4 +879,5 @@ if __name__ == "__main__":
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
-    fire.Fire(train)
+    #fire.Fire(train)
+    train(checkpoint_dir=args.checkpoint_dir)
