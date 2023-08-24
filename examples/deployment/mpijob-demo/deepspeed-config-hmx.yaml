@@ -35,6 +35,8 @@ spec:
             - -x
             - NCCL_DEBUG=INFO
             - -x
+            # The NCCL_P2P_DISABLE variable disables the peer to peer (P2P) transport,
+            # which uses CUDA direct access between GPUs, using NVLink or PCI.
             - NCCL_P2P_DISABLE=1
             - -x
             - LD_LIBRARY_PATH

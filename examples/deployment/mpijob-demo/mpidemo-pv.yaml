@@ -10,6 +10,9 @@ spec:
     persistentVolumeReclaimPolicy: Recycle
     storageClassName: "mpi-data-pv"
     nfs:
+      # This is the data directory on master, which runs nfs server
       path: "/home/lanyun/hmx/data"
+      # This is the server that runs NFS service:
+      # https://tricorder.feishu.cn/wiki/J6CBwTN56iFzNakAPsrcXLfJnYc
       server: 214.2.5.1
 
