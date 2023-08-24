@@ -32,6 +32,9 @@ from transformers.models.roberta.modeling_roberta import (
 )
 
 
+deepspeed.init_distributed()
+
+
 def is_rank_0() -> bool:
     return int(os.environ.get("RANK", "0")) == 0
 
@@ -336,7 +339,7 @@ class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
    
-        #添加用于解决MPI的问题
+        #添加用于解决MPI的问题: AssertionError: LOCAL_RANK (3) != OMPI_COMM_WORLD_LOCAL_RANK (2), not sure how to proceed as we're seeing conflicting local rank info.
         os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
         
         self.encoder = encoder
