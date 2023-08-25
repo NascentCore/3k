@@ -338,10 +338,10 @@ class RobertaLMHeadWithMaskedPredict(RobertaLMHead):
 class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
-
+   
         #添加用于解决MPI的问题: AssertionError: LOCAL_RANK (3) != OMPI_COMM_WORLD_LOCAL_RANK (2), not sure how to proceed as we're seeing conflicting local rank info.
         os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
-
+      
         self.encoder = encoder
         self.lm_head = RobertaLMHeadWithMaskedPredict(
             config, self.encoder.embeddings.word_embeddings.weight)
@@ -884,4 +884,8 @@ if __name__ == "__main__":
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
+    
+    #fire.Fire(train)
+    print(args)
+
     train(checkpoint_dir=args.checkpoint_dir, local_rank=args.local_rank)
