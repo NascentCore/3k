@@ -41,10 +41,5 @@ cd ${HOME}/kubernetes
 
 echo $pwd | sudo -S cp -r ./kubeflow /root
 echo "运行以下命令将资源部署在k8s："
-echo 'sudo -i'
-echo 'cd kubeflow/manifests/'
-echo 'while ! kustomize build example | awk '!/well-defined/' | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 10; done'
-
-
-
-
+echo "cd ${workpath}/manifests"
+echo "while ! kustomize build example | awk '!/well-defined/' | kubectl apply -f -; do echo 'Retrying to apply resources'; sleep 10; done"
