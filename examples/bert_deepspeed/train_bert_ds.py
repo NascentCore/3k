@@ -338,10 +338,7 @@ class RobertaLMHeadWithMaskedPredict(RobertaLMHead):
 class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
-   
-        #添加用于解决MPI的问题: AssertionError: LOCAL_RANK (3) != OMPI_COMM_WORLD_LOCAL_RANK (2), not sure how to proceed as we're seeing conflicting local rank info.
-        os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
-      
+
         self.encoder = encoder
         self.lm_head = RobertaLMHeadWithMaskedPredict(
             config, self.encoder.embeddings.word_embeddings.weight)
@@ -881,10 +878,43 @@ def train(
 
 
 if __name__ == "__main__":
+    """
+    The error (the information of line numbers may be outdated) we countered is below:
+Traceback (most recent call last):
+  File "train_bert_ds.py", line 865, in <module>
+    fire.Fire(train)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "train_bert_ds.py", line 803, in train
+    model, _, _, _ = deepspeed.initialize(model=model,
+  File "/usr/local/lib/python3.8/dist-packages/deepspeed/__init__.py", line 171, in initialize
+    engine = DeepSpeedEngine(args=args,
+  File "/usr/local/lib/python3.8/dist-packages/deepspeed/runtime/engine.py", line 245, in __init__
+    self._configure_with_arguments(args, mpu)
+  File "/usr/local/lib/python3.8/dist-packages/deepspeed/runtime/engine.py", line 957, in _configure_with_arguments
+    assert ompi_local_rank == local_rank, f"LOCAL_RANK ({local_rank}) != OMPI_COMM_WORLD_LOCAL_RANK ({ompi_local_rank}), " \
+AssertionError: LOCAL_RANK (5) != OMPI_COMM_WORLD_LOCAL_RANK (0), not sure how to proceed as we're seeing conflicting local rank info.
+
+    Ref.: https://www-lb.open-mpi.org/faq/?category=running#mpi-environmental-variables.
+    The MPI env var "OMPI_COMM_WORLD_LOCAL_RANK" is supposed to be defined on every MPI process.
+
+    A detailed discussion - https://github.com/Lightning-AI/lightning/issues/13567.
+
+    As of now (08/26/2023), we are still unsure about the root cause.
+    We guess that calling/reference/dependency chain might be DeepSpeek/PyTorch - NCCL/MPI.
+
+    This line is an ad-hoc fix to the conflicting env vars of OMPI_COMM_WORLD_LOCAL_RANK and LOCAL_RANK.
+    """
+    os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
+
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
-    
+
     #fire.Fire(train)
     print(args)
 
