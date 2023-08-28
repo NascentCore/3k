@@ -493,7 +493,7 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
-    exp_dir.mkdir(exist_ok=True)
+    exp_dir.mkdir(exist_ok=False)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
@@ -600,7 +600,7 @@ def add_argument():
     parser = argparse.ArgumentParser(description='bert')
     
     parser.add_argument('--local_rank',type=int, default=-1,help='local rank passed from distributed launcher')
-    parser.add_argument('--checkpoint_dir',type=str, default="./ds_experiments",help='The base experiment directory to save experiments to')
+    parser.add_argument('--checkpoint_dir',type=str, default=None,help='The base experiment directory to save experiments to')
     parser.add_argument('--load_checkpoint_dir', type=str, default=None, help='')
     parser.add_argument('--mask_prob', type=float, default=0.15, help='The fraction of tokens to mask.')
     parser.add_argument('--random_replace_prob', type=float, default=0.1, help='The fraction of masked tokens to replace with random token.')
@@ -722,7 +722,7 @@ def train(args) -> pathlib.Path:
                  ranks=[0],
                  level=logging.INFO)
         checkpoint_dir = pathlib.Path(checkpoint_dir)
-        checkpoint_dir.mkdir(exist_ok=True)
+        checkpoint_dir.mkdir(exist_ok=False)
         all_arguments = {
             # Dataset Params
             "mask_prob": mask_prob,
