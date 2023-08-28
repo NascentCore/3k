@@ -31,9 +31,17 @@ deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py --checkpoint
 
 ## Container
 
-When code is updated, run the following to build and push new image version.
+When the training PyTorch code is updated, run the following to build and push
+new image version.
 
 ```
 docker build . -t sxwl.harbor.com/sxwl-1/bert:v0
 docker push sxwl.harbor.com/sxwl-1/bert:v0
+```
+
+If you need to update the `bert-base` image:
+
+```
+docker build . -f base.Dockerfile -t sxwl.harbor.com/sxwl-1/bert-base
+docker push sxwl.harbor.com/sxwl-1/bert-base
 ```
