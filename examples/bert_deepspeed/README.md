@@ -12,6 +12,7 @@ conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
 git clone git@github.com:NascentCore/3k.git
 cd 3k/examples/bert_deepspeed
+apt install libopenmpi-dev
 pip install -r requirements.txt
 
 # Run 1 GPU locally, no deepspeed distributed.
