@@ -33,7 +33,7 @@ from transformers.models.roberta.modeling_roberta import (
 
 
 deepspeed.init_distributed()
-
+deepspeed.ops.op_builder.CPUAdamBuilder().load()
 
 def is_rank_0() -> bool:
     return int(os.environ.get("RANK", "0")) == 0
