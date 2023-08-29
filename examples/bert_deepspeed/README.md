@@ -2,6 +2,12 @@
 
 Use Bert as example to test K8s LLM training platform with PyTorch+DeepSpeed.
 
+Based on:
+
+https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
+
+https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert_ds.py
+
 ## Training code
 
 ```
