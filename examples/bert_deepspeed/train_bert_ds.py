@@ -272,8 +272,11 @@ def create_data_iterator(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
 
+    # This uses the configurations cached locally.
     tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
-    #tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    # This uses the configurations from HF, uncomment this to get the uptodate
+    # version of tokenizer config.
+    # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
     masking_function_partial = partial(
         masking_function,
         tokenizer=tokenizer,
@@ -435,7 +438,13 @@ def create_model(num_layers: int, num_heads: int, ff_dim: int, h_dim: int,
         "type_vocab_size": 1,
         "vocab_size": 50265,
     }
-    roberta_config = RobertaConfig.from_dict(roberta_config_dict)
+    # The hyper-parameter configs defined below are for pre-training
+    # Uncomment the code below to test pre-training Bert
+    # roberta_config = RobertaConfig.from_dict(roberta_config_dict)
+
+    # The code below is for loading pre-trained model.
+    roberta_config=RobertaConfig.from_pretrained("roberta-base")
+
     roberta_encoder = RobertaModel(roberta_config)
     roberta_model = RobertaMLMModel(roberta_config, roberta_encoder)
     return roberta_model
@@ -598,7 +607,7 @@ import argparse
 def add_argument():
 
     parser = argparse.ArgumentParser(description='bert')
-    
+
     parser.add_argument('--local_rank',type=int, default=-1,help='local rank passed from distributed launcher')
     parser.add_argument('--checkpoint_dir',type=str, default=None,help='The base experiment directory to save experiments to')
     parser.add_argument('--load_checkpoint_dir', type=str, default=None, help='')
@@ -615,8 +624,8 @@ def add_argument():
     parser.add_argument('--batch_size', type=int, default=8, help='The minibatch size. ')
     parser.add_argument('--num_iterations', type=int, default=10000, help='Total number of iterations to run the model for.')
     parser.add_argument('--checkpoint_every', type=int, default=1000, help='Save checkpoint after these many steps.')
-    parser.add_argument('--log_every', type=int, default=10, help='')    
-    
+    parser.add_argument('--log_every', type=int, default=10, help='')
+
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
 
@@ -696,8 +705,8 @@ def train(args) -> pathlib.Path:
     checkpoint_every = args.checkpoint_every
     log_every = args.log_every
     local_rank = args.local_rank
-    
-    
+
+
     device = (torch.device("cuda", local_rank) if (local_rank > -1)
               and torch.cuda.is_available() else torch.device("cpu"))
     ################################
