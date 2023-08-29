@@ -438,7 +438,13 @@ def create_model(num_layers: int, num_heads: int, ff_dim: int, h_dim: int,
         "type_vocab_size": 1,
         "vocab_size": 50265,
     }
-    roberta_config = RobertaConfig.from_dict(roberta_config_dict)
+    # The hyper-parameter configs defined below are for pre-training
+    # Uncomment the code below to test pre-training Bert
+    # roberta_config = RobertaConfig.from_dict(roberta_config_dict)
+
+    # The code below is for loading pre-trained model.
+    roberta_config=RobertaConfig.from_pretrained("roberta-base")
+
     roberta_encoder = RobertaModel(roberta_config)
     roberta_model = RobertaMLMModel(roberta_config, roberta_encoder)
     return roberta_model
