@@ -481,13 +481,13 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     # experiment name follows the following convention
     # {exp_type}.{YYYY}.{MM}.{DD}.{HH}.{MM}.{SS}.{uuid}
     current_time = datetime.datetime.now(pytz.timezone("US/Pacific"))
-    expname = "bert_pretrain.{0}.{1}.{2}.{3}.{4}.{5}.{6}".format(
+    expname = "bert_pretrain.{0}.{1}.{2}.{3}.{4}.{5}".format(
         current_time.year,
         current_time.month,
         current_time.day,
         current_time.hour,
         current_time.minute,
-        current_time.second,
+        #current_time.second,
         get_unique_identifier(),
     )
     exp_dir = checkpoint_dir / expname
@@ -722,7 +722,7 @@ def train(args) -> pathlib.Path:
                  ranks=[0],
                  level=logging.INFO)
         checkpoint_dir = pathlib.Path(checkpoint_dir)
-        checkpoint_dir.mkdir(exist_ok=False)
+        checkpoint_dir.mkdir(exist_ok=True)
         all_arguments = {
             # Dataset Params
             "mask_prob": mask_prob,
@@ -890,37 +890,6 @@ def train(args) -> pathlib.Path:
 
 
 if __name__ == "__main__":
-    """
-    The error (the information of line numbers may be outdated) we countered is below:
-Traceback (most recent call last):
-  File "train_bert_ds.py", line 865, in <module>
-    fire.Fire(train)
-  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
-    component_trace = _Fire(component, args, parsed_flag_args, context, name)
-  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
-    component, remaining_args = _CallAndUpdateTrace(
-  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
-    component = fn(*varargs, **kwargs)
-  File "train_bert_ds.py", line 803, in train
-    model, _, _, _ = deepspeed.initialize(model=model,
-  File "/usr/local/lib/python3.8/dist-packages/deepspeed/__init__.py", line 171, in initialize
-    engine = DeepSpeedEngine(args=args,
-  File "/usr/local/lib/python3.8/dist-packages/deepspeed/runtime/engine.py", line 245, in __init__
-    self._configure_with_arguments(args, mpu)
-  File "/usr/local/lib/python3.8/dist-packages/deepspeed/runtime/engine.py", line 957, in _configure_with_arguments
-    assert ompi_local_rank == local_rank, f"LOCAL_RANK ({local_rank}) != OMPI_COMM_WORLD_LOCAL_RANK ({ompi_local_rank}), " \
-AssertionError: LOCAL_RANK (5) != OMPI_COMM_WORLD_LOCAL_RANK (0), not sure how to proceed as we're seeing conflicting local rank info.
-
-    Ref.: https://www-lb.open-mpi.org/faq/?category=running#mpi-environmental-variables.
-    The MPI env var "OMPI_COMM_WORLD_LOCAL_RANK" is supposed to be defined on every MPI process.
-
-    A detailed discussion - https://github.com/Lightning-AI/lightning/issues/13567.
-
-    As of now (08/26/2023), we are still unsure about the root cause.
-    We guess that calling/reference/dependency chain might be DeepSpeek/PyTorch - NCCL/MPI.
-
-    This line is an ad-hoc fix to the conflicting env vars of OMPI_COMM_WORLD_LOCAL_RANK and LOCAL_RANK.
-    """
     os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
 
     torch.manual_seed(42)
