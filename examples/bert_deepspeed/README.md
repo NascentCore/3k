@@ -1,10 +1,8 @@
-# 概述
+# Bert
 
-bert_deepspeed项目用于将 roberta（类 bert）模型分别在物理机、docker、k8s上用于验证模型的预训练
+Use Bert as example to test K8s LLM training platform with PyTorch+DeepSpeed.
 
-## 运行训练代码
-
-以下代码经测试在 3090 上运行成功
+## Training code
 
 ```
 # Create conda environment: bert_deepspeed
@@ -29,4 +27,21 @@ CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experim
 # 要求：配置hostfile文件；每台机器上代码存储路径都一致，并且对应的conda虚拟环境也一致;各台机器间ssh免密登陆；有.deepspeed_env文件；
 # 注：当在多个节点上进行训练时，我们发现支持传播用户定义的环境变量非常有用。默认情况下，DeepSpeed 将传播所有设置的 NCCL 和 PYTHON 相关环境变量。如果您想传播其它变量，可以在名为 .deepspeed_env 的文件中指定它们，该文件包含一个行分隔的 VAR=VAL 条目列表。DeepSpeed 启动器将查找你执行的本地路径以及你的主目录（~/）
 deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py --checkpoint_dir ./experiments
+```
+
+## Container
+
+When the training PyTorch code is updated, run the following to build and push
+new image version.
+
+```
+docker build . -t sxwl.harbor.com/sxwl-1/bert:v0
+docker push sxwl.harbor.com/sxwl-1/bert:v0
+```
+
+If you need to update the `bert-base` image:
+
+```
+docker build . -f base.Dockerfile -t sxwl.harbor.com/sxwl-1/bert-base
+docker push sxwl.harbor.com/sxwl-1/bert-base
 ```
