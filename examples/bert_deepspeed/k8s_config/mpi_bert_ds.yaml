@@ -5,7 +5,7 @@ metadata:
 spec:
   slotsPerWorker: 1
   runPolicy:
-    cleanPodPolicy: All
+    cleanPodPolicy: None
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
@@ -13,11 +13,13 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v6.2
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v6.4
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             command:
             - mpirun
+            - -np
+            - "3"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -34,20 +36,21 @@ spec:
             - -mca
             - mpi_warn_on_fork
             - "0"
-            - deepspeed
+            - python3
             - train_bert_ds.py
-            - --deepspeed_mpi
             - --checkpoint_dir
             - ./ds_experiments
+            - --deepspeed_mpi
+            - --deepspeed
     Worker:
       replicas: 3
       template:
         spec:
           hostIPC: True
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v6.2
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v6.4
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 8
+                nvidia.com/gpu: 1

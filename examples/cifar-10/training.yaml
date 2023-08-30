@@ -52,7 +52,7 @@ spec:
             - --deepspeed_config
             - /deepspeed/DeepSpeedExamples/training/cifar/ds_config.json
     Worker:
-      replicas: 3
+      replicas: 24
       template:
         spec:
           hostIPC: True
@@ -66,7 +66,7 @@ spec:
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 8
+                nvidia.com/gpu: 1
             volumeMounts:
               - mountPath: "/deepspeed/DeepSpeedExamples/training/cifar/data"
                 name: mpi-storage
