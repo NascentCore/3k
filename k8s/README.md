@@ -9,7 +9,7 @@
   - chmod a+x add_nodes
   - ./add_nodes node_name username password ip_address
   - node name 可以自己定义！
-- 彻底删除集群可执行`remove_all.sh`脚本
+- kubeconfig 位于 ～/.kube/config，如有需要将该文件拷贝到所需的位置
 - 安装 kubeflow training operator
   ```
   git clone git@github.com:kubeflow/training-operator.git
@@ -18,3 +18,4 @@
   kubectl get crd | grep pytorchjobs
   kubectl get pods -n kubeflow
   ```
+- 彻底删除集群可执行`remove_all.sh`脚本
