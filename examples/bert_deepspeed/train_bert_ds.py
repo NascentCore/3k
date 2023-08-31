@@ -440,10 +440,10 @@ def create_model(num_layers: int, num_heads: int, ff_dim: int, h_dim: int,
     }
     # The hyper-parameter configs defined below are for pre-training
     # Uncomment the code below to test pre-training Bert
-    # roberta_config = RobertaConfig.from_dict(roberta_config_dict)
+    roberta_config = RobertaConfig.from_dict(roberta_config_dict)
 
     # The code below is for loading pre-trained model.
-    roberta_config=RobertaConfig.from_pretrained("roberta-base")
+    # roberta_config=RobertaConfig.from_pretrained("roberta-base")
 
     roberta_encoder = RobertaModel(roberta_config)
     roberta_model = RobertaMLMModel(roberta_config, roberta_encoder)
