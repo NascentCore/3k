@@ -5,7 +5,7 @@ metadata:
 spec:
   slotsPerWorker: 1
   runPolicy:
-    cleanPodPolicy: All
+    cleanPodPolicy: None
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
