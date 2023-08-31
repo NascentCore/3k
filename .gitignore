@@ -13,3 +13,6 @@ examples/llama2/wikitext-103-raw/
 
 # Checkpoint output
 examples/bert_deepspeed/experiments/
+
+# Ignore experiment directory
+*ds_experiments
