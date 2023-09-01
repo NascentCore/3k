@@ -1,10 +1,12 @@
 # We are using MPI Operator V2, might need to be reverted to V1
+# Uncomment this to use the V1 training operator
+# apiVersion: kubeflow.org/v1
 apiVersion: kubeflow.org/v2beta1
 kind: MPIJob
 metadata:
   name: dp-mpijob-bert
 spec:
-  slotsPerWorker: 8
+  slotsPerWorker: 4
   runPolicy:
     # Keep pods around after termination
     cleanPodPolicy: None
@@ -21,7 +23,7 @@ spec:
             command:
             - mpirun
             - -np
-            - "24"
+            - "8"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -45,7 +47,7 @@ spec:
             - --deepspeed_mpi
             - --deepspeed
     Worker:
-      replicas: 3
+      replicas: 2
       template:
         spec:
           hostIPC: True
@@ -55,4 +57,4 @@ spec:
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 8
+                nvidia.com/gpu: 4
