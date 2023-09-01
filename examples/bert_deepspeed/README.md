@@ -41,13 +41,13 @@ When the training PyTorch code is updated, run the following to build and push
 new image version.
 
 ```
-docker build . -t sxwl.harbor.com/sxwl-1/bert:v0
-docker push sxwl.harbor.com/sxwl-1/bert:v0
+docker build . -t swr.cn-east-3.myhuaweicloud.com/sxwl/bert:<version>
+docker push swr.cn-east-3.myhuaweicloud.com/sxwl/bert:<version>
 ```
 
 If you need to update the `bert-base` image:
 
 ```
-docker build . -f base.Dockerfile -t sxwl.harbor.com/sxwl-1/bert-base
-docker push sxwl.harbor.com/sxwl-1/bert-base
+docker build . -f base.Dockerfile -t swr.cn-east-3.myhuaweicloud.com/sxwl/bert-base
+docker push swr.cn-east-3.myhuaweicloud.com/sxwl/bert-base
 ```
