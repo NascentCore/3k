@@ -37,7 +37,7 @@ spec:
             - mpi_warn_on_fork
             - "0"
             - python3
-            - trani_bert_ds_original.py
+            - train_bert_ds_original.py
             - --checkpoint_dir
             - ./ds_experiments
             - --deepspeed_mpi
