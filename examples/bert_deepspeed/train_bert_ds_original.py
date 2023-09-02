@@ -488,7 +488,7 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
-    exp_dir.mkdir(exist_ok=False)
+    exp_dir.mkdir(exist_ok=True)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
@@ -522,7 +522,7 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
             level=logging.INFO)
     # Finally create the Tensorboard Dir
     tb_dir = exp_dir / "tb_dir"
-    tb_dir.mkdir(exist_ok=False)
+    tb_dir.mkdir(exist_ok=True)
     return exp_dir
 
 
