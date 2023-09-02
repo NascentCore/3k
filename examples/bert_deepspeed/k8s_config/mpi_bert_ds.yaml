@@ -3,7 +3,7 @@ kind: MPIJob
 metadata:
   name: dp-mpijob-bert
 spec:
-  slotsPerWorker: 1
+  slotsPerWorker: 8
   runPolicy:
     cleanPodPolicy: None
   mpiReplicaSpecs:
@@ -19,7 +19,7 @@ spec:
             command:
             - mpirun
             - -np
-            - "3"
+            - "24"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -53,4 +53,4 @@ spec:
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 1
+                nvidia.com/gpu: 8
