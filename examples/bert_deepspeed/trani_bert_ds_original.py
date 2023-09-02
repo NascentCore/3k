@@ -264,13 +264,12 @@ def create_data_iterator(
             be able to continuously generate samples
 
     """
-    wikitext_dataset = datasets.load_dataset("wikitext",
-                                             "wikitext-2-v1",
-                                             split="train")
+    wikitext_dataset =datasets.load_from_disk('dataset/wikitext')
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+   # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
     masking_function_partial = partial(
         masking_function,
         tokenizer=tokenizer,
