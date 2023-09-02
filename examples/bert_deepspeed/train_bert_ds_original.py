@@ -670,8 +670,10 @@ def train(
     """
     print ("local_rank value=:")
     print(local_rank)
-    if os.environ.get('OMPI_COMM_WORLD_RANK'):
-        local_rank = int(os.environ.get('OMPI_COMM_WORLD_RANK'))
+    if os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'):
+        local_rank = int(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
+    print ("after assignment local_rank value=:")
+    print(local_rank)
     device = (torch.device(get_accelerator().device_name(), local_rank) if (local_rank > -1)
               and get_accelerator().is_available() else torch.device("cpu"))
     ################################
