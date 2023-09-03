@@ -1,10 +1,12 @@
-apiVersion: kubeflow.org/v1
+# We are using MPI Operator V2, might need to be reverted to V1
+apiVersion: kubeflow.org/v2beta1
 kind: MPIJob
 metadata:
   name: dp-mpijob-bert
 spec:
-  slotsPerWorker: 1
+  slotsPerWorker: 8
   runPolicy:
+    # Keep pods around after termination
     cleanPodPolicy: None
   mpiReplicaSpecs:
     Launcher:
@@ -13,13 +15,13 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v11
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             command:
             - mpirun
             - -np
-            - "3"
+            - "24"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -37,7 +39,7 @@ spec:
             - mpi_warn_on_fork
             - "0"
             - python3
-            - train_bert_ds.py
+            - train_bert_ds_original.py
             - --checkpoint_dir
             - ./ds_experiments
             - --deepspeed_mpi
@@ -48,9 +50,9 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v11
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 1
+                nvidia.com/gpu: 8

@@ -264,13 +264,16 @@ def create_data_iterator(
             be able to continuously generate samples
 
     """
-    wikitext_dataset = datasets.load_dataset("wikitext",
-                                             "wikitext-2-v1",
-                                             split="train")
+    # TODO(yzhao): Change to use command line flags, local or online
+    # wikitext_dataset = datasets.load_dataset("wikitext",
+    #                                          "wikitext-2-v1",
+    #                                          split="train")
+    wikitext_dataset =datasets.load_from_disk('dataset/wikitext')
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
     masking_function_partial = partial(
         masking_function,
         tokenizer=tokenizer,
@@ -489,7 +492,10 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
-    exp_dir.mkdir(exist_ok=False)
+    # TODO(yzhao): Investigate the effect of this on restoring checkpoint.
+    # exist_ok is set to True to allow restarting, this is also needed when
+    # resuming from existing checkpoints.
+    exp_dir.mkdir(exist_ok=True)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
@@ -523,7 +529,9 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
             level=logging.INFO)
     # Finally create the Tensorboard Dir
     tb_dir = exp_dir / "tb_dir"
-    tb_dir.mkdir(exist_ok=False)
+    # TODO(yzhao): Investigate if need to change this.
+    # Same as above for allow existing directory.
+    tb_dir.mkdir(exist_ok=True)
     return exp_dir
 
 
@@ -669,10 +677,9 @@ def train(
         pathlib.Path: The final experiment directory
 
     """
-    print ("local_rank value=:")
-    print(local_rank)
-    if os.environ.get('OMPI_COMM_WORLD_RANK'):
-        local_rank = int(os.environ.get('OMPI_COMM_WORLD_RANK'))
+    # Check for MPI env vars, and assign to local_rank if it's set.
+    if os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'):
+        local_rank = int(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
     device = (torch.device(get_accelerator().device_name(), local_rank) if (local_rank > -1)
               and get_accelerator().is_available() else torch.device("cpu"))
     ################################
@@ -861,18 +868,13 @@ def train(
 
 
 if __name__ == "__main__":
-    print ("OMPI_COMM_WORLD_SIZE:")
-    print(os.environ.get('OMPI_COMM_WORLD_SIZE'))
-    print ("OMPI_COMM_WORLD_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_RANK'))
-    print ("OMPI_COMM_WORLD_LOCAL_SIZE:")
-    print(os.environ.get('OMPI_COMM_WORLD_LOCAL_SIZE'))
-    print ("OMPI_COMM_WORLD_LOCAL_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
-    print ("OMPI_UNIVERSE_SIZE:")
-    print(os.environ.get('OMPI_UNIVERSE_SIZE'))
-    print ("OMPI_COMM_WORLD_NODE_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_NODE_RANK'))
+    print ("OMPI_COMM_WORLD_SIZE:", os.environ.get('OMPI_COMM_WORLD_SIZE'))
+    print ("OMPI_COMM_WORLD_RANK:", os.environ.get('OMPI_COMM_WORLD_RANK'))
+    print ("OMPI_COMM_WORLD_LOCAL_SIZE:", os.environ.get('OMPI_COMM_WORLD_LOCAL_SIZE'))
+    print ("OMPI_COMM_WORLD_LOCAL_RANK:", os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
+    print ("OMPI_UNIVERSE_SIZE:", os.environ.get('OMPI_UNIVERSE_SIZE'))
+    print ("OMPI_COMM_WORLD_NODE_RANK:", os.environ.get('OMPI_COMM_WORLD_NODE_RANK'))
+
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
