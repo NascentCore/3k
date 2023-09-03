@@ -492,6 +492,9 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
+    # TODO(yzhao): Investigate the effect of this on restoring checkpoint.
+    # exist_ok is set to True to allow restarting, this is also needed when
+    # resuming from existing checkpoints.
     exp_dir.mkdir(exist_ok=True)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
@@ -526,6 +529,8 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
             level=logging.INFO)
     # Finally create the Tensorboard Dir
     tb_dir = exp_dir / "tb_dir"
+    # TODO(yzhao): Investigate if need to change this.
+    # Same as above for allow existing directory.
     tb_dir.mkdir(exist_ok=True)
     return exp_dir
 
