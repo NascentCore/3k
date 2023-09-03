@@ -264,11 +264,15 @@ def create_data_iterator(
             be able to continuously generate samples
 
     """
+    # TODO(yzhao): Change to use command line flags, local or online
+    # wikitext_dataset = datasets.load_dataset("wikitext",
+    #                                          "wikitext-2-v1",
+    #                                          split="train")
     wikitext_dataset =datasets.load_from_disk('dataset/wikitext')
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
-   # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
     tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
     masking_function_partial = partial(
         masking_function,
@@ -668,12 +672,9 @@ def train(
         pathlib.Path: The final experiment directory
 
     """
-    print ("local_rank value=:")
-    print(local_rank)
+    # Check for MPI env vars, and assign to local_rank if it's set.
     if os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'):
         local_rank = int(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
-    print ("after assignment local_rank value=:")
-    print(local_rank)
     device = (torch.device(get_accelerator().device_name(), local_rank) if (local_rank > -1)
               and get_accelerator().is_available() else torch.device("cpu"))
     ################################
@@ -863,18 +864,13 @@ def train(
 
 
 if __name__ == "__main__":
-    print ("OMPI_COMM_WORLD_SIZE:")
-    print(os.environ.get('OMPI_COMM_WORLD_SIZE'))
-    print ("OMPI_COMM_WORLD_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_RANK'))
-    print ("OMPI_COMM_WORLD_LOCAL_SIZE:")
-    print(os.environ.get('OMPI_COMM_WORLD_LOCAL_SIZE'))
-    print ("OMPI_COMM_WORLD_LOCAL_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
-    print ("OMPI_UNIVERSE_SIZE:")
-    print(os.environ.get('OMPI_UNIVERSE_SIZE'))
-    print ("OMPI_COMM_WORLD_NODE_RANK:")
-    print(os.environ.get('OMPI_COMM_WORLD_NODE_RANK'))
+    print ("OMPI_COMM_WORLD_SIZE:", os.environ.get('OMPI_COMM_WORLD_SIZE'))
+    print ("OMPI_COMM_WORLD_RANK:", os.environ.get('OMPI_COMM_WORLD_RANK'))
+    print ("OMPI_COMM_WORLD_LOCAL_SIZE:", os.environ.get('OMPI_COMM_WORLD_LOCAL_SIZE'))
+    print ("OMPI_COMM_WORLD_LOCAL_RANK:", os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
+    print ("OMPI_UNIVERSE_SIZE:", os.environ.get('OMPI_UNIVERSE_SIZE'))
+    print ("OMPI_COMM_WORLD_NODE_RANK:", os.environ.get('OMPI_COMM_WORLD_NODE_RANK'))
+
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
