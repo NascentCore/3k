@@ -830,7 +830,6 @@ def train(
         if step >= num_iterations:
             break
         # Move the tensors to device
-        print(device)
         for key, value in batch.items():
             batch[key] = value.to(device)
         # Forward pass
