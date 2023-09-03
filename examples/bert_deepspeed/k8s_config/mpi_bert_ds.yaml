@@ -1,3 +1,4 @@
+# We are using MPI Operator V2, might need to be reverted to V1
 apiVersion: kubeflow.org/v2beta1
 kind: MPIJob
 metadata:
@@ -5,6 +6,7 @@ metadata:
 spec:
   slotsPerWorker: 8
   runPolicy:
+    # Keep pods around after termination
     cleanPodPolicy: None
   mpiReplicaSpecs:
     Launcher:
