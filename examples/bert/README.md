@@ -1,6 +1,6 @@
 # Bert
 
-Use Bert as example to test K8s LLM training platform with PyTorch+DeepSpeed.
+Use Bert training written in PyTorch+DeepSpeed, used to test 3k.
 
 Based on:
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 # Run 1 GPU locally, no deepspeed distributed.
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
-# 多卡使用本地全部 GPU
+# Use all GPUs on localhost
 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 # 支持本机任意多卡运行
@@ -38,7 +38,8 @@ CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experim
 # 如果您想传播其它变量，可以在名为 .deepspeed_env 的文件中指定它们，
 # 该文件包含一个行分隔的 VAR=VAL 条目列表。
 # DeepSpeed 启动器将查找你执行的本地路径以及你的主目录（~/）
-deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py --checkpoint_dir ./experiments
+deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py \
+    --checkpoint_dir ./experiments
 ```
 
 ## Container
