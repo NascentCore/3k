@@ -3,7 +3,7 @@
 # ${HOME}/kubernetes has files for installing kubernetes
 workpath="${HOME}/kubernetes/kubeflow"
 echo "Creating ${workpath} ..."
-mkdir ${workpath}
+mkdir -p ${workpath}
 
 cp local-path-config.yaml "${workpath}local-path-config.yaml"
 cp local-path-storage.yaml "${workpath}local-path-storage.yaml"
