@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/bin/bash -xe
 
-workpath="${HOME}/kubernetes/kubeflow/"
-mkdir ${workpath}
+# ${HOME}/kubernetes has files for installing kubernetes
+workpath="${HOME}/kubernetes/kubeflow"
+echo "Creating ${workpath} ..."
+mkdir -p ${workpath}
 
 cp local-path-config.yaml "${workpath}local-path-config.yaml"
 cp local-path-storage.yaml "${workpath}local-path-storage.yaml"
@@ -9,7 +11,6 @@ cp local-sc.yaml "${workpath}local-sc.yaml"
 cp fix_pvc.py "${workpath}fix_pvc.py"
 
 cd ${workpath}
-echo "create workpath ${workpath} !"
 
 echo "请输入sudo密码："
 read pwd
@@ -21,7 +22,7 @@ echo "local-path storageclass 成功部署:"
 echo $pwd | sudo -S kubectl get po -n local-path-storage
 
 while [ ! -d "${workpath}manifests" ]; do
-    if git clone https://github.com/kubeflow/manifests.git ;then
+    if git clone https://github.com/kubeflow/manifests.git; then
         break
     else
         echo "clone kubeflow 失败，等待5s后重试..."
