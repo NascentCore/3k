@@ -18,5 +18,4 @@
   kubectl get crd | grep pytorchjobs
   kubectl get pods -n kubeflow
   ```
-- 彻底删除集群可执行`remove_all.sh`脚本
 - 删除集群 `./kk delete cluster -f sample.yaml`
