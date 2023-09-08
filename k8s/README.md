@@ -18,4 +18,10 @@
   kubectl get crd | grep pytorchjobs
   kubectl get pods -n kubeflow
   ```
-- 删除集群 `./kk delete cluster -f sample.yaml`
+- 删除集群
+  ```
+  # 首先生成集群的配置文件，包含集群相关的各类信息，指定了如何卸载；这里会生成 sample.yaml
+  ./kk create config --from-cluster --filename=cluster.yaml
+  # 然后使用这个配置文件删除整个集群
+  ./kk delete cluster --filename=cluster.yaml
+  ```
