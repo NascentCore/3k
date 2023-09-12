@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: "dcgm-exporter"
-  namespace: monitoring
+  namespace: gpumon
   labels:
     app.kubernetes.io/name: "dcgm-exporter"
     app.kubernetes.io/version: "2.4.0"
