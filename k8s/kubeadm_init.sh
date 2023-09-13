@@ -16,11 +16,11 @@ kubeadm init \
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-# Make the single master node allowed to be schedule as a worker
+# Make the single master node allowed to be scheduled as a worker
 kubectl taint nodes --all node-role.kubernetes.io/master-
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
-# If failed to apply the yaml file online, manually download it and apply the downloaded local yaml fail.
+# If failed to apply the yaml file online, manually download it and apply the downloaded local yaml file.
 # wget https://docs.projectcalico.org/manifests/calico.yaml
 # kubectl apply -f calico.yaml
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
