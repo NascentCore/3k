@@ -265,6 +265,8 @@ def create_data_iterator(
 
     """
     # TODO(yzhao): Change to use command line flags, local or online
+    # Dataset is from:
+    # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
     # wikitext_dataset = datasets.load_dataset("wikitext",
     #                                          "wikitext-2-v1",
     #                                          split="train")
