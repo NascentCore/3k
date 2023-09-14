@@ -1,0 +1,19 @@
+# Single GPU training on K8s
+apiVersion: v1
+kind: Pod
+metadata:
+  name: for-nccl-test
+spec:
+  runtimeClassName: nvidia
+  restartPolicy: Never
+  containers:
+    - name: for-nccl-test
+      image: swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test:latest
+      resources:
+        limits:
+          nvidia.com/gpu: 2 # requesting 2 GPU
+      imagePullPolicy: IfNotPresent
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
