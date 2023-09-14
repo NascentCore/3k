@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  annotations:
+    meta.helm.sh/release-name: promethues-grafana
+    meta.helm.sh/release-namespace: gpumon
+  labels:
+    app: kube-prometheus-stack-kube-controller-manager
+    app.kubernetes.io/instance: promethues-grafana
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kube-prometheus-stack
+    app.kubernetes.io/version: 51.0.1
+    chart: kube-prometheus-stack-51.0.1
+    heritage: Helm
+    release: promethues-grafana
+  name: promethues-gpumonitor
+  namespace: gpumon
+spec:
+  endpoints:
+  - port: metrics
+    scheme: http
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - gpumon
+  selector:
+    matchLabels:
+       app.kubernetes.io/name: dcgm-exporter
+       app.kubernetes.io/version: 3.1.7
