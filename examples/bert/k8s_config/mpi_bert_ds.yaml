@@ -23,7 +23,7 @@ spec:
             command:
             - mpirun
             - -np
-            - "8"
+            - "12"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -47,7 +47,7 @@ spec:
             - --deepspeed_mpi
             - --deepspeed
     Worker:
-      replicas: 2
+      replicas: 3
       template:
         spec:
           hostIPC: True
