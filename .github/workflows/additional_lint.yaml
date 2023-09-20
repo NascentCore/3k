@@ -1,0 +1,42 @@
+# Codelint is in super-linter, this includes linters not supported
+# in super linter, and custom ones developed in house.
+name: Additional lint
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  check-readme:
+    name: Must have README.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # Check that all directories under src/ have a README.md
+      - name: Check README.md
+        run: .github/scripts/check_readme.sh
+        shell: bash
+  check-markdown-filenam:
+    name: Markdown filename
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # Check that all markdown filenames are uppercase
+      - name: Check markdown files
+        run: .github/scripts/check_markdown_filename.sh
+        shell: bash
+  check-todo:
+    name: TODOs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/scripts/check_todo.sh
+        shell: bash
+  check-dir-naming:
+    name: dir_naming
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/scripts/check_dir_naming.sh
+        shell: bash
