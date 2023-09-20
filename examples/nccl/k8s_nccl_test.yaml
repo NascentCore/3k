@@ -13,6 +13,14 @@ spec:
         limits:
           nvidia.com/gpu: 2 # requesting 2 GPU
       imagePullPolicy: IfNotPresent
+      volumeMounts:
+      - mountPath: /dev/shm
+        name: cache-volume
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 1024Mi
+      name: cache-volume
   tolerations:
   - key: nvidia.com/gpu
     operator: Exists

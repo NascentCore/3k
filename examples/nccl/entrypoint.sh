@@ -1,6 +1,13 @@
 #!/bin/bash -x
+#
+# The entrypoint of the 'for_nccl_test' image
+#
+# -------------------------------------------------------------------
 
 nvidia-smi
+
+python ./nccl_test_locally.py
+exit
 
 # 编译nccl库
 cd nccl

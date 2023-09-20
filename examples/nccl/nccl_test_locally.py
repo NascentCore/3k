@@ -1,4 +1,10 @@
 #!/bin/env python
+#
+# An minimal usecase of NCCL by using pytorch
+#
+# Usage: ./nccl_test_locally.py
+# -------------------------------------------------------------------
+
 import torch
 import os
 import time
