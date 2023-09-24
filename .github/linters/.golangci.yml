@@ -7,14 +7,11 @@ run:
   allow-parallel-runners: true
   timeout: 6m
   skip-dirs:
-  - bazel
+  - .github
   - devops
-  - docs
-  - experimental
+  - examples
   - home
-  - tools
-  - ui
-  - src/agent/wasm/programs
+  - k8s
 
 output:
   sort-results: true
