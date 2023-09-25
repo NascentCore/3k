@@ -40,3 +40,10 @@ jobs:
       - uses: actions/checkout@v3
       - run: .github/scripts/check_dir_naming.sh
         shell: bash
+  check-go-test-file-exists:
+    name: go-test-exists
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/scripts/check_tests.sh
+        shell: bash
