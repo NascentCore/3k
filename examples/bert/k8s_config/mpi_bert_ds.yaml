@@ -17,7 +17,7 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: sxwl.harbor.com/sxwl-1/bert:v10jim
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             command:
@@ -52,7 +52,7 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: sxwl.harbor.com/sxwl-1/bert:v10jim
+          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
             name: deepspeed-mpijob-container
             imagePullPolicy: IfNotPresent
             resources:
