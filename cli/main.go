@@ -1,5 +1,7 @@
 package main
 
+// NO_TEST_NEEDED
+
 import (
 	"log"
 	"os"

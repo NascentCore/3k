@@ -19,6 +19,10 @@ for go_file in $(find . -name '*.go'); do
     echo "${go_file} has '${no_test_needed_marker}'"
     continue
   fi
+  if [[ ${go_file} = *_test.go ]]; then
+    echo "${go_file} is a test file"
+    continue
+  fi
 
   prefix=${go_file%.go}
   go_test_file="${prefix}_test.go"
