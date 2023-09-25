@@ -45,5 +45,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: .github/scripts/check_tests.sh
+      - run: .github/scripts/check_go_tests.sh
         shell: bash
