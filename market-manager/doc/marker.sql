@@ -1,4 +1,4 @@
-# market-manager 数据库表
+# market-manager DB table initialization
 DROP TABLE IF EXISTS `job_scheduler`;
 CREATE TABLE `job_scheduler`
 (

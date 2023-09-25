@@ -3,17 +3,18 @@ package main
 
 import (
 	"flag"
+	"net/http"
+	"strings"
+	_ "sxwl/mm/cmd/docs"
+	mmInit "sxwl/mm/cmd/init"
+	"sxwl/mm/internal/handler"
+	"sxwl/mm/internal/router"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/pflag"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"strings"
-	_ "sxwl/mm/cmd/docs"
-	mmInint "sxwl/mm/cmd/init"
-	"sxwl/mm/internal/handler"
-	"sxwl/mm/internal/router"
 )
 
 // @title Market Manager swagger
@@ -22,7 +23,7 @@ import (
 // @BasePath /api/v1/
 // @host localhost:10012
 func main() {
-	opts := mmInint.NewMarkeManagerOptions()
+	opts := mmInit.NewMarkeManagerOptions()
 	opts.AddFlags(pflag.CommandLine)
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
