@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/urfave/cli/v2"
+
+	"sxwl/3k/common/errors"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 		Name:  "login",
 		Usage: "log in onto the NascentCore.AI platform",
 		Action: func(*cli.Context) error {
-			return nil
+			return errors.UnImpl("login")
 		},
 	}
 
