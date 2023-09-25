@@ -1,13 +1,13 @@
 package auth
 
 func CheckUserId(userid string) (bool, string) {
-	//todo
+	//TODO
 	//check userid with authority server
 	return true, ""
 }
 
 func CheckCPodId(cpodid string) (bool, string) {
-	//todo
+	//TODO
 	//check cpodid with authority server
 	return true, ""
 }
