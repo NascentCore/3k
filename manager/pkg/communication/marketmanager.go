@@ -19,10 +19,11 @@ type TaskPayload struct {
 
 // communicate with market manager get tasks should run in this cpod
 func GetTasks(cpodid string) []task.Task {
+	//TODO
 	return []task.Task{}
 }
 
 func UploadCPodStatus(up UploadPayload) bool {
-
+	//TODO
 	return true
 }
