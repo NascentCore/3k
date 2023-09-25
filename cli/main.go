@@ -11,7 +11,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name:  "login",
+		Name:  "3k",
 		Usage: "log in onto the NascentCore.AI platform",
 		Action: func(*cli.Context) error {
 			return errors.UnImpl("login")
