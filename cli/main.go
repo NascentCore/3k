@@ -9,6 +9,8 @@ import (
 	"sxwl/3k/common/errors"
 )
 
+// This is a CLI that does not do much.
+// Used as the basis for further development.
 func main() {
 	app := &cli.App{
 		Name:  "3k",
