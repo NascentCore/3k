@@ -13,7 +13,3 @@ func TestDeleteWithYaml(t *testing.T) {
 func TestGetTaskStatus(t *testing.T) {
 	//TODO
 }
-
-func TestGetResourceDesc(t *testing.T) {
-	//TODO
-}

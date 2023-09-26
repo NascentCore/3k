@@ -1,5 +1,7 @@
 package task
 
+// NO_TEST_NEEDED
+
 type TaskStage int
 
 const (
