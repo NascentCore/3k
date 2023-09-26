@@ -7,6 +7,8 @@
 nvidia-smi
 
 python ./nccl_test_locally.py
+ifconfig -a
+ibv_devinfo
 exit
 
 # 编译nccl库
