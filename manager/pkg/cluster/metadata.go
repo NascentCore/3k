@@ -1,6 +1,6 @@
 package cluster
 
-//NO_TEST_NEEDED
+// NO_TEST_NEEDED
 
 type GPUDesc struct {
 	//TODO
