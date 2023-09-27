@@ -11,13 +11,17 @@ echo "Checking all go source file has _test.go"
 for go_file in $(find . -name '*.go'); do
   line_count=$(wc -l <${go_file})
   line_count=$((line_count + 0))
+
+  if [[ ${go_file} = *_test.go ]]; then
+    continue
+  fi
+  
+  # If the source file is less than 10 lines, then no test file is needed.
   if [[ ${line_count} < 10 ]]; then
     continue
   fi
+
   if grep "^${no_test_needed_marker}" ${go_file}; then
-    continue
-  fi
-  if [[ ${go_file} = *_test.go ]]; then
     continue
   fi
 
