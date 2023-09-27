@@ -1,5 +1,7 @@
 package kubectl
 
+// NO_TEST_NEEDED
+
 import "sxwl/3k/manager/pkg/job"
 
 func ApplyWithYaml(yamlString string) {
