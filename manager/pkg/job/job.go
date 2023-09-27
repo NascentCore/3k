@@ -1,8 +1,9 @@
 package job
 
 import (
-	"errors"
-	kubeflowmpijob "sxwl/3k/manager/pkg/kubeflow-mpijob"
+	"fmt"
+	commonerrors "sxwl/3k/common/errors"
+	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 )
 
 // NO_TEST_NEEDED
@@ -28,27 +29,42 @@ type JobStatus struct {
 }
 
 type Job struct {
-	JobID       string
-	Namespace   string
-	JobType     JobType
-	Image       string
-	DataPath    string
-	CKPTPath    string
-	GPURequired int
-	Replicas    int
+	JobID                string
+	Namespace            string
+	JobType              JobType
+	Image                string
+	DataPath             string
+	CKPTPath             string
+	GPURequiredPerWorker int
+	Replicas             int
 }
 
-func (t Job) Run() error {
-	if t.JobType == JobTypeMPI {
+func (j Job) Run() error {
+	if j.JobType == JobTypeMPI {
 		return kubeflowmpijob.KubeFlowMPIJob{
-			Name:        t.JobID,
-			Namespace:   t.Namespace,
-			Image:       t.Image,
-			DataPath:    t.DataPath,
-			CKPTPath:    t.CKPTPath,
-			GPURequired: t.GPURequired,
-			Replicas:    t.Replicas,
+			Name:                 j.JobID,
+			Namespace:            j.Namespace,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			CKPTPath:             j.CKPTPath,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Replicas:             j.Replicas,
 		}.Run()
 	}
-	return errors.New("not Impl")
+	return commonerrors.UnImpl(fmt.Sprintf("job of type %d", j.JobType))
+}
+
+func (j Job) Stop() error {
+	if j.JobType == JobTypeMPI {
+		return kubeflowmpijob.KubeFlowMPIJob{
+			Name:                 j.JobID,
+			Namespace:            j.Namespace,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			CKPTPath:             j.CKPTPath,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Replicas:             j.Replicas,
+		}.Delete()
+	}
+	return commonerrors.UnImpl(fmt.Sprintf("job of type %d", j.JobType))
 }

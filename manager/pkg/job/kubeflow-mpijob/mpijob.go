@@ -5,7 +5,7 @@ import (
 )
 
 /**
-* example of MPIJOB
+* an example of Kubeflow MPIJOB
 {
     "apiVersion": "kubeflow.org/v2beta1",
     "kind": "MPIJob",
@@ -133,14 +133,15 @@ import (
 }
 */
 
+// 表示创建一个KubeFLowMPIJob需要知道的信息
 type KubeFlowMPIJob struct {
-	Name        string
-	Namespace   string
-	Image       string
-	DataPath    string
-	CKPTPath    string
-	GPURequired int
-	Replicas    int
+	Name                 string //will be used as metadata.name
+	Namespace            string //k8s namespace
+	Image                string //docker image
+	DataPath             string //path to trainning data
+	CKPTPath             string //path to checkpoint
+	GPURequiredPerWorker int    //
+	Replicas             int    //works
 }
 
 func (kfm KubeFlowMPIJob) GenYaml() string {
@@ -213,7 +214,7 @@ func (kfm KubeFlowMPIJob) genJsonData() map[string]interface{} {
 									"name":            "deepspeed-mpijob-container",
 									"resources": map[string]interface{}{
 										"limits": map[string]interface{}{
-											"nvidia.com/gpu": kfm.GPURequired,
+											"nvidia.com/gpu": kfm.GPURequiredPerWorker,
 										},
 									},
 								},
@@ -238,8 +239,7 @@ func (kfm KubeFlowMPIJob) Run() error {
 }
 
 func (kfm KubeFlowMPIJob) Delete() error {
-	//TODO
-	return nil
+	return clientgo.DeleteWithName(kfm.Namespace, "kubeflow.org", "v2beta1", "mpijobs", kfm.Name)
 }
 
 func (kfm KubeFlowMPIJob) Get() (map[string]interface{}, error) {

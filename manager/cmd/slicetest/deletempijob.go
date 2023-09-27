@@ -15,7 +15,7 @@ func main() {
 		GPURequiredPerWorker: 8,
 		Replicas:             4,
 	}
-	err := t.Run()
+	err := t.Stop()
 	if err != nil {
 		panic(err)
 	}
