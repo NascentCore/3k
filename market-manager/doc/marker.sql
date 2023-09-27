@@ -1,3 +1,4 @@
+# market-manager 数据库表
 DROP TABLE IF EXISTS `job_scheduler`;
 CREATE TABLE `job_scheduler`
 (
@@ -31,9 +32,3 @@ CREATE TABLE `cpod_resource`
 )
     ENGINE = InnoDB
     COMMENT = 'cpod资源表';
-
-
-
-
-
-

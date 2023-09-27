@@ -13,6 +13,7 @@ var (
 	dbOnce   sync.Once
 )
 
+// init DB connection the dsn means MySQL data source name
 func NewMmDb(dsn string) {
 	if dsn == "" {
 		glog.Error("db dsn can not be empty")

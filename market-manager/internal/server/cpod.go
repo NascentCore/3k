@@ -1,14 +1,21 @@
+// NO_TEST_NEEDED
 package server
 
 import (
 	"io/ioutil"
 	"net/http"
-	"sxwl/3k/mm/internal/logic"
+	"sxwl/mm/internal/logic"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 )
 
+// @Summary: cpod jobs scheduler function
+// @Accept json
+// @Produce json
+// @Success 200 {object} db.JobScheduler
+// @Failure 500
+// @Router /api/v1/cpod/job [post]
 func CpodJob(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod request body is %s", string(body))
@@ -27,6 +34,13 @@ func CpodJob(c *gin.Context) {
 	return
 }
 
+// @Summary: cpod jobs scheduler result function
+// @Accept json
+// @Produce json
+// @Param data body req true db.JobScheduler
+// @Success 200
+// @Failure 500
+// @Router /api/v1/cpod/job/result [post]
 func CpodJobResult(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod result request body is %s", string(body))
@@ -44,6 +58,13 @@ func CpodJobResult(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// @Summary: cpod resource function
+// @Accept json
+// @Produce json
+// @Param data body req true db.CpodResources
+// @Success 200
+// @Failure 500
+// @Router /api/v1/cpod/resource [post]
 func CpodResource(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod resource request body is %s", string(body))

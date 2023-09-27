@@ -1,0 +1,31 @@
+basePath: /api/v1/
+host: localhost:10012
+info:
+  contact: {}
+  description: Market Manager API Server
+  title: Market Manager swagger
+  version: "1.0"
+paths:
+  /api/v1/cpod/job:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+  /api/v1/cpod/job/result:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+swagger: "2.0"

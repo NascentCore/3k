@@ -1,3 +1,4 @@
+// NO_TEST_NEEDED
 package db
 
 import "gorm.io/gorm"

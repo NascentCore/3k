@@ -1,18 +1,26 @@
+// NO_TEST_NEEDED
 package main
 
 import (
 	"flag"
-	"net/http"
-	"strings"
-	mmInint "sxwl/3k/mm/cmd/init"
-	"sxwl/3k/mm/internal/handler"
-	"sxwl/3k/mm/internal/router"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/pflag"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
+	"strings"
+	_ "sxwl/mm/cmd/docs"
+	mmInint "sxwl/mm/cmd/init"
+	"sxwl/mm/internal/handler"
+	"sxwl/mm/internal/router"
 )
 
+// @title Market Manager swagger
+// @version 1.0
+// @description Market Manager API Server
+// @BasePath /api/v1/
+// @host localhost:10012
 func main() {
 	opts := mmInint.NewMarkeManagerOptions()
 	opts.AddFlags(pflag.CommandLine)
@@ -24,13 +32,14 @@ func main() {
 		glog.Fatalf(strings.Join(warnMsg, ","))
 		return
 	}
-	glog.V(0).Infof("verify params success the port is %s,%s, the db dsn is %s", opts.Port, opts.DbDsn)
+	glog.V(0).Infof("verify params success the port is %s, the db dsn is %s,the app-market url is %s", opts.Port, opts.DbDsn, opts.AppMarket)
 	handler.NewMmDb(opts.DbDsn)
-	glog.V(0).Info("start marke manager ...")
+	glog.V(0).Info("start market manager ...")
 	gin.SetMode(gin.DebugMode)
 	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	router.CpodRouter(r)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	s := &http.Server{
 		Addr:           opts.Port,
 		Handler:        r,
