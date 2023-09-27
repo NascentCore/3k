@@ -1,4 +1,4 @@
-package cluster
+package resource
 
 //unittest for resource
 //created by congpeiqing

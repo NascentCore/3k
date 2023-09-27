@@ -1,6 +1,4 @@
-package cluster
-
-// NO_TEST_NEEDED
+package resource
 
 type GPUDesc struct {
 	//TODO
@@ -37,4 +35,9 @@ type ClusterDesc struct {
 type ResourceDesc struct {
 	Nodes []NodeDesc
 	ClusterDesc
+}
+
+func GetResourceDesc() ResourceDesc {
+	//TODO
+	return ResourceDesc{}
 }

@@ -6,47 +6,53 @@ import (
 	"fmt"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
-	"sxwl/3k/manager/pkg/cluster"
 	"sxwl/3k/manager/pkg/cluster/kubectl"
 	"sxwl/3k/manager/pkg/communication"
+	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
 
 func main() {
-	if len(os.Args) != 3 {
+	if len(os.Args) != 4 {
+		fmt.Println("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ] [ BASE_URL ]")
 		os.Exit(1)
-		fmt.Println("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ]")
-		return
 	}
+	//check parameters
 	userid := os.Args[1]
-	if ok, msg := auth.CheckUserId(userid); !ok {
-		fmt.Println(msg)
+	if err := auth.CheckUserId(userid); err != nil {
+		panic(err)
 	}
 	cpodid := os.Args[2]
-	if ok, msg := auth.CheckCPodId(cpodid); !ok {
-		fmt.Println(msg)
+	if err := auth.CheckCPodId(cpodid); err != nil {
+		panic(err)
 	}
+
+	base_url := os.Args[3]
+	if err := communication.CheckURL(base_url); err != nil {
+		panic(err)
+	}
+	communication.SetBaseURL(base_url)
 
 	//upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}
-	startUploadResourceInfo(done, cpodid)
+	startUploadInfo(done, cpodid)
 	//get tasks , then run them !!!
 	for {
-		tasks := communication.GetTasks(cpodid)
-		for _, task := range tasks {
-			task.Run()
+		jobs := communication.GetJobs(cpodid)
+		for _, job := range jobs {
+			job.Run()
 		}
 		time.Sleep(time.Second * 10)
 	}
 }
 
-func startUploadResourceInfo(done chan struct{}, cpodid string) {
+func startUploadInfo(done chan struct{}, cpodid string) {
 	ch := make(chan communication.UploadPayload, 1)
 	//collect data
 	go func() {
 		for {
 			select {
-			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: cluster.GetResourceDesc(), TaskStatus: kubectl.GetTaskStatus(), UpdateTime: time.Now()}:
+			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: resource.GetResourceDesc(), JobStatus: kubectl.GetJobStatus(), UpdateTime: time.Now()}:
 			case <-done:
 				break
 			}

@@ -1,15 +1,21 @@
 package communication
 
 import (
-	"sxwl/3k/manager/pkg/cluster"
 	"sxwl/3k/manager/pkg/job"
+	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
+
+var base_url string
+
+func SetBaseURL(url string) {
+	base_url = url
+}
 
 type UploadPayload struct {
 	CPodID       string
 	JobStatus    []job.JobStatus
-	ResourceDesc cluster.ResourceDesc
+	ResourceDesc resource.ResourceDesc
 	UpdateTime   time.Time
 }
 
@@ -26,4 +32,9 @@ func GetJobs(cpodid string) []job.Job {
 func UploadCPodStatus(up UploadPayload) bool {
 	//TODO
 	return true
+}
+
+func CheckURL(url string) error {
+	//TODO
+	return nil
 }

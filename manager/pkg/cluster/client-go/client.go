@@ -1,17 +1,21 @@
 package clientgo
 
+// NO_TEST_NEEDED
+
 import (
 	"errors"
 	"os"
 	"path/filepath"
 
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
 
 var dynamicClient *dynamic.DynamicClient
+var k8sClient *kubernetes.Clientset
 var kubeconfigFile string
 
 // init dynamicClient
@@ -26,6 +30,10 @@ func init() {
 		}
 	}
 	dynamicClient, err = dynamic.NewForConfig(cfg)
+	if err != nil {
+		panic(err)
+	}
+	k8sClient, err = kubernetes.NewForConfig(cfg)
 	if err != nil {
 		panic(err)
 	}
