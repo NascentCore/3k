@@ -28,16 +28,27 @@ type TaskStatus struct {
 }
 
 type Task struct {
-	TaskID   string
-	TaskType TaskType
-	Image    string
-	DataPath string
-	CKPTPath string
+	TaskID      string
+	Namespace   string
+	TaskType    TaskType
+	Image       string
+	DataPath    string
+	CKPTPath    string
+	GPURequired int
+	Replicas    int
 }
 
 func (t Task) Run() error {
 	if t.TaskType == TaskTypeMPI {
-		return kubeflowmpijob.KubeFlowMPIJob{}.Run()
+		return kubeflowmpijob.KubeFlowMPIJob{
+			Name:        t.TaskID,
+			Namespace:   t.Namespace,
+			Image:       t.Image,
+			DataPath:    t.DataPath,
+			CKPTPath:    t.CKPTPath,
+			GPURequired: t.GPURequired,
+			Replicas:    t.Replicas,
+		}.Run()
 	}
 	return errors.New("not Impl")
 }
