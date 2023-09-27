@@ -2,25 +2,25 @@ package communication
 
 import (
 	"sxwl/3k/manager/pkg/cluster"
-	"sxwl/3k/manager/pkg/task"
+	"sxwl/3k/manager/pkg/job"
 	"time"
 )
 
 type UploadPayload struct {
 	CPodID       string
-	TaskStatus   []task.TaskStatus
+	JobStatus    []job.JobStatus
 	ResourceDesc cluster.ResourceDesc
 	UpdateTime   time.Time
 }
 
-type TaskPayload struct {
-	Tasks []task.Task
+type JobPayload struct {
+	Jobs []job.Job
 }
 
-// communicate with market manager get tasks should run in this cpod
-func GetTasks(cpodid string) []task.Task {
+// communicate with market manager get jobs should run in this cpod
+func GetJobs(cpodid string) []job.Job {
 	//TODO
-	return []task.Task{}
+	return []job.Job{}
 }
 
 func UploadCPodStatus(up UploadPayload) bool {

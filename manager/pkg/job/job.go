@@ -1,4 +1,4 @@
-package task
+package job
 
 import (
 	"errors"
@@ -7,30 +7,30 @@ import (
 
 // NO_TEST_NEEDED
 
-type TaskStage int
-type TaskType int
+type JobStage int
+type JobType int
 
 const (
-	TaskStageStart     TaskStage = 0
-	TaskStageRunning   TaskStage = 1
-	TaskStagePending   TaskStage = 2
-	TaskStageFinished  TaskStage = 3
-	TaskStageUploading TaskStage = 4
+	JobStageStart     JobStage = 0
+	JobStageRunning   JobStage = 1
+	JobStagePending   JobStage = 2
+	JobStageFinished  JobStage = 3
+	JobStageUploading JobStage = 4
 )
 
 const (
-	TaskTypeMPI TaskType = 0
+	JobTypeMPI JobType = 0
 )
 
-type TaskStatus struct {
-	TaskID string
-	Stage  TaskStage
+type JobStatus struct {
+	JobID string
+	Stage JobStage
 }
 
-type Task struct {
-	TaskID      string
+type Job struct {
+	JobID       string
 	Namespace   string
-	TaskType    TaskType
+	JobType     JobType
 	Image       string
 	DataPath    string
 	CKPTPath    string
@@ -38,10 +38,10 @@ type Task struct {
 	Replicas    int
 }
 
-func (t Task) Run() error {
-	if t.TaskType == TaskTypeMPI {
+func (t Job) Run() error {
+	if t.JobType == JobTypeMPI {
 		return kubeflowmpijob.KubeFlowMPIJob{
-			Name:        t.TaskID,
+			Name:        t.JobID,
 			Namespace:   t.Namespace,
 			Image:       t.Image,
 			DataPath:    t.DataPath,

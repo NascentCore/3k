@@ -1,6 +1,6 @@
 package kubectl
 
-import "sxwl/3k/manager/pkg/task"
+import "sxwl/3k/manager/pkg/job"
 
 func ApplyWithYaml(yamlString string) {
 	//TODO
@@ -10,7 +10,7 @@ func DeleteWithYaml(yamlString string) {
 	//TODO
 }
 
-func GetTaskStatus() []task.TaskStatus {
+func GetJobStatus() []job.JobStatus {
 	//TODO
-	return []task.TaskStatus{}
+	return []job.JobStatus{}
 }

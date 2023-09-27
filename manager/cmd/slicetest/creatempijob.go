@@ -1,14 +1,14 @@
 package main
 
 import (
-	"sxwl/3k/manager/pkg/task"
+	"sxwl/3k/manager/pkg/job"
 )
 
 func main() {
-	t := task.Task{
-		TaskID:      "mpijobtest1111",
+	t := job.Job{
+		JobID:       "mpijobtest1111",
 		Namespace:   "cpq",
-		TaskType:    task.TaskTypeMPI,
+		JobType:     job.JobTypeMPI,
 		Image:       "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
 		DataPath:    "",
 		CKPTPath:    "./ds_experiments",
