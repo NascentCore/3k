@@ -1,24 +1,21 @@
 package main
 
-import clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+import (
+	"sxwl/3k/manager/pkg/task"
+)
 
-// cross compile
-// CGO_ENABLED=0  GOOS=linux  GOARCH=amd64  go build main.go
-// ssh -p 60022 peiqing@219.159.22.20
 func main() {
-	data := map[string]interface{}{
-		"apiVersion": "sxwl.ai/v1",
-		"kind":       "MngJob",
-		"metadata": map[string]interface{}{
-			"name": "secondjob", //!!!must be subdomain
-		},
-		"spec": map[string]interface{}{
-			"replicas": 2,
-			"jobName":  "my second job",
-			"image":    "my awesome image",
-		},
+	t := task.Task{
+		TaskID:      "mpijobtest1111",
+		Namespace:   "cpq",
+		TaskType:    task.TaskTypeMPI,
+		Image:       "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
+		DataPath:    "",
+		CKPTPath:    "./ds_experiments",
+		GPURequired: 8,
+		Replicas:    4,
 	}
-	err := clientgo.ApplyWithJsonData("cpq", "sxwl.ai", "v1", "mngjobs", data)
+	err := t.Run()
 	if err != nil {
 		panic(err)
 	}
