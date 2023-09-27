@@ -31,4 +31,4 @@ CREATE TABLE `cpod_resource`
     UNIQUE INDEX `idx_cpod_id`(`cpod_id`)
 )
     ENGINE = InnoDB
-    COMMENT = 'cpod资源表';
+    COMMENT = 'cpod resources table';
