@@ -7,8 +7,8 @@ import (
 	"os"
 	"sxwl/3k/manager/pkg/auth"
 	"sxwl/3k/manager/pkg/cluster"
+	"sxwl/3k/manager/pkg/cluster/kubectl"
 	"sxwl/3k/manager/pkg/communication"
-	"sxwl/3k/manager/pkg/mpi"
 	"time"
 )
 
@@ -27,15 +27,14 @@ func main() {
 		fmt.Println(msg)
 	}
 
-	//upload resource info , also as heartbeat , indicate this cpod is alive and ready for tasks
+	//upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}
 	startUploadResourceInfo(done, cpodid)
 	//get tasks , then run them !!!
 	for {
 		tasks := communication.GetTasks(cpodid)
 		for _, task := range tasks {
-			yaml := mpi.GenYaml(task)
-			cluster.ApplyWithYaml(yaml)
+			task.Run()
 		}
 		time.Sleep(time.Second * 10)
 	}
@@ -43,10 +42,11 @@ func main() {
 
 func startUploadResourceInfo(done chan struct{}, cpodid string) {
 	ch := make(chan communication.UploadPayload, 1)
+	//collect data
 	go func() {
 		for {
 			select {
-			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: cluster.GetResourceDesc(), TaskStatus: cluster.GetTaskStatus(), UpdateTime: time.Now()}:
+			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: cluster.GetResourceDesc(), TaskStatus: kubectl.GetTaskStatus(), UpdateTime: time.Now()}:
 			case <-done:
 				break
 			}
@@ -54,6 +54,7 @@ func startUploadResourceInfo(done chan struct{}, cpodid string) {
 		}
 	}()
 
+	//upload data , even data is not updated
 	go func() {
 		var payload communication.UploadPayload
 		for {
