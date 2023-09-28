@@ -4,6 +4,7 @@ import (
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 )
 
+// TODO: 根据实际情况增加或者删除一些字段
 // 表示创建一个KubeFLowMPIJob需要知道的信息
 type KubeFlowMPIJob struct {
 	Name                 string //will be used as metadata.name

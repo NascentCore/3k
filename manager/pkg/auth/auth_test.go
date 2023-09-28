@@ -3,9 +3,9 @@ package auth
 import "testing"
 
 func TestCheckUserId(t *testing.T) {
-	// TODO:
+	// TODO
 }
 
 func TestCheckCPodId(t *testing.T) {
-	// TODO:
+	// TODO
 }
