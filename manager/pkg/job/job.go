@@ -68,3 +68,7 @@ func (j Job) Stop() error {
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %d", j.JobType))
 }
+
+func GetJobStatus() []JobStatus {
+	return nil
+}

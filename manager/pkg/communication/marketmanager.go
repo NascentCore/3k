@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-var base_url string
+var baseURL string
 
 func SetBaseURL(url string) {
-	base_url = url
+	baseURL = url
 }
 
 type UploadPayload struct {
@@ -25,16 +25,18 @@ type JobPayload struct {
 
 // communicate with market manager get jobs should run in this cpod
 func GetJobs(cpodid string) []job.Job {
-	//TODO
+	// TODO: implement it
 	return []job.Job{}
 }
 
+// upload cpod info to marketmanager
 func UploadCPodStatus(up UploadPayload) bool {
-	//TODO
+	// TODO: implement it
 	return true
 }
 
+// check the given url by make a test call
 func CheckURL(url string) error {
-	//TODO
+	// TODO: implement it
 	return nil
 }

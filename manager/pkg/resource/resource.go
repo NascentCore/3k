@@ -1,23 +1,23 @@
 package resource
 
 type GPUDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type CPUDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type MemDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type StorageDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type NetworkDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type NodeDesc struct {
@@ -29,7 +29,7 @@ type NodeDesc struct {
 }
 
 type ClusterDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type ResourceDesc struct {
@@ -38,6 +38,6 @@ type ResourceDesc struct {
 }
 
 func GetResourceDesc() ResourceDesc {
-	//TODO
+	// TODO: get resource info from cluster and monitor system
 	return ResourceDesc{}
 }

@@ -12,14 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-func ApplyWithYaml(yamlString string) {
-	//TODO
-}
-
-func DeleteWithYaml(yamlString string) {
-	//TODO
-}
-
 func GetObjectData(namespace, group, version, resources, name string) (map[string]interface{}, error) {
 	crd := schema.GroupVersionResource{Group: group, Version: version, Resource: resources}
 	data, err := dynamicClient.Resource(crd).Namespace(namespace).Get(context.TODO(), name, metav1.GetOptions{})
@@ -29,7 +21,7 @@ func GetObjectData(namespace, group, version, resources, name string) (map[strin
 	return data.Object, nil
 }
 
-func GetObjectNames(namespace, group, version, resources string) (map[string]interface{}, error) {
+func GetObjects(namespace, group, version, resources string) (map[string]interface{}, error) {
 	crd := schema.GroupVersionResource{Group: group, Version: version, Resource: resources}
 	data, err := dynamicClient.Resource(crd).Namespace(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {

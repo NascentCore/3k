@@ -4,135 +4,6 @@ import (
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 )
 
-/**
-* an example of Kubeflow MPIJOB
-{
-    "apiVersion": "kubeflow.org/v2beta1",
-    "kind": "MPIJob",
-    "metadata": {
-        "annotations": {
-            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"kubeflow.org/v2beta1\",\"kind\":\"MPIJob\",\"metadata\":{\"annotations\":{},\"name\":\"dp-mpijob-bert\",\"namespace\":\"default\"},\"spec\":{\"mpiReplicaSpecs\":{\"Launcher\":{\"replicas\":1,\"template\":{\"spec\":{\"containers\":[{\"command\":[\"mpirun\",\"-np\",\"32\",\"--allow-run-as-root\",\"-bind-to\",\"none\",\"-map-by\",\"slot\",\"-x\",\"NCCL_DEBUG=INFO\",\"-x\",\"NCCL_P2P_DISABLE=1\",\"-x\",\"LD_LIBRARY_PATH\",\"-x\",\"PATH\",\"-mca\",\"mpi_warn_on_fork\",\"0\",\"python3\",\"train_bert_ds_original.py\",\"--checkpoint_dir\",\"./ds_experiments\",\"--deepspeed_mpi\",\"--deepspeed\"],\"image\":\"swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"deepspeed-mpijob-container\"}],\"hostIPC\":true}}},\"Worker\":{\"replicas\":4,\"template\":{\"spec\":{\"containers\":[{\"image\":\"swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"deepspeed-mpijob-container\",\"resources\":{\"limits\":{\"nvidia.com/gpu\":8}}}],\"hostIPC\":true}}}},\"runPolicy\":{\"cleanPodPolicy\":\"None\"},\"slotsPerWorker\":8}}\n"
-        },
-        "creationTimestamp": "2023-09-26T02:56:41Z",
-        "generation": 1,
-        "name": "dp-mpijob-bert",
-        "namespace": "default",
-        "resourceVersion": "1145161",
-        "uid": "94d3af95-0e61-46bb-a6ff-648de4ea89f9"
-    },
-    "spec": {
-        "launcherCreationPolicy": "AtStartup",
-        "mpiImplementation": "OpenMPI",
-        "mpiReplicaSpecs": {
-            "Launcher": {
-                "replicas": 1,
-                "template": {
-                    "spec": {
-                        "containers": [
-                            {
-                                "command": [
-                                    "mpirun",
-                                    "-np",
-                                    "32",
-                                    "--allow-run-as-root",
-                                    "-bind-to",
-                                    "none",
-                                    "-map-by",
-                                    "slot",
-                                    "-x",
-                                    "NCCL_DEBUG=INFO",
-                                    "-x",
-                                    "NCCL_P2P_DISABLE=1",
-                                    "-x",
-                                    "LD_LIBRARY_PATH",
-                                    "-x",
-                                    "PATH",
-                                    "-mca",
-                                    "mpi_warn_on_fork",
-                                    "0",
-                                    "python3",
-                                    "train_bert_ds_original.py",
-                                    "--checkpoint_dir",
-                                    "./ds_experiments",
-                                    "--deepspeed_mpi",
-                                    "--deepspeed"
-                                ],
-                                "image": "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
-                                "imagePullPolicy": "IfNotPresent",
-                                "name": "deepspeed-mpijob-container"
-                            }
-                        ],
-                        "hostIPC": true
-                    }
-                }
-            },
-            "Worker": {
-                "replicas": 4,
-                "template": {
-                    "spec": {
-                        "containers": [
-                            {
-                                "image": "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
-                                "imagePullPolicy": "IfNotPresent",
-                                "name": "deepspeed-mpijob-container",
-                                "resources": {
-                                    "limits": {
-                                        "nvidia.com/gpu": 8
-                                    }
-                                }
-                            }
-                        ],
-                        "hostIPC": true
-                    }
-                }
-            }
-        },
-        "runPolicy": {
-            "cleanPodPolicy": "None",
-            "suspend": false
-        },
-        "slotsPerWorker": 8,
-        "sshAuthMountPath": "/root/.ssh"
-    },
-    "status": {
-        "completionTime": "2023-09-26T04:03:07Z",
-        "conditions": [
-            {
-                "lastTransitionTime": "2023-09-26T02:56:44Z",
-                "lastUpdateTime": "2023-09-26T02:56:44Z",
-                "message": "MPIJob default/dp-mpijob-bert is created.",
-                "reason": "MPIJobCreated",
-                "status": "True",
-                "type": "Created"
-            },
-            {
-                "lastTransitionTime": "2023-09-26T04:03:07Z",
-                "lastUpdateTime": "2023-09-26T04:03:07Z",
-                "message": "Job has reached the specified backoff limit",
-                "reason": "BackoffLimitExceeded",
-                "status": "True",
-                "type": "Failed"
-            },
-            {
-                "lastTransitionTime": "2023-09-26T04:03:07Z",
-                "lastUpdateTime": "2023-09-26T04:03:07Z",
-                "message": "MPIJob default/dp-mpijob-bert is running.",
-                "reason": "MPIJobRunning",
-                "status": "True",
-                "type": "Running"
-            }
-        ],
-        "replicaStatuses": {
-            "Launcher": {
-                "failed": 1
-            },
-            "Worker": {}
-        },
-        "startTime": "2023-09-26T02:56:44Z"
-    }
-}
-*/
-
 // 表示创建一个KubeFLowMPIJob需要知道的信息
 type KubeFlowMPIJob struct {
 	Name                 string //will be used as metadata.name
@@ -145,7 +16,7 @@ type KubeFlowMPIJob struct {
 }
 
 func (kfm KubeFlowMPIJob) GenYaml() string {
-	//TODO
+	// TODO: impl it if needed
 	return ""
 }
 
@@ -243,11 +114,11 @@ func (kfm KubeFlowMPIJob) Delete() error {
 }
 
 func (kfm KubeFlowMPIJob) Get() (map[string]interface{}, error) {
-	//TODO
+	// TODO: impl it
 	return nil, nil
 }
 
 func ListMPIJob() error {
-	//TODO
+	// TODO: impl it
 	return nil
 }

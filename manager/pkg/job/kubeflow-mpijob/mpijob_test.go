@@ -3,9 +3,9 @@ package kubeflowmpijob
 import "testing"
 
 func TestGenYaml(t *testing.T) {
-	//TODO
+	// TODO:
 }
 
 func TestGenJsonData(t *testing.T) {
-	//TODO
+	// TODO:
 }

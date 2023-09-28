@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
-	"sxwl/3k/manager/pkg/cluster/kubectl"
 	"sxwl/3k/manager/pkg/communication"
+	"sxwl/3k/manager/pkg/job"
 	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
@@ -52,7 +52,7 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 	go func() {
 		for {
 			select {
-			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: resource.GetResourceDesc(), JobStatus: kubectl.GetJobStatus(), UpdateTime: time.Now()}:
+			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: resource.GetResourceDesc(), JobStatus: job.GetJobStatus(), UpdateTime: time.Now()}:
 			case <-done:
 				break
 			}
