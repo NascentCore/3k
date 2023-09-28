@@ -1,4 +1,4 @@
-package cluster
+package resource
 
 //unittest for resource
 //created by congpeiqing
@@ -6,5 +6,5 @@ package cluster
 import "testing"
 
 func TestGetResourceDesc(t *testing.T) {
-	//TODO
+	// TODO:
 }

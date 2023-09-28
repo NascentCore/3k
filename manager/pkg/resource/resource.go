@@ -1,25 +1,23 @@
-package cluster
-
-// NO_TEST_NEEDED
+package resource
 
 type GPUDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type CPUDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type MemDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type StorageDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type NetworkDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type NodeDesc struct {
@@ -31,10 +29,15 @@ type NodeDesc struct {
 }
 
 type ClusterDesc struct {
-	//TODO
+	// TODO: fill the struct
 }
 
 type ResourceDesc struct {
 	Nodes []NodeDesc
 	ClusterDesc
+}
+
+func GetResourceDesc() ResourceDesc {
+	// TODO: get resource info from cluster and monitor system
+	return ResourceDesc{}
 }

@@ -1,9 +1,9 @@
 package storage
 
 func HWUploadFile(filename string) {
-	//TODO
+	// TODO
 }
 
 func HWDownloadFile(url string, filename string) {
-	//TODO
+	// TODO
 }
