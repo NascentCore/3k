@@ -1,12 +1,6 @@
 package common
 
-type Response struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
-}
-
-type CodJobInfo struct {
+type CpodJobInfo struct {
 	JobId     string `json:"job_id"`
 	CpodJobId string `json:"cpod_job_id"`
 	CpodId    string `json:"cpod_job_id"`

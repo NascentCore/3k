@@ -16,7 +16,7 @@ import (
 	"sxwl/mm/internal/router"
 )
 
-// @title Market Manager swagger
+// @title Market Manager Api
 // @version 1.0
 // @description Market Manager API Server
 // @BasePath /api/v1/

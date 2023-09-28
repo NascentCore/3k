@@ -14,6 +14,7 @@ func CpodJobLogical(body []byte) (string, error) {
 		glog.Errorf("cpodJobLogical failed to unmarshal job: %v", err)
 		return "cpodJobLogical failed to unmarshal job error", err
 	}
+
 	return "", nil
 	//return job.CreateJob(handler.DbClinet)
 }
