@@ -2,7 +2,7 @@
 
 echo "Checking markdown files are named with uppercase chars"
 found_md_not_upper=false
-for mdfile in $(find cli manager tools -name '*.md'); do
+for mdfile in $(find home cli manager tools market-manager -name '*.md'); do
   fname=$(basename ${mdfile})
   if ! [[ ${fname%%.md} =~ ^[A-Z_]+$ ]]; then
     found_md_not_upper=true
