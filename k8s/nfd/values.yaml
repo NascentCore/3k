@@ -30,3 +30,13 @@ node-feature-discovery:
           - "0302"
           deviceLabelFields:
           - vendor
+  master:
+    serviceAccount:
+      name: node-feature-discovery
+      create: true
+    config:
+      extraLabelNs: ["nvidia.com"]
+      # noPublish: false
+      # resourceLabels: ["nvidia.com/feature-1","nvidia.com/feature-2"]
+      # enableTaints: false
+      # labelWhiteList: "nvidia.com/gpu"
