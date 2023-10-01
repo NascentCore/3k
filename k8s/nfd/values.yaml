@@ -1,0 +1,32 @@
+# Copied from https://github.com/NVIDIA/gpu-operator/blob/master/deployments/gpu-operator/values.yaml
+node-feature-discovery:
+  enableNodeFeatureApi: true
+  worker:
+    serviceAccount:
+      name: node-feature-discovery
+      # disable creation to avoid duplicate serviceaccount creation by master spec below
+      create: false
+    tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Equal"
+      value: ""
+      effect: "NoSchedule"
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+    config:
+      sources:
+        pci:
+          # The following items are required to discover and accept NVIDIA devices
+          deviceClassWhitelist:
+          - "02"
+          - "0200"
+          - "0207"
+          - "0300"
+          - "0302"
+          deviceLabelFields:
+          - vendor
