@@ -5,10 +5,9 @@ package main
 import (
 	"log"
 	"os"
+	"sxwl/3k/common/errors"
 
 	"github.com/urfave/cli/v2"
-
-	"sxwl/3k/common/errors"
 )
 
 // This is a CLI that does not do much.
