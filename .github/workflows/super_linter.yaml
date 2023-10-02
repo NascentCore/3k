@@ -1,6 +1,6 @@
 # Individual linter configurations template:
 # https://github.com/github/super-linter#template-rules-files
-# Configs are under .github/linters
+# Configs are dot files under .github/linters (non-visible under the directory)
 name: Super Linter
 on:
   pull_request:
