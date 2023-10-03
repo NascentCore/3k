@@ -2,7 +2,7 @@ package clientgo
 
 // NO_TEST_NEEDED
 
-//operater cluster with client-go.
+// operater cluster with client-go.
 import (
 	"context"
 
