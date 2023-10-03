@@ -21,7 +21,5 @@
 
 ## Notes
 
-* `.golangci.yml` is a symlink for `tools/lint.sh` to run `golangci-lint`,
-  because `golangci-lint` expects config file in the top directory of repo.
 * Add `// nolint:<linter name>` to disable a check of golangci-lint, for
   example: `// nolint:unused`.
