@@ -43,7 +43,7 @@ func main() {
 		for _, job := range jobs {
 			err := job.Run()
 			if err != nil {
-				log.Printf("Job %v run failed, error: %v", err)
+				log.Printf("Job %v run failed, error: %v", job, err)
 			}
 		}
 		time.Sleep(time.Second * 10)
