@@ -16,9 +16,21 @@ run:
 output:
   sort-results: true
 
+# Configurations are at:
+# https://golangci-lint.run/usage/configuration/#issues-configuration
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+  # Show only new issues: if there are unstaged changes or untracked files,
+  # only those changes are analyzed, else only changes in HEAD~ are analyzed.
+  # It's a super-useful option for integration of golangci-lint into existing large codebase.
+  # It's not practical to fix all existing issues at the moment of integration:
+  # much better don't allow issues in new code.
+  #
+  # Default: false.
+  new: true
+  # Fix found issues (if it's supported by the linter).
+  fix: true
 
 linters:
   disable-all: true
@@ -44,7 +56,9 @@ linters:
   - whitespace
   - goimports
   - revive
-  - depguard
+  # depguard checks imports are from specified repos/packages, that is too
+  # restrictive for rapid prototyping, so we disabled it.
+  # - depguard
 
 linters-settings:
   errcheck:

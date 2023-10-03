@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
 	"sxwl/3k/manager/pkg/communication"
@@ -17,7 +18,7 @@ func main() {
 		fmt.Println("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ] [ BASE_URL ]")
 		os.Exit(1)
 	}
-	//check parameters
+	// check parameters
 	userid := os.Args[1]
 	if err := auth.CheckUserId(userid); err != nil {
 		panic(err)
@@ -33,14 +34,17 @@ func main() {
 	}
 	communication.SetBaseURL(base_url)
 
-	//upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
+	// upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}
 	startUploadInfo(done, cpodid)
-	//get tasks , then run them !!!
+	// get tasks , then run them !!!
 	for {
 		jobs := communication.GetJobs(cpodid)
 		for _, job := range jobs {
-			job.Run()
+			err := job.Run()
+			if err != nil {
+				log.Printf("Job %v run failed, error: %v", job, err)
+			}
 		}
 		time.Sleep(time.Second * 10)
 	}
@@ -48,11 +52,16 @@ func main() {
 
 func startUploadInfo(done chan struct{}, cpodid string) {
 	ch := make(chan communication.UploadPayload, 1)
-	//collect data
+	// collect data
 	go func() {
 		for {
 			select {
-			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: resource.GetResourceDesc(), JobStatus: job.GetJobStatus(), UpdateTime: time.Now()}:
+			case ch <- communication.UploadPayload{
+				CPodID:       cpodid,
+				ResourceDesc: resource.GetResourceDesc(),
+				JobStatus:    job.GetJobStatus(),
+				UpdateTime:   time.Now(),
+			}:
 			case <-done:
 				break
 			}
@@ -60,7 +69,7 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 		}
 	}()
 
-	//upload data , even data is not updated
+	// upload data , even data is not updated
 	go func() {
 		var payload communication.UploadPayload
 		for {
@@ -69,7 +78,7 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 			case <-done:
 				break
 			default:
-				//do nothing ,  still do the upload but data will be old
+				// do nothing ,  still do the upload but data will be old
 			}
 			communication.UploadCPodStatus(payload)
 		}

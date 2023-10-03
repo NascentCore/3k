@@ -14,11 +14,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-var dynamicClient *dynamic.DynamicClient
-var k8sClient *kubernetes.Clientset
-var kubeconfigFile string
+var (
+	dynamicClient  *dynamic.DynamicClient
+	k8sClient      *kubernetes.Clientset
+	kubeconfigFile string
+)
 
-// init dynamicClient
+// init dynamicClient.
 func init() {
 	var cfg *rest.Config
 	var err error
@@ -43,16 +45,16 @@ func SetKubeConfigFile(filename string) {
 	kubeconfigFile = filename
 }
 
-// try to create the in-cluster config
+// try to create the in-cluster config.
 func inClusterConfig() (*rest.Config, error) {
 	return rest.InClusterConfig()
 }
 
-// try to create the out-cluster config
+// try to create the out-cluster config.
 func outClusterConfig() (*rest.Config, error) {
 	filename := ""
 	if kubeconfigFile == "" {
-		//not provided , use conventional path
+		// not provided , use conventional path
 		if home := homedir.HomeDir(); home != "" {
 			filename = filepath.Join(home, ".kube", "config")
 		} else {

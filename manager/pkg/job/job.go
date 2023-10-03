@@ -8,30 +8,32 @@ import (
 
 // NO_TEST_NEEDED
 
-type JobStage int
-type JobType int
-
-const (
-	JobStageStart     JobStage = 0
-	JobStageRunning   JobStage = 1
-	JobStagePending   JobStage = 2
-	JobStageFinished  JobStage = 3
-	JobStageUploading JobStage = 4
+type (
+	Stage int
+	Type  int
 )
 
 const (
-	JobTypeMPI JobType = 0
+	JobStageStart     Stage = 0
+	JobStageRunning   Stage = 1
+	JobStagePending   Stage = 2
+	JobStageFinished  Stage = 3
+	JobStageUploading Stage = 4
+)
+
+const (
+	JobTypeMPI Type = 0
 )
 
 type JobStatus struct {
-	JobID string
-	Stage JobStage
+	JobID    string
+	JobStage Stage
 }
 
 type Job struct {
 	JobID                string
 	Namespace            string
-	JobType              JobType
+	JobType              Type
 	Image                string
 	DataPath             string
 	CKPTPath             string

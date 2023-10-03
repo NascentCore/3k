@@ -1,7 +1,9 @@
 package main
 
+// TODO(peiqing): Turn this file into a actual go test file.
+
 // NO_TEST_NEEDED
-// 针对一些功能点的测试
+
 import (
 	"encoding/json"
 	"io/fs"
@@ -59,5 +61,7 @@ func getNodeInfo() {
 	if err != nil {
 		panic(err)
 	}
-	os.WriteFile("nodes.json", b, fs.ModeAppend)
+	if err := os.WriteFile("nodes.json", b, fs.ModeAppend); err != nil {
+		panic(err)
+	}
 }
