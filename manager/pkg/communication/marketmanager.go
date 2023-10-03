@@ -23,19 +23,19 @@ type JobPayload struct {
 	Jobs []job.Job
 }
 
-// communicate with market manager get jobs should run in this cpod
+// communicate with market manager get jobs should run in this cpod.
 func GetJobs(cpodid string) []job.Job {
 	// TODO: implement it
 	return []job.Job{}
 }
 
-// upload cpod info to marketmanager
+// upload cpod info to marketmanager.
 func UploadCPodStatus(up UploadPayload) bool {
 	// TODO: implement it
 	return true
 }
 
-// check the given url by make a test call
+// check the given url by make a test call.
 func CheckURL(url string) error {
 	// TODO: implement it
 	return nil

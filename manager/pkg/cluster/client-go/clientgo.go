@@ -2,7 +2,7 @@ package clientgo
 
 // NO_TEST_NEEDED
 
-//operater cluster with client-go
+//operater cluster with client-go.
 import (
 	"context"
 
@@ -30,7 +30,7 @@ func GetObjects(namespace, group, version, resources string) (map[string]interfa
 	return data.Object, nil
 }
 
-// !!! resources must be plural
+// !!! resources must be plural.
 func ApplyWithJsonData(namespace, group, version, resources string, data map[string]interface{}) error {
 	crd := schema.GroupVersionResource{Group: group, Version: version, Resource: resources}
 	cro := &unstructured.Unstructured{

@@ -1,7 +1,7 @@
 package main
 
 // NO_TEST_NEEDED
-// 针对一些功能点的测试
+// 针对一些功能点的测试.
 import (
 	"encoding/json"
 	"io/fs"

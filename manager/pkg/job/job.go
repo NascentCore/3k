@@ -8,8 +8,10 @@ import (
 
 // NO_TEST_NEEDED
 
-type JobStage int
-type JobType int
+type (
+	JobStage int
+	JobType  int
+)
 
 const (
 	JobStageStart     JobStage = 0

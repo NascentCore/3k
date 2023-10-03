@@ -5,15 +5,15 @@ import (
 )
 
 // TODO: 根据实际情况增加或者删除一些字段
-// 表示创建一个KubeFLowMPIJob需要知道的信息
+// 表示创建一个KubeFLowMPIJob需要知道的信息.
 type KubeFlowMPIJob struct {
-	Name                 string //will be used as metadata.name
-	Namespace            string //k8s namespace
-	Image                string //docker image
-	DataPath             string //path to trainning data
-	CKPTPath             string //path to checkpoint
+	Name                 string // will be used as metadata.name
+	Namespace            string // k8s namespace
+	Image                string // docker image
+	DataPath             string // path to trainning data
+	CKPTPath             string // path to checkpoint
 	GPURequiredPerWorker int    //
-	Replicas             int    //works
+	Replicas             int    // works
 }
 
 func (kfm KubeFlowMPIJob) GenYaml() string {

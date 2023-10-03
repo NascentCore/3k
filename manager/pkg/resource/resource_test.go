@@ -1,7 +1,7 @@
 package resource
 
-//unittest for resource
-//created by congpeiqing
+// unittest for resource
+// created by congpeiqing
 
 import "testing"
 
