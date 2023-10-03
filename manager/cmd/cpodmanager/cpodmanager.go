@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
 	"sxwl/3k/manager/pkg/communication"
@@ -40,7 +41,10 @@ func main() {
 	for {
 		jobs := communication.GetJobs(cpodid)
 		for _, job := range jobs {
-			job.Run()
+			err := job.Run()
+			if err != nil {
+				log.Println("Job %v run failed, error: %v", err)
+			}
 		}
 		time.Sleep(time.Second * 10)
 	}
