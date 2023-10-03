@@ -1,0 +1,12 @@
+---
+# Install go related packages
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  vars:
+    # Add more variables
+  tasks:
+    - name: install golangci-lint
+      shell: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/go/bin v1.54.2
+      sudo: true
+      tags: go
