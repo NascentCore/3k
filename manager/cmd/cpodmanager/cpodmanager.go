@@ -43,7 +43,7 @@ func main() {
 		for _, job := range jobs {
 			err := job.Run()
 			if err != nil {
-				log.Println("Job %v run failed, error: %v", err)
+				log.Printf("Job %v run failed, error: %v", err)
 			}
 		}
 		time.Sleep(time.Second * 10)
@@ -56,7 +56,12 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 	go func() {
 		for {
 			select {
-			case ch <- communication.UploadPayload{CPodID: cpodid, ResourceDesc: resource.GetResourceDesc(), JobStatus: job.GetJobStatus(), UpdateTime: time.Now()}:
+			case ch <- communication.UploadPayload{
+				CPodID:       cpodid,
+				ResourceDesc: resource.GetResourceDesc(),
+				JobStatus:    job.GetJobStatus(),
+				UpdateTime:   time.Now(),
+			}:
 			case <-done:
 				break
 			}
