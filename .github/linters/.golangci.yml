@@ -44,7 +44,7 @@ linters:
   - whitespace
   - goimports
   - revive
-  - depguard
+  # - depguard
 
 linters-settings:
   errcheck:
