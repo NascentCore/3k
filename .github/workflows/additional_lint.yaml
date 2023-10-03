@@ -18,7 +18,7 @@ jobs:
   #     - name: Check README.md
   #     run: .github/scripts/check_readme.sh
   #      shell: bash
-  check-markdown-filenam:
+  check-markdown-filename:
     name: Markdown filename
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +40,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: .github/scripts/check_dir_naming.sh
+        shell: bash
+  check-file-naming:
+    name: file_naming
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/scripts/check_file_naming.sh
         shell: bash
   check-go-test-file-exists:
     name: go-test-exists
