@@ -1,5 +1,7 @@
 package common
 
+// NO_TEST_NEEDED
+
 type Response struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
