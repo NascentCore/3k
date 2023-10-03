@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo "Checking directory names include only lower case and '-'"
+echo "Checking directory names include only lower case chars and '-'"
 found_breakage=false
 for dirname in $(find home cli manager tools market-manager -type d); do
   fname=$(basename ${dirname})
-  if ! [[ ${fname} =~ ^[a-z_-]+$ ]]; then
+  if ! [[ ${fname} =~ ^[a-z-]+$ ]]; then
     found_breakage=true
     echo "${dirname}"
   fi
