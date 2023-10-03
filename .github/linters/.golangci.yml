@@ -56,6 +56,8 @@ linters:
   - whitespace
   - goimports
   - revive
+  # depguard checks imports are from specified repos/packages, that is too
+  # restrictive for rapid prototyping, so we disabled it.
   # - depguard
 
 linters-settings:
