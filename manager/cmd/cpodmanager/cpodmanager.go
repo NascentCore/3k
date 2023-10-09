@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
+	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/communication"
 	"sxwl/3k/manager/pkg/job"
 	"sxwl/3k/manager/pkg/resource"
@@ -33,6 +34,7 @@ func main() {
 		panic(err)
 	}
 	communication.SetBaseURL(base_url)
+	clientgo.InitClient()
 
 	// upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}

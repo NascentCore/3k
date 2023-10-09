@@ -1,9 +1,9 @@
 package storage
 
-func HWUploadFile(filename string) {
+func S3UploadFile(filename string) {
 	// TODO
 }
 
-func HWDownloadFile(url string, filename string) {
+func S3DownloadFile(url string, filename string) {
 	// TODO
 }
