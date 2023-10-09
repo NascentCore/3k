@@ -15,13 +15,13 @@ for go_file in $(find . -name '*.go'); do
   if [[ ${go_file} = *_test.go ]]; then
     continue
   fi
-  
+
   # If the source file is less than 10 lines, then no test file is needed.
   if [[ ${line_count} < 10 ]]; then
     continue
   fi
 
-  if grep "^${no_test_needed_marker}" ${go_file}; then
+  if grep "^${no_test_needed_marker}" ${go_file} -q; then
     continue
   fi
 
