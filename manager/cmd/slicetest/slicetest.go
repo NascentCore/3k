@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	clientgo.InitClient()
 	createMPIJob()
 	deleteMPIJob()
 	getNodeInfo()

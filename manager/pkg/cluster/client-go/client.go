@@ -20,8 +20,10 @@ var (
 	kubeconfigFile string
 )
 
-// init dynamicClient.
-func init() {
+// init k8s client.
+// this func must be called before u can do any thing related to k8s.
+// prefer called in main
+func InitClient() {
 	var cfg *rest.Config
 	var err error
 	cfg, err = inClusterConfig()
