@@ -1,5 +1,3 @@
-# Codelint is in super-linter, this includes linters not supported
-# in super linter, and custom ones developed in house.
 name: Additional lint
 on:
   pull_request:
@@ -8,50 +6,9 @@ on:
 permissions:
   contents: read
 jobs:
-  # Disabled for rapid prototyping
-  # check-readme:
-  #   name: Must have README.md
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - uses: actions/checkout@v3
-  #    # Check that all directories under src/ have a README.md
-  #     - name: Check README.md
-  #     run: .github/scripts/check_readme.sh
-  #      shell: bash
-  check-markdown-filename:
-    name: Markdown filename
+  check-all:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # Check that all markdown filenames are uppercase
-      - name: Check markdown files
-        run: .github/scripts/check_markdown_filename.sh
-        shell: bash
-  check-todo:
-    name: TODOs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: .github/scripts/check_todo.sh
-        shell: bash
-  check-dir-naming:
-    name: dir_naming
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: .github/scripts/check_dir_naming.sh
-        shell: bash
-  check-file-naming:
-    name: file_naming
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: .github/scripts/check_file_naming.sh
-        shell: bash
-  check-go-test-file-exists:
-    name: go-test-exists
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: .github/scripts/check_go_tests.sh
+      - run: .github/scripts/check_all.sh
         shell: bash

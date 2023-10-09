@@ -1,0 +1,21 @@
+---
+# Install Python related packages
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  vars:
+    # Add more variables
+  tasks:
+    - name: Creates directory
+      file:
+        path: /tmp/sxwl
+        state: directory
+    - name: downlaod miniconda installer
+      ansible.builtin.get_url:
+        url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        dest: /tmp/sxwl/miniconda.sh
+        checksum: sha256:634d76df5e489c44ade4085552b97bebc786d49245ed1a830022b0b406de5817
+      tags: [python, conda]
+    - name: install miniconda
+      command: bash /tmp/sxwl/miniconda.sh -b
+      tags: [python, conda]
