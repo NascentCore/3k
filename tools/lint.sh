@@ -30,6 +30,12 @@ print_divider
 
 echo
 print_divider
+echo "Running check_file_naming ..."
+print_divider
+.github/scripts/check_file_naming.sh
+
+echo
+print_divider
 echo "Running check_todo ..."
 print_divider
 .github/scripts/check_todo.sh
