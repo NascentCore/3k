@@ -1,21 +1,22 @@
 package resource
 
 // 单个GPU的信息状态信息
-type GPUStatus struct {
-	Status   string `json:"status"`    //GPU运转状态： normal\abnormal
-	MemUsage int    `json:"mem_usage"` //MB
-	GPUUsage int    `json:"gpu_usage"` //%
+type GPUState struct {
+	Status    string `json:"status"`    //GPU运转状态： normal\abnormal，如果不正
+	Allocated bool   `json:"allocated"` //是否已经被K8S调度器分配使用
+	MemUsage  int    `json:"mem_usage"` //显存使用率 MB
+	GPUUsage  int    `json:"gpu_usage"` //算力使用率 % （0——100）
+	Power     int    `json:"power"`     //功率 W
+	Temp      int    `json:"temp"`      //温度 摄氏度
 }
 
 // 一个节点（主机）的GPU相关信息（GPU可能有多个）
 type GPUInfo struct {
-	Status      string      `json:"status"`      //GPU总体运转状态：normal(有可用的GPU) \ abnormal(GPU全部掉线)
-	Vendor      string      `json:"vendor"`      //制造商：  如 NVidia
-	Prod        string      `json:"prod"`        //产品型号： 如 H100
-	Driver      string      `json:"driver"`      //驱动版本
-	MemSize     int         `json:"mem_size"`    //MB
-	Allocated   int         `json:"allocated"`   //已经分配在用的数量 0——len(individuals)
-	Individuals []GPUStatus `json:"individuals"` //按个体的状态统计
+	Status  string `json:"status"`   //GPU总体运转状态：normal(有可用的GPU) \ abnormal(GPU全部掉线)
+	Vendor  string `json:"vendor"`   //制造商：  如 NVidia
+	Prod    string `json:"prod"`     //产品型号： 如 H100
+	Driver  string `json:"driver"`   //驱动版本
+	MemSize int    `json:"mem_size"` //MB
 }
 
 // 节点的CPU相关信息
@@ -48,6 +49,7 @@ type NodeInfo struct {
 	KernelVersion string                `json:"kernel_version"` //Linux内核版本
 	LinuxDist     string                `json:"linux_dist"`     //Linux发行版信息  如：CentOS7.6
 	GPUInfo       `json:"gpu_info"`     //GPU信息
+	GPUState      []GPUState            `json:"gpu_state"` //GPU状态信息对应到每张卡
 	CPUInfo       `json:"cpu_info"`     //CPU信息
 	MemInfo       `json:"mem_info"`     //内存信息
 	DiskInfo      `json:"disk_info"`    //磁盘信息
