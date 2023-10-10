@@ -6,7 +6,7 @@ import (
 
 // TODO: 根据实际情况增加或者删除一些字段
 // 表示创建一个KubeFLowMPIJob需要知道的信息.
-type KubeFlowMPIJob struct {
+type MPIJob struct {
 	Name                 string // will be used as metadata.name
 	Namespace            string // k8s namespace
 	Image                string // docker image
@@ -16,12 +16,12 @@ type KubeFlowMPIJob struct {
 	Replicas             int    // works
 }
 
-func (kfm KubeFlowMPIJob) GenYaml() string {
+func (kfm MPIJob) GenYaml() string {
 	// TODO: impl it if needed
 	return ""
 }
 
-func (kfm KubeFlowMPIJob) genJsonData() map[string]interface{} {
+func (kfm MPIJob) genJsonData() map[string]interface{} {
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -106,15 +106,15 @@ func (kfm KubeFlowMPIJob) genJsonData() map[string]interface{} {
 	}
 }
 
-func (kfm KubeFlowMPIJob) Run() error {
+func (kfm MPIJob) Run() error {
 	return clientgo.ApplyWithJsonData(kfm.Namespace, "kubeflow.org", "v2beta1", "mpijobs", kfm.genJsonData())
 }
 
-func (kfm KubeFlowMPIJob) Delete() error {
+func (kfm MPIJob) Delete() error {
 	return clientgo.DeleteWithName(kfm.Namespace, "kubeflow.org", "v2beta1", "mpijobs", kfm.Name)
 }
 
-func (kfm KubeFlowMPIJob) Get() (map[string]interface{}, error) {
+func (kfm MPIJob) Get() (map[string]interface{}, error) {
 	// TODO: impl it
 	return nil, nil
 }

@@ -15,7 +15,7 @@ func SetBaseURL(url string) {
 type UploadPayload struct {
 	CPodID       string
 	JobStatus    []job.JobStatus
-	ResourceDesc resource.ResourceDesc
+	ResourceInfo resource.CPodResourceInfo
 	UpdateTime   time.Time
 }
 

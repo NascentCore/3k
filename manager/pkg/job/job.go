@@ -43,7 +43,7 @@ type Job struct {
 
 func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
-		return kubeflowmpijob.KubeFlowMPIJob{
+		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
 			Namespace:            j.Namespace,
 			Image:                j.Image,
@@ -58,7 +58,7 @@ func (j Job) Run() error {
 
 func (j Job) Stop() error {
 	if j.JobType == JobTypeMPI {
-		return kubeflowmpijob.KubeFlowMPIJob{
+		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
 			Namespace:            j.Namespace,
 			Image:                j.Image,

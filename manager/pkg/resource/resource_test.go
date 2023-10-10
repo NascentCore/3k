@@ -1,6 +1,8 @@
 package resource
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetResourceDesc(t *testing.T) {
 	// TODO:
