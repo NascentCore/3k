@@ -7,9 +7,9 @@
         "version": "1.0"
     },
     "host": "localhost:10012",
-    "basePath": "/api/v1/",
+    "basePath": "/api/v1",
     "paths": {
-        "/api/v1/cpod/job": {
+        "/cpod/job": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -27,7 +27,7 @@
                 }
             }
         },
-        "/api/v1/cpod/job/result": {
+        "/cpod/job/result": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -56,7 +56,7 @@
                 }
             }
         },
-        "/api/v1/cpod/resource": {
+        "/cpod/resource": {
             "post": {
                 "consumes": [
                     "application/json"

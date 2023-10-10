@@ -20,7 +20,7 @@ import (
 // @title Market Manager Api
 // @version 1.0
 // @description Market Manager API Server
-// @BasePath /api/v1/
+// @BasePath /api/v1
 // @host localhost:10012
 func main() {
 	opts := mmInit.NewMarkeManagerOptions()

@@ -1,4 +1,4 @@
-basePath: /api/v1/
+basePath: /api/v1
 definitions:
   common.CpodJobInfo:
     properties:
@@ -49,7 +49,7 @@ info:
   title: Market Manager Api
   version: "1.0"
 paths:
-  /api/v1/cpod/job:
+  /cpod/job:
     post:
       consumes:
       - application/json
@@ -60,7 +60,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/common.Err'
-  /api/v1/cpod/job/result:
+  /cpod/job/result:
     post:
       consumes:
       - application/json
@@ -78,7 +78,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/common.Err'
-  /api/v1/cpod/resource:
+  /cpod/resource:
     post:
       consumes:
       - application/json

@@ -16,7 +16,7 @@ import (
 // @Produce json
 // @Success 200 {object} common.Err
 // @Failure 200 {object} common.Err
-// @Router /api/v1/cpod/job [post]
+// @Router /cpod/job [post]
 func CpodJob(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod request body is %s", string(body))
@@ -41,7 +41,7 @@ func CpodJob(c *gin.Context) {
 // @Param req body common.CpodJobInfo true "cpod job info"
 // @Success 200 {object} common.Err
 // @Failure 200 {object} common.Err
-// @Router /api/v1/cpod/job/result [post]
+// @Router /cpod/job/result [post]
 func CpodJobResult(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod result request body is %s", string(body))
@@ -65,7 +65,7 @@ func CpodJobResult(c *gin.Context) {
 // @Param req body common.CpodResourceInfos true "cpod resource info"
 // @Success 200 {object} common.Err
 // @Failure 200 {object} common.Err
-// @Router /api/v1/cpod/resource [post]
+// @Router /cpod/resource [post]
 func CpodResource(c *gin.Context) {
 	body, err := ioutil.ReadAll(c.Request.Body)
 	glog.V(5).Infof("the cpod resource request body is %s", string(body))

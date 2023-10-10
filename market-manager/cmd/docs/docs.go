@@ -17,7 +17,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/cpod/job": {
+        "/cpod/job": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -35,7 +35,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/cpod/job/result": {
+        "/cpod/job/result": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -64,7 +64,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/cpod/resource": {
+        "/cpod/resource": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -166,7 +166,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:10012",
-	BasePath:         "/api/v1/",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Market Manager Api",
 	Description:      "Market Manager API Server",

@@ -23,7 +23,7 @@ func NewMarkeManagerOptions() *MarkeManagerOptions {
 
 func (opts *MarkeManagerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&opts.Port, "port", ":10012", "port")
-	fs.StringVar(&opts.DbDsn, "dbDsn", "root:root@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local", "db dsn")
+	fs.StringVar(&opts.DbDsn, "dbDsn", "mysql:password@tcp(219.159.22.60:32306)?charset=utf8mb4&parseTime=True&loc=Local", "db dsn")
 	fs.StringVar(&opts.AppMarket, "appMarket", "sxwl.core.ai", "app market url")
 }
 
