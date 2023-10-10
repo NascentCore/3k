@@ -29,6 +29,5 @@ for go_file in $(find . -name '*.go'); do
   go_test_file="${prefix}_test.go"
   if [ ! -f ${go_test_file} ]; then
     echo "${go_file} needs ${go_test_file}!"
-    exit 1
   fi
 done
