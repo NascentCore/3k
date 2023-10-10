@@ -1,20 +1,25 @@
 package utility
 
 import (
-	"github.com/golang/glog"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
 
 func GetJobInfo(url string) ([]byte, error) {
-	req, _ := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create HTTP request, error: %v", err)
+	}
 	req.Header.Add("Authorization", "xxxx")
 	response, err := http.DefaultClient.Do(req)
-	defer response.Body.Close()
 	if err != nil {
-		glog.Error("get job info error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("Failed to do HTTP request: %v, error: %v", req, err)
 	}
-	body, _ := ioutil.ReadAll(response.Body)
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read all HTTP response, error: %v", err)
+	}
 	return body, nil
 }
