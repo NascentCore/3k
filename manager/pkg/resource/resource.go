@@ -1,5 +1,12 @@
 package resource
 
+import (
+	"strconv"
+	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+
+	"log"
+)
+
 // 单个GPU的信息状态信息
 type GPUState struct {
 	Status    string `json:"status"`    //GPU运转状态： normal\abnormal，如果不正
@@ -16,6 +23,7 @@ type GPUInfo struct {
 	Vendor  string `json:"vendor"`   //制造商：  如 NVidia
 	Prod    string `json:"prod"`     //产品型号： 如 H100
 	Driver  string `json:"driver"`   //驱动版本
+	CUDA    string `json:"cuda"`     //CUDA版本
 	MemSize int    `json:"mem_size"` //MB
 }
 
@@ -45,7 +53,9 @@ type NetworkInfo struct {
 
 // 节点信息
 type NodeInfo struct {
-	Status        string                `json:"status"`         //节点状态： normal\abnormal
+	Name          string                `json:"name"`           //节点名 hostname
+	Status        string                `json:"status"`         //K8S系统中的节点状态
+	Arch          string                `json:"arch"`           //指令架构
 	KernelVersion string                `json:"kernel_version"` //Linux内核版本
 	LinuxDist     string                `json:"linux_dist"`     //Linux发行版信息  如：CentOS7.6
 	GPUInfo       `json:"gpu_info"`     //GPU信息
@@ -63,7 +73,47 @@ type CPodResourceInfo struct {
 	Nodes       []NodeInfo `json:"nodes"`        //节点信息
 }
 
-func GetResourceInfo() CPodResourceInfo {
-	// TODO: get resource info from cluster and monitor system
-	return CPodResourceInfo{}
+func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
+	var info CPodResourceInfo
+	info.CPodID = CPodID
+	info.CPodVersion = CPodVersion
+	// get node list from k8s
+	info.Nodes = []NodeInfo{}
+	if nodeInfo, err := clientgo.GetNodeInfo(); err != nil {
+		for _, node := range nodeInfo.Items {
+			t := NodeInfo{}
+			t.Name = node.Name
+			t.Status = node.Labels["status"]
+			t.KernelVersion = node.Labels["feature.node.kubernetes.io/kernel-version.full"]
+			t.LinuxDist = node.Status.NodeInfo.OSImage
+			t.Arch = node.Labels["kubernetes.io/arch"]
+			t.CPUInfo.Cores = int(node.Status.Capacity.Cpu().Value())
+			if v, ok := node.Labels["nvidia.com/gpu.product"]; ok {
+				t.GPUInfo.Prod = v
+				t.GPUInfo.Vendor = "nvidia"
+				t.GPUInfo.Driver = node.Labels["nvidia.com/cuda.driver.major"] + "." +
+					node.Labels["nvidia.com/cuda.driver.minor"] + "." +
+					node.Labels["nvidia.com/cuda.driver.rev"]
+				t.GPUInfo.CUDA = node.Labels["nvidia.com/cuda.runtime.major"] + "." +
+					node.Labels["nvidia.com/cuda.runtime.minor"]
+				t.GPUInfo.MemSize, _ = strconv.Atoi(node.Labels["nvidia.com/gpu.memory"])
+				t.GPUInfo.Status = "abnormal"
+				if node.Labels["nvidia.com/gpu.present"] == "true" {
+					t.GPUInfo.Status = "normal"
+				}
+				//init GPUState Array , accordding to nvidia.com/gpu.count label
+				t.GPUState = []GPUState{}
+				gpuCnt, _ := strconv.Atoi(node.Labels["nvidia.com/gpu.count"])
+				for i := 0; i < gpuCnt; i++ {
+					t.GPUState = append(t.GPUState, GPUState{})
+				}
+			}
+			t.MemInfo.Size = int(node.Status.Capacity.Memory().Value())
+			info.Nodes = append(info.Nodes, t)
+		}
+	} else {
+		log.Println("failed retrieve node info from k8s.")
+	}
+	// TODO: 从监控系统获取信息并补充到info，从APIServer获取的信息中没有网络以及磁盘的信息，需要从监控系统中获取
+	return info
 }
