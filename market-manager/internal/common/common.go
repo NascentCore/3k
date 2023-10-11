@@ -30,8 +30,8 @@ type CpodResourceInfos struct {
 	Cpods []CpodResourceInfo `json:"cpods"`
 }
 
+// Resource status from CPOD manager
 type CpodResourceInfo struct {
-	GroupId  string  `json:"group_id,omitempty"`
 	CpodId   string  `json:"cpod_id"`
 	GpuTotal float32 `json:"gpu_total"`
 	GpuUsed  float32 `json:"gpu_used"`
