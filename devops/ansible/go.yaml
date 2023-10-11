@@ -1,5 +1,6 @@
 ---
 # Install go related packages
+# TODO(yzhao/cairong): Add more actions to install full Golang environment
 - name: Dev machine playbook
   hosts: localhost
   connection: local
