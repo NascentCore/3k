@@ -1,3 +1,4 @@
+# TODO(yzhao): Test this dockerfile
 FROM golang:alpine as builder
 
 WORKDIR /go/src/3k/market-manager
