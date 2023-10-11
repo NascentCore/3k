@@ -13,8 +13,6 @@ var (
 	ErrParam  = NewError(10002, "parameter error, please check the parameter")
 )
 
-var _ Error = (*Err)(nil)
-
 type Error interface {
 	// i 为了避免被其他包实现
 	i()
