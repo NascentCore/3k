@@ -1,12 +1,55 @@
-basePath: /api/v1/
+basePath: /api/v1
+definitions:
+  common.CpodJobInfo:
+    properties:
+      cpod_job_id:
+        type: string
+      job_id:
+        type: string
+      job_url:
+        type: string
+      state:
+        type: integer
+    type: object
+  common.CpodResourceInfo:
+    properties:
+      cpod_id:
+        type: string
+      gpu_free:
+        type: number
+      gpu_total:
+        type: number
+      gpu_used:
+        type: number
+      group_id:
+        type: string
+    type: object
+  common.CpodResourceInfos:
+    properties:
+      cpods:
+        items:
+          $ref: '#/definitions/common.CpodResourceInfo'
+        type: array
+    type: object
+  common.Err:
+    properties:
+      code:
+        description: 业务编码
+        type: integer
+      data:
+        description: 成功时返回的数据
+      msg:
+        description: 错误描述
+        type: string
+    type: object
 host: localhost:10012
 info:
   contact: {}
   description: Market Manager API Server
-  title: Market Manager swagger
+  title: Market Manager Api
   version: "1.0"
 paths:
-  /api/v1/cpod/job:
+  /cpod/job:
     post:
       consumes:
       - application/json
@@ -15,17 +58,42 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
-          description: Internal Server Error
-  /api/v1/cpod/job/result:
+          schema:
+            $ref: '#/definitions/common.Err'
+  /cpod/job/result:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: cpod job info
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/common.CpodJobInfo'
       produces:
       - application/json
       responses:
         "200":
           description: OK
-        "500":
-          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Err'
+  /cpod/resource:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: cpod resource info
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/common.CpodResourceInfos'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Err'
 swagger: "2.0"

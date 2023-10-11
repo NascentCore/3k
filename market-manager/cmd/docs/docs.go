@@ -17,7 +17,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/cpod/job": {
+        "/cpod/job": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -27,15 +27,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
                     }
                 }
             }
         },
-        "/api/v1/cpod/job/result": {
+        "/cpod/job/result": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -43,13 +43,119 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "parameters": [
+                    {
+                        "description": "cpod job info",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/common.CpodJobInfo"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK"
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
                     }
+                }
+            }
+        },
+        "/cpod/resource": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "cpod resource info",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/common.CpodResourceInfos"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/common.Err"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "common.CpodJobInfo": {
+            "type": "object",
+            "properties": {
+                "cpod_job_id": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_url": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "integer"
+                }
+            }
+        },
+        "common.CpodResourceInfo": {
+            "type": "object",
+            "properties": {
+                "cpod_id": {
+                    "type": "string"
+                },
+                "gpu_free": {
+                    "type": "number"
+                },
+                "gpu_total": {
+                    "type": "number"
+                },
+                "gpu_used": {
+                    "type": "number"
+                },
+                "group_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.CpodResourceInfos": {
+            "type": "object",
+            "properties": {
+                "cpods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/common.CpodResourceInfo"
+                    }
+                }
+            }
+        },
+        "common.Err": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务编码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "成功时返回的数据"
+                },
+                "msg": {
+                    "description": "错误描述",
+                    "type": "string"
                 }
             }
         }
@@ -60,9 +166,9 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:10012",
-	BasePath:         "/api/v1/",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Market Manager swagger",
+	Title:            "Market Manager Api",
 	Description:      "Market Manager API Server",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

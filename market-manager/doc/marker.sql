@@ -1,4 +1,4 @@
-# market-manager 数据库表
+# market-manager DB table initialization
 DROP TABLE IF EXISTS `job_scheduler`;
 CREATE TABLE `job_scheduler`
 (
@@ -31,4 +31,4 @@ CREATE TABLE `cpod_resource`
     UNIQUE INDEX `idx_cpod_id`(`cpod_id`)
 )
     ENGINE = InnoDB
-    COMMENT = 'cpod资源表';
+    COMMENT = 'cpod resources table';

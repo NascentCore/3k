@@ -1,7 +1,10 @@
 // NO_TEST_NEEDED
 package db
 
-import "gorm.io/gorm"
+import (
+	"github.com/golang/glog"
+	"gorm.io/gorm"
+)
 
 type CpodResources struct {
 	Cpods []CpodResource `json:"cpods"`
@@ -23,12 +26,14 @@ func (r *CpodResource) CreateResource(db *gorm.DB) (string, error) {
 		if results.Error == gorm.ErrRecordNotFound {
 			results := db.Table("cpod_resource").Create(r)
 			if results.Error != nil {
+				glog.Fatalf("create cpod resource error: %s", results.Error.Error())
 				return results.Error.Error(), results.Error
 			}
 		}
 	} else {
 		results := db.Table("cpod_resource").Updates(r)
 		if results.Error != nil {
+			glog.Fatalf("update cpod resource error: %s", results.Error.Error())
 			return results.Error.Error(), results.Error
 		}
 	}
@@ -38,6 +43,30 @@ func (r *CpodResource) CreateResource(db *gorm.DB) (string, error) {
 func (r *CpodResource) UpdateResource(db *gorm.DB) (string, error) {
 	results := db.Table("cpod_resource").Updates(r)
 	if results.Error != nil {
+		glog.Errorf("update cpod resource error: %s", results.Error.Error())
+		return results.Error.Error(), results.Error
+	}
+	return "", nil
+}
+
+func (r *CpodResource) SelectResource(db *gorm.DB) (*CpodResources, error) {
+	var cpodResources CpodResources
+	results := db.Table("cpod_resource").Find(r)
+	if results.Error != nil {
+		if results.Error == gorm.ErrRecordNotFound {
+			glog.Errorf("select cpod resource error: %s", results.Error.Error())
+			return nil, results.Error
+		}
+	}
+	results.Scan(&cpodResources.Cpods)
+	glog.V(5).Infof("selected cpod resource: %v", cpodResources.Cpods)
+	return &cpodResources, nil
+}
+
+func (r *CpodResource) DeleteResource(db *gorm.DB) (string, error) {
+	results := db.Table("cpod_resource").Delete(r)
+	if results.Error != nil {
+		glog.Errorf("delete cpod resource error: %s", results.Error.Error())
 		return results.Error.Error(), results.Error
 	}
 	return "", nil
