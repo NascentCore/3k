@@ -2,6 +2,8 @@ package logic
 
 import "testing"
 
+// TODO(yzhao): "github.com/stretchr/testify/mock" Use this to update the test
+
 func TestCpodJobLogical(t *testing.T) {
 	jobBody := `{
 	"job_id": "87e06ce2-1321-4a1d-acbf-e646ef4fe161",

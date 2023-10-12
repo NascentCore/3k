@@ -2,8 +2,8 @@ package logic
 
 import (
 	"encoding/json"
-	"sxwl/mm/internal/handler"
-	"sxwl/mm/pkg/db"
+	"sxwl/3k/market-manager/internal/handler"
+	"sxwl/3k/market-manager/pkg/db"
 
 	"github.com/golang/glog"
 )
