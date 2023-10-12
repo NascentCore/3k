@@ -9,7 +9,7 @@ import (
 
 // 单个GPU的信息状态信息
 type GPUState struct {
-	Status    string `json:"status"`    //GPU运转状态： normal\abnormal，如果不正
+	Status    string `json:"status"`    //GPU运转状态： normal\abnormal
 	Allocated bool   `json:"allocated"` //是否已经被K8S调度器分配使用
 	MemUsage  int    `json:"mem_usage"` //显存使用率 MB
 	GPUUsage  int    `json:"gpu_usage"` //算力使用率 % （0——100）
@@ -53,17 +53,18 @@ type NetworkInfo struct {
 
 // 节点信息
 type NodeInfo struct {
-	Name          string                `json:"name"`           //节点名 hostname
-	Status        string                `json:"status"`         //K8S系统中的节点状态
-	Arch          string                `json:"arch"`           //指令架构
-	KernelVersion string                `json:"kernel_version"` //Linux内核版本
-	LinuxDist     string                `json:"linux_dist"`     //Linux发行版信息  如：CentOS7.6
-	GPUInfo       `json:"gpu_info"`     //GPU信息
-	GPUState      []GPUState            `json:"gpu_state"` //GPU状态信息对应到每张卡
-	CPUInfo       `json:"cpu_info"`     //CPU信息
-	MemInfo       `json:"mem_info"`     //内存信息
-	DiskInfo      `json:"disk_info"`    //磁盘信息
-	NetworkInfo   `json:"network_info"` //网络信息
+	Name           string                `json:"name"`           //节点名 hostname
+	Status         string                `json:"status"`         //K8S系统中的节点状态
+	Arch           string                `json:"arch"`           //指令架构
+	KernelVersion  string                `json:"kernel_version"` //Linux内核版本
+	LinuxDist      string                `json:"linux_dist"`     //Linux发行版信息  如：CentOS7.6
+	GPUInfo        `json:"gpu_info"`     //GPU信息
+	GPUAllocatable int                   `json:"gpu_allocatable"` //可用GPU总量（暂时先不管个体信息）
+	GPUState       []GPUState            `json:"gpu_state"`       //GPU状态信息对应到每张卡
+	CPUInfo        `json:"cpu_info"`     //CPU信息
+	MemInfo        `json:"mem_info"`     //内存信息
+	DiskInfo       `json:"disk_info"`    //磁盘信息
+	NetworkInfo    `json:"network_info"` //网络信息
 }
 
 // 对于CPod的资源描述：包含资源总量，使用情况，分配情况
@@ -106,6 +107,10 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 				gpuCnt, _ := strconv.Atoi(node.Labels["nvidia.com/gpu.count"])
 				for i := 0; i < gpuCnt; i++ {
 					t.GPUState = append(t.GPUState, GPUState{})
+				}
+				tmp := node.Status.Allocatable["nvidia.com/gpu"].DeepCopy()
+				if i, ok := (&tmp).AsInt64(); ok {
+					t.GPUAllocatable = int(i)
 				}
 			}
 			t.MemInfo.Size = int(node.Status.Capacity.Memory().Value())

@@ -61,7 +61,7 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 			case ch <- communication.UploadPayload{
 				CPodID:       cpodid,
 				ResourceInfo: resource.GetResourceInfo(cpodid, "v0.1"), // TODO: 获取版本信息
-				JobStatus:    job.GetJobStatus(),
+				JobStatus:    job.GetJobState(),
 				UpdateTime:   time.Now(),
 			}:
 			case <-done:

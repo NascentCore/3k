@@ -2,6 +2,7 @@ package communication
 
 import (
 	"sxwl/3k/manager/pkg/job"
+	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
@@ -14,7 +15,7 @@ func SetBaseURL(url string) {
 
 type UploadPayload struct {
 	CPodID       string
-	JobStatus    []job.JobStatus
+	JobStatus    []state.State
 	ResourceInfo resource.CPodResourceInfo
 	UpdateTime   time.Time
 }
