@@ -2,8 +2,10 @@ package logic
 
 import (
 	"errors"
-	"github.com/golang/glog"
 	"sort"
+
+	"github.com/golang/glog"
+
 	"sxwl/3k/market-manager/internal/common"
 )
 
