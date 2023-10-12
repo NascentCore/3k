@@ -8,6 +8,7 @@
 no_test_needed_marker='// NO_TEST_NEEDED'
 
 echo "Checking all go source file has _test.go"
+found_offending_file=0
 for go_file in $(find . -name '*.go'); do
   line_count=$(wc -l <${go_file})
   line_count=$((line_count + 0))
@@ -29,5 +30,7 @@ for go_file in $(find . -name '*.go'); do
   go_test_file="${prefix}_test.go"
   if [ ! -f ${go_test_file} ]; then
     echo "${go_file} needs ${go_test_file}!"
+    found_offending_file=1
   fi
 done
+exit ${found_offending_file}
