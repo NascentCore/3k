@@ -1,5 +1,7 @@
 package state
 
+// NO_TEST_NEEDED
+
 type JobStatus string
 
 // 通用的任务状态定义
