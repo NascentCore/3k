@@ -4,8 +4,8 @@ package server
 import (
 	"io/ioutil"
 	"net/http"
-	"sxwl/mm/internal/common"
-	"sxwl/mm/internal/logic"
+	"sxwl/3k/market-manager/internal/common"
+	"sxwl/3k/market-manager/internal/logic"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"

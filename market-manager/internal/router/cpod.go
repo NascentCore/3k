@@ -2,7 +2,7 @@
 package router
 
 import (
-	"sxwl/mm/internal/server"
+	"sxwl/3k/market-manager/internal/server"
 
 	"github.com/gin-gonic/gin"
 )

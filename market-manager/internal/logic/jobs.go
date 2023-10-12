@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/golang/glog"
 	"sort"
-	"sxwl/mm/internal/common"
+	"sxwl/3k/market-manager/internal/common"
 )
 
 func SelectCpods(cpods []common.CpodResourceInfo) (string, error) {
