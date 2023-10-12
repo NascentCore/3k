@@ -22,7 +22,6 @@ func main() {
 func createMPIJob() {
 	t := job.Job{
 		JobID:                "mpijobtest1111",
-		Namespace:            "cpq",
 		JobType:              job.JobTypeMPI,
 		Image:                "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
 		DataPath:             "",
@@ -39,7 +38,6 @@ func createMPIJob() {
 func deleteMPIJob() {
 	t := job.Job{
 		JobID:                "mpijobtest1111",
-		Namespace:            "cpq",
 		JobType:              job.JobTypeMPI,
 		Image:                "swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim",
 		DataPath:             "",
