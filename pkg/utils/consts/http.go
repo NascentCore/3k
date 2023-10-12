@@ -7,4 +7,5 @@ package consts
 const (
 	GET = "GET"
 	POST = "POST"
+	Authorization = "Authorization"
 )
