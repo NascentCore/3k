@@ -2,7 +2,7 @@
 
 Owner:
 * @congpeiqing (manager)
-* @RyanSXWL (market-manager)
+* @yzhao (market-manager)
 * @cairong (platform & devops)
 
 Named after 3 major performance metrics of the system:
