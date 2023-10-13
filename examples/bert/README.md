@@ -1,12 +1,9 @@
 # Bert
 
-Use Bert training written in PyTorch+DeepSpeed, used to test 3k.
-
-Based on:
-
-https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
-
-https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert_ds.py
+Bert training written in PyTorch+DeepSpeed.
+Based on the examples in the official DeepSpeed repo:
+* https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
+* https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert_ds.py
 
 ## Training code
 
