@@ -10,19 +10,27 @@ https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpe
 
 ## Training code
 
+First [install `miniconda`](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html);
+alternatively, you may opt to install everything for your own user locally.
+
 ```
+# Install system packages
+apt update
+apt install libopenmpi-dev
+
 # Create conda environment: bert_deepspeed
 conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
+
 git clone git@github.com:NascentCore/3k.git
 cd 3k/examples/bert_deepspeed
-apt install libopenmpi-dev
+
 pip install -r requirements.txt
 
-# Run 1 GPU locally, no deepspeed distributed.
+# Run bert training on 1 local GPU
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
-# Use all GPUs on localhost
+# Run bert training on all local GPUs
 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 # 支持本机任意多卡运行
