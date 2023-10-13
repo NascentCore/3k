@@ -27,6 +27,11 @@ cd 3k/examples/bert_deepspeed
 
 pip install -r requirements.txt
 
+# Check deepspeed installation
+# It's possible that installed packages' executable files are not configured
+# correctly in PATH env var, you need to find ds_report: find ~/ -name ds_report
+ds_report
+
 # Run bert training on 1 local GPU
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
