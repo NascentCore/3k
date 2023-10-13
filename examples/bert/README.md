@@ -31,7 +31,8 @@ ds_report
 # Run bert training on 1 local GPU
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
-# Run bert training on all local GPUs
+# Run distributed bert training on all local GPUs
+export NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=INFO
 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 # 支持本机任意多卡运行
