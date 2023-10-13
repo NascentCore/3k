@@ -19,6 +19,7 @@ sudo apt update
 sudo apt install libopenmpi-dev ninja-build
 
 # Create conda environment: bert_deepspeed
+# You may skip this step to install everything in the system directly
 conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
 
