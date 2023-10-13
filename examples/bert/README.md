@@ -10,7 +10,7 @@ https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpe
 
 ## Training code
 
-First [install `miniconda`](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html);
+First ;
 alternatively, you may opt to install everything for your own user locally.
 
 ```
@@ -19,6 +19,7 @@ sudo apt update
 sudo apt install libopenmpi-dev ninja-build
 
 # Create conda environment: bert_deepspeed
+# First, [install `miniconda`](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 # You may skip this step to install everything in the system directly
 conda create -n bert_deepspeed python==3.11
 conda activate bert_deepspeed
