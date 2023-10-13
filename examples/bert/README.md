@@ -15,8 +15,8 @@ alternatively, you may opt to install everything for your own user locally.
 
 ```
 # Install system packages
-apt update
-apt install libopenmpi-dev ninja-build
+sudo apt update
+sudo apt install libopenmpi-dev ninja-build
 
 # Create conda environment: bert_deepspeed
 conda create -n bert_deepspeed python==3.11
