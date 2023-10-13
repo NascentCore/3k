@@ -32,6 +32,8 @@ ds_report
 python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
 
 # Run distributed bert training on all local GPUs
+# It's possible that installed packages' executable files are not configured
+# correctly in PATH env var, you need to find ds_report: find ~/ -name deepspeed
 export NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=INFO
 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
