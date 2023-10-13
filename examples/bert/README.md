@@ -10,9 +10,6 @@ https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpe
 
 ## Training code
 
-First ;
-alternatively, you may opt to install everything for your own user locally.
-
 ```
 # Install system packages
 sudo apt update
