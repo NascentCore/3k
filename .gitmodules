@@ -1,0 +1,6 @@
+[submodule "examples/nccl/nccl"]
+	path = examples/nccl/nccl
+	url = https://github.com/NVIDIA/nccl
+[submodule "examples/nccl/nccl-tests"]
+	path = examples/nccl/nccl-tests
+	url = https://github.com/NVIDIA/nccl-tests
