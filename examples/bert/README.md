@@ -39,7 +39,13 @@ deepspeed train_bert_ds.py --checkpoint_dir ./experiments
 
 # 本机任意多卡运行，编号为 0,2,3 的 GPU 对程序是可见的
 CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
+```
 
+### Distributed training on mulitple nodes
+
+Configuration [hostfile](https://www.deepspeed.ai/getting-started/#resource-configuration-multi-node)
+
+```
 # 多机多卡
 # 配置hostfile文件；每台机器上代码存储路径都一致，如果使用了 Conda，各主机上的的 Conda 虚拟环境也一致；
 # 各台机器间 ssh 免密登陆；有.deepspeed_env文件；当在多个节点上进行训练时，默认情况下，
