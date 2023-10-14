@@ -60,6 +60,7 @@ Copy hostfile onto all hosts listed above, in the same path, then launch deepspe
 # DeepSpeed 将传播所有设置的 NCCL 和 PYTHON 相关环境变量。如果您想传播其它变量，可以在名为 .deepspeed_env 的文件中指定它们，
 # 该文件包含一个行分隔的 VAR=VAL 条目列表。
 # DeepSpeed 启动器将查找你执行的本地路径以及你的主目录（~/）
+export NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=INFO
 deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py \
     --checkpoint_dir experiments
 ```
