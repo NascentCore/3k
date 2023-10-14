@@ -60,7 +60,7 @@ Copy hostfile onto all hosts listed above, in the same path, then launch deepspe
 # 该文件包含一个行分隔的 VAR=VAL 条目列表。
 # DeepSpeed 启动器将查找你执行的本地路径以及你的主目录（~/）
 deepspeed --hostfile=hostfile  --master_port 60000 train_bert_ds.py \
-    --checkpoint_dir ./experiments
+    --checkpoint_dir experiments
 ```
 
 ## Container
