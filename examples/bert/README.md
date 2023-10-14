@@ -9,8 +9,9 @@ Based on the examples in the official DeepSpeed repo:
 
 ```
 # Install system packages
+# openmpi-dev needed by mpi4py, ninja-build used by PyTorch, pdsh used by deepspeed
 sudo apt update
-sudo apt install libopenmpi-dev ninja-build
+sudo apt install libopenmpi-dev ninja-build pdsh
 
 # Create conda environment: bert_deepspeed
 # First, [install `miniconda`](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html)
