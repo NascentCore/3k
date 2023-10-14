@@ -34,3 +34,8 @@
   sudo dpkg -i build/pkg/deb/libnccl2_2.18.6-1+cuda11.7_amd64.deb
   sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
   ```
+
+## NOTES
+
+* NCCL always use chains [LL-128](https://github.com/NVIDIA/nccl/issues/281#issuecomment-571816990)
+  for intra-node all reduce, see [NVIDIA/nccl/issues/919](https://github.com/NVIDIA/nccl/issues/919)
