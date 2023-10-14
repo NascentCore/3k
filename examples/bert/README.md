@@ -44,7 +44,14 @@ CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experim
 ### Distributed training on mulitple nodes
 
 Configuration [hostfile](https://www.deepspeed.ai/getting-started/#resource-configuration-multi-node)
+hostnames (or SSH aliases)
 
+```
+worker-1 slots=4
+worker-2 slots=4
+```
+
+Copy hostfile onto all hosts listed above, in the same path, then launch deepspeed distributed training:
 ```
 # 多机多卡
 # 配置hostfile文件；每台机器上代码存储路径都一致，如果使用了 Conda，各主机上的的 Conda 虚拟环境也一致；
