@@ -1,5 +1,22 @@
 # NCCL
 
+## Building NCCL
+
+[Instructions](https://github.com/NVIDIA/nccl#install)
+
+```
+cd nccl
+make -j src.build
+
+# Build deb package
+sudo apt-get install devscripts
+make pkg.debian.build
+
+# Install libnccl2
+sudo dpkg -i build/pkg/deb/libnccl2_2.18.6-1+cuda11.7_amd64.deb
+sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
+```
+
 ## NCCL-TESTS
 
 * An in-place operation uses the same buffer for its output as was used to
@@ -21,18 +38,6 @@
   WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py 
   ...
   WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py  
-  ```
-* Build NCCL
-  ```
-  cd nccl
-  make
-  
-  # Needed to build deb package
-  sudo apt-get install devscripts
-  
-  # Install libnccl2
-  sudo dpkg -i build/pkg/deb/libnccl2_2.18.6-1+cuda11.7_amd64.deb
-  sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
   ```
 
 ## NOTES
