@@ -29,16 +29,16 @@ pip install -r requirements.txt
 ds_report
 
 # Run bert training on 1 local GPU
-python train_bert.py  --local_rank 0 --checkpoint_dir ./experiments
+python train_bert.py  --local_rank 0 --checkpoint_dir experiments
 
 # Run distributed bert training on all local GPUs
 # It's possible that installed packages' executable files are not configured
 # correctly in PATH env var, you need to find ds_report: find ~/ -name deepspeed
 export NCCL_IB_DISABLE=1 NCCL_P2P_DISABLE=1 NCCL_DEBUG=INFO
-deepspeed train_bert_ds.py --checkpoint_dir ./experiments
+deepspeed train_bert_ds.py --checkpoint_dir experiments
 
 # 本机任意多卡运行，编号为 0,2,3 的 GPU 对程序是可见的
-CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir ./experiments
+CUDA_VISIBLE_DEVICES=0,2,3 deepspeed train_bert_ds.py --checkpoint_dir experiments
 ```
 
 ### Distributed training on mulitple nodes
