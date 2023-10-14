@@ -2,24 +2,19 @@
 
 ## Single GPU
 ```
-CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=3 RANK=2 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
-```
-
-## 2 GPUs
-```
-CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=3 RANK=0 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
-CUDA_VISIBLE_DEVICES=1 WORLD_SIZE=3 RANK=1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
+# Runs a single worker process on the localhost
+CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=1 RANK=0 MASTER_PORT=29500 MASTER_ADDR=127.0.0.1 python dist_nccl_demo.py
 ```
 
 ## Distributed
 
-启动n个进程（跨多台物理机、只要网络连通即可）搞集合通信
+Start N workers, can be on localhost or across multiple hosts, forms distributed collective communication:
 ```
-WORLD_SIZE=n RANK=0 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
-WORLD_SIZE=n RANK=1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py 
-WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py 
+WORLD_SIZE=n RANK=0 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py
+WORLD_SIZE=n RANK=1 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py 
+WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py 
 ...
-WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py  
+WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py  
 ```
 
 ## Build NCCL
