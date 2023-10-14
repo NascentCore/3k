@@ -12,3 +12,6 @@ WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo
 ...
 
 WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py  
+
+`nccl` `nccl-tests` are complete git local repo; they should be added as submodule instead.
+TODO(yzhao): Use git submodule add https://github.com/NVIDIA/nccl examples/nccl 
