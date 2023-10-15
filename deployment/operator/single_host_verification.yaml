@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: single_host_verification
+  labels:
+    app.kubernetes.io/name: single_host_verification
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: single_host_verification
+  template:
+    metadata:
+      name: single_host_verification
+      labels:
+        app.kubernetes.io/name: single_host_verification
+    spec:
+      containers:
+      - name: bert
+        image: swr.cn-east-3.myhuaweicloud.com/sxwl/train_bert_deepspeed:v1
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            # Change this number to use all of the GPUs on the hosts
+            nvidia.com/gpu: 8
+        command:
+        - sh
+        - -c
+        - |
+          python train_bert.py  --local_rank 0 --checkpoint_dir experiments
