@@ -3,7 +3,7 @@
 Owner:
 * @congpeiqing (manager)
 * @yzhao (market-manager)
-* @cairong (platform & devops)
+* @cairong (deployment)
 
 Named after 3 major performance metrics of the system:
 * 1000+ GPUs
