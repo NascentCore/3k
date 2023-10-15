@@ -1,0 +1,34 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: verification
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: bert-single-gpu
+  labels:
+    app.kubernetes.io/name: bert-single-gpu
+  namespace: verification
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bert-single-gpu
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bert-single-gpu
+    spec:
+      containers:
+      - name: bert
+        image: swr.cn-east-3.myhuaweicloud.com/sxwl/train_bert_deepspeed:v1
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        command:
+        - sh
+        - -c
+        - |
+          python train_bert.py --local_rank 0 --checkpoint_dir experiments
