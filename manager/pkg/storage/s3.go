@@ -50,13 +50,15 @@ func uploadDirectory(sess *session.Session, bucket *string, path *string) error 
 // NewDirectoryIterator builds a new directoryIterator
 func NewDirectoryIterator(bucket *string, dir *string) s3manager.BatchUploadIterator {
 	var paths []string
-	filepath.Walk(*dir, func(path string, info os.FileInfo, err error) error {
+	e := filepath.Walk(*dir, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			paths = append(paths, path)
 		}
 		return nil
 	})
-
+	if e != nil {
+		return nil
+	}
 	return &directoryIterator{
 		filePaths: paths,
 		bucket:    *bucket,
