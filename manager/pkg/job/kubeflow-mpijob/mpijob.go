@@ -114,12 +114,6 @@ func (kfm MPIJob) Delete() error {
 	return clientgo.DeleteWithName(kfm.Namespace, "kubeflow.org", "v2beta1", "mpijobs", kfm.Name)
 }
 
-func (kfm MPIJob) Get() (map[string]interface{}, error) {
-	// TODO: impl it
-	return nil, nil
-}
-
-func ListMPIJob() error {
-	// TODO: impl it
-	return nil
+func listMPIJob(namespace string) (map[string]interface{}, error) {
+	return clientgo.GetObjects(namespace, "kubeflow.org", "v2beta1", "mpijobs")
 }
