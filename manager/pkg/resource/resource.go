@@ -80,7 +80,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 	info.CPodVersion = CPodVersion
 	// get node list from k8s
 	info.Nodes = []NodeInfo{}
-	if nodeInfo, err := clientgo.GetNodeInfo(); err != nil {
+	if nodeInfo, err := clientgo.GetNodeInfo(); err == nil {
 		for _, node := range nodeInfo.Items {
 			t := NodeInfo{}
 			t.Name = node.Name
@@ -113,7 +113,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 					t.GPUAllocatable = int(i)
 				}
 			}
-			t.MemInfo.Size = int(node.Status.Capacity.Memory().Value())
+			t.MemInfo.Size = int(node.Status.Capacity.Memory().Value() / 1024 / 1024)
 			info.Nodes = append(info.Nodes, t)
 		}
 	} else {

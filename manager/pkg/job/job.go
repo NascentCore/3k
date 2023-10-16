@@ -13,12 +13,12 @@ type (
 )
 
 const (
-	JobTypeMPI Type = 0
+	JobTypeMPI   Type = 0
+	JobNamespace      = "cpod"
 )
 
 type Job struct {
 	JobID                string
-	Namespace            string
 	JobType              Type
 	Image                string
 	DataPath             string
@@ -31,7 +31,7 @@ func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
-			Namespace:            j.Namespace,
+			Namespace:            JobNamespace, //all job runs in cpod namespace
 			Image:                j.Image,
 			DataPath:             j.DataPath,
 			CKPTPath:             j.CKPTPath,
@@ -46,7 +46,7 @@ func (j Job) Stop() error {
 	if j.JobType == JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
-			Namespace:            j.Namespace,
+			Namespace:            JobNamespace,
 			Image:                j.Image,
 			DataPath:             j.DataPath,
 			CKPTPath:             j.CKPTPath,
