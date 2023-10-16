@@ -70,10 +70,10 @@ func UploadCPodStatus(up UploadPayload) bool {
 		return false
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return false
+	if resp.StatusCode == 200 {
+		return true
 	}
-	return true
+	return false
 }
 
 // check the given url by make a test call.
