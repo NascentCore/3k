@@ -23,3 +23,10 @@
 
 * Add `// nolint:<linter name>` to disable a check of golangci-lint, for
   example: `// nolint:unused`.
+* Run super-linter locally:
+  ```
+  docker run --rm --env-file .github/super_linter.env \
+    -e USE_FIND_ALGORITHM=true -e RUN_LOCAL=true \
+    -v "$(git rev-parse --show-toplevel)":/tmp/lint \
+    super-linter
+  ```
