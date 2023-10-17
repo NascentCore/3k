@@ -1,58 +1,26 @@
-# NCCL
+#单卡机器运行下面一条command：
+CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=3 RANK=2 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
 
-## Building NCCL
 
-[Instructions](https://github.com/NVIDIA/nccl#install)
+#双卡机器（192.168.0.206）运行下面两条command：
 
-```
-cd nccl
-make -j src.build
+CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=3 RANK=0 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
 
-# Build deb package
-sudo apt-get install devscripts
-make pkg.debian.build
+CUDA_VISIBLE_DEVICES=1 WORLD_SIZE=3 RANK=1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
 
-# Install libnccl2
-sudo dpkg -i build/pkg/deb/libnccl2_2.18.6-1+cuda11.7_amd64.deb
-sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
-```
 
-## NCCL-TESTS
+#启动n个进程（跨多台物理机、只要网络连通即可）搞集合通信
 
-* An in-place operation uses the same buffer for its output as was used to
-  provide its input. An out-of-place operation has distinct input and output
-  buffers [ref](https://github.com/NVIDIA/nccl/issues/12).
+WORLD_SIZE=n RANK=0 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py
 
-## NCCL PyTorch tests
+WORLD_SIZE=n RANK=1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py 
 
-* Single GPU
-  ```
-  # Runs a single worker process on the localhost
-  CUDA_VISIBLE_DEVICES=0 WORLD_SIZE=1 RANK=0 MASTER_PORT=29500 MASTER_ADDR=127.0.0.1 python dist_nccl_demo.py
-  ```
-* Distributed
-  Start N workers, can be on localhost or across multiple hosts, forms distributed collective communication:
-  ```
-  WORLD_SIZE=n RANK=0 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py
-  WORLD_SIZE=n RANK=1 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py 
-  WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py 
-  ...
-  WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=<MASTER-IP> ./dist_nccl_demo.py  
-  ```
+WORLD_SIZE=n RANK=2 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py 
 
-## NOTES
+...
 
-* NCCL always use chains [LL-128](https://github.com/NVIDIA/nccl/issues/281#issuecomment-571816990)
-  for intra-node all reduce, see [NVIDIA/nccl/issues/919](https://github.com/NVIDIA/nccl/issues/919)
+WORLD_SIZE=n RANK=n-1 MASTER_PORT=29500 MASTER_ADDR=192.168.0.206 ./dist_nccl_demo.py  
 
-## 在worker4、worker5上做NCCL连通性测试（数据通过NET/Socket）
 
-在worker4上运行
-```
-./go_worker4.sh
-```
-
-在worker5上运行
-```
-./go_worker5.sh
-```
+base.Dockerfile用来构建torch-base镜像
+Dockerfile用来构建for_nccl_test
