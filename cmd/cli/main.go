@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 	"os"
-	"sxwl/3k/common/errors"
+	"sxwl/3k/pkg/utils/errors"
 
 	"github.com/urfave/cli/v2"
 )
