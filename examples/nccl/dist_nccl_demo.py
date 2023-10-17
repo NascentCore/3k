@@ -9,6 +9,8 @@ print("MASTER_ADDR = " + os.environ['MASTER_ADDR'])
 print("MASTER_PORT = " + os.environ['MASTER_PORT'])
 os.environ['NCCL_DEBUG'] = 'INFO'
 os.environ['NCCL_DEBUG_SUBSYS'] = "INIT,P2P,NET,COLL,GRAPH"
+os.environ['NCCL_SOCKET_IFNAME'] = "bond0"
+os.environ['NCCL_IB_DISABLE'] = '1'
 os.environ['NCCL_NET'] = 'Socket'
 os.environ['NCCL_NET_GDR_LEVEL'] = 'SYS'
 
