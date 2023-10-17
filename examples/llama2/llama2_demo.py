@@ -1,3 +1,13 @@
+"""
+Env vars:
+- NCCL_DEBUG=INFO
+- NCCL_P2P_DISABLE=1
+- NCCL_SOCKET_IFNAME=
+- NCCL_IB_HCA=
+- NCCL_IB_CUDA_SUPPORT=1
+"""
+
+
 # Standard libs.
 import argparse
 import sys
@@ -24,11 +34,6 @@ num_gpus = torch.cuda.device_count()
 if not torch.distributed.is_available():
     sys.exit("`torch.distributed` package is not available")
 
-
-"""
-"""
-
-
 # python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--model_path", type=str,
@@ -43,9 +48,8 @@ args = arg_parser.parse_args()
 # In MPI, group -- handle -- comminucator -- processes.
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl",
-                                     #world_size=num_gpus,
-                                     #rank=,
-)
+                                     """world_size=num_gpus,
+                                     rank=,""")
 
 config = LlamaConfig.from_pretrained(args.config_path)
 model = LlamaForCausalLM(config)
