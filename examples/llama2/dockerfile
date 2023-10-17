@@ -1,9 +1,12 @@
-# lanyun worker4:
+# LY worker4:
 # Ubuntu 20.04.6 LTS (GNU/Linux 5.4.0-164-generic x86_64)
 # NVIDIA-SMI 535.104.05    Driver Version: 535.104.05    CUDA Version: 12.2
 
 # https://hub.docker.com/r/nvidia/cuda/tags
 FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
+LABEL maintainer="glen@nascentcore.ai"
+LABEL version="0.1"
+LABEL build_date="2023-10-13"
 
 # https://hub.docker.com/r/pytorch/pytorch/tags
 #FROM pytorch/pytorch:latest

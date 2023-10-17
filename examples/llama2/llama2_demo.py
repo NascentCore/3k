@@ -1,5 +1,6 @@
 # Standard libs.
 import argparse
+import sys
 
 # 3rd-party libs.
 import torch
@@ -15,6 +16,19 @@ from transformers import (
 )
 
 
+if not torch.cuda.is_available():
+    sys.exit("CUDA/GPU not available on this node")
+num_gpus = torch.cuda.device_count()
+
+# Linux is supposed to be always okay.
+if not torch.distributed.is_available():
+    sys.exit("`torch.distributed` package is not available")
+
+
+"""
+"""
+
+
 # python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--model_path", type=str,
@@ -26,8 +40,19 @@ arg_parser.add_argument("--ds_config", type=str,
 arg_parser.add_argument("--local-rank", type=int, default="0")
 args = arg_parser.parse_args()
 
+# In MPI, group -- handle -- comminucator -- processes.
+# The default (working) group is the world.
+torch.distributed.init_process_group(backend="nccl",
+                                     #world_size=num_gpus,
+                                     #rank=,
+)
+
 config = LlamaConfig.from_pretrained(args.config_path)
 model = LlamaForCausalLM(config)
+
+gpu_dev = torch.device("cuda")
+model.to(gpu_dev)
+
 # Pretrained Models are set in evaluation mode by default during initialization.
 # Setting it back in training mode before doing any estimation on this model.
 # Not reqruied.
@@ -80,11 +105,15 @@ training_args = TrainingArguments(
 trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        test_dataset=test_dataset,
+        train_dataset=train_dataset.cuda(),
+        eval_dataset=eval_dataset.cuda(),
+        test_dataset=test_dataset.cuda(),
         data_collator=data_collator,
 )
 
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
+
+# XXX: Needs to check if `transformers.Trainer.train()`
+# is sync or async by default.
+#torch.distributed.destroy_process_group()
