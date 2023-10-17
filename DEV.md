@@ -29,7 +29,9 @@
   # https://github.com/super-linter/super-linter/issues/4495
   docker run --rm --env-file .github/super_linter.env \
     -e USE_FIND_ALGORITHM=true -e RUN_LOCAL=true \
-    -v "$(git rev-parse --show-toplevel)":/tmp/lint \
+    -v $(pwd)/.github:/tmp/lint/.github \
+    -v $(pwd)/.git:/tmp/lint/.git \
+    -v $(pwd)/<code-path>:/tmp/lint/<code-path> \
     --workdir /tmp/lint \
     super-linter
   ```
