@@ -7,11 +7,11 @@ run:
   allow-parallel-runners: true
   timeout: 6m
   skip-dirs:
-  - .github
-  - devops
-  - examples
-  - home
-  - k8s
+    - .github
+    - devops
+    - examples
+    - home
+    - k8s
 
 output:
   sort-results: true
@@ -35,30 +35,30 @@ issues:
 linters:
   disable-all: true
   enable:
-  - asciicheck
-  - errcheck
-  - godot
-  - gofumpt
-  - gofmt
-  - gosimple
-  - govet
-  - ineffassign
-  - makezero
-  - misspell
-  - nakedret
-  - nolintlint
-  - nonamedreturns
-  - predeclared
-  - staticcheck
-  - stylecheck
-  - unused
-  - lll
-  - whitespace
-  - goimports
-  - revive
-  # depguard checks imports are from specified repos/packages, that is too
-  # restrictive for rapid prototyping, so we disabled it.
-  # - depguard
+    - asciicheck
+    - errcheck
+    - godot
+    - gofumpt
+    - gofmt
+    - gosimple
+    - govet
+    - ineffassign
+    - makezero
+    - misspell
+    - nakedret
+    - nolintlint
+    - nonamedreturns
+    - predeclared
+    - staticcheck
+    - stylecheck
+    - unused
+    - lll
+    - whitespace
+    - goimports
+    - revive
+    # depguard checks imports are from specified repos/packages, that is too
+    # restrictive for rapid prototyping, so we disabled it.
+    # - depguard
 
 linters-settings:
   errcheck:
