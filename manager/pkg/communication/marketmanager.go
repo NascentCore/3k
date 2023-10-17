@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var baseURL string //nolint:unused
+var baseURL string
 
 func SetBaseURL(url string) {
 	baseURL = url
