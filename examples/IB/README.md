@@ -2,7 +2,7 @@
 
 InfiniBand verifications
 
-## ib_read_bw
+## ib_{read,write}_bw
 
 ```
 ssh -f <remote_ip> ib_read_bw
