@@ -1,5 +1,12 @@
 # NCCL
 
+## nccl_test_locally.py
+This test file runs an all_reduce operation on equal number of tensors as the GPU count on localhost.
+You can modify the reduce operation to test different operations.
+```
+python nccl_test_locally.py
+```
+
 ## Building NCCL
 
 [Instructions](https://github.com/NVIDIA/nccl#install)
