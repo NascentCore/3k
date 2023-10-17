@@ -63,7 +63,8 @@ model.to(gpu_dev)
 model.train()
 #print(model)
 
-estimate_zero3_model_states_mem_needs_all_live(model, num_gpus_per_node=8,
+estimate_zero3_model_states_mem_needs_all_live(model,
+                                               num_gpus_per_node=num_gpus,
                                                num_nodes=1)
 
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
