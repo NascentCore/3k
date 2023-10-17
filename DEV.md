@@ -25,8 +25,11 @@
   example: `// nolint:unused`.
 * Run super-linter locally:
   ```
+  # `--workdir /tmp/lint` is needed per
+  # https://github.com/super-linter/super-linter/issues/4495
   docker run --rm --env-file .github/super_linter.env \
     -e USE_FIND_ALGORITHM=true -e RUN_LOCAL=true \
     -v "$(git rev-parse --show-toplevel)":/tmp/lint \
+    --workdir /tmp/lint \
     super-linter
   ```
