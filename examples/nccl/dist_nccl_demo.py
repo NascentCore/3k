@@ -1,4 +1,3 @@
-#!/bin/env python
 import os
 import torch
 import torch.distributed as dist
@@ -19,7 +18,9 @@ dist.init_process_group(backend="nccl")
 print(3)
 
 rank = int(os.environ['RANK'])
-x1 = torch.tensor([rank + 1] * 16, dtype=torch.float32).cuda()
+cuda_dev_name='cuda:{}'.format(rank)
+print(cuda_dev_name)
+x1 = torch.tensor([rank] * 16, dtype=torch.float32, device=torch.device(cuda_dev_name))
 print(x1)
 
 dist.all_reduce(x1, op=dist.ReduceOp.SUM)
