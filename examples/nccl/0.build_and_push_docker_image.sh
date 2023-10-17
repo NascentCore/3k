@@ -1,4 +1,6 @@
 #!/bin/bash -x
+# 该脚本用于构造image，并上传华为云镜像服务
+#-------------------------------------------------------------------
 
 # 这几句先构造base镜像上传，base镜像不会轻易改动
 #docker rmi swr.cn-east-3.myhuaweicloud.com/sxwl/torch-base
