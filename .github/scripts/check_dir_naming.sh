@@ -1,12 +1,15 @@
 #!/bin/bash
 
 echo "Checking directory names include only lower case chars and '-'"
-# Declare variable outside of while loop, and modify its value inside
-# the loop does not work, as while loop executes in a sub-shell
-find home cli manager tools -type d | while read dirname; do
+found_breakage=false
+for dirname in $(find home cli manager tools -type d); do
   fname=$(basename ${dirname})
   if ! [[ ${fname} =~ ^[a-z-]+$ ]]; then
+    found_breakage=true
     echo "${dirname}"
-    exit 1
   fi
 done
+
+if [[ "${found_breakage}" == "true" ]]; then
+  exit 1
+fi
