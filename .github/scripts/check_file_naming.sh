@@ -2,7 +2,7 @@
 
 echo "Checking file names include only lower case chars and '-'"
 found_breakage=false
-for filename in $(find home cli manager tools market-manager -type f); do
+for filename in $(find home cli manager tools -type f); do
   fname=$(basename ${filename})
   if ! [[ ${fname} =~ ^[a-zA-Z0-9_\.]+$ ]]; then
     found_breakage=true
