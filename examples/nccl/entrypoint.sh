@@ -6,10 +6,18 @@
 
 nvidia-smi
 
-python ./nccl_test_locally.py
+cd gpu_direct_rdma_access/
+git am ../0001-solve-compilation-error.patch
+make USE_CUDA=1
+./server -a 192.168.0.206 -n 10000 -D 1 -s 10000000 -p 18001 &
+cd ..
+
 ifconfig -a
 ibv_devinfo
-exit
+ibdev2netdev -v
+ip link show
+
+python ./nccl_test_locally.py
 
 # 编译nccl库
 cd nccl
@@ -72,3 +80,4 @@ export NCCL_NET_GDR_LEVEL=LOC
 export NCCL_SHM_DISABLE=1
 go
 
+sleep inf
