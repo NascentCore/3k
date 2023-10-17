@@ -1,5 +1,11 @@
 """
 Env vars:
+- RANK
+- WORLD_SIZE
+
+- MASTER_ADDR
+- MASTER_PORT
+
 - NCCL_DEBUG=INFO
 - NCCL_P2P_DISABLE=1
 - NCCL_SOCKET_IFNAME=
@@ -11,6 +17,7 @@ Env vars:
 # Standard libs.
 import argparse
 import sys
+import os
 
 # 3rd-party libs.
 import torch
@@ -28,7 +35,11 @@ from transformers import (
 
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node")
+# This is the number of total available GPUs on this node.
+# Note: We have an env var - WORLD_SIZE, which is manully specified.
 num_gpus = torch.cuda.device_count()
+curr_rank = int(os.environ["RANK"])
+gpu_name = f"cuda:{curr_rank}"
 
 # Linux is supposed to be always okay.
 if not torch.distributed.is_available():
@@ -42,19 +53,19 @@ arg_parser.add_argument("--config_path", type=str,
                         default="./Llama2-Chinese-7b-Chat/config.json", help="model JSON config path")
 arg_parser.add_argument("--ds_config", type=str,
                         default="./config/dp_zero3_config.json", help="DeepSpeed JSON config path")
-arg_parser.add_argument("--local-rank", type=int, default="0")
+arg_parser.add_argument("--local-rank", type=int, default=f"{curr_rank}")
 args = arg_parser.parse_args()
 
 # In MPI, group -- handle -- comminucator -- processes.
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl",
-                                     """world_size=num_gpus,
-                                     rank=,""")
+                                     world_size=num_gpus,
+                                     rank=curr_rank)
 
 config = LlamaConfig.from_pretrained(args.config_path)
 model = LlamaForCausalLM(config)
 
-gpu_dev = torch.device("cuda")
+gpu_dev = torch.device(gpu_name)
 model.to(gpu_dev)
 
 # Pretrained Models are set in evaluation mode by default during initialization.
