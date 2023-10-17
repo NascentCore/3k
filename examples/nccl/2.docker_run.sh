@@ -1,4 +1,7 @@
 #!/bin/bash -x
+#
+# 该脚本用来启动docker容器
+#
 
 IMAGE_NAME="swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test:latest"
 DOCKER_NAME="lwn_for_nccl_test"
