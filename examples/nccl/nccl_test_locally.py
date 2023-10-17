@@ -1,25 +1,32 @@
 #!/bin/env python
 #
-# An minimal usecase of NCCL by using pytorch
+# An minimal use case of NCCL by using pytorch
 #
-# Usage: ./nccl_test_locally.py
+# Usage: python nccl_test_locally.py
 # -------------------------------------------------------------------
 
 import torch
 import os
 import time
+import torch.distributed as dist
 
 os.environ["NCCL_DEBUG"] = "INFO"
 
-x1 = torch.tensor([i for i in range(1024)], dtype=torch.float32, device=torch.device("cuda:0"))
-x2 = torch.tensor([1 for i in range(1024)], dtype=torch.float32, device=torch.device("cuda:1"))
+arrs = []
+for i in range(torch.cuda.device_count()):
+    cuda_dev_name = 'cuda:{}'.format(i)
+    x = torch.tensor([i for j in range(128)], dtype=torch.float32,
+                     device=torch.device(cuda_dev_name))
+    arrs.append(x)
 
-print(x1)
-print(x2)
+print(arrs)
 
 t = time.perf_counter()
-torch.cuda.nccl.all_reduce([x1,x2])
+torch.cuda.nccl.all_reduce(arrs,
+                           # Change to other operator for testing
+                           op=dist.ReduceOp.SUM)
+
 print(f'coast:{time.perf_counter() - t:.8f}s')
 
-print(x1)
-print(x2)
+# x1, x2 values should be identical now
+print(arrs)
