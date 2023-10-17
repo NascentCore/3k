@@ -8,7 +8,7 @@ echo
 print_divider
 echo "Running golangci-lint ..."
 print_divider
-golangci-lint run --fix --config=devops/linters/golangci.yaml
+golangci-lint run --fix --config=.github/linters/.golangci.yml
 
 echo
 print_divider
