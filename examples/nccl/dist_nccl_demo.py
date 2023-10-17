@@ -19,7 +19,7 @@ dist.init_process_group(backend="nccl")
 print(3)
 
 rank = int(os.environ["RANK"])
-cuda_dev_name="cuda:{}".format(rank)
+cuda_dev_name = "cuda:{}".format(rank)
 print(cuda_dev_name)
 x1 = torch.tensor([rank] * 16, dtype=torch.float32, device=torch.device(cuda_dev_name))
 print(x1)
