@@ -5,14 +5,17 @@
 *.swl
 *.swm
 *.swn
+
 # Model checkpoint
-examples/llama2/Llama2-Chinese-7b-Chat
-# Training data
+examples/llama2/Llama2-Chinese-7b-Chat/
+
+# LLaMA2 data
 examples/llama2/data/
 examples/llama2/wikitext-103-raw/
 
-# Checkpoint output
-examples/bert_deepspeed/experiments/
+# Bert data
+examples/bert/dataset/
+examples/bert/experiments/
 
 # Ignore experiment directory
 *ds_experiments
