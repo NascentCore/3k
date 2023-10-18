@@ -42,6 +42,10 @@ docker push swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test
 
 #### 3、镜像的`entrypoint.sh`
 
+启动镜像后，会自动编译`gpu_direct_rdma_access`、`nccl`、`nccl_test`；然后跑nccl_test。这部分代码在`entrypoint.sh`中。
+编译流程要求镜像中有cuda工具链，也就是说，host上的nvidia-container-toolkit运行正常；RuntimeClass是nvidia，把nvidia驱动和工具链都放在容器内。
+运行流程，希望容器可以认到两块显卡，否则`nccl_test_locally.py`会跑错。
+
 ### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`）
 
 ### 在docker下启动镜像（`2.docker_run.sh`）
