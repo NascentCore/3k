@@ -4,9 +4,9 @@
 
 # https://hub.docker.com/r/nvidia/cuda/tags
 FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
-LABEL maintainer="glen@nascentcore.ai"
+
+LABEL sxwl.ai.maintainer="glen@nascentcore.ai"
 LABEL version="0.1"
-LABEL build_date="2023-10-13"
 
 # https://hub.docker.com/r/pytorch/pytorch/tags
 #FROM pytorch/pytorch:latest
