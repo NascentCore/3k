@@ -19,16 +19,14 @@ RUN apt-get update && \
 
 WORKDIR /llama2
 
-# Set up the pip source for China.
-RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-# And then upgrade pip.
-RUN python3 -m pip install --no-cache-dir --upgrade pip
-
 # TODO: All artifiacts for training/fine-tuning LLaMA 2.
 COPY llama2_demo.py requirements.txt config \
      Llama2-Chinese-7b-Chat /llama2/
 
-# Dependencies for Python app.
-RUN python3 -m pip install -r requirements.txt
+# Set up the pip source for China, upgrade pip, and then install deps.
+RUN python3 -m pip config \
+    set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    python3 -m pip install --no-cache-dir --upgrade pip && \
+    python3 -m pip install -r requirements.txt
 
 #ENTRYPOINT ["python3", "llama2_demo.py"]
