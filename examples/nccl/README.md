@@ -16,6 +16,38 @@
 
 其中的主要测试用例是调用NCCL做一次allreduce，包括单机多卡情况（`nccl_test_locally.py`）、和多机情况（`dist_nccl_demo.py`）。只要allreduce跑通，则可以在此配置下跑通分布式训练。
 
+## 构造容器镜像（`0.build_and_push_docker_image.sh`）、在k8s下启动镜像（`1.k8s_apply_yaml.sh`）、在docker下启动镜像（`2.docker_run.sh`）
+
+### 构造容器镜像（`0.build_and_push_docker_image.sh`）
+
+#### 1、首先构造底包（`base.Dockerfile`）
+
+底包中包含了特别大、绝对没有争议的驱动、环境，包括python3、MLNX_OFED用户部分程序、pytorch和其他常见网络命令。
+
+```
+docker rmi swr.cn-east-3.myhuaweicloud.com/sxwl/torch-base
+docker build . -f base.Dockerfile -t swr.cn-east-3.myhuaweicloud.com/sxwl/torch-base
+docker push swr.cn-east-3.myhuaweicloud.com/sxwl/torch-base
+```
+
+#### 2、然后在底包的基础上加入各种工具（`Dockerfile`）
+
+首先配好sshd，然后把该repo中的文件都复制进去。
+
+```
+docker rmi -f swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test
+docker build -t swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test .
+docker push swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test
+```
+
+#### 3、镜像的`entrypoint.sh`
+
+### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`）
+
+### 在docker下启动镜像（`2.docker_run.sh`）
+
+
+
 ## nccl_test_locally.py
 This test file runs an all_reduce operation on equal number of tensors as the GPU count on localhost.
 You can modify the reduce operation to test different operations.
@@ -79,16 +111,3 @@ sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
 ```
 ./go_worker5.sh
 ```
-
-
-## 构造容器镜像（`0.build_and_push_docker_image.sh`）、在k8s下启动镜像（`1.k8s_apply_yaml.sh`）、在docker下启动镜像（`2.docker_run.sh`）
-
-### 构造容器镜像（`0.build_and_push_docker_image.sh`）
-
-#### 1、首先构造底包`base.Dockerfile`
-
-#### 2、然后在底包的基础上加入各种工具
-
-### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`）
-
-### 在docker下启动镜像（`2.docker_run.sh`）
