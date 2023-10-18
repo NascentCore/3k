@@ -18,7 +18,7 @@ for go_file in $(find . -name '*.go'); do
   fi
 
   # If the source file is less than 10 lines, then no test file is needed.
-  if [[ ${line_count} < 10 ]]; then
+  if [[ ${line_count} -lt 10 ]]; then
     continue
   fi
 
