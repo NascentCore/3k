@@ -24,6 +24,8 @@ COPY llama2_demo.py requirements.txt config \
      Llama2-Chinese-7b-Chat /llama2/
 
 # Set up the pip source for China, upgrade pip, and then install deps.
+# https://stackoverflow.com/a/72551258
+ENV PIP_ROOT_USER_ACTION=ignore
 RUN python3 -m pip config \
     set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip install --no-cache-dir --upgrade pip && \
