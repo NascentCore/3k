@@ -1,6 +1,19 @@
 # NCCL
 
-该repo的目的是为了构造用于测试NCCL连通性的镜像，包括裸机、容器上、k8s的容器上，竭力包含所有必要工具。
+该repo为了构造用于测试NCCL连通性的镜像，包括裸机、容器上、k8s的容器上，竭力包含所有必要工具。
+其中的主要测试用例是调用NCCL做一次allreduce，包括单机多卡情况、和多机情况。只要allreduce跑通，则可以在此配置下跑通分布式训练。
+
+| 文件/文件夹 | 用途 |
+| :-----| :----- |
+|`nccl`、`nccl-tests`|nccl的源码和测试nccl性能的小工具。https://github.com/NVIDIA/nccl https://github.com/NVIDIA/nccl-tests|
+|`0001-solve-compilation-error.patch`、`gpu_direct_rdma_access`|直接调用cuda函数，跑通GPUDirect RDMA；要求有nv_peer_memory内核模块。`0001-solve-compilation-error.patch`修正源码中的编译错误bug。 https://github.com/Mellanox/gpu_direct_rdma_access|
+|`nccl_test_locally.py`|单机多卡情况下的allreduce测试用例|
+|`dist_nccl_demo.py`|多机情况下的allreduce测试用例|
+|`base.Dockerfile`、`Dockerfile`|制作镜像本体|
+|`base.Dockerfile`|制作镜像本体|
+|`0.build_and_push_docker_image.sh`、`entrypoint.sh`|一个例子，制作镜像的命令|
+|`1.k8s_apply_yaml.sh`、`k8s_nccl_test.yaml`|一个例子，在k8s上运行该镜像|
+|`2.docker_run.sh`|一个例子，在docker上运行该镜像|
 
 ## nccl_test_locally.py
 This test file runs an all_reduce operation on equal number of tensors as the GPU count on localhost.
