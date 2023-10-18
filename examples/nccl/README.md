@@ -67,8 +67,17 @@ docker run -it --rm \
     ${IMAGE_NAME}
 ```
 
-其中的`--shm-size=1g`来自
+其中，`--shm-size=1g`的依据是这里https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/troubleshooting.html#sharing-data；没有这个参数，NCCL走SHM途径传输数据失败。
 
+`--runtime=nvidia`触发nvidia-container-toolkit向容器中注入nvidia驱动和cuda工具链；没有这个参数，nvidia-container-toolkit配置好的情况下也会自动触发。
+
+`--cap-add=IPC_LOCK`是使用RDMA网卡必要的参数。
+
+`--network host`将IPoIB模式的RDMA网卡、和Ethernet模式的RDMA网卡的ifname直通给容器内部。
+
+`--device=/dev/infiniband/uverbs0`将作为PCIe设备的RDMA网卡直通给容器内部。
+
+RDMA网卡的相关参数来自《How-to: Deploy RDMA accelerated Docker container over InfiniBand fabric. - Solutions - NVIDIA Networking Docs》这篇文章，原链接https://docs.nvidia.com/networking/pages/releaseview.action?pageId=15049785，不知道为啥，这篇文章被删掉了。
 
 ## nccl_test_locally.py
 This test file runs an all_reduce operation on equal number of tensors as the GPU count on localhost.
