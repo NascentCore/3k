@@ -6,6 +6,7 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
 
 LABEL sxwl.ai.maintainer="glen@nascentcore.ai"
+LABEL sxwl.ai.build_date="2023-10-13"
 LABEL version="0.1"
 
 # https://hub.docker.com/r/pytorch/pytorch/tags
