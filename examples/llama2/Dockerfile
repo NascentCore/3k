@@ -24,8 +24,8 @@ RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN python3 -m pip install --no-cache-dir --upgrade pip
 
 # TODO: All artifiacts for training/fine-tuning LLaMA 2.
-COPY llama2_demo.py requirements.txt Dockerfile config \
-     Llama2-Chinese-7b-Chat wikitext-103-raw /llama2
+COPY llama2_demo.py requirements.txt config \
+     Llama2-Chinese-7b-Chat /llama2/
 
 # Dependencies for Python app.
 RUN python3 -m pip install -r requirements.txt
