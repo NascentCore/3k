@@ -19,11 +19,10 @@ RUN mkdir /tmp/openmpi && \
     ldconfig && \
     rm -rf /tmp/openmpi
 
-# Install SSH
+# Install SSH and Enable password-less SSH login
+# Needed by launching with OpenMPI
 RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
     mkdir -p /var/run/sshd
-
-# Enable password-less SSH login
 RUN sed -i 's/[ #]\(.*StrictHostKeyChecking \).*/ \1no/g' /etc/ssh/ssh_config && \
     echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
     sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config
