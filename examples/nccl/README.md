@@ -10,8 +10,8 @@
 |`nccl_test_locally.py`|单机多卡情况下的allreduce测试用例|
 |`dist_nccl_demo.py`|多机情况下的allreduce测试用例|
 |`DDP_MNIST_demo.py`|分布式训练的例子；各结点独自训练的间隙，调用allreduce求梯度平均。调用allreduce的途径与`dist_nccl_demo.py`相同；`dist_nccl_demo.py`运行正常，此例应当运行正常。|
-|`base.Dockerfile`、`Dockerfile`|制作镜像本体|
-|`0.build_and_push_docker_image.sh`、`entrypoint.sh`|一个例子，制作镜像的命令|
+|`base.Dockerfile`、`Dockerfile`、`entrypoint.sh`|镜像本体的描述文件|
+|`0.build_and_push_docker_image.sh`|一个例子，制作镜像的命令|
 |`1.k8s_apply_yaml.sh`、`k8s_nccl_test.yaml`|一个例子，在k8s上运行该镜像|
 |`2.docker_run.sh`|一个例子，在docker上运行该镜像|
 
