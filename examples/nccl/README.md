@@ -1,5 +1,7 @@
 # NCCL
 
+该repo的目的是为了构造用于测试NCCL连通性的镜像，包括裸机、容器上、k8s的容器上，竭力包含所有必要工具。
+
 ## nccl_test_locally.py
 This test file runs an all_reduce operation on equal number of tensors as the GPU count on localhost.
 You can modify the reduce operation to test different operations.
