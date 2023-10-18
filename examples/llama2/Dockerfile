@@ -13,8 +13,9 @@ LABEL build_date="2023-10-13"
 #FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
 
 # Foundamental env and tools.
-RUN apt-get update && apt-get install -y git wget && \
-    apt-get install -y python3-pip
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y git wget python3-pip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /llama2
 
