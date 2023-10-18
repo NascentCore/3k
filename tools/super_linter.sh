@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ $# -lt 1 ]]; then
+  echo "$0 <target-to-lint/file-or-directory>"
+  exit 1
+fi
+
 target="$1"
 tot=$(git rev-parse --show-toplevel)
 tmp_lint="/tmp/lint"
