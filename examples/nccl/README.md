@@ -82,3 +82,13 @@ sudo dpkg -i build/pkg/deb/libnccl-dev_2.18.6-1+cuda11.7_amd64.deb
 
 
 ## 构造容器镜像（`0.build_and_push_docker_image.sh`）、在k8s下启动镜像（`1.k8s_apply_yaml.sh`）、在docker下启动镜像（`2.docker_run.sh`）
+
+### 构造容器镜像（`0.build_and_push_docker_image.sh`）
+
+#### 1、首先构造底包`base.Dockerfile`
+
+#### 2、然后在底包的基础上加入各种工具
+
+### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`）
+
+### 在docker下启动镜像（`2.docker_run.sh`）
