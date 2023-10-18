@@ -6,7 +6,7 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
 
 LABEL sxwl.ai.maintainer="glen@nascentcore.ai"
-LABEL sxwl.ai.build_date="2023-10-13"
+LABEL sxwl.ai.build-date="2023-10-13"
 LABEL version="0.1"
 
 # https://hub.docker.com/r/pytorch/pytorch/tags
@@ -14,6 +14,7 @@ LABEL version="0.1"
 #FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
 
 # Foundamental env and tools.
+# hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get install --no-install-recommends -y git wget python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -27,9 +28,10 @@ COPY llama2_demo.py requirements.txt config \
 # Set up the pip source for China, upgrade pip, and then install deps.
 # https://stackoverflow.com/a/72551258
 ENV PIP_ROOT_USER_ACTION=ignore
+# hadolint ignore=DL3013
 RUN python3 -m pip config \
     set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip install --no-cache-dir --upgrade pip && \
-    python3 -m pip install -r requirements.txt
+    python3 -m pip install --no-cache-dir -r requirements.txt
 
 #ENTRYPOINT ["python3", "llama2_demo.py"]
