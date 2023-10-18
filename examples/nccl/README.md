@@ -46,10 +46,28 @@ docker push swr.cn-east-3.myhuaweicloud.com/sxwl/for_nccl_test
 编译流程要求镜像中有cuda工具链，也就是说，host上的nvidia-container-toolkit运行正常；RuntimeClass是nvidia，把nvidia驱动和工具链都放在容器内。
 运行流程，希望容器可以认到两块显卡，否则`nccl_test_locally.py`会跑错。
 
-### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`）
+### 在k8s下启动镜像（`1.k8s_apply_yaml.sh`、`k8s_nccl_test.yaml`）
+
+对k8s的要求主要是GPU operator就绪；而且可以申请到两块GPU。
 
 ### 在docker下启动镜像（`2.docker_run.sh`）
 
+在k8s的情况下启动容器，容器中使用GPU和RDMA网卡的一切特殊参数均被包圆。在docker下，就要手动设置这些参数。
+`2.docker_run.sh`是让容器认到GPU和RDMA网卡的例子，主要内容如下：
+
+```
+docker run -it --rm \
+    --shm-size=1g \
+    --runtime=nvidia \
+    --name ${DOCKER_NAME} \
+    --cap-add=IPC_LOCK \
+    --network host \
+    --device=/dev/infiniband/uverbs0 \
+    --hostname ${DOCKER_NAME} \
+    ${IMAGE_NAME}
+```
+
+其中的`--shm-size=1g`来自
 
 
 ## nccl_test_locally.py
