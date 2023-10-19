@@ -1,4 +1,11 @@
 """
+On LY worker4:
+
+export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=mlx5_ NCCL_IB_HCA=ibs1
+
+python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py
+
+
 Env vars:
 - NCCL_DEBUG=INFO
 - NCCL_NET=IB
@@ -17,8 +24,6 @@ Note:
 - NCCL version
 
 torch.distributed.launch OR torchrun
-
-python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="" --master-port=
 """
 
 
