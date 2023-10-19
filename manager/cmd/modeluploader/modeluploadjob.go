@@ -18,7 +18,7 @@ func main() {
 	mpiJobName := os.Args[1]
 	bucket := os.Args[2]
 	//检查上传任务是否已经开始
-	if started, err := modeluploader.CheckUploadStarted(); err != nil {
+	if started, err := modeluploader.CheckUploadStarted(modeluploader.UploadStartedFlagFile); err != nil {
 		os.Exit(1)
 	} else if !started { //尚末开始
 		clientgo.InitClient()
@@ -33,7 +33,7 @@ func main() {
 			return
 		}
 		//写入开始上传标志
-		if err := modeluploader.MarkUploadStarted(); err != nil {
+		if err := modeluploader.MarkUploadStarted(modeluploader.UploadStartedFlagFile); err != nil {
 			os.Exit(1)
 		}
 	}

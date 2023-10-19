@@ -1,5 +1,7 @@
 package modeluploader
 
+import "os"
+
 // NO_TEST_NEEDED
 
 const StatusNeedUploadModel = "Complete"
@@ -22,11 +24,17 @@ func UploadModel(bucket string) error {
 }
 
 // 标记上传开始
-func MarkUploadStarted() error {
-	return nil
+func MarkUploadStarted(fileName string) error {
+	return os.WriteFile(fileName, []byte("let's go"), os.ModePerm)
 }
 
 // 在启动时检查是否已经开始上传（应对上传中断的情况）
-func CheckUploadStarted() (bool, error) {
-	return false, nil
+func CheckUploadStarted(fileName string) (bool, error) {
+	_, err := os.ReadFile(fileName)
+	if err == nil {
+		return true, nil
+	} else if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
 }
