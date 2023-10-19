@@ -107,24 +107,30 @@ out_model_path = "llama2_output"
 num_train_epochs = 10
 batch_size = 1
 
-"""
-train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                      file_path="wikitext-103-raw/wiki.train.raw",
-                                      block_size=max_seq_length)
-eval_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                     file_path="wikitext-103-raw/wiki.valid.raw",
-                                     block_size=max_seq_length)
-test_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                     file_path="wikitext-103-raw/wiki.test.raw",
-                                     block_size=max_seq_length)
-torch.save(train_dataset, "data/train_dataset_ml8.pt")
-torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
-torch.save(test_dataset, "data/test_dataset_ml8.pt")
-"""
-
-train_dataset = torch.load("data/train_dataset_ml8.pt")
-eval_dataset = torch.load("data/eval_dataset_ml8.pt")
-test_dataset = torch.load("data/test_dataset_ml8.pt")
+# Train dataset
+if os.path.exists("./data/train_dataset_ml8.pt"):
+    train_dataset = torch.load("data/train_dataset_ml8.pt")
+else:
+    train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
+                                          file_path="wikitext-103-raw/wiki.train.raw",
+                                          block_size=max_seq_length)
+    torch.save(train_dataset, "data/train_dataset_ml8.pt")
+# Evaluation dataset
+if os.path.exists("./data/eval_dataset_ml8.pt"):
+    eval_dataset = torch.load("data/eval_dataset_ml8.pt")
+else:
+    eval_dataset = LineByLineTextDataset(tokenizer=tokenizer,
+                                          file_path="wikitext-103-raw/wiki.eval.raw",
+                                          block_size=max_seq_length)
+    torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
+# Test dataset
+if os.path.exists("./data/test_dataset_ml8.pt"):
+    test_dataset = torch.load("data/test_dataset_ml8.pt")
+else:
+    test_dataset = LineByLineTextDataset(tokenizer=tokenizer,
+                                          file_path="wikitext-103-raw/wiki.test.raw",
+                                          block_size=max_seq_length)
+    torch.save(test_dataset, "data/test_dataset_ml8.pt")
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
@@ -161,3 +167,5 @@ trainer.train()
 # XXX: Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
 #torch.distributed.destroy_process_group()
+
+print("Done training...")
