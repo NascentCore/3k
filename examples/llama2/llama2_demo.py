@@ -129,7 +129,8 @@ test_dataset = torch.load("data/test_dataset_ml8.pt")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-    log_level="debug",
+    #log_level="debug",
+    log_level="info",
     output_dir=out_model_path,
     overwrite_output_dir=True,
     do_train=True,
