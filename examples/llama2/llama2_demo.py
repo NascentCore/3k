@@ -2,7 +2,7 @@
 On LY worker4:
 
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
-export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=mlx5_ NCCL_IB_HCA=ibs1
+export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_ 
 
 python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py
 
@@ -107,6 +107,7 @@ out_model_path = "llama2_output"
 num_train_epochs = 10
 batch_size = 1
 
+"""
 train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
                                       file_path="wikitext-103-raw/wiki.train.raw",
                                       block_size=max_seq_length)
@@ -119,33 +120,39 @@ test_dataset = LineByLineTextDataset(tokenizer=tokenizer,
 torch.save(train_dataset, "data/train_dataset_ml8.pt")
 torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
 torch.save(test_dataset, "data/test_dataset_ml8.pt")
+"""
+
+train_dataset = torch.load("data/train_dataset_ml8.pt")
+eval_dataset = torch.load("data/eval_dataset_ml8.pt")
+test_dataset = torch.load("data/test_dataset_ml8.pt")
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-        log_level=debug,
-        output_dir=out_model_path,
-        overwrite_output_dir=True,
-        do_train=True,
-        num_train_epochs=num_train_epochs,
-        per_device_train_batch_size=batch_size,
-        save_strategy="steps",  # TBD
-        save_steps=2000,  # TBD
-        save_total_limit=2,  # TBD
-        prediction_loss_only=True,
-        report_to="none",
-        local_rank=curr_rank,  # XXX
-        deepspeed=args.ds_config,
+    log_level="debug",
+    output_dir=out_model_path,
+    overwrite_output_dir=True,
+    do_train=True,
+    num_train_epochs=num_train_epochs,
+    per_device_train_batch_size=batch_size,
+    save_strategy="steps",  # TBD
+    save_steps=2000,  # TBD
+    save_total_limit=2,  # TBD
+    prediction_loss_only=True,
+    report_to="none",
+    local_rank=curr_rank,  # XXX
+    deepspeed=args.ds_config,
 )
 
 trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset.cuda(),
-        eval_dataset=eval_dataset.cuda(),
-        test_dataset=test_dataset.cuda(),
-        data_collator=data_collator,
+    model=model,
+    args=training_args,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset,
+    data_collator=data_collator,
 )
+
+print("Begin training...")
 
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
