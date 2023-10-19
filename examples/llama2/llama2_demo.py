@@ -1,6 +1,7 @@
 """
 On LY worker4:
 
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=mlx5_ NCCL_IB_HCA=ibs1
 
 python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py
@@ -65,7 +66,7 @@ torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
 curr_rank = torch.distributed.get_rank()
 print(f"world_size: {torch.distributed.get_world_size()}")
-print(f"Current global rank: f{curr_rank}")
+print(f"Current global rank: {curr_rank}")
 
 gpu_name = f"cuda:{curr_rank}"
 
@@ -93,9 +94,9 @@ model.train()
 #print(model)
 
 # A single node with multiple GPUs.
-estimate_zero3_model_states_mem_needs_all_live(model,
-                                               num_gpus_per_node=num_gpus,
-                                               num_nodes=1)
+#estimate_zero3_model_states_mem_needs_all_live(model,
+#                                               num_gpus_per_node=num_gpus,
+#                                               num_nodes=1)
 
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
 # XXX
