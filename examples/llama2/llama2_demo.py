@@ -166,8 +166,12 @@ print("Begin training...")
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
 
-# XXX: Needs to check if `transformers.Trainer.train()`
-# is sync or async by default.
-#torch.distributed.destroy_process_group()
+trainer.save_model()
 
 print("Done training...")
+
+# XXX: Needs to check if `transformers.Trainer.train()`
+# is sync or async by default.
+torch.distributed.destroy_process_group()
+
+os.exit(0)
