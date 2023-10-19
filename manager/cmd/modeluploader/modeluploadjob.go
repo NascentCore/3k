@@ -11,6 +11,7 @@ import (
 
 // Input ： MPIJob的Name ， S3的地址以及Bucket
 func main() {
+	// TODO: with cli tools
 	if len(os.Args) != 3 {
 		fmt.Println("Usage : modeluploadjob  [ MPIJob Name ] [ Bucket ] ")
 		os.Exit(1)
