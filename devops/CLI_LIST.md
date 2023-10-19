@@ -6,3 +6,4 @@
 ## IB
 * `ibping`: Pings an InfiniBand address. Issued on the Linux InfiniBand host.
 * `mst`: MST (Mellanox Software Tools) service
+* `lspci -t`: list PCI devices in a tree, shows their connections.
