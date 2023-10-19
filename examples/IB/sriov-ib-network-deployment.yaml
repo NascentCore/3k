@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-pod-1
+  labels:
+    app: sriov
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: sample-pod-1
+  template:
+    metadata:
+      labels:
+        app: sample-pod-1
+      annotations:
+        k8s.v1.cni.cncf.io/networks: example-sriov-ib-network
+    spec:
+      containers:
+      - image: dockerhub.kubekey.local/kubesphereio/cuda-ib-test-centos7:v0.2
+        imagePullPolicy: IfNotPresent
+        name: mlnx-inbox-ctr
+        securityContext:
+          capabilities:
+            add: [ "IPC_LOCK" ]
+        resources:
+          requests:
+            nvidia.com/mlnxnics: '1'
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/mlnxnics: '1'
+            nvidia.com/gpu: 1
+        command:
+        - sh
+        - -c
+        - sleep inf
