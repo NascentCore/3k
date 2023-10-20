@@ -1,3 +1,0 @@
-# Common
-
-Common utility APIs.
