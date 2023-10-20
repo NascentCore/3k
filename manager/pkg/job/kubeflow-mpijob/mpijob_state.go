@@ -1,6 +1,7 @@
 package kubeflowmpijob
 
 import (
+	"fmt"
 	"sxwl/3k/manager/pkg/job/state"
 )
 
@@ -9,22 +10,15 @@ import (
 func GetState(namespace string) []state.State {
 	data, err := listMPIJob(namespace)
 	if err != nil {
+		fmt.Println(err)
 		return []state.State{}
 	}
 	//从Data中提取State信息
-	var ok bool
-	items, ok := data["items"]
-	if !ok {
-		return []state.State{}
-	}
-	items_, ok := items.([]interface{})
-	if !ok {
-		return []state.State{}
-	}
 	res := []state.State{}
-	for _, item := range items_ {
+	for _, item := range data {
 		item_, ok := item.(map[string]interface{})
 		if !ok {
+			fmt.Println("not map string interface")
 			return []state.State{}
 		}
 		s := state.State{}
