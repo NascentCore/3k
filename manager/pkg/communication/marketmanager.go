@@ -18,14 +18,14 @@ func SetBaseURL(url string) {
 }
 
 type UploadPayload struct {
-	CPodID       string
-	JobStatus    []state.State
-	ResourceInfo resource.CPodResourceInfo
-	UpdateTime   time.Time
+	CPodID       string                    `json:"cpod_id"`
+	JobStatus    []state.State             `json:"job_status"`
+	ResourceInfo resource.CPodResourceInfo `json:"resource_info"`
+	UpdateTime   time.Time                 `json:"update_time"`
 }
 
 type JobPayload struct {
-	Jobs []job.Job
+	Jobs []job.Job `json:"jobs"`
 }
 
 // communicate with market manager get jobs should run in this cpod.

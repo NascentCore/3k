@@ -59,6 +59,7 @@ type NodeInfo struct {
 	KernelVersion  string                `json:"kernel_version"` //Linux内核版本
 	LinuxDist      string                `json:"linux_dist"`     //Linux发行版信息  如：CentOS7.6
 	GPUInfo        `json:"gpu_info"`     //GPU信息
+	GPUTotal       int                   `json:"gpu_total"`       //GPU总量
 	GPUAllocatable int                   `json:"gpu_allocatable"` //可用GPU总量（暂时先不管个体信息）
 	GPUState       []GPUState            `json:"gpu_state"`       //GPU状态信息对应到每张卡
 	CPUInfo        `json:"cpu_info"`     //CPU信息
@@ -67,11 +68,29 @@ type NodeInfo struct {
 	NetworkInfo    `json:"network_info"` //网络信息
 }
 
+// 某一类GPU的汇总信息
+type GPUSummary struct {
+	Vendor      string `json:"vendor"`      //生产商
+	Prod        string `json:"prod"`        //型号
+	Total       int    `json:"total"`       //总量
+	Allocatable int    `json:"allocatable"` //可用量
+}
+
 // 对于CPod的资源描述：包含资源总量，使用情况，分配情况
 type CPodResourceInfo struct {
-	CPodID      string     `json:"cpod_id"`      //CPOD_ID , 对于CPod的唯一标识
-	CPodVersion string     `json:"cpod_version"` //CPod的版本， 这里会隐含K8S的版本信息
-	Nodes       []NodeInfo `json:"nodes"`        //节点信息
+	CPodID       string       `json:"cpod_id"`       //CPOD_ID , 对于CPod的唯一标识
+	CPodVersion  string       `json:"cpod_version"`  //CPod的版本， 这里会隐含K8S的版本信息
+	GPUSummaries []GPUSummary `json:"gpu_summaries"` //GPU汇总信息，每一条代表一类GPU（如3090）
+	Nodes        []NodeInfo   `json:"nodes"`         //节点信息
+}
+
+// 做已知的GPU类型的映射，使类型名与产品前端保持一致
+func GPURename(prod string) string {
+	if prod == "NVIDIA-GeForce-RTX-3090" {
+		return "3090"
+	}
+	// TODO: add more rules for A100  A800  H100 H800
+	return prod
 }
 
 func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
@@ -105,6 +124,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 				//init GPUState Array , accordding to nvidia.com/gpu.count label
 				t.GPUState = []GPUState{}
 				gpuCnt, _ := strconv.Atoi(node.Labels["nvidia.com/gpu.count"])
+				t.GPUTotal = gpuCnt
 				for i := 0; i < gpuCnt; i++ {
 					t.GPUState = append(t.GPUState, GPUState{})
 				}
@@ -118,6 +138,21 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 		}
 	} else {
 		log.Println("failed retrieve node info from k8s.")
+	}
+	//stat gpus in cpod
+	statTotal := map[[2]string]int{}
+	statAlloc := map[[2]string]int{}
+	for _, node := range info.Nodes {
+		statTotal[[2]string{node.GPUInfo.Vendor, node.GPUInfo.Prod}] += node.GPUTotal
+		statAlloc[[2]string{node.GPUInfo.Vendor, node.GPUInfo.Prod}] += node.GPUAllocatable
+	}
+	for k, v := range statTotal {
+		info.GPUSummaries = append(info.GPUSummaries, GPUSummary{
+			Vendor:      k[0],
+			Prod:        GPURename(k[1]),
+			Total:       v,
+			Allocatable: statAlloc[k],
+		})
 	}
 	// TODO: 从监控系统获取信息并补充到info，从APIServer获取的信息中没有网络以及磁盘的信息，需要从监控系统中获取
 	return info
