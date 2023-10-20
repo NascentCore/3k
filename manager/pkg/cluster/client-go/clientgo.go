@@ -21,13 +21,13 @@ func GetObjectData(namespace, group, version, resources, name string) (map[strin
 	return data.Object, nil
 }
 
-func GetObjects(namespace, group, version, resources string) (map[string]interface{}, error) {
+func GetObjects(namespace, group, version, resources string) ([]unstructured.Unstructured, error) {
 	crd := schema.GroupVersionResource{Group: group, Version: version, Resource: resources}
 	data, err := dynamicClient.Resource(crd).Namespace(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	return data.Object, nil
+	return data.Items, nil
 }
 
 // !!! resources must be plural.
