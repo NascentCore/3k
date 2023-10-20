@@ -1,3 +1,4 @@
+---
 apiVersion: sriovnetwork.openshift.io/v1
 kind: SriovNetworkNodePolicy
 metadata:
@@ -9,7 +10,7 @@ spec:
   nodeSelector:
     feature.node.kubernetes.io/pci-15b3.present: "true"
   nicSelector:
-    vendor: "15b3"
+    vendor: 15b3
   linkType: ib
   isRdma: true
   numVfs: 8
