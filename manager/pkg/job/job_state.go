@@ -11,7 +11,11 @@ func GetJobState() []state.State {
 	res := []state.State{}
 	//对于不同类型的任务，分别获取其任务状态，加入到结果中
 	// KubeflowMPI
-	res = append(res, kubeflowmpijob.GetState(JobNamespace)...)
+	if data, err := kubeflowmpijob.GetStates(JobNamespace); err == nil {
+		res = append(res, data...)
+	} else {
+		// TODO: log err
+	}
 	// more if exists
 	return res
 }
