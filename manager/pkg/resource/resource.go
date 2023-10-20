@@ -84,15 +84,6 @@ type CPodResourceInfo struct {
 	Nodes        []NodeInfo   `json:"nodes"`         //节点信息
 }
 
-// 做已知的GPU类型的映射，使类型名与产品前端保持一致
-func GPURename(prod string) string {
-	if prod == "NVIDIA-GeForce-RTX-3090" {
-		return "3090"
-	}
-	// TODO: add more rules for A100  A800  H100 H800
-	return prod
-}
-
 func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 	var info CPodResourceInfo
 	info.CPodID = CPodID
@@ -149,7 +140,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 	for k, v := range statTotal {
 		info.GPUSummaries = append(info.GPUSummaries, GPUSummary{
 			Vendor:      k[0],
-			Prod:        GPURename(k[1]),
+			Prod:        k[1],
 			Total:       v,
 			Allocatable: statAlloc[k],
 		})
