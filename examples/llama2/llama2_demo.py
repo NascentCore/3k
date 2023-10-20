@@ -1,7 +1,7 @@
 """
 On LY worker4:
 
-export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+#export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_ 
 
 python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2.log 2>&1 &
@@ -105,9 +105,10 @@ tokenizer.pad_token = tokenizer.eos_token
 
 max_seq_length = 16
 # FIXME
-out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-num_train_epochs = 10
-batch_size = 1
+#out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+out_model_path = "llama2_output"
+num_train_epochs = 4
+batch_size = 2
 
 # Train dataset
 if os.path.exists("./data/train_dataset_ml8.pt"):
@@ -122,23 +123,23 @@ if os.path.exists("./data/eval_dataset_ml8.pt"):
     eval_dataset = torch.load("data/eval_dataset_ml8.pt")
 else:
     eval_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                          file_path="wikitext-103-raw/wiki.eval.raw",
-                                          block_size=max_seq_length)
+                                         file_path="wikitext-103-raw/wiki.eval.raw",
+                                         block_size=max_seq_length)
     torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
 # Test dataset
 if os.path.exists("./data/test_dataset_ml8.pt"):
     test_dataset = torch.load("data/test_dataset_ml8.pt")
 else:
     test_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                          file_path="wikitext-103-raw/wiki.test.raw",
-                                          block_size=max_seq_length)
+                                         file_path="wikitext-103-raw/wiki.test.raw",
+                                         block_size=max_seq_length)
     torch.save(test_dataset, "data/test_dataset_ml8.pt")
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-    #log_level="debug",
-    log_level="info",
+    log_level="debug",
+    #log_level="info",
     output_dir=out_model_path,
     overwrite_output_dir=True,
     do_train=True,
@@ -166,6 +167,7 @@ print("Begin training...")
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
 
+print("Saving model...")
 trainer.save_model()
 
 print("Done training...")
