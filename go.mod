@@ -1,6 +1,6 @@
 module sxwl/3k
 
-go 1.21.1
+go 1.21
 
 require github.com/urfave/cli/v2 v2.25.7
 

@@ -2,7 +2,7 @@ package job
 
 import (
 	"fmt"
-	commonerrors "sxwl/3k/common/errors"
+	commonerrors "sxwl/3k/pkg/utils/errors"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 )
 
