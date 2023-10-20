@@ -16,4 +16,4 @@ docker run --rm --env-file ${tot}/.github/super_linter.env \
     -v ${tot}/.git:${tmp_lint}/.git \
     -v ${tot}/${target}:${tmp_lint}/${target} \
     --workdir ${tmp_lint} \
-    super-linter
+    registry.ap-southeast-1.aliyuncs.com/sxwl-ai/super-linter:slim-v5
