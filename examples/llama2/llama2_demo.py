@@ -2,7 +2,7 @@
 On LY worker4:
 
 #export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
-export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_ 
+export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_P2P_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_
 
 python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2.log 2>&1 &
 
@@ -10,15 +10,18 @@ python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr=
 Env vars:
 - NCCL_DEBUG=INFO
 - NCCL_NET=IB
+- NCCL_P2P_LEVEL=SYS  # Try to enforce P2P anywhere.
 - NCCL_SOCKET_IFNAME=
 - NCCL_IB_HCA=
-- NCCL_IB_CUDA_SUPPORT=1
+- NCCL_IB_CUDA_SUPPORT=1  # Try to enforce GDR.
 - NCCL_NET_GDR_LEVEL=SYS
 - NCCL_IB_GDR_LEVEL=SYS
+- NCCL_NET_GDR_READ=1
 - NCCL_DEBUG_SUBSYS=ALL
 
 Note:
 - "NCCL_P2P_DISABLE=1" should not be set.
+- "NCCL_P2P_DIRECT_DISABLE=1" should not be set.
 - ibdev2netdev to check NCCL_SOCKET_IFNAME (rhs) and NCCL_IB_HCA (lhs)
 - "NCCL_COLLNET_ENABLE=1" may need to be set.
 - "NCCL_COLLNET_NODE_THRESHOLD=17" may need to be set.
