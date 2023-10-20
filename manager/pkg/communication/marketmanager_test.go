@@ -1,6 +1,8 @@
 package communication
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetTasks(t *testing.T) {
 	// TODO
