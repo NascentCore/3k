@@ -1,18 +1,12 @@
 FROM registry.cn-hangzhou.aliyuncs.com/sxwl-ai/common:v2023-10-16-00
-LABEL maintainer="glen@nascentcore.ai"
-LABEL version="0.1"
-LABEL build_date="2023-10-13"
 
-# 更换 Pip 源到国内的镜像源
-RUN python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-# 更新 Pip 源之后，用 Python3 重新安装 Pip，并在之后用 Python3 调用 Pip
-RUN python3 -m pip install --no-cache-dir --upgrade pip
+# Use China mainland pip source
+RUN python3 -m pip config set global.index-url \
+    https://pypi.tuna.tsinghua.edu.cn/simple && \
+    python3 -m pip install --no-cache-dir --upgrade pip
 
-# 将当前目录的全部内容拷贝到容器镜像的 /workspace 目录
 ADD . /workspace
 
-# 将容器镜像的 /workspace 目录设置为容器镜像启动时的工作目录
 WORKDIR /workspace
 
-# 安装相应的 Python 包
 RUN python3 -m pip install -r requirements.txt
