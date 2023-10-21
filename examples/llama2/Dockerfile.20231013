@@ -12,4 +12,4 @@ WORKDIR /workspace
 COPY requirements.txt ./
 RUN python3 -m pip install -r requirements.txt
 
-ADD llama2_demo.py ./
+COPY llama2_demo.py ./
