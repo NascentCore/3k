@@ -5,8 +5,11 @@ RUN python3 -m pip config set global.index-url \
     https://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip install --no-cache-dir --upgrade pip
 
-ADD . /workspace
-
 WORKDIR /workspace
 
+# Allow docker build to cache requirements.txt so that the later pip install
+# can use the cached pip install
+COPY requirements.txt ./
 RUN python3 -m pip install -r requirements.txt
+
+ADD llama2_demo.py ./
