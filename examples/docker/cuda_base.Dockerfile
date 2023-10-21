@@ -5,9 +5,18 @@
 FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git wget python3-pip && \
+    apt-get install -y --no-install-recommends git wget python3-pip \
+    openssh-client openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/run/sshd
+
+# Enable password-less SSH login
+# Needed by launching with OpenMPI
+RUN sed -i 's/[ #]\(.*StrictHostKeyChecking \).*/ \1no/g' /etc/ssh/ssh_config && \
+    echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
+    sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config
 
 # Build OpenMPI
 RUN mkdir /tmp/openmpi && \
@@ -21,10 +30,3 @@ RUN mkdir /tmp/openmpi && \
     ldconfig && \
     rm -rf /tmp/openmpi
 
-# Install SSH and Enable password-less SSH login
-# Needed by launching with OpenMPI
-RUN apt-get install -y --no-install-recommends openssh-client openssh-server && \
-    mkdir -p /var/run/sshd
-RUN sed -i 's/[ #]\(.*StrictHostKeyChecking \).*/ \1no/g' /etc/ssh/ssh_config && \
-    echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
-    sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config
