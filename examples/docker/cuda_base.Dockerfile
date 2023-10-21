@@ -5,12 +5,14 @@
 FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git wget python3-pip
+    apt-get install -y --no-install-recommends git wget python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Build OpenMPI
 RUN mkdir /tmp/openmpi && \
     cd /tmp/openmpi && \
-    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.5.tar.gz && \
+    wget --quiet https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.5.tar.gz && \
     tar zxf openmpi-4.1.5.tar.gz && \
     cd openmpi-4.1.5 && \
     ./configure --enable-orterun-prefix-by-default && \
