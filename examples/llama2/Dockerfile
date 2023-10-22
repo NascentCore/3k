@@ -16,6 +16,7 @@ LABEL version="0.1"
 # Foundamental env and tools.
 # hadolint ignore=DL3008
 RUN apt-get update && \
+    apt-get install --no-install-recommends -y gcc python3-dev && \
     apt-get install --no-install-recommends -y git wget python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
