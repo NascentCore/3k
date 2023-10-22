@@ -1,0 +1,8 @@
+# This list the model as discovered by NVIDIA GPU Feature Discovery (GFD),
+# and populated by K8s Node Feature Discovery (NFD)
+# These values are copied from actual hardware and a complte NFD & GFD installation on K8s,
+# and then use kubectl describe node to get the actual model
+# These models are populated onto portal for customers to do selection
+# TODO(peiqing,jiming): Let the cluster report GPU models
+NVIDIA-A100-SXM4-80GB
+NVIDIA-GeForce-RTX-3090
