@@ -1,10 +1,14 @@
 """
-On LY worker4:
+On LY worker4/worker5:
 
 #export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_P2P_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_
 
-python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2.log 2>&1 &
+# LY worker4
+python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=2 --node_rank=0 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2_worker4.log 2>&1 &
+
+# LY worker5
+python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=2 --node_rank=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2_worker5.log 2>&1 &
 
 
 Env vars:
@@ -68,11 +72,9 @@ if not torch.distributed.is_available():
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
-curr_rank = torch.distributed.get_rank()
+curr_global_rank = torch.distributed.get_rank()
 print(f"world_size: {torch.distributed.get_world_size()}")
-print(f"Current global rank: {curr_rank}")
-
-gpu_name = f"cuda:{curr_rank}"
+print(f"Current global rank: {curr_global_rank}")
 
 # python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
@@ -82,8 +84,16 @@ arg_parser.add_argument("--config_path", type=str,
                         default="./Llama2-Chinese-7b-Chat/config.json", help="model JSON config path")
 arg_parser.add_argument("--ds_config", type=str,
                         default="./config/dp_zero3_config.json", help="DeepSpeed JSON config path")
-arg_parser.add_argument("--local-rank", type=int, default=f"{curr_rank}")
+# --local-rank=LOCAL_PROCESS_RANK, which will be provided by `torch.distributed` module.
+arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
+
+curr_local_rank = args.local_rank
+print(f"Current local rank: {curr_local_rank}")
+
+#torch.cuda.set_device(curr_local_rank)
+
+gpu_name = f"cuda:{curr_local_rank}"
 
 config = LlamaConfig.from_pretrained(args.config_path)
 model = LlamaForCausalLM(config)
@@ -111,7 +121,7 @@ max_seq_length = 16
 #out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 out_model_path = "llama2_output"
 num_train_epochs = 4
-batch_size = 2
+batch_size = 8
 
 # Train dataset
 if os.path.exists("./data/train_dataset_ml8.pt"):
@@ -129,6 +139,7 @@ else:
                                          file_path="wikitext-103-raw/wiki.eval.raw",
                                          block_size=max_seq_length)
     torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
+"""
 # Test dataset
 if os.path.exists("./data/test_dataset_ml8.pt"):
     test_dataset = torch.load("data/test_dataset_ml8.pt")
@@ -137,12 +148,13 @@ else:
                                          file_path="wikitext-103-raw/wiki.test.raw",
                                          block_size=max_seq_length)
     torch.save(test_dataset, "data/test_dataset_ml8.pt")
+"""
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-    log_level="debug",
-    #log_level="info",
+    #log_level="debug",
+    log_level="info",
     output_dir=out_model_path,
     overwrite_output_dir=True,
     do_train=True,
@@ -153,7 +165,8 @@ training_args = TrainingArguments(
     save_total_limit=2,  # TBD
     prediction_loss_only=True,
     report_to="none",
-    local_rank=curr_rank,  # XXX
+    push_to_hub=False,
+    local_rank=curr_local_rank,  # XXX
     deepspeed=args.ds_config,
 )
 
@@ -171,6 +184,7 @@ print("Begin training...")
 trainer.train()
 
 print("Saving model...")
+# FIXME
 trainer.save_model()
 
 print("Done training...")
@@ -179,4 +193,4 @@ print("Done training...")
 # is sync or async by default.
 torch.distributed.destroy_process_group()
 
-os.exit(0)
+#os.exit(0)
