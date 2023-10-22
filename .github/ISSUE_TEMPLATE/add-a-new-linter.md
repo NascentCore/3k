@@ -2,7 +2,7 @@
 name: Add a new linter
 about: Adding a new linter to improve the check on the existing source files
 title: "[LINTER] Add linter: "
-labels: community, engineering-excellence
+labels: ''
 assignees: ''
 
 ---

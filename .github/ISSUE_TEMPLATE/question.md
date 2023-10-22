@@ -2,7 +2,7 @@
 name: Question
 about: Ask a question about Starship, its technical details, usage, roadmap, and others
 title: "[Q] "
-labels: community, needs-triage, question
+labels: question
 assignees: ''
 
 ---
