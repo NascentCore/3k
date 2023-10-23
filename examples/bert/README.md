@@ -5,6 +5,12 @@ Based on the examples in the official DeepSpeed repo:
 * https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
 * https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert_ds.py
 
+## Prerequisite
+
+```
+sudo apt-get install libopenmpi-dev
+```
+
 ## Training code
 
 ```
