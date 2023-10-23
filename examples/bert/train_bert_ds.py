@@ -31,9 +31,7 @@ from transformers.models.roberta.modeling_roberta import (
     RobertaPreTrainedModel,
 )
 
-
-deepspeed.init_distributed()
-deepspeed.ops.op_builder.CPUAdamBuilder().load()
+from deepspeed.accelerator import get_accelerator
 
 def is_rank_0() -> bool:
     return int(os.environ.get("RANK", "0")) == 0
@@ -266,17 +264,18 @@ def create_data_iterator(
             be able to continuously generate samples
 
     """
-    #wikitext_dataset = datasets.load_dataset("wikitext","wikitext-2-v1",split="train")
+    # TODO(yzhao): Change to use command line flags, local or online
+    # Dataset is from:
+    # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
+    # wikitext_dataset = datasets.load_dataset("wikitext",
+    #                                          "wikitext-2-v1",
+    #                                          split="train")
     wikitext_dataset =datasets.load_from_disk('dataset/wikitext')
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
-
-    # This uses the configurations cached locally.
-    tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
-    # This uses the configurations from HF, uncomment this to get the uptodate
-    # version of tokenizer config.
     # tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained("./model_roberta_base/")
     masking_function_partial = partial(
         masking_function,
         tokenizer=tokenizer,
@@ -341,7 +340,6 @@ class RobertaLMHeadWithMaskedPredict(RobertaLMHead):
 class RobertaMLMModel(RobertaPreTrainedModel):
     def __init__(self, config: RobertaConfig, encoder: RobertaModel) -> None:
         super().__init__(config)
-
         self.encoder = encoder
         self.lm_head = RobertaLMHeadWithMaskedPredict(
             config, self.encoder.embeddings.word_embeddings.weight)
@@ -438,13 +436,7 @@ def create_model(num_layers: int, num_heads: int, ff_dim: int, h_dim: int,
         "type_vocab_size": 1,
         "vocab_size": 50265,
     }
-    # The hyper-parameter configs defined below are for pre-training
-    # Uncomment the code below to test pre-training Bert
     roberta_config = RobertaConfig.from_dict(roberta_config_dict)
-
-    # The code below is for loading pre-trained model.
-    # roberta_config=RobertaConfig.from_pretrained("roberta-base")
-
     roberta_encoder = RobertaModel(roberta_config)
     roberta_model = RobertaMLMModel(roberta_config, roberta_encoder)
     return roberta_model
@@ -490,19 +482,22 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     # experiment name follows the following convention
     # {exp_type}.{YYYY}.{MM}.{DD}.{HH}.{MM}.{SS}.{uuid}
     current_time = datetime.datetime.now(pytz.timezone("US/Pacific"))
-    expname = "bert_pretrain.{0}.{1}.{2}.{3}.{4}.{5}".format(
+    expname = "bert_pretrain.{0}.{1}.{2}.{3}.{4}.{5}.{6}".format(
         current_time.year,
         current_time.month,
         current_time.day,
         current_time.hour,
         current_time.minute,
-        #current_time.second,
+        current_time.second,
         get_unique_identifier(),
     )
     exp_dir = checkpoint_dir / expname
     if not is_rank_0():
         return exp_dir
-    exp_dir.mkdir(exist_ok=False)
+    # TODO(yzhao): Investigate the effect of this on restoring checkpoint.
+    # exist_ok is set to True to allow restarting, this is also needed when
+    # resuming from existing checkpoints.
+    exp_dir.mkdir(exist_ok=True)
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
@@ -536,7 +531,9 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
             level=logging.INFO)
     # Finally create the Tensorboard Dir
     tb_dir = exp_dir / "tb_dir"
-    tb_dir.mkdir(exist_ok=False)
+    # TODO(yzhao): Investigate if need to change this.
+    # Same as above for allow existing directory.
+    tb_dir.mkdir(exist_ok=True)
     return exp_dir
 
 
@@ -603,37 +600,31 @@ def load_model_checkpoint(
 ######################################################################
 ######################## Driver Functions ############################
 ######################################################################
-import argparse
-def add_argument():
 
-    parser = argparse.ArgumentParser(description='bert')
 
-    parser.add_argument('--local_rank',type=int, default=-1,help='local rank passed from distributed launcher')
-    parser.add_argument('--checkpoint_dir',type=str, default=None,help='The base experiment directory to save experiments to')
-    parser.add_argument('--load_checkpoint_dir', type=str, default=None, help='')
-    parser.add_argument('--mask_prob', type=float, default=0.15, help='The fraction of tokens to mask.')
-    parser.add_argument('--random_replace_prob', type=float, default=0.1, help='The fraction of masked tokens to replace with random token.')
-    parser.add_argument('--unmask_replace_prob', type=float, default=0.1, help='The fraction of masked tokens to leave unchanged.')
-    parser.add_argument('--max_seq_length', type=int, default=512, help='The maximum sequence length of the examples. Defaults to 512.')
-    parser.add_argument('--tokenizer', type=str, default="roberta-base", help='')
-    parser.add_argument('--num_layers', type=int, default=6, help='The number of layers in the Bert model. ')
-    parser.add_argument('--num_heads', type=int, default=8, help='Number of attention heads to use.')
-    parser.add_argument('--ff_dim', type=int, default=512, help='Size of the intermediate dimension in the FF layer.')
-    parser.add_argument('--h_dim', type=int, default=256, help='Size of intermediate representations.')
-    parser.add_argument('--dropout', type=float, default=0.1, help='Amout of Dropout to use.')
-    parser.add_argument('--batch_size', type=int, default=8, help='The minibatch size. ')
-    parser.add_argument('--num_iterations', type=int, default=10000, help='Total number of iterations to run the model for.')
-    parser.add_argument('--checkpoint_every', type=int, default=1000, help='Save checkpoint after these many steps.')
-    parser.add_argument('--log_every', type=int, default=10, help='')
-
-    parser = deepspeed.add_config_arguments(parser)
-    args = parser.parse_args()
-
-    return args
-
-args = add_argument()
-
-def train(args) -> pathlib.Path:
+def train(
+        checkpoint_dir: str = None,
+        load_checkpoint_dir: str = None,
+        # Dataset Parameters
+        mask_prob: float = 0.15,
+        random_replace_prob: float = 0.1,
+        unmask_replace_prob: float = 0.1,
+        max_seq_length: int = 512,
+        tokenizer: str = "roberta-base",
+        # Model Parameters
+        num_layers: int = 6,
+        num_heads: int = 8,
+        ff_dim: int = 512,
+        h_dim: int = 256,
+        dropout: float = 0.1,
+        # Training Parameters
+        batch_size: int = 8,
+        num_iterations: int = 10000,
+        checkpoint_every: int = 1000,
+        log_every: int = 10,
+        local_rank: int = -1,
+        dtype: str = "bf16",
+) -> pathlib.Path:
     """Trains a [Bert style](https://arxiv.org/pdf/1810.04805.pdf)
     (transformer encoder only) model for MLM Task
 
@@ -688,27 +679,11 @@ def train(args) -> pathlib.Path:
         pathlib.Path: The final experiment directory
 
     """
-    checkpoint_dir = args.checkpoint_dir
-    load_checkpoint_dir = args.load_checkpoint_dir
-    mask_prob = args.mask_prob
-    random_replace_prob = args.random_replace_prob
-    unmask_replace_prob = args.unmask_replace_prob
-    max_seq_length = args.max_seq_length
-    tokenizer = args.tokenizer
-    num_layers = args.num_layers
-    num_heads = args.num_heads
-    ff_dim = args.ff_dim
-    h_dim = args.h_dim
-    dropout = args.dropout
-    batch_size = args.batch_size
-    num_iterations = args.num_iterations
-    checkpoint_every = args.checkpoint_every
-    log_every = args.log_every
-    local_rank = args.local_rank
-
-
-    device = (torch.device("cuda", local_rank) if (local_rank > -1)
-              and torch.cuda.is_available() else torch.device("cpu"))
+    # Check for MPI env vars, and assign to local_rank if it's set.
+    if os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'):
+        local_rank = int(os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
+    device = (torch.device(get_accelerator().device_name(), local_rank) if (local_rank > -1)
+              and get_accelerator().is_available() else torch.device("cpu"))
     ################################
     ###### Create Exp. Dir #########
     ################################
@@ -759,7 +734,7 @@ def train(args) -> pathlib.Path:
                  ranks=[0],
                  level=logging.INFO)
         load_checkpoint_dir = pathlib.Path(load_checkpoint_dir)
-        #assert load_checkpoint_dir.exists()
+        assert load_checkpoint_dir.exists()
         with (load_checkpoint_dir / "hparams.json").open("r") as handle:
             hparams = json.load(handle)
         # Set the hparams
@@ -817,6 +792,7 @@ def train(args) -> pathlib.Path:
     ###### DeepSpeed engine ########
     ################################
     log_dist("Creating DeepSpeed engine", ranks=[0], level=logging.INFO)
+    assert (dtype == 'fp16' or dtype == 'bf16')
     ds_config = {
         "train_micro_batch_size_per_gpu": batch_size,
         "optimizer": {
@@ -825,7 +801,7 @@ def train(args) -> pathlib.Path:
                 "lr": 1e-4
             }
         },
-        "fp16": {
+        dtype: {
             "enabled": True
         },
         "zero_optimization": {
@@ -833,14 +809,9 @@ def train(args) -> pathlib.Path:
             "offload_optimizer": {
                 "device": "cpu"
             }
-        },
-        "checkpoint": {
-             # 使用这个选项让本机的训练任务把 checkpoint 写入到本地的存储空间
-             "use_node_local_storage": True
         }
     }
-    model, _, _, _ = deepspeed.initialize(args=args,
-                                          model=model,
+    model, _, _, _ = deepspeed.initialize(model=model,
                                           model_parameters=model.parameters(),
                                           config=ds_config)
     log_dist("DeepSpeed engine created", ranks=[0], level=logging.INFO)
@@ -899,13 +870,14 @@ def train(args) -> pathlib.Path:
 
 
 if __name__ == "__main__":
-    os.environ['OMPI_COMM_WORLD_LOCAL_RANK'] = os.environ.get('LOCAL_RANK')
+    print ("OMPI_COMM_WORLD_SIZE:", os.environ.get('OMPI_COMM_WORLD_SIZE'))
+    print ("OMPI_COMM_WORLD_RANK:", os.environ.get('OMPI_COMM_WORLD_RANK'))
+    print ("OMPI_COMM_WORLD_LOCAL_SIZE:", os.environ.get('OMPI_COMM_WORLD_LOCAL_SIZE'))
+    print ("OMPI_COMM_WORLD_LOCAL_RANK:", os.environ.get('OMPI_COMM_WORLD_LOCAL_RANK'))
+    print ("OMPI_UNIVERSE_SIZE:", os.environ.get('OMPI_UNIVERSE_SIZE'))
+    print ("OMPI_COMM_WORLD_NODE_RANK:", os.environ.get('OMPI_COMM_WORLD_NODE_RANK'))
 
     torch.manual_seed(42)
     np.random.seed(0)
     random.seed(0)
-
-    #fire.Fire(train)
-    print(args)
-
-    train(args)
+    fire.Fire(train)
