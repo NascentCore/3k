@@ -8,4 +8,5 @@ Do the following to overcome the GFW:
 ```
 sudo apt install git docker.io
 sudo usermod -aG docker $USER
+newgrp docker
 ```
