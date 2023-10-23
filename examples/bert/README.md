@@ -11,6 +11,12 @@ Based on the examples in the official DeepSpeed repo:
 sudo apt-get install openmpi-bin openmpi-common libopenmpi-dev libgtk2.0-dev
 ```
 
+## Datasets
+```
+wget https://sxwl-ai.oss-cn-beijing.aliyuncs.com/hf-datasets/hf_wikitext.tar.gz
+tar zxvf hf_wikitext.tar.gz
+```
+
 ## Training code
 
 ```
