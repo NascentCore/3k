@@ -8,7 +8,7 @@ Based on the examples in the official DeepSpeed repo:
 ## Prerequisite
 
 ```
-sudo apt-get install libopenmpi-dev
+sudo apt-get install openmpi-bin openmpi-common libopenmpi-dev libgtk2.0-dev
 ```
 
 ## Training code
