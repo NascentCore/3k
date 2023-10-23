@@ -235,6 +235,7 @@ class InfiniteIterator(object):
 
 
 def create_data_iterator(
+        datasets_dir: str,
         mask_prob: float,
         random_replace_prob: float,
         unmask_replace_prob: float,
@@ -245,6 +246,8 @@ def create_data_iterator(
     """Create the dataloader.
 
     Args:
+        datasets_dir: (str):
+            The directory storing training datasets.
         mask_prob (float):
             Fraction of tokens to mask
         random_replace_prob (float):
@@ -264,13 +267,12 @@ def create_data_iterator(
             be able to continuously generate samples
 
     """
-    # TODO(yzhao): Change to use command line flags, local or online
     # Dataset is from:
     # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
     # wikitext_dataset = datasets.load_dataset("wikitext",
     #                                          "wikitext-2-v1",
     #                                          split="train")
-    wikitext_dataset =datasets.load_from_disk('dataset/wikitext')
+    wikitext_dataset =datasets.load_from_disk(datasets_dir)
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
@@ -603,6 +605,7 @@ def load_model_checkpoint(
 
 
 def train(
+        datasets_dir: str = None,
         checkpoint_dir: str = None,
         load_checkpoint_dir: str = None,
         # Dataset Parameters
@@ -629,6 +632,8 @@ def train(
     (transformer encoder only) model for MLM Task
 
     Args:
+        datasets_dir (str):
+            The directory storing training datasets.
         checkpoint_dir (str):
             The base experiment directory to save experiments to
         mask_prob (float, optional):
@@ -687,6 +692,12 @@ def train(
     ################################
     ###### Create Exp. Dir #########
     ################################
+    if datasets_dir is None:
+        log_dist(
+            "Need to specify datasets_dir",
+            ranks=[0],
+            level=logging.ERROR)
+        return
     if checkpoint_dir is None and load_checkpoint_dir is None:
         log_dist(
             "Need to specify one of checkpoint_dir"
@@ -771,6 +782,7 @@ def train(
         mask_prob=mask_prob,
         random_replace_prob=random_replace_prob,
         unmask_replace_prob=unmask_replace_prob,
+        datasets_dir=datasets_dir,
         tokenizer=tokenizer,
         max_seq_length=max_seq_length,
         batch_size=batch_size,
