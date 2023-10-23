@@ -5,6 +5,7 @@ import (
 	"os"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	"sxwl/3k/manager/pkg/job/state"
+	"sxwl/3k/manager/pkg/storage"
 	"time"
 )
 
@@ -22,7 +23,7 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		s, err := kubeflowmpijob.GetState("cpod", mpiJobName)
 		if err != nil {
 			//如果MPIJob已经被删除
-			if errors.Is(err, errors.New("not exist")) {
+			if errors.Is(err, kubeflowmpijob.ErrNotFound) {
 				return "deleted", nil
 			}
 			// TODO: log err
@@ -47,9 +48,8 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 
 // err != nil 代表上传任务失败，程序无法继续执行。
 // 需要由K8S触发重启
-func UploadModel(bucket string) error {
-	// TODO: impl
-	return nil
+func UploadModel(bucket string, jobName string) error {
+	return storage.UploadDirToOSS(bucket, jobName, "/data")
 }
 
 // 标记上传开始

@@ -40,7 +40,7 @@ func main() {
 	}
 	//（继续）上传模型
 	//如果发生错误，进程异常退出
-	if err := modeluploader.UploadModel(bucket); err != nil {
+	if err := modeluploader.UploadModel(bucket, mpiJobName); err != nil {
 		os.Exit(1)
 	}
 }
