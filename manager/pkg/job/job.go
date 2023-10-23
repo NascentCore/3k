@@ -2,18 +2,18 @@ package job
 
 import (
 	"fmt"
-	commonerrors "sxwl/3k/pkg/utils/errors"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
+	commonerrors "sxwl/3k/pkg/utils/errors"
 )
 
 // NO_TEST_NEEDED
 
 type (
-	Type int
+	Type string
 )
 
 const (
-	JobTypeMPI   Type = 0
+	JobTypeMPI   Type = "MPI" //与云市场一致
 	JobNamespace      = "cpod"
 )
 
@@ -23,8 +23,13 @@ type Job struct {
 	Image                string
 	DataPath             string
 	CKPTPath             string
+	ModelPath            string
+	GPUType              string
 	GPURequiredPerWorker int
 	Replicas             int
+	HuggingFaceURL       string
+	Duration             int
+	StopType             int
 }
 
 func (j Job) Run() error {
