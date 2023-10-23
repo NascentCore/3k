@@ -2,11 +2,14 @@ package kubeflowmpijob
 
 import (
 	"errors"
+	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/job/state"
 )
 
 // NO_TEST_NEEDED
+
+var ErrNotFound error = errors.New("not found")
 
 func GetStates(namespace string) ([]state.State, error) {
 	data, err := listMPIJob(namespace)
@@ -29,10 +32,13 @@ func GetStates(namespace string) ([]state.State, error) {
 	return res, nil
 }
 
-// TODO： 如果不存在，返回Error（“not exist”）
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v2beta1", "mpijobs", name)
 	if err != nil {
+		//如果不存在返回 Not Found
+		if err.Error() == fmt.Sprintf(`mpijobs.kubeflow.org "%s" not found`, name) {
+			return state.State{}, ErrNotFound
+		}
 		return state.State{}, err
 	}
 	s, err := parseState(data)
