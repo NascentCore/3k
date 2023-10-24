@@ -9,6 +9,8 @@ import (
 
 // NO_TEST_NEEDED
 
+var ErrNotFound error = errors.New("not found")
+
 func GetStates(namespace string) ([]state.State, error) {
 	data, err := listMPIJob(namespace)
 	if err != nil {
@@ -33,7 +35,10 @@ func GetStates(namespace string) ([]state.State, error) {
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v2beta1", "mpijobs", name)
 	if err != nil {
-		fmt.Println(err)
+		//如果不存在返回 Not Found
+		if err.Error() == fmt.Sprintf(`mpijobs.kubeflow.org "%s" not found`, name) {
+			return state.State{}, ErrNotFound
+		}
 		return state.State{}, err
 	}
 	s, err := parseState(data)
