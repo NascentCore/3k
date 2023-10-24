@@ -10,7 +10,7 @@ import (
 )
 
 const StatusNeedUploadModel = "Complete"
-const UploadStartedFlagFile = "/data/upload_started_flag_file"
+const UploadStartedFlagFile = "upload_started_flag_file"
 
 // moniter the given mpijob , until it stops (fail , finish , mannual interrupt or whatever)
 // 返回 (KUBEFLOW)MPIJob结束时的状态 status  和  监控过程中发生的程序必须中断不可恢复的错误 err
@@ -48,8 +48,8 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 
 // err != nil 代表上传任务失败，程序无法继续执行。
 // 需要由K8S触发重启
-func UploadModel(bucket string, jobName string) error {
-	return storage.UploadDirToOSS(bucket, jobName, "/data")
+func UploadModel(bucket string, jobName string, modelPath string) error {
+	return storage.UploadDirToOSS(bucket, jobName, modelPath)
 }
 
 // 标记上传开始

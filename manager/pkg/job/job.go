@@ -44,7 +44,7 @@ func (j Job) Run() error {
 			Replicas:             j.Replicas,
 		}.Run()
 	}
-	return commonerrors.UnImpl(fmt.Sprintf("job of type %d", j.JobType))
+	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
 
 func (j Job) Stop() error {
@@ -59,5 +59,5 @@ func (j Job) Stop() error {
 			Replicas:             j.Replicas,
 		}.Delete()
 	}
-	return commonerrors.UnImpl(fmt.Sprintf("job of type %d", j.JobType))
+	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }

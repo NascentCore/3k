@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
 )
 
 // NO_TEST_NEEDED
+
+// 保存模型的PVC的挂载路径
+const modelPath = "/data"
 
 // Input ： MPIJob的Name ， S3的地址以及Bucket
 func main() {
@@ -19,7 +23,7 @@ func main() {
 	mpiJobName := os.Args[1]
 	bucket := os.Args[2]
 	//检查上传任务是否已经开始
-	if started, err := modeluploader.CheckUploadStarted(modeluploader.UploadStartedFlagFile); err != nil {
+	if started, err := modeluploader.CheckUploadStarted(path.Join(modelPath, modeluploader.UploadStartedFlagFile)); err != nil {
 		os.Exit(1)
 	} else if !started { //尚末开始
 		clientgo.InitClient()
@@ -34,13 +38,13 @@ func main() {
 			return
 		}
 		//写入开始上传标志
-		if err := modeluploader.MarkUploadStarted(modeluploader.UploadStartedFlagFile); err != nil {
+		if err := modeluploader.MarkUploadStarted(path.Join(modelPath, modeluploader.UploadStartedFlagFile)); err != nil {
 			os.Exit(1)
 		}
 	}
 	//（继续）上传模型
 	//如果发生错误，进程异常退出
-	if err := modeluploader.UploadModel(bucket, mpiJobName); err != nil {
+	if err := modeluploader.UploadModel(bucket, mpiJobName, modelPath); err != nil {
 		os.Exit(1)
 	}
 }
