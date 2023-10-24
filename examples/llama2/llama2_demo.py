@@ -4,7 +4,7 @@ On LY worker4/worker5:
 #export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 export MASTER_ADDR="214.2.5.4" MASTER_PORT=29501 NCCL_DEBUG=INFO NCCL_NET=IB NCCL_P2P_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_
 
-# LY worker4
+# LY worker4 (master host)
 python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=2 --node_rank=0 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2_worker4.log 2>&1 &
 
 # LY worker5
@@ -30,6 +30,7 @@ Note:
 - "NCCL_COLLNET_ENABLE=1" may need to be set.
 - "NCCL_COLLNET_NODE_THRESHOLD=17" may need to be set.
 - NCCL version
+
 
 torch.distributed.launch OR torchrun
 """
@@ -58,9 +59,8 @@ from transformers import (
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node. Exiting...")
 # This is the number of total available GPUs on this node.
-# Note: We have an env var - WORLD_SIZE, which is manully specified.
-# For testing distibuted training, we may need to launch
-# this script using MPI related commands (e.g., mpirun),
+# For testing multi-node-multi-gpu distibuted training,
+# we need to launch this script using MPI related commands (e.g., mpirun),
 # torch.distributed.launch, or torchrun with appropriate arguments and options.
 num_gpus = torch.cuda.device_count()
 
@@ -72,18 +72,29 @@ if not torch.distributed.is_available():
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
-curr_global_rank = torch.distributed.get_rank()
-print(f"world_size: {torch.distributed.get_world_size()}")
-print(f"Current global rank: {curr_global_rank}")
+print(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
+print(f"Current global rank: {torch.distributed.get_rank()}")
 
 # python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--model_path", type=str,
-                        default="./Llama2-Chinese-7b-Chat", help="model path")
-arg_parser.add_argument("--config_path", type=str,
-                        default="./Llama2-Chinese-7b-Chat/config.json", help="model JSON config path")
-arg_parser.add_argument("--ds_config", type=str,
-                        default="./config/dp_zero3_config.json", help="DeepSpeed JSON config path")
+# Fine-tuning or transfer learning.
+arg_parser.add_argument("--model-path", type=str,
+                        default="./Llama2-Chinese-7b-Chat",
+                        help="Pretrained model path")
+arg_parser.add_argument("--model-config-file", type=str,
+                        default="./Llama2-Chinese-7b-Chat/config.json",
+                        help="Model JSON config")
+arg_parser.add_argument("--ds-config-file", type=str,
+                        default="./config/dp_zero3_config.json",
+                        help="DeepSpeed JSON config path")
+arg_parser.add_argument("--raw-data-dir", type=str,
+                        default="./wikitext-103-raw",
+                        help="Path for raw data to be tokenized")
+arg_parser.add_argument("--tokenized-data-dir", type=str, default="./data/",
+                        help="Path for raw data to be tokenized")
+arg_parser.add_argument("--saved-model-dir", type=str,
+                        default="./llama2_output",
+                        help="Path for saving learned models")
 # --local-rank=LOCAL_PROCESS_RANK, which will be provided by `torch.distributed` module.
 arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
@@ -95,7 +106,7 @@ print(f"Current local rank: {curr_local_rank}")
 
 gpu_name = f"cuda:{curr_local_rank}"
 
-config = LlamaConfig.from_pretrained(args.config_path)
+config = LlamaConfig.from_pretrained(args.model_config_file)
 model = LlamaForCausalLM(config)
 
 gpu_dev = torch.device(gpu_name)
@@ -119,35 +130,36 @@ tokenizer.pad_token = tokenizer.eos_token
 max_seq_length = 16
 # FIXME
 #out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-out_model_path = "llama2_output"
+out_model_path = args.saved_model_dir
 num_train_epochs = 4
 batch_size = 8
 
 # Train dataset
-if os.path.exists("./data/train_dataset_ml8.pt"):
-    train_dataset = torch.load("data/train_dataset_ml8.pt")
+if os.path.exists(f"./{args.tokenized_data_dir}/train_dataset_ml8.pt"):
+    train_dataset = torch.load(f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
 else:
     train_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                          file_path="wikitext-103-raw/wiki.train.raw",
+                                          file_path=f"{args.raw_data_dir}/wiki.train.raw",
                                           block_size=max_seq_length)
-    torch.save(train_dataset, "data/train_dataset_ml8.pt")
+    torch.save(train_dataset, f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
 # Evaluation dataset
-if os.path.exists("./data/eval_dataset_ml8.pt"):
-    eval_dataset = torch.load("data/eval_dataset_ml8.pt")
+if os.path.exists(f"./{args.tokenized_data_dir}/eval_dataset_ml8.pt"):
+    eval_dataset = torch.load(f"{args.tokenized_data_dir}/eval_dataset_ml8.pt")
 else:
     eval_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                         file_path="wikitext-103-raw/wiki.eval.raw",
+                                         file_path=f"{args.raw_data_dir}/wiki.eval.raw",
                                          block_size=max_seq_length)
-    torch.save(eval_dataset, "data/eval_dataset_ml8.pt")
+    torch.save(eval_dataset, f"{args.tokenized_data_dir}/eval_dataset_ml8.pt")
+
 """
 # Test dataset
-if os.path.exists("./data/test_dataset_ml8.pt"):
-    test_dataset = torch.load("data/test_dataset_ml8.pt")
+if os.path.exists(f"./{args.tokenized_data_dir}/test_dataset_ml8.pt"):
+    test_dataset = torch.load(f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 else:
     test_dataset = LineByLineTextDataset(tokenizer=tokenizer,
-                                         file_path="wikitext-103-raw/wiki.test.raw",
+                                         file_path=f"{args.raw_data_dir}/wiki.test.raw",
                                          block_size=max_seq_length)
-    torch.save(test_dataset, "data/test_dataset_ml8.pt")
+    torch.save(test_dataset, f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 """
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
@@ -160,14 +172,15 @@ training_args = TrainingArguments(
     do_train=True,
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
-    save_strategy="steps",  # TBD
-    save_steps=2000,  # TBD
-    save_total_limit=2,  # TBD
+    save_strategy="epoch",  # TBD
+    #save_steps=2000,  # TBD
+    save_total_limit=4,  # TBD
+    #save_on_each_node=False,
     prediction_loss_only=True,
     report_to="none",
     push_to_hub=False,
     local_rank=curr_local_rank,  # XXX
-    deepspeed=args.ds_config,
+    deepspeed=args.ds_config_file,
 )
 
 trainer = Trainer(
