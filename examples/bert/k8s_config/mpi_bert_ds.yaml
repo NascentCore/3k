@@ -44,6 +44,8 @@ spec:
             - train_bert_ds.py
             - --checkpoint_dir
             - ./ds_experiments
+            - --datasets_dir
+            - dataset/wikitext
             - --deepspeed_mpi
             - --deepspeed
     Worker:
