@@ -7,6 +7,7 @@ import (
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/log"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
+	"sxwl/3k/manager/pkg/storage"
 )
 
 // NO_TEST_NEEDED
@@ -18,7 +19,7 @@ const modelPath = "/data"
 func main() {
 	// TODO: with cli tools
 	if len(os.Args) != 3 {
-		fmt.Println("Usage : modeluploadjob  [ MPIJob Name ] [ Bucket ] ")
+		fmt.Println("Usage : modeluploadjob  [ MPIJob Name ] [ Bucket ]")
 		os.Exit(1)
 	}
 	mpiJobName := os.Args[1]
@@ -50,6 +51,8 @@ func main() {
 	//（继续）上传模型
 	//如果发生错误，进程异常退出
 	if err := modeluploader.UploadModel(bucket, mpiJobName, modelPath); err != nil {
+		//add access key before build
+		storage.InitClient("", "")
 		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)
 	}
