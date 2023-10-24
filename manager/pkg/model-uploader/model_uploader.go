@@ -5,6 +5,7 @@ import (
 	"os"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	"sxwl/3k/manager/pkg/job/state"
+	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/storage"
 	"time"
 )
@@ -24,9 +25,10 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		if err != nil {
 			//如果MPIJob已经被删除
 			if errors.Is(err, kubeflowmpijob.ErrNotFound) {
+				log.SLogger.Infow("mpijob is deleted")
 				return "deleted", nil
 			}
-			// TODO: log err
+			log.SLogger.Errorw("error when wait mpijob finish", "error", err, "errcnt", errCnt)
 			errCnt += 1
 			//持续报错， 返回异常
 			if errCnt > 10 {
@@ -37,11 +39,14 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		}
 		//判断MPIJob是否已经终止（状态不会再变）
 		if s.JobStatus == state.JobStatusCreateFailed || s.JobStatus == state.JobStatusFailed {
+			log.SLogger.Infow("mpijob failed , nothing to upload")
 			return "nouploadneeded", nil
 		} else if s.JobStatus == state.JobStatusSucceed {
+			log.SLogger.Infow("mpijob succeed")
 			return StatusNeedUploadModel, nil
 		}
 		//继续等待
+		log.SLogger.Infow("keep waiting")
 		time.Sleep(time.Minute)
 	}
 }

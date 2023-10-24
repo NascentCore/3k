@@ -3,22 +3,22 @@ package main
 // NO_TEST_NEEDED
 
 import (
-	"fmt"
-	"log"
 	"os"
 	"sxwl/3k/manager/pkg/auth"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/communication"
 	"sxwl/3k/manager/pkg/job"
+	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
 
 func main() {
 	if len(os.Args) != 4 {
-		fmt.Println("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ] [ BASE_URL ]")
+		log.Logger.Error("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ] [ BASE_URL ]")
 		os.Exit(1)
 	}
+
 	// check parameters
 	userid := os.Args[1]
 	if err := auth.CheckUserId(userid); err != nil {
@@ -45,7 +45,13 @@ func main() {
 		for _, job := range jobs {
 			err := job.Run()
 			if err != nil {
-				log.Printf("Job %v run failed, error: %v", job, err)
+				// TODO:  do something else
+				log.SLogger.Errorw("Job run failed",
+					"job", job,
+					"error", err)
+			} else {
+				log.SLogger.Infow("Job created",
+					"job", job)
 			}
 		}
 		time.Sleep(time.Second * 10)
@@ -81,8 +87,14 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 				break
 			default:
 				// do nothing ,  still do the upload but data will be old
+				log.SLogger.Warn("cpod status data is not refreshed , upload the old data")
 			}
-			communication.UploadCPodStatus(payload)
+			b := communication.UploadCPodStatus(payload)
+			if !b {
+				log.SLogger.Warn("upload cpod status data failed")
+			} else {
+				log.SLogger.Info("uploaded cpod status data")
+			}
 		}
 	}()
 }

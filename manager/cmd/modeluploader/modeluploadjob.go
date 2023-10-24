@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+	"sxwl/3k/manager/pkg/log"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
 )
 
@@ -24,6 +25,7 @@ func main() {
 	bucket := os.Args[2]
 	//检查上传任务是否已经开始
 	if started, err := modeluploader.CheckUploadStarted(path.Join(modelPath, modeluploader.UploadStartedFlagFile)); err != nil {
+		log.SLogger.Infow("checkupload started failed", "error", err)
 		os.Exit(1)
 	} else if !started { //尚末开始
 		clientgo.InitClient()
@@ -31,20 +33,25 @@ func main() {
 		status, err := modeluploader.UntilMPIJobFinish(mpiJobName)
 		//如果发生错误，进程异常退出
 		if err != nil {
+			log.SLogger.Infow("error when wait mpijob finish", "error", err)
 			os.Exit(1)
 		}
 		//训练出现问题，没有模型可以上传，正常结束
 		if status != modeluploader.StatusNeedUploadModel {
+			log.SLogger.Infow("nothing to upload , job finish")
 			return
 		}
 		//写入开始上传标志
 		if err := modeluploader.MarkUploadStarted(path.Join(modelPath, modeluploader.UploadStartedFlagFile)); err != nil {
+			log.SLogger.Infow("error when mark upload started", "error", err)
 			os.Exit(1)
 		}
 	}
 	//（继续）上传模型
 	//如果发生错误，进程异常退出
 	if err := modeluploader.UploadModel(bucket, mpiJobName, modelPath); err != nil {
+		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)
 	}
+	log.SLogger.Infow("upload model done , job finish")
 }

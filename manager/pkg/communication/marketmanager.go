@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"sxwl/3k/manager/pkg/job"
 	"sxwl/3k/manager/pkg/job/state"
+	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/resource"
 	"time"
 )
@@ -52,30 +53,34 @@ type RawJobsData []RawJobDataItem
 // communicate with market manager get jobs should run in this cpod.
 func GetJobs(cpodid string) []job.Job {
 	params := url.Values{}
-	Url, err := url.Parse(baseURL + "/api/userJob/getjob")
+	u, err := url.Parse(baseURL + "/api/userJob/getjob")
 	if err != nil {
+		log.SLogger.Errorw("url error", "error", err)
 		return nil
 	}
 	params.Set("cpodid", cpodid)
-	Url.RawQuery = params.Encode()
-	urlPath := Url.String()
-	fmt.Println(urlPath)
+	u.RawQuery = params.Encode()
+	urlPath := u.String()
 	resp, err := http.Get(urlPath)
 	if err != nil {
+		log.SLogger.Errorw("http get err", "error", err)
 		return nil
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		log.SLogger.Errorw("status code not 200")
 		return nil
 	}
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.SLogger.Errorw("read body err", "error", err)
 		return nil
 	}
 	fmt.Println(string(respData))
 	var parsedData RawJobsData
 	err = json.Unmarshal(respData, &parsedData)
 	if err != nil {
+		log.SLogger.Errorw("parse data err", "error", err)
 		return nil
 	}
 	res := []job.Job{}
@@ -114,10 +119,12 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 func UploadCPodStatus(up UploadPayload) bool {
 	bytesData, err := json.Marshal(up)
 	if err != nil {
+		log.SLogger.Errorw("data error", "error", err)
 		return false
 	}
-	resp, err := http.Post(baseURL+"/uploadstatus", "application/json", bytes.NewReader(bytesData))
+	resp, err := http.Post(baseURL+"/api/userJob/putPodStatus", "application/json", bytes.NewReader(bytesData))
 	if err != nil {
+		log.SLogger.Errorw("upload status err", "error", err)
 		return false
 	}
 	defer resp.Body.Close()
