@@ -12,6 +12,8 @@ type MPIJob struct {
 	Image                string // docker image
 	DataPath             string // path to trainning data
 	CKPTPath             string // path to checkpoint
+	PretrainModelPath    string //预训练模型的路径
+	ModelSavePath        string //最终模型的保存路径
 	GPURequiredPerWorker int    //
 	Replicas             int    // works
 }

@@ -13,8 +13,8 @@ const FilesUploadedLogFile = "files_uploaded_log"
 
 var client oss.Client
 
-func InitClient() {
-	cli, err := oss.New("http://oss-cn-beijing.aliyuncs.com", "LTAI5t6C7YVMrqW13pWdzxZy", "m5dhMOOe6tWJGuARLnXyIdgdpDTp1H")
+func InitClient(accessID, accessKey string) {
+	cli, err := oss.New("http://oss-cn-beijing.aliyuncs.com", accessID, accessKey)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)

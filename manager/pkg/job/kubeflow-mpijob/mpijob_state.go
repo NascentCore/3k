@@ -82,6 +82,8 @@ func parseState(data map[string]interface{}) (state.State, error) {
 		s.JobStatus = state.JobStatusRunning
 	} else if condMap["Created"] == "True" {
 		s.JobStatus = state.JobStatusCreated
+	} else if condMap["Succeeded"] == "True" {
+		s.JobStatus = state.JobStatusSucceed
 	} else {
 		s.JobStatus = state.JobStatusCreateFailed
 	}
