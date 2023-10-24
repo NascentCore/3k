@@ -17,9 +17,9 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2023-10-24
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2013-10-24-01
             name: bert-launcher
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             command:
             - mpirun
             - -np
@@ -45,7 +45,7 @@ spec:
             - --checkpoint_dir
             - ./ds_experiments
             - --datasets_dir
-            - dataset/wikitext
+            - dataset1/wikitext
             - --deepspeed_mpi
             - --deepspeed
     Worker:
@@ -56,9 +56,23 @@ spec:
           nodeSelector:
             nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2023-10-24
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2013-10-24-01
             name: bert-ds-worker
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
+            volumeMounts:
+            - mountPath: "/workspace/dataset1"
+              name: dataset1
             resources:
               limits:
                 nvidia.com/gpu: 2
+          volumes:
+          - name: dataset1
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              # CephFS' internal path
+              path: /hf/dataset1
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: false
