@@ -61,6 +61,9 @@ arg_parser.add_argument("--tokenized-data-dir", type=str, default="./data/",
 arg_parser.add_argument("--saved-model-dir", type=str,
                         default="./llama2_output",
                         help="Path for saving learned models")
+arg_parser.add_argument("--ckpt-dir", type=str,
+                        default="./llama2_ckpt",
+                        help="Path for saving checkpoints during training")
 # --local-rank=LOCAL_PROCESS_RANK, which will be provided by `torch.distributed` module.
 arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
@@ -100,7 +103,7 @@ tokenizer.pad_token = tokenizer.eos_token
 max_seq_length = 16
 # FIXME
 #out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-out_model_path = args.saved_model_dir
+out_model_path = args.ckpt_dir
 num_train_epochs = 4
 batch_size = 8
 

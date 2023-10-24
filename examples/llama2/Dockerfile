@@ -23,8 +23,8 @@ RUN apt-get update && \
 WORKDIR /llama2
 
 # TODO: All artifiacts for training/fine-tuning LLaMA 2.
-COPY llama2_demo.py requirements.txt config \
-     Llama2-Chinese-7b-Chat /llama2/
+COPY llama2_demo.py requirements.txt Llama2-Chinese-7b-Chat \
+     config wikitext-103-raw data llama2_output llama2_ckpt /llama2/
 
 # Set up the pip source for China, upgrade pip, and then install deps.
 # https://stackoverflow.com/a/72551258
