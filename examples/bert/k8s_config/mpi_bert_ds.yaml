@@ -6,7 +6,7 @@ kind: MPIJob
 metadata:
   name: dp-mpijob-bert
 spec:
-  slotsPerWorker: 4
+  slotsPerWorker: 2
   runPolicy:
     # Keep pods around after termination
     cleanPodPolicy: None
@@ -17,13 +17,13 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
-            name: deepspeed-mpijob-container
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2023-10-24
+            name: bert-launcher
             imagePullPolicy: IfNotPresent
             command:
             - mpirun
             - -np
-            - "12"
+            - "4"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -49,14 +49,16 @@ spec:
             - --deepspeed_mpi
             - --deepspeed
     Worker:
-      replicas: 3
+      replicas: 2
       template:
         spec:
           hostIPC: True
+          nodeSelector:
+            nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: swr.cn-east-3.myhuaweicloud.com/sxwl/bert:v10jim
-            name: deepspeed-mpijob-container
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2023-10-24
+            name: bert-ds-worker
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 4
+                nvidia.com/gpu: 2
