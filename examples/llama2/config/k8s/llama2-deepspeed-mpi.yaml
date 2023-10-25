@@ -3,7 +3,7 @@ kind: MPIJob
 metadata:
   name: llama2-finetuning-deepspeed
 spec:
-  slotsPerWorker: 1
+  slotsPerWorker: 2
   runPolicy:
     cleanPodPolicy: None  # No pods will be deleted after the job terminates.
   mpiReplicaSpecs:
@@ -11,18 +11,15 @@ spec:
       replicas: 1
       template:
         spec:
-          # https://kubesec.io/basics/spec-hostipc/
-          # https://www.fairwinds.com/blog/kubernetes-basics-tutorial-host-ipc-should-not-be-configured
           hostIPC: True  # Setting True for now. Subject to change.
           containers:
           - name: llama2-training-deepspeed-mpi
-            # naming to docker.io/library/llama2_demo:2023-10-22
-            image: sxwl/llama2-ft-test:latest
-            imagePullPolicy: Always  # Not a big deal. More convenient for testing.
+            image: dockerhub.kubekey.local/kubesphereio/llama2_demo:2023-10-25
+            imagePullPolicy: IfNotPresent
             command:
             - mpirun
             - -np
-            - "12"
+            - "4"
             - --allow-run-as-root
             - -bind-to
             - none
@@ -59,24 +56,23 @@ spec:
             - llama2_demo.py
             - --deepspeed_mpi
             - --deepspeed
-            volumeMounts:
-            - name: mpi-hostfile
-              mountPath: /llama2/hostfile
-              subPath: hostfile
             env:
             - name: NCCL_TREE_THRESHOLD
               value: "0"  # Set NCCL tree threshold to 0 for DeepSpeed.
             - name: NCCL_ALGO
               value: "1"  # Set NCCL_ALGO to 1 for DeepSpeed.
     Worker:
-      replicas: 3  # Number of nodes for training.
+      replicas: 2  # Number of nodes for training.
       template:
         spec:
           hostIPC: True
+          nodeSelector:
+            nvidia.com/gpu.product: NVIDIA-A100-SXM4-80GB
           containers:
           - name: llama2-training-deepspeed-mpi
-            image: sxwl/llama2-ft-test:latest
-            imagePullPolicy: Always  # Not a big deal. More convenient for testing.
+            image: dockerhub.kubekey.local/kubesphereio/llama2_demo:2023-10-25
+            imagePullPolicy: IfNotPresent
             resources:
               limits:
-                nvidia.com/gpu: 4  # Number of GPUs required per replica.
+                # TODO(yzhao): 添加 IB 设备
+                nvidia.com/gpu: 2  # Number of GPUs required per replica.
