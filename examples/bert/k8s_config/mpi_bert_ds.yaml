@@ -8,7 +8,9 @@ metadata:
 spec:
   slotsPerWorker: 2
   runPolicy:
-    # Keep pods around after termination
+    # `Running` pods are deleted, which keeps `completed` pods.
+    # Since worker pods do not have logs, we only need to keep completed pods,
+    # which is the launcher pod (exactly what we like).
     cleanPodPolicy: Running
   # See LauncherCreationPolicy in
   # https://github.com/kubeflow/mpi-operator/tree/master
