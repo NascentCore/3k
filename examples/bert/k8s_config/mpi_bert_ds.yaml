@@ -48,6 +48,7 @@ spec:
             - dataset1/wikitext
             - --deepspeed_mpi
             - --deepspeed
+            - --iterations=100
     Worker:
       replicas: 2
       template:
