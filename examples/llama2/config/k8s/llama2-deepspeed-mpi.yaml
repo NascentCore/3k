@@ -15,7 +15,7 @@ spec:
           containers:
           - name: llama2-training-deepspeed-mpi
             image: dockerhub.kubekey.local/kubesphereio/llama2_demo:2023-10-25
-            imagePullPolicy: Always  # Not a big deal. More convenient for testing.
+            imagePullPolicy: IfNotPresent
             command:
             - mpirun
             - -np
@@ -71,7 +71,7 @@ spec:
           containers:
           - name: llama2-training-deepspeed-mpi
             image: dockerhub.kubekey.local/kubesphereio/llama2_demo:2023-10-25
-            imagePullPolicy: Always  # Not a big deal. More convenient for testing.
+            imagePullPolicy: IfNotPresent
             resources:
               limits:
                 nvidia.com/gpu: 2  # Number of GPUs required per replica.
