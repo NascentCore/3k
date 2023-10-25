@@ -607,6 +607,7 @@ def load_model_checkpoint(
 def train(
         dataset_dir: str = None,
         checkpoint_dir: str = None,
+        saved_model_dir: str = None,
         load_checkpoint_dir: str = None,
         # Dataset Parameters
         mask_prob: float = 0.15,
@@ -635,7 +636,9 @@ def train(
         dataset_dir (str):
             The directory storing training datasets.
         checkpoint_dir (str):
-            The base experiment directory to save experiments to
+            The base experiment directory to save experiments to.
+        saved_model_dir (str):
+            The directory storing the output model.
         mask_prob (float, optional):
             The fraction of tokens to mask. Defaults to 0.15.
         random_replace_prob (float, optional):
@@ -712,6 +715,13 @@ def train(
             ranks=[0],
             level=logging.ERROR)
         return
+    if saved_model_dir is None:
+        log_dist(
+            "--saved_model_dir is not specified, use default " +
+            "--saved_model_dir=saved-model",
+            ranks=[0],
+            level=logging.ERROR)
+        saved_model_dir = "saved-model"
     if checkpoint_dir:
         log_dist("Creating Experiment Directory",
                  ranks=[0],
@@ -870,15 +880,15 @@ def train(
             log_dist("Saved model to {0}".format(exp_dir),
                      ranks=[0],
                      level=logging.INFO)
-    # Save the last checkpoint if not saved yet
-    if step % checkpoint_every != 0:
-        model.save_checkpoint(save_dir=exp_dir,
-                              client_state={'checkpoint_step': step})
-        log_dist("Saved model to {0}".format(exp_dir),
-                 ranks=[0],
-                 level=logging.INFO)
 
-    return exp_dir
+    # Save the last checkpoint if not saved yet
+    model.save_16bit_model(save_dir=saved_model_dir,
+                           save_filename="ds_model.bin")
+    log_dist("Saved model to {0}".format(saved_model_dir),
+             ranks=[0],
+             level=logging.INFO)
+
+    return saved_model_dir
 
 
 if __name__ == "__main__":

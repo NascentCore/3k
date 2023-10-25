@@ -23,7 +23,7 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-2
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-4
             name: bert-launcher
             imagePullPolicy: Always
             command:
@@ -52,7 +52,7 @@ spec:
             - ds-experiments
             - --dataset_dir
             - dataset1/wikitext
-            - --num_iterations=1000
+            - --num_iterations=50
     Worker:
       replicas: 2
       template:
@@ -61,13 +61,15 @@ spec:
           nodeSelector:
             nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-2
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-4
             name: bert-ds-worker
             imagePullPolicy: Always
             volumeMounts:
             - mountPath: /workspace/dataset1
               name: dataset1
             - mountPath: /workspace/ds-experiments
+              name: ckpt-pv
+            - mountPath: /workspace/saved-model
               name: ckpt-pv
             resources:
               limits:
