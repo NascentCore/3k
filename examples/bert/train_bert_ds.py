@@ -235,7 +235,7 @@ class InfiniteIterator(object):
 
 
 def create_data_iterator(
-        datasets_dir: str,
+        dataset_dir: str,
         mask_prob: float,
         random_replace_prob: float,
         unmask_replace_prob: float,
@@ -246,7 +246,7 @@ def create_data_iterator(
     """Create the dataloader.
 
     Args:
-        datasets_dir: (str):
+        dataset_dir: (str):
             The directory storing training datasets.
         mask_prob (float):
             Fraction of tokens to mask
@@ -269,7 +269,7 @@ def create_data_iterator(
     """
     # Dataset is from:
     # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
-    wikitext_dataset =datasets.load_from_disk(datasets_dir)
+    wikitext_dataset =datasets.load_from_disk(dataset_dir)
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
@@ -602,7 +602,7 @@ def load_model_checkpoint(
 
 
 def train(
-        datasets_dir: str = None,
+        dataset_dir: str = None,
         checkpoint_dir: str = None,
         load_checkpoint_dir: str = None,
         # Dataset Parameters
@@ -629,7 +629,7 @@ def train(
     (transformer encoder only) model for MLM Task
 
     Args:
-        datasets_dir (str):
+        dataset_dir (str):
             The directory storing training datasets.
         checkpoint_dir (str):
             The base experiment directory to save experiments to
@@ -689,18 +689,19 @@ def train(
     ################################
     ###### Create Exp. Dir #########
     ################################
-    if datasets_dir is None:
+    if dataset_dir is None:
         log_dist(
-            "--datasets_dir is not specified, use default `dataset/wikitext`",
+            "--dataset_dir is not specified, use default `--dataset_dir=dataset/wikitext`",
             ranks=[0],
             level=logging.ERROR)
+        dataset_dir = "dataset/wikitext"
     if checkpoint_dir is None and load_checkpoint_dir is None:
         log_dist(
-            "Need to specify one of checkpoint_dir"
-            " or load_checkpoint_dir",
+            "--checkpoint_dir --load_checkpoint_dir are not specified, " +
+            "use default `--checkpoint_dir=experiments`",
             ranks=[0],
             level=logging.ERROR)
-        return
+        checkpoint_dir = "experiments"
     if checkpoint_dir is not None and load_checkpoint_dir is not None:
         log_dist(
             "Cannot specify both checkpoint_dir"
@@ -778,7 +779,7 @@ def train(
         mask_prob=mask_prob,
         random_replace_prob=random_replace_prob,
         unmask_replace_prob=unmask_replace_prob,
-        datasets_dir=datasets_dir,
+        dataset_dir=dataset_dir,
         tokenizer=tokenizer,
         max_seq_length=max_seq_length,
         batch_size=batch_size,
