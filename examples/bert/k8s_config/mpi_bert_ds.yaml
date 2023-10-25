@@ -9,11 +9,11 @@ spec:
   slotsPerWorker: 2
   runPolicy:
     # Keep pods around after termination
-    cleanPodPolicy: None
+    cleanPodPolicy: Running
   # See LauncherCreationPolicy in
   # https://github.com/kubeflow/mpi-operator/tree/master
   # This prevents launcher repetitive restart.
-  launcherCreationPolicy: "WaitForWorkersReady"
+  launcherCreationPolicy: WaitForWorkersReady
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
@@ -50,9 +50,7 @@ spec:
             - ds-experiments
             - --dataset_dir
             - dataset1/wikitext
-            - --deepspeed_mpi
-            - --deepspeed
-            - --num_iterations=200
+            - --num_iterations=1000
     Worker:
       replicas: 2
       template:
