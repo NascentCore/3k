@@ -269,6 +269,9 @@ def create_data_iterator(
     """
     # Dataset is from:
     # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
+    # wikitext_dataset = datasets.load_dataset("wikitext",
+    #                                          "wikitext-2-v1",
+    #                                          split="train")
     wikitext_dataset =datasets.load_from_disk(dataset_dir)
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
@@ -619,7 +622,7 @@ def train(
         dropout: float = 0.1,
         # Training Parameters
         batch_size: int = 8,
-        num_iterations: int = 10,
+        num_iterations: int = 10000,
         checkpoint_every: int = 1000,
         log_every: int = 10,
         local_rank: int = -1,
