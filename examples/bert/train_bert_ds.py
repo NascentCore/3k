@@ -269,9 +269,6 @@ def create_data_iterator(
     """
     # Dataset is from:
     # https://huggingface.co/datasets/wikitext/viewer/wikitext-2-v1
-    # wikitext_dataset = datasets.load_dataset("wikitext",
-    #                                          "wikitext-2-v1",
-    #                                          split="train")
     wikitext_dataset =datasets.load_from_disk(datasets_dir)
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
@@ -694,10 +691,9 @@ def train(
     ################################
     if datasets_dir is None:
         log_dist(
-            "Need to specify datasets_dir",
+            "--datasets_dir is not specified, use default `dataset/wikitext`",
             ranks=[0],
             level=logging.ERROR)
-        return
     if checkpoint_dir is None and load_checkpoint_dir is None:
         log_dist(
             "Need to specify one of checkpoint_dir"
