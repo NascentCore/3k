@@ -1,10 +1,9 @@
-#apiVersion: kubeflow.org/v1
 apiVersion: kubeflow.org/v2beta1
 kind: MPIJob
 metadata:
   name: llama2-finetuning-deepspeed
 spec:
-  slotsPerWorker: 1  # LY worker4 has 128 CPU cores.
+  slotsPerWorker: 1
   runPolicy:
     cleanPodPolicy: None  # No pods will be deleted after the job terminates.
   mpiReplicaSpecs:
@@ -24,8 +23,6 @@ spec:
             - mpirun
             - -np
             - "12"
-#            - --hostfile
-#            - /path/to/hostfile
             - --allow-run-as-root
             - -bind-to
             - none
@@ -71,11 +68,6 @@ spec:
               value: "0"  # Set NCCL tree threshold to 0 for DeepSpeed.
             - name: NCCL_ALGO
               value: "1"  # Set NCCL_ALGO to 1 for DeepSpeed.
-#      volumes:
-#        - name: mpi-hostfile
-#          # Assuming a ConfigMap with the necessary hostfile content was already created.
-#          configMap:
-#            name: mpi-hostfile-configmap
     Worker:
       replicas: 3  # Number of nodes for training.
       template:
@@ -88,11 +80,3 @@ spec:
             resources:
               limits:
                 nvidia.com/gpu: 4  # Number of GPUs required per replica.
-#            volumeMounts:
-#            - name: training-data
-#              mountPath: /llama2/data  # Mount the training data volume inside the container.
-#      volumes:
-#      - name: training-data
-#        persistentVolumeClaim:
-#          # Assuming a PersistentVolumeClaim was already created for training data.
-#          claimName: training-data-pvc
