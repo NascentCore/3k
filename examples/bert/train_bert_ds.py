@@ -272,7 +272,7 @@ def create_data_iterator(
     # wikitext_dataset = datasets.load_dataset("wikitext",
     #                                          "wikitext-2-v1",
     #                                          split="train")
-    wikitext_dataset =datasets.load_from_disk(dataset_dir)
+    wikitext_dataset = datasets.load_from_disk(dataset_dir)
     wikitext_dataset = wikitext_dataset.filter(
         lambda record: record["text"] != "").map(
             lambda record: {"text": record["text"].rstrip("\n")})
