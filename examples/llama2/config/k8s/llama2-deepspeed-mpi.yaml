@@ -3,7 +3,7 @@ kind: MPIJob
 metadata:
   name: llama2-finetuning-deepspeed
 spec:
-  slotsPerWorker: 2  # LY worker4 has 128 CPU cores.
+  slotsPerWorker: 2
   runPolicy:
     cleanPodPolicy: None  # No pods will be deleted after the job terminates.
   mpiReplicaSpecs:
