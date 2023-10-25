@@ -23,7 +23,7 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-4
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
             name: bert-launcher
             imagePullPolicy: Always
             command:
@@ -61,7 +61,7 @@ spec:
           nodeSelector:
             nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-4
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
             name: bert-ds-worker
             imagePullPolicy: Always
             volumeMounts:
