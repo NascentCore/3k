@@ -2,9 +2,9 @@ package storage
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"path"
+	"sxwl/3k/manager/pkg/log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
@@ -16,9 +16,10 @@ var client oss.Client
 func InitClient(accessID, accessKey string) {
 	cli, err := oss.New("http://oss-cn-beijing.aliyuncs.com", accessID, accessKey)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.SLogger.Errorw("init oss client err", "error", err)
 		os.Exit(1)
 	}
+	log.SLogger.Info("oss client inited")
 	client = *cli
 }
 
@@ -97,22 +98,28 @@ func UploadDirToOSS(bucket, prefix, dir string) error {
 	//files are without dir
 	files, err := FilesToUpload(dir, "")
 	if err != nil {
+		log.SLogger.Errorw("get file list error", "error", err)
 		return err
 	}
 	uploaded, err := GetUploaded(dir)
 	if err != nil {
+		log.SLogger.Errorw("get uploaded file list err", "error", err)
 		return err
 	}
 	for _, file := range files {
 		//已上传
 		if _, ok := uploaded[file]; ok {
+			log.SLogger.Infow("file already uploaded", "file", file)
 			continue
 		}
 		// do upload
+		log.SLogger.Infow("start uploading", "file", file)
 		err := UploadFileToOSS(bucket, prefix, file, dir)
 		if err != nil {
+			log.SLogger.Errorw("upload to oss err", "error", err)
 			return err
 		}
+		log.SLogger.Infow("uploaded", "file", file)
 	}
 	return nil
 }

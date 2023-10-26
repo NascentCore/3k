@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: modeluploadjob
+  namespace: cpod
+spec:
+  backoffLimit: 4
+  completionMode: NonIndexed
+  completions: 1
+  parallelism: 1
+  suspend: false
+  template:
+    spec:
+      serviceAccountName: sa-modeluploader
+      volumes:
+      - cephfs:
+          monitors:
+          - 10.233.33.169:6789
+          path: "/readwrite/mvp-saved-model"
+          readOnly: false
+          secretRef:
+            name: ceph-secret
+          user: admin
+        name: modelsave-pv
+      containers:
+      - command:
+        - ./modeluploadjob
+        - dp-mpijob-bert
+        - sxwl-ai
+        name: uploadjob
+        image: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
+        imagePullPolicy: Always 
+        env:
+        - name: AK
+          valueFrom:
+            secretKeyRef:
+              name: akas4oss
+              key: AK
+        - name: AS
+          valueFrom:
+            secretKeyRef:
+              name: akas4oss
+              key: AS
+        volumeMounts:
+        - mountPath: "/data"
+          name: modelsave-pv
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 300
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 300
