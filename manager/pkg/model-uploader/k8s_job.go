@@ -31,6 +31,26 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string, cmd []interface{})
 									"name":      "modelpvc",
 								},
 							},
+							"env": []interface{}{
+								map[string]interface{}{
+									"name": "AK",
+									"valueFrom": map[string]interface{}{
+										"secretKeyRef": map[string]interface{}{
+											"key":  "AK",
+											"name": "akas4oss",
+										},
+									},
+								},
+								map[string]interface{}{
+									"name": "AS",
+									"valueFrom": map[string]interface{}{
+										"secretKeyRef": map[string]interface{}{
+											"key":  "AS",
+											"name": "akas4oss",
+										},
+									},
+								},
+							},
 						},
 					},
 					"dnsPolicy":                     "ClusterFirst",

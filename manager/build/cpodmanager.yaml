@@ -13,6 +13,12 @@ rules:
 - apiGroups: ["kubeflow.org"] 
   resources: ["mpijobs"]
   verbs: ["create", "delete", "get", "watch", "list"]
+- apiGroups: ["batch"] 
+  resources: ["jobs"]
+  verbs: ["create", "delete", "get", "watch", "list"]
+- apiGroups: [""] 
+  resources: ["persistentvolumeclaims"]
+  verbs: ["create", "delete", "get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -25,4 +31,33 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: role-cpodmanager
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-modeluploader
+  namespace: cpod
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: cpod
+  name: role-modeluploader
+rules:
+- apiGroups: ["kubeflow.org"] 
+  resources: ["mpijobs"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: binding-modeluploader
+subjects:
+  - kind: ServiceAccount
+    name: sa-modeluploader
+    namespace: cpod
+roleRef:
+  kind: ClusterRole
+  name: role-modeluploader
   apiGroup: rbac.authorization.k8s.io
