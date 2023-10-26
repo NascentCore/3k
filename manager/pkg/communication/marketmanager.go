@@ -128,7 +128,16 @@ func UploadCPodStatus(up UploadPayload) bool {
 		return false
 	}
 	defer resp.Body.Close()
-	return resp.StatusCode == 200
+	if resp.StatusCode != 200 {
+		respData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.SLogger.Errorw("statuscode != 200 and read body err", "code", resp.StatusCode, "error", err)
+		} else {
+			log.SLogger.Warnw("statuscode != 200", "code", resp.StatusCode, "body", "respData", string(respData))
+		}
+		return false
+	}
+	return true
 }
 
 // check the given url by make a test call.

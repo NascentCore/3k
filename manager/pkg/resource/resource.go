@@ -3,8 +3,7 @@ package resource
 import (
 	"strconv"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
-
-	"log"
+	"sxwl/3k/manager/pkg/log"
 )
 
 // 单个GPU的信息状态信息
@@ -128,7 +127,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 			info.Nodes = append(info.Nodes, t)
 		}
 	} else {
-		log.Println("failed retrieve node info from k8s.")
+		log.SLogger.Errorw("get node info err", "error", err)
 	}
 	//stat gpus in cpod
 	statTotal := map[[2]string]int{}
