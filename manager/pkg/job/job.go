@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"os"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
@@ -52,7 +53,7 @@ func (j Job) Run() error {
 		}
 		//同时启动Upload Job
 		return clientgo.ApplyWithJsonData("cpod", "batch", "v1", "jobs",
-			modeluploader.GenK8SJobJsonData(j.JobID, "", "", "/data", []interface{}{"", ""}))
+			modeluploader.GenK8SJobJsonData(j.JobID, os.Getenv("UPLOADIMAGE"), os.Getenv("MODELSAVEPVC"), "/data"))
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }

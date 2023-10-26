@@ -1,6 +1,6 @@
 package modeluploader
 
-func GenK8SJobJsonData(jobName, image, pvc, mountPath string, cmd []interface{}) map[string]interface{} {
+func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
 	return map[string]interface{}{
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
@@ -16,28 +16,40 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string, cmd []interface{})
 			"suspend":        false,
 			"template": map[string]interface{}{
 				"spec": map[string]interface{}{
+					"serviceAccountName": "sa-modeluploader",
+					"volumes": []interface{}{
+						map[string]interface{}{
+							"cephfs": map[string]interface{}{
+								"monitors": []interface{}{
+									"10.233.33.169:6789",
+								},
+								"path":     pvc,
+								"readOnly": false,
+								"secretRef": map[string]interface{}{
+									"name": "ceph-secret",
+								},
+								"user": "admin",
+							},
+							"name": "modelsave-pv",
+						},
+					},
 					"containers": []interface{}{
 						map[string]interface{}{
-							"command":                  cmd,
-							"image":                    image,
-							"imagePullPolicy":          "IfNotPresent",
-							"name":                     jobName,
-							"resources":                map[string]interface{}{},
-							"terminationMessagePath":   "/dev/termination-log",
-							"terminationMessagePolicy": "File",
-							"volumeMounts": []interface{}{
-								map[string]interface{}{
-									"mountPath": mountPath,
-									"name":      "modelpvc",
-								},
+							"command": []interface{}{
+								"./modeluploadjob",
+								jobName,
+								"sxwl-ai",
 							},
+							"name":            "uploadjob",
+							"image":           image,
+							"imagePullPolicy": "Always",
 							"env": []interface{}{
 								map[string]interface{}{
 									"name": "AK",
 									"valueFrom": map[string]interface{}{
 										"secretKeyRef": map[string]interface{}{
-											"key":  "AK",
 											"name": "akas4oss",
+											"key":  "AK",
 										},
 									},
 								},
@@ -45,10 +57,16 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string, cmd []interface{})
 									"name": "AS",
 									"valueFrom": map[string]interface{}{
 										"secretKeyRef": map[string]interface{}{
-											"key":  "AS",
 											"name": "akas4oss",
+											"key":  "AS",
 										},
 									},
+								},
+							},
+							"volumeMounts": []interface{}{
+								map[string]interface{}{
+									"mountPath": mountPath,
+									"name":      "modelsave-pv",
 								},
 							},
 						},
@@ -70,14 +88,6 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string, cmd []interface{})
 							"key":               "node.kubernetes.io/unreachable",
 							"operator":          "Exists",
 							"tolerationSeconds": 300,
-						},
-					},
-					"volumes": []interface{}{
-						map[string]interface{}{
-							"name": "modelpvc",
-							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": pvc,
-							},
 						},
 					},
 				},

@@ -49,10 +49,10 @@ func main() {
 		}
 	}
 	//（继续）上传模型
+	//add access key before build
+	storage.InitClient(os.Getenv("AK"), os.Getenv("AS"))
 	//如果发生错误，进程异常退出
 	if err := modeluploader.UploadModel(bucket, mpiJobName, modelPath); err != nil {
-		//add access key before build
-		storage.InitClient(os.Getenv("AK"), os.Getenv("AS"))
 		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)
 	}
