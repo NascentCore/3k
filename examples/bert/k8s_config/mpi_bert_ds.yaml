@@ -8,8 +8,14 @@ metadata:
 spec:
   slotsPerWorker: 2
   runPolicy:
-    # Keep pods around after termination
-    cleanPodPolicy: None
+    # `Running` pods are deleted, which keeps `completed` pods.
+    # Since worker pods do not have logs, we only need to keep completed pods,
+    # which is the launcher pod (exactly what we like).
+    cleanPodPolicy: Running
+  # See LauncherCreationPolicy in
+  # https://github.com/kubeflow/mpi-operator/tree/master
+  # This prevents launcher repetitive restart.
+  launcherCreationPolicy: WaitForWorkersReady
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
@@ -17,7 +23,7 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2013-10-24-01
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
             name: bert-launcher
             imagePullPolicy: Always
             command:
@@ -43,11 +49,10 @@ spec:
             - python3
             - train_bert_ds.py
             - --checkpoint_dir
-            - ./ds_experiments
-            - --datasets_dir
+            - ds-experiments
+            - --dataset_dir
             - dataset1/wikitext
-            - --deepspeed_mpi
-            - --deepspeed
+            - --num_iterations=50
     Worker:
       replicas: 2
       template:
@@ -56,12 +61,16 @@ spec:
           nodeSelector:
             nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:2013-10-24-01
+          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
             name: bert-ds-worker
             imagePullPolicy: Always
             volumeMounts:
-            - mountPath: "/workspace/dataset1"
+            - mountPath: /workspace/dataset1
               name: dataset1
+            - mountPath: /workspace/ds-experiments
+              name: ckpt-pv
+            - mountPath: /workspace/saved-model
+              name: saved-model-pv
             resources:
               limits:
                 nvidia.com/gpu: 2
@@ -71,7 +80,25 @@ spec:
               monitors:
               - 10.233.33.169:6789
               # CephFS' internal path
-              path: /hf/dataset1
+              path: /readonly/hf/dataset
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: true
+          - name: ckpt-pv
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              path: /readwrite/mvp-ckpt
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: false
+          - name: saved-model-pv
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              path: /readwrite/mvp-saved-model
               user: admin
               secretRef:
                 name: ceph-secret
