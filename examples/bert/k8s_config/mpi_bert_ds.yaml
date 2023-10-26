@@ -70,7 +70,7 @@ spec:
             - mountPath: /workspace/ds-experiments
               name: ckpt-pv
             - mountPath: /workspace/saved-model
-              name: ckpt-pv
+              name: saved-model-pv
             resources:
               limits:
                 nvidia.com/gpu: 2
@@ -80,7 +80,7 @@ spec:
               monitors:
               - 10.233.33.169:6789
               # CephFS' internal path
-              path: /hf/dataset1
+              path: /readonly/hf/dataset
               user: admin
               secretRef:
                 name: ceph-secret
@@ -89,7 +89,16 @@ spec:
             cephfs:
               monitors:
               - 10.233.33.169:6789
-              path: /readwrite
+              path: /readwrite/mvp-ckpt
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: false
+          - name: saved-model-pv
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              path: /readwrite/mvp-saved-model
               user: admin
               secretRef:
                 name: ceph-secret
