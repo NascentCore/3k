@@ -1,6 +1,7 @@
 package kubeflowmpijob
 
 import (
+	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 )
 
@@ -14,8 +15,9 @@ type MPIJob struct {
 	CKPTPath             string // path to checkpoint
 	PretrainModelPath    string //预训练模型的路径
 	ModelSavePath        string //最终模型的保存路径
-	GPURequiredPerWorker int    //
-	Replicas             int    // works
+	GPUType              string
+	GPURequiredPerWorker int //
+	Replicas             int // works
 }
 
 func (kfm MPIJob) GenYaml() string {
@@ -32,7 +34,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 			"namespace": kfm.Namespace,
 		},
 		"spec": map[string]interface{}{
-			"launcherCreationPolicy": "AtStartup",
+			"launcherCreationPolicy": "WaitForWorkersReady",
 			"mpiImplementation":      "OpenMPI",
 			"mpiReplicaSpecs": map[string]interface{}{
 				"Launcher": map[string]interface{}{
@@ -41,10 +43,10 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 						"spec": map[string]interface{}{
 							"containers": []interface{}{
 								map[string]interface{}{
-									"command": []string{
+									"command": []interface{}{
 										"mpirun",
 										"-np",
-										"32",
+										fmt.Sprintf("%d", kfm.GPURequiredPerWorker*kfm.Replicas),
 										"--allow-run-as-root",
 										"-bind-to",
 										"none",
@@ -62,15 +64,16 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										"mpi_warn_on_fork",
 										"0",
 										"python3",
-										"train_bert_ds_original.py",
+										"train_bert_ds.py",
 										"--checkpoint_dir",
-										kfm.CKPTPath,
-										"--deepspeed_mpi",
-										"--deepspeed",
+										"ds-experiments",
+										"--dataset_dir",
+										"dataset1/wikitext",
+										"--num_iterations=50",
 									},
 									"image":           kfm.Image,
-									"imagePullPolicy": "IfNotPresent",
-									"name":            "deepspeed-mpijob-container",
+									"imagePullPolicy": "Always",
+									"name":            "bert-launcher",
 								},
 							},
 							"hostIPC": true,
@@ -84,25 +87,86 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							"containers": []interface{}{
 								map[string]interface{}{
 									"image":           kfm.Image,
-									"imagePullPolicy": "IfNotPresent",
-									"name":            "deepspeed-mpijob-container",
+									"imagePullPolicy": "Always",
+									"name":            "bert-ds-worker",
 									"resources": map[string]interface{}{
 										"limits": map[string]interface{}{
 											"nvidia.com/gpu": kfm.GPURequiredPerWorker,
 										},
 									},
+									"volumeMounts": []interface{}{
+										map[string]interface{}{
+											"mountPath": "/workspace/dataset1",
+											"name":      "dataset1",
+										},
+										map[string]interface{}{
+											"mountPath": "/workspace/ds-experiments",
+											"name":      "ckpt-pv",
+										},
+										map[string]interface{}{
+											"mountPath": "/workspace/saved-model",
+											"name":      "saved-model-pv",
+										},
+									},
 								},
 							},
 							"hostIPC": true,
+							"nodeSelector": map[string]interface{}{
+								"nvidia.com/gpu.product": kfm.GPUType,
+							},
+							"volumes": []interface{}{
+								map[string]interface{}{
+									"cephfs": map[string]interface{}{
+										"monitors": []interface{}{
+											"10.233.33.169:6789",
+										},
+										"path":     "/readonly/hf/dataset",
+										"readOnly": true,
+										"secretRef": map[string]interface{}{
+											"name": "ceph-secret",
+										},
+										"user": "admin",
+									},
+									"name": "dataset1",
+								},
+								map[string]interface{}{
+									"cephfs": map[string]interface{}{
+										"monitors": []interface{}{
+											"10.233.33.169:6789",
+										},
+										"path":     "/readwrite/mvp-ckpt",
+										"readOnly": false,
+										"secretRef": map[string]interface{}{
+											"name": "ceph-secret",
+										},
+										"user": "admin",
+									},
+									"name": "ckpt-pv",
+								},
+								map[string]interface{}{
+									"cephfs": map[string]interface{}{
+										"monitors": []interface{}{
+											"10.233.33.169:6789",
+										},
+										"path":     "/readwrite/mvp-saved-model",
+										"readOnly": false,
+										"secretRef": map[string]interface{}{
+											"name": "ceph-secret",
+										},
+										"user": "admin",
+									},
+									"name": "saved-model-pv",
+								},
+							},
 						},
 					},
 				},
 			},
 			"runPolicy": map[string]interface{}{
-				"cleanPodPolicy": "None",
+				"cleanPodPolicy": "Running",
 				"suspend":        false,
 			},
-			"slotsPerWorker":   8,
+			"slotsPerWorker":   kfm.GPURequiredPerWorker,
 			"sshAuthMountPath": "/root/.ssh",
 		},
 	}
