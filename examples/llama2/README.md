@@ -1,10 +1,17 @@
-# 概述
-该项目用于将llama2 7b模型分别在物理机、docker、k8s上用于验证模型的预训练
+# LLaMA2
 
-## 创建基于deepspeed的llama2分布式预训练代码
-以下代码测试在80G A100上运行成功
+LLaMA2 model training.
 
-## 容器镜像构建
+## Single host
+
+Use torch's own launcher:
+```
+NCCL_DEBUG=DEBUG NCCL_P2P_LEVEL=LOC NCCL_NET=IB NCCL_NET_GDR_LEVEL=SYS \
+NCCL_SHM_DISABLE=1 \
+python3 -m torch.distributed.launch --nproc_per_node=8 llama2_demo.py
+```
+
+## Docker
 ```shell
 docker build . -f Dockerfile.20231013 -t "llama2_demo:$(date +%F)"
 docker login --username=eng@nascentcore.ai registry.ap-southeast-1.aliyuncs.com
