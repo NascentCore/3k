@@ -1,9 +1,9 @@
 ---
-name: Bug report
+name: Bug
 about: Create a report to help us improve
-title: ''
+title: "【BUG】"
 labels: bug
-assignees: ''
+assignees: yzhao-2023
 
 ---
 
