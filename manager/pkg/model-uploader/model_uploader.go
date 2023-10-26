@@ -37,6 +37,7 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		} else { //errCnt置0
 			errCnt = 0
 		}
+		log.SLogger.Infow("mpijob status", "jobname", mpiJobName, "status", s.JobStatus)
 		//判断MPIJob是否已经终止（状态不会再变）
 		if s.JobStatus == state.JobStatusCreateFailed || s.JobStatus == state.JobStatusFailed {
 			log.SLogger.Infow("mpijob failed , nothing to upload")

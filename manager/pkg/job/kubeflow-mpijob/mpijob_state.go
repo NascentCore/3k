@@ -5,6 +5,7 @@ import (
 	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/job/state"
+	"sxwl/3k/manager/pkg/log"
 )
 
 // NO_TEST_NEEDED
@@ -39,10 +40,12 @@ func GetState(namespace, name string) (state.State, error) {
 		if err.Error() == fmt.Sprintf(`mpijobs.kubeflow.org "%s" not found`, name) {
 			return state.State{}, ErrNotFound
 		}
+		log.SLogger.Errorw("get mpijob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
 	if err != nil {
+		log.SLogger.Errorw("parse mpijob state err", "error", err, "data", data)
 		return state.State{}, err
 	}
 	return s, err
@@ -76,15 +79,15 @@ func parseState(data map[string]interface{}) (state.State, error) {
 		condMap[ty] = st
 	}
 	// TODO: analyze more data or find some doc , known more about mpijob status
-	if condMap["Failed"] == "True" {
+	if condMap["Failed"] == "True" { // check failed
 		s.JobStatus = state.JobStatusFailed
-	} else if condMap["Running"] == "True" {
-		s.JobStatus = state.JobStatusRunning
-	} else if condMap["Created"] == "True" {
-		s.JobStatus = state.JobStatusCreated
-	} else if condMap["Succeeded"] == "True" {
+	} else if condMap["Succeeded"] == "True" { // check succeed
 		s.JobStatus = state.JobStatusSucceed
-	} else {
+	} else if condMap["Running"] == "True" { // check running
+		s.JobStatus = state.JobStatusRunning
+	} else if condMap["Created"] == "True" { //  check created
+		s.JobStatus = state.JobStatusCreated
+	} else { //beside all above , then create failed
 		s.JobStatus = state.JobStatusCreateFailed
 	}
 	metadata_, ok := data["metadata"].(map[string]interface{})
