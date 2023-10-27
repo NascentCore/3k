@@ -45,6 +45,7 @@ func (j Job) Run() error {
 			CKPTPath:             j.CKPTPath,
 			PretrainModelPath:    "",
 			ModelSavePath:        j.ModelPath,
+			GPUType:              j.GPUType,
 			GPURequiredPerWorker: j.GPURequiredPerWorker,
 			Replicas:             j.Replicas,
 		}.Run()
