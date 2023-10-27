@@ -72,8 +72,8 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										"--num_iterations=50",
 									},
 									"image":           kfm.Image,
-									"imagePullPolicy": "Always",
-									"name":            "bert-launcher",
+									"imagePullPolicy": "IfNotPresent",
+									"name":            "launcher",
 								},
 							},
 							"hostIPC": true,
@@ -87,8 +87,8 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							"containers": []interface{}{
 								map[string]interface{}{
 									"image":           kfm.Image,
-									"imagePullPolicy": "Always",
-									"name":            "bert-ds-worker",
+									"imagePullPolicy": "IfNotPresent",
+									"name":            "worker",
 									"resources": map[string]interface{}{
 										"limits": map[string]interface{}{
 											"nvidia.com/gpu": kfm.GPURequiredPerWorker,
