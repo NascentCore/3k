@@ -19,18 +19,11 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 					"serviceAccountName": "sa-modeluploader",
 					"volumes": []interface{}{
 						map[string]interface{}{
-							"cephfs": map[string]interface{}{
-								"monitors": []interface{}{
-									"10.233.33.169:6789",
-								},
-								"path":     pvc,
-								"readOnly": false,
-								"secretRef": map[string]interface{}{
-									"name": "ceph-secret",
-								},
-								"user": "admin",
-							},
 							"name": "modelsave-pv",
+							"persistentVolumeClaim": map[string]interface{}{
+								"claimName": pvc, //should be saved-model in mvp
+								"readOnly":  false,
+							},
 						},
 					},
 					"containers": []interface{}{
