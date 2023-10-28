@@ -12,6 +12,16 @@ python3 -m torch.distributed.launch --nproc_per_node=8 llama2_demo.py
 ```
 
 ## Multiple hosts
+
+Environment variables
+```shell
+export NCCL_DEBUG=INFO NCCL_NET=IB NCCL_P2P_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_IB_CUDA_SUPPORT=1 \
+NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL \
+NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_
+```
+
+`NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_` configures IB interface used for training
+
 ```
 # On master node, get IP with `ip a`; --node_rank=0 means this is master
 python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> --node_rank=0 \
