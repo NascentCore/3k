@@ -1,27 +1,24 @@
 ---
 name: Bug
-about: Create a report to help us improve
+about: 报告系统 Bug
 title: "【BUG】"
 labels: bug
 assignees: yzhao-2023
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
+**复现步骤**
+复现步骤如下：
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**预期的正确/合理行为**
+简要描述你预期的行为
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**提供截图**
+截图请标注出需要注意的文字/内容
 
-**Additional context**
-Add any other context about the problem here.
+**提供其他资料**
+日志、网页链接、文档链接等
