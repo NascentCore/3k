@@ -20,29 +20,15 @@ from transformers import (
     TrainingArguments,
 )
 
-logger = loguru.logger
-
-
-def log_dist(message: str,
-             ranks: List[int] = [],
-             level: int = logging.INFO) -> None:
-    """Log messages for specified ranks only"""
-    my_rank = int(os.environ.get("RANK", "0"))
-    if my_rank in ranks:
-        if level == logging.INFO:
-            logger.info(f'[Rank {my_rank}] {message}')
-        if level == logging.ERROR:
-            logger.error(f'[Rank {my_rank}] {message}')
-        if level == logging.DEBUG:
-            logger.debug(f'[Rank {my_rank}] {message}')
-
-if not torch.cuda.is_available():
-    sys.exit("CUDA/GPU not available on this node. Exiting...")
-# This is the number of total available GPUs on this node.
 # For testing multi-node-multi-gpu distibuted training,
 # we need to launch this script using MPI related commands (e.g., mpirun),
 # torch.distributed.launch, or torchrun with appropriate arguments and options.
-num_gpus = torch.cuda.device_count()
+
+logger = loguru.logger
+
+
+if not torch.cuda.is_available():
+    sys.exit("CUDA/GPU not available on this node. Exiting...")
 
 # Linux is supposed to be always okay.
 if not torch.distributed.is_available():
@@ -55,8 +41,8 @@ torch.distributed.init_process_group(backend="nccl", init_method="env://")
 print(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
 print(f"Current global rank: {torch.distributed.get_rank()}")
 
-# python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
+
 # Fine-tuning or transfer learning.
 arg_parser.add_argument("--model-path", type=str,
                         default="./Llama2-Chinese-7b-Chat",
@@ -84,12 +70,16 @@ print(f"Current local rank: {curr_local_rank}")
 
 #torch.cuda.set_device(curr_local_rank)
 
-gpu_name = f"cuda:{curr_local_rank}"
-
+logger.info("Creating llama config from pretrained model ...")
 config = LlamaConfig.from_pretrained(args.model_config_file)
+
+logger.info("Creating llama model from llama config ...")
 model = LlamaForCausalLM(config)
 
+gpu_name = f"cuda:{curr_local_rank}"
 gpu_dev = torch.device(gpu_name)
+
+logger.info(f"Copying llama model to {gpu_name} ...")
 model.to(gpu_dev)
 
 # Pretrained Models are set in evaluation mode by default during initialization.
@@ -99,7 +89,8 @@ model.train()
 #print(model)
 
 # A single node with multiple GPUs.
-#estimate_zero3_model_states_mem_needs_all_live(model,
+# num_gpus = torch.cuda.device_count()
+# estimate_zero3_model_states_mem_needs_all_live(model,
 #                                               num_gpus_per_node=num_gpus,
 #                                               num_nodes=1)
 
@@ -142,10 +133,10 @@ else:
     torch.save(test_dataset, f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 """
 
-log_dist("Creating data collector ...", ranks=[0], level=logging.INFO)
+logger.info("Creating data collector ...")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-log_dist("Creating training arguments ...", ranks=[0], level=logging.INFO)
+logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
     #log_level="debug",
     log_level="info",
@@ -165,7 +156,7 @@ training_args = TrainingArguments(
     deepspeed=args.ds_config_file,
 )
 
-log_dist("Creating trainer ...", ranks=[0], level=logging.INFO)
+logger.info("Creating trainer ...")
 trainer = Trainer(
     model=model,
     args=training_args,
