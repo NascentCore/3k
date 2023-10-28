@@ -42,11 +42,21 @@ docker push "registry.ap-southeast-1.aliyuncs.com/sxwl-ai/llama2_demo:$(date +%F
 
 ## Notes
 
+### cpu_adam cuda warning
+```
+cpu_adam cuda is missing or is incompatible with installed torch, only cpu ops can be compiled!
+```
+See [DeepSpeed Issue/3613](https://github.com/microsoft/DeepSpeed/issues/3613#issuecomment-1581104500)
+
+### urllib3 chardet supported version
+
 If you see warning message:
 ```
 urllib3 (1.25.10) or chardet (3.0.4) doesn't match a supported version!
 ```
 Run `python3 -m pip install -U urllib3 requests` to upgrade relevant packages.
+
+### Env vars
 
 ```
 Env vars:
