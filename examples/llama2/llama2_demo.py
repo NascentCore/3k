@@ -38,6 +38,8 @@ torch.distributed.launch OR torchrun
 
 # Standard libs.
 import argparse
+import logging
+import loguru
 import sys
 import os
 from datetime import datetime
@@ -55,6 +57,21 @@ from transformers import (
     TrainingArguments,
 )
 
+logger = loguru.logger
+
+
+def log_dist(message: str,
+             ranks: List[int] = [],
+             level: int = logging.INFO) -> None:
+    """Log messages for specified ranks only"""
+    my_rank = int(os.environ.get("RANK", "0"))
+    if my_rank in ranks:
+        if level == logging.INFO:
+            logger.info(f'[Rank {my_rank}] {message}')
+        if level == logging.ERROR:
+            logger.error(f'[Rank {my_rank}] {message}')
+        if level == logging.DEBUG:
+            logger.debug(f'[Rank {my_rank}] {message}')
 
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node. Exiting...")
@@ -162,8 +179,10 @@ else:
     torch.save(test_dataset, f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 """
 
+log_dist("Creating data collector ...", ranks=[0], level=logging.INFO)
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
+log_dist("Creating training arguments ...", ranks=[0], level=logging.INFO)
 training_args = TrainingArguments(
     #log_level="debug",
     log_level="info",
@@ -183,6 +202,7 @@ training_args = TrainingArguments(
     deepspeed=args.ds_config_file,
 )
 
+log_dist("Creating trainer ...", ranks=[0], level=logging.INFO)
 trainer = Trainer(
     model=model,
     args=training_args,
