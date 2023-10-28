@@ -13,15 +13,10 @@ spec:
     spec:
       serviceAccountName: sa-modeluploader
       volumes:
-      - cephfs:
-          monitors:
-          - 10.233.33.169:6789
-          path: "/readwrite/mvp-saved-model"
+      - name: modelsave-pv
+        persistentVolumeClaim:
+          claimName: saved-model
           readOnly: false
-          secretRef:
-            name: ceph-secret
-          user: admin
-        name: modelsave-pv
       containers:
       - command:
         - ./modeluploadjob

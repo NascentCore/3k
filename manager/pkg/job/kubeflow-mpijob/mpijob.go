@@ -116,46 +116,25 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							},
 							"volumes": []interface{}{
 								map[string]interface{}{
-									"cephfs": map[string]interface{}{
-										"monitors": []interface{}{
-											"10.233.33.169:6789",
-										},
-										"path":     "/readonly/hf/dataset",
-										"readOnly": true,
-										"secretRef": map[string]interface{}{
-											"name": "ceph-secret",
-										},
-										"user": "admin",
-									},
 									"name": "dataset1",
+									"persistentVolumeClaim": map[string]interface{}{
+										"claimName": "dataset",
+										"readOnly":  true,
+									},
 								},
 								map[string]interface{}{
-									"cephfs": map[string]interface{}{
-										"monitors": []interface{}{
-											"10.233.33.169:6789",
-										},
-										"path":     "/readwrite/mvp-ckpt",
-										"readOnly": false,
-										"secretRef": map[string]interface{}{
-											"name": "ceph-secret",
-										},
-										"user": "admin",
-									},
 									"name": "ckpt-pv",
+									"persistentVolumeClaim": map[string]interface{}{
+										"claimName": "ckpt",
+										"readOnly":  false,
+									},
 								},
 								map[string]interface{}{
-									"cephfs": map[string]interface{}{
-										"monitors": []interface{}{
-											"10.233.33.169:6789",
-										},
-										"path":     "/readwrite/mvp-saved-model",
-										"readOnly": false,
-										"secretRef": map[string]interface{}{
-											"name": "ceph-secret",
-										},
-										"user": "admin",
-									},
 									"name": "saved-model-pv",
+									"persistentVolumeClaim": map[string]interface{}{
+										"claimName": "saved-model",
+										"readOnly":  false,
+									},
 								},
 							},
 						},
