@@ -42,6 +42,8 @@ import logging
 import loguru
 import sys
 import os
+
+from typing import List
 from datetime import datetime
 
 # 3rd-party libs.
