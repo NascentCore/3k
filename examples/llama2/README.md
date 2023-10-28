@@ -42,6 +42,12 @@ docker push "registry.ap-southeast-1.aliyuncs.com/sxwl-ai/llama2_demo:$(date +%F
 
 ## Notes
 
+If you see warning message:
+```
+urllib3 (1.25.10) or chardet (3.0.4) doesn't match a supported version!
+```
+Run `python3 -m pip install -U urllib3 requests` to upgrade relevant packages.
+
 ```
 Env vars:
 - NCCL_DEBUG=INFO
