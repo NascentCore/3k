@@ -28,13 +28,13 @@ spec:
         - cpod0001
         - http://cloud.nascentcore.ai
         name: cpodmanager
-        image: dockerhub.kubekey.local/kubesphereio/cpodmanager:5e3ed03
+        image: dockerhub.kubekey.local/kubesphereio/cpodmanager:931af58
         imagePullPolicy: Always
         env:
         - name: UPLOADIMAGE
           value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
         - name: MODELSAVEPVC
-          value: /readwrite/mvp-saved-model
+          value: saved-model
         - name: DEPLOY
           value: DEBUG
       dnsPolicy: ClusterFirst
