@@ -28,8 +28,8 @@ python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> --n
     --master_addr=<local-ip> --master_port=<port> llama2_demo.py
 
 # All other nodes needs to set --node_rank accordingly
-python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=2 --node_rank=<node-index> \
-    --master_addr=<local-ip> --master_port=<port> llama2_demo.py
+python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> --node_rank=<node-index> \
+    --master_addr=<master-ip> --master_port=<port> llama2_demo.py
 ```
 
 ## Docker
