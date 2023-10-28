@@ -95,7 +95,6 @@ model.train()
 #                                               num_nodes=1)
 
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
-# XXX
 tokenizer.pad_token = tokenizer.eos_token
 
 max_seq_length = 16
@@ -138,7 +137,7 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
-    #log_level="debug",
+    # log_level="debug",
     log_level="info",
     output_dir=out_model_path,
     overwrite_output_dir=True,
@@ -146,13 +145,13 @@ training_args = TrainingArguments(
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
     save_strategy="epoch",  # TBD
-    #save_steps=2000,  # TBD
+    # save_steps=2000,  # TBD
     save_total_limit=4,  # TBD
-    #save_on_each_node=False,
+    # save_on_each_node=False,
     prediction_loss_only=True,
     report_to="none",
     push_to_hub=False,
-    local_rank=curr_local_rank,  # XXX
+    local_rank=curr_local_rank,
     deepspeed=args.ds_config_file,
 )
 
@@ -165,19 +164,14 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-print("Begin training...")
-
-#trainer.train(resume_from_checkpoint=True)
+logger.info("Start training ...")
 trainer.train()
 
-print("Saving model...")
-# FIXME
+logger.info("Saving model...")
 trainer.save_model()
 
-print("Done training...")
+logger.info("Destroying torch distributed training group ...")
 
-# XXX: Needs to check if `transformers.Trainer.train()`
+# TODO(glen): Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
 torch.distributed.destroy_process_group()
-
-#os.exit(0)
