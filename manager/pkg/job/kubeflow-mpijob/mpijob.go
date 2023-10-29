@@ -113,7 +113,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							},
 							"hostIPC": true,
 							"nodeSelector": map[string]interface{}{
-								consts.PRODUCT_LABEL_NAME: kfm.GPUType,
+								consts.K8S_LABEL_NV_GPU_PRODUCT: kfm.GPUType,
 							},
 							"volumes": []interface{}{
 								map[string]interface{}{
