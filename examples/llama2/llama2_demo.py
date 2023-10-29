@@ -171,11 +171,11 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-logger.info("Start training...")
+logger.info("Start training ...")
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
 
-logger.info("Saving model...")
+logger.info("Saving model ...")
 # FIXME
 trainer.save_model(args.saved_model_dir)
 
