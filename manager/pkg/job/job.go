@@ -17,6 +17,8 @@ type (
 
 const (
 	JobTypeMPI   Type = "MPI" //与云市场一致
+	// TODO(congpeiqing): Consider move Jobs into seprate namespace
+	// https://github.com/NascentCore/3k/issues/189
 	JobNamespace      = "cpod"
 )
 
