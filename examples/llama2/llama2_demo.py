@@ -156,7 +156,7 @@ training_args = TrainingArguments(
     prediction_loss_only=True,
     report_to="none",
     push_to_hub=False,
-    local_rank=curr_local_rank,  # XXX
+    local_rank=curr_local_rank,
     # ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
