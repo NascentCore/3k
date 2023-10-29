@@ -181,7 +181,7 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 training_args = TrainingArguments(
     #log_level="debug",
     log_level="info",
-    log_on_each_node=True,
+    log_on_each_node=False,
     output_dir=out_model_path,
     overwrite_output_dir=True,
     do_train=True,
