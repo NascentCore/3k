@@ -3,6 +3,7 @@ package kubeflowmpijob
 import (
 	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+	"sxwl/3k/pkg/utils/consts"
 )
 
 // TODO: 根据实际情况增加或者删除一些字段
@@ -112,7 +113,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							},
 							"hostIPC": true,
 							"nodeSelector": map[string]interface{}{
-								"nvidia.com/gpu.product": kfm.GPUType,
+								consts.PRODUCT_LABEL_NAME: kfm.GPUType,
 							},
 							"volumes": []interface{}{
 								map[string]interface{}{
