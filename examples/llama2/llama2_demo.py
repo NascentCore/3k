@@ -181,8 +181,6 @@ trainer.save_model(args.saved_model_dir)
 
 logger.info("Destroying torch distributed training group ...")
 
-# XXX: Needs to check if `transformers.Trainer.train()`
+# TODO(glen): Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
 torch.distributed.destroy_process_group()
-
-#os.exit(0)
