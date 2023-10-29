@@ -8,6 +8,7 @@ from typing import List
 from datetime import datetime
 
 # 3rd-party libs.
+from loguru import logger
 import torch
 from deepspeed.runtime.zero.stage3 import estimate_zero3_model_states_mem_needs_all_live
 from transformers import (
@@ -38,8 +39,8 @@ if not torch.distributed.is_available():
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
-print(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
-print(f"Current global rank: {torch.distributed.get_rank()}")
+logger.info(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
+logger.info(f"Current global rank: {torch.distributed.get_rank()}")
 
 arg_parser = argparse.ArgumentParser()
 
@@ -69,7 +70,7 @@ arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
 
 curr_local_rank = args.local_rank
-print(f"Current local rank: {curr_local_rank}")
+logger.info(f"Current local rank: {curr_local_rank}")
 
 #torch.cuda.set_device(curr_local_rank)
 
@@ -97,6 +98,7 @@ model.train()
 #                                               num_gpus_per_node=num_gpus,
 #                                               num_nodes=1)
 
+logger.info("Creating llama tokenizer...")
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -108,6 +110,7 @@ num_train_epochs = 4
 batch_size = 8
 
 # Train dataset
+logger.info("Loading or tokenizing training dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/train_dataset_ml8.pt"):
     train_dataset = torch.load(f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
 else:
@@ -115,7 +118,9 @@ else:
                                           file_path=f"{args.raw_data_dir}/wiki.train.raw",
                                           block_size=max_seq_length)
     torch.save(train_dataset, f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
+
 # Evaluation dataset
+logger.info("Loading or tokenizing evaluation dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/eval_dataset_ml8.pt"):
     eval_dataset = torch.load(f"{args.tokenized_data_dir}/eval_dataset_ml8.pt")
 else:
@@ -126,6 +131,7 @@ else:
 
 """
 # Test dataset
+logger.info("Loading or tokenizing test dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/test_dataset_ml8.pt"):
     test_dataset = torch.load(f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 else:
@@ -142,6 +148,7 @@ logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
     # log_level="debug",
     log_level="info",
+    log_on_each_node=True,
     output_dir=out_model_path,
     overwrite_output_dir=True,
     do_train=True,
@@ -155,6 +162,7 @@ training_args = TrainingArguments(
     report_to="none",
     push_to_hub=False,
     local_rank=curr_local_rank,
+    # ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
 
@@ -169,12 +177,12 @@ trainer = Trainer(
 
 logger.info("Start training ...")
 trainer.train()
+logger.info("Done training...")
 
 logger.info("Saving model...")
-trainer.save_model()
-
-logger.info("Destroying torch distributed training group ...")
+trainer.save_model(args.saved_model_dir)
 
 # TODO(glen): Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
+logger.info("Destroying torch distributed training group ...")
 torch.distributed.destroy_process_group()

@@ -3,7 +3,8 @@
 # NVIDIA-SMI 535.104.05    Driver Version: 535.104.05    CUDA Version: 12.2
 
 # https://hub.docker.com/r/nvidia/cuda/tags
-FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
+#FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
+FROM cuda_base
 
 LABEL sxwl.ai.maintainer="glen@nascentcore.ai"
 LABEL sxwl.ai.build-date="2023-10-13"
@@ -17,14 +18,15 @@ LABEL version="0.1"
 # hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get install --no-install-recommends -y gcc python3-dev && \
-    apt-get install --no-install-recommends -y git wget python3-pip vim ifconfig && \
+    apt-get install --no-install-recommends -y git wget python3-pip vim net-tools && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /llama2
 
 # TODO: All artifiacts for training/fine-tuning LLaMA 2.
-COPY llama2_demo.py requirements.txt Llama2-Chinese-7b-Chat/ \
-     config/ wikitext-103-raw/ data/ llama2_output/ llama2_ckpt/ /llama2/
+#COPY llama2_demo.py requirements.txt Llama2-Chinese-7b-Chat/ \
+#     config/ wikitext-103-raw/ data/ llama2_output/ llama2_ckpt/ /llama2/
+COPY . ./
 
 # Set up the pip source for China, upgrade pip, and then install deps.
 # https://stackoverflow.com/a/72551258

@@ -6,3 +6,5 @@ torch
 transformers==4.31.0
 accelerate
 sentencepiece
+#loguru==0.5.3
+loguru
