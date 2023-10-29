@@ -5,6 +5,15 @@
 * 千亿参数：支持千亿参数大模型训练、推理
 * 千小时：支持千小时以上无人干预大模型训练
 
+## Terminology/术语
+
+| Acronym  |      Meaning  |  涵义 |
+|----------|:-------------:|:------|
+| 1g   | 1 GPU           | 1 卡 |
+| 1h1g | 1 node 1 GPU    | 1 机 1 卡 |
+| 1h8g | 1 node 8 GPU    | 1机8卡  |
+| 2h8g | 2 nodes 16 GPUs | 2机16卡 |
+
 ## Introduction
 
 Named after 3 major performance metrics of the system:
