@@ -141,7 +141,7 @@ logger.info("Creating data collator with tokenizer...")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 training_args = TrainingArguments(
-    #log_level="debug",
+    # log_level="debug",
     log_level="info",
     log_on_each_node=False,
     output_dir=out_model_path,
@@ -150,14 +150,14 @@ training_args = TrainingArguments(
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
     save_strategy="epoch",  # TBD
-    #save_steps=2000,  # TBD
+    # save_steps=2000,  # TBD
     save_total_limit=4,  # TBD
-    #save_on_each_node=False,
+    # save_on_each_node=False,
     prediction_loss_only=True,
     report_to="none",
     push_to_hub=False,
     local_rank=curr_local_rank,  # XXX
-    #ddp_backend="nccl",
+    # ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
 
