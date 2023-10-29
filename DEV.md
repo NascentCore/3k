@@ -18,6 +18,10 @@
   ```
   tools/lint.sh
   ```
+* Init submodule:
+  ```
+  git submodule update --init --recursive
+  ```
 
 ## Notes
 
