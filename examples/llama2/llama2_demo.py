@@ -100,8 +100,8 @@ tokenizer.pad_token = tokenizer.eos_token
 
 max_seq_length = 16
 # FIXME
-#out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-out_model_path = args.ckpt_dir
+#ckpt_output_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+ckpt_output_path = args.ckpt_dir
 num_train_epochs = 4
 batch_size = 8
 
@@ -144,7 +144,7 @@ training_args = TrainingArguments(
     # log_level="debug",
     log_level="info",
     log_on_each_node=False,
-    output_dir=out_model_path,
+    output_dir=ckpt_output_path,
     overwrite_output_dir=True,
     do_train=True,
     num_train_epochs=num_train_epochs,
