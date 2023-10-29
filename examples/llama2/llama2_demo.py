@@ -89,9 +89,9 @@ model.train()
 #print(model)
 
 # A single node with multiple GPUs.
-#estimate_zero3_model_states_mem_needs_all_live(model,
-#                                               num_gpus_per_node=num_gpus,
-#                                               num_nodes=1)
+# estimate_zero3_model_states_mem_needs_all_live(model,
+#                                                num_gpus_per_node=num_gpus,
+#                                                num_nodes=1)
 
 logger.info("Creating llama tokenizer...")
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
