@@ -51,23 +51,3 @@ func SetKubeConfigFile(filename string) {
 func inClusterConfig() (*rest.Config, error) {
 	return rest.InClusterConfig()
 }
-
-// try to create the out-cluster config.
-func outClusterConfig() (*rest.Config, error) {
-	filename := ""
-	if kubeconfigFile == "" {
-		// not provided , use conventional path
-		if home := homedir.HomeDir(); home != "" {
-			filename = filepath.Join(home, ".kube", "config")
-		} else {
-			return nil, errors.New("no kubeconfig file")
-		}
-	} else {
-		filename = kubeconfigFile
-	}
-	b, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	return clientcmd.RESTConfigFromKubeConfig(b)
-}
