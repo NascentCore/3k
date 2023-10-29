@@ -140,6 +140,7 @@ else:
 logger.info("Creating data collator with tokenizer...")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
+logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
     # log_level="debug",
     log_level="info",
