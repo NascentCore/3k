@@ -5,7 +5,7 @@ from plumbum.cmd import grep, ssh, awk
 from .utils import kk_run, Conf, helm_run, kubectl_run, is_true, copy_package
 
 
-def create_cluster():
+def install_kubernetes_cluster():
     print(colors.yellow | "===== [3kctl] create kubernetes cluster =====")
 
     kk_run("create",
@@ -15,7 +15,7 @@ def create_cluster():
            )
 
 
-def install_apps():
+def install_operators():
     for app in Conf.c.deploy.helm_apps.split(","):
         print(colors.yellow | "===== [3kctl] install {} =====".format(app))
 

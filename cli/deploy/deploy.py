@@ -3,85 +3,125 @@ from plumbum import cli
 from .registry import *
 from .kubernetes import *
 
-class DeployCluster(cli.Application):
+
+class Deploy(cli.Application):
     """cluster offline deployment"""
-    _all = False
-    _init_registry = _push_images = _create_cluster = _install_apps = False
-    _install_ceph = _add_nodes = False
-    _node = ""
 
-    @cli.autoswitch()
-    def init_registry(self):
-        """initialize the private repository"""
-        self._init_registry = True
 
-    @cli.autoswitch()
-    def push_images(self):
-        """push images to private repository"""
-        self._push_images = True
+@Deploy.subcommand("init")
+class Init(cli.Application):
+    """initialize module"""
 
-    @cli.autoswitch()
-    def create_cluster(self):
-        """deploy kubernetes cluster"""
-        self._create_cluster = True
 
-    @cli.autoswitch()
-    def install_apps(self):
-        """install nfd/gpu/network/mpi operator"""
-        self._install_apps = True
-
-    @cli.autoswitch()
-    def install_ceph(self):
-        """install ceph cluster"""
-        self._install_ceph = True
-
-    @cli.autoswitch()
-    def add_nodes(self):
-        """add nodes for kubernetes cluster"""
-        self._add_nodes = True
-
-    @cli.autoswitch(str)
-    def delete_node(self, args):
-        """delete node for kubernetes cluster"""
-        self._node = args
-
-    @cli.switch(["-a", "--all"])
-    def all(self):
-        """deploy kubernetes cluster and install apps"""
-        self._all = True
+@Init.subcommand("registry")
+class Registry(cli.Application):
+    """initialize the private repository"""
 
     def main(self):
-        if self._all:
+        init_registry()
+
+
+@Deploy.subcommand("push")
+class Push(cli.Application):
+    """push images or helm charts to registry"""
+
+
+@Push.subcommand("images")
+class Images(cli.Application):
+    """push images to registry"""
+
+    def main(self):
+        create_project()
+        push_images()
+
+
+@Push.subcommand("charts")
+class Charts(cli.Application):
+    """push helm charts to registry"""
+
+    def main(self):
+        install_helm_push()
+        push_charts()
+
+
+@Deploy.subcommand("install")
+class Install(cli.Application):
+    """install kubernetes cluster or operators"""
+
+
+@Install.subcommand("kubernetes")
+class Kubernetes(cli.Application):
+    """install kubernetes cluster"""
+
+    def main(self):
+        install_kubernetes_cluster()
+
+
+@Install.subcommand("operators")
+class Operators(cli.Application):
+    """install nfdgpu/netowrk/prometheus/mpi operator"""
+
+    def main(self):
+        install_operators()
+
+
+@Install.subcommand("ceph")
+class Ceph(cli.Application):
+    """install rook ceph cluster"""
+
+    def main(self):
+        install_ceph()
+
+
+@Deploy.subcommand("add")
+class Add(cli.Application):
+    """add node/object"""
+
+
+@Add.subcommand("nodes")
+class Nodes(cli.Application):
+    """add kubernetes nodes"""
+
+    def main(self):
+        add_nodes()
+
+
+@Deploy.subcommand("delete")
+class Delete(cli.Application):
+    """delete node/object"""
+
+
+@Delete.subcommand("node")
+class Node(cli.Application):
+    """delete kubernetes node"""
+
+    def main(self, node_name):
+        delete_node(node_name)
+
+
+@Deploy.subcommand("all")
+class All(cli.Application):
+    """deploy kubernetes cluster and install operators"""
+    no_init_registry = cli.Flag("--no-init-registry", default=False, help="default: false")
+    no_push_images = cli.Flag("--no-push-images", default=False, help="default: false")
+    no_push_charts = cli.Flag("--no-push-charts", default=False, help="default: false")
+    no_install_operators = cli.Flag("--no-install-operators", default=False, help="default: false")
+
+    def main(self):
+        if not self.no_init_registry:
             init_registry()
+
+        if not self.no_push_images:
             create_project()
             push_images()
-            create_cluster()
+
+        install_kubernetes_cluster()
+
+        if not self.no_push_charts:
             install_helm_push()
             push_charts()
-            install_apps()
-            print(colors.green | "===== [3kctl] deployment successful =====")
 
-        else:
-            if self._init_registry:
-                init_registry()
+        if not self.no_install_operators:
+            install_operators()
 
-            if self._push_images:
-                create_project()
-                push_images()
-
-            if self._create_cluster:
-                create_cluster()
-
-            if self._install_apps:
-                install_helm_push()
-                push_charts()
-                install_apps()
-
-            if self._install_ceph:
-                install_ceph()
-
-            if self._add_nodes:
-                add_nodes()
-
-            if self._node:
-                delete_node(self._node)
+        print(colors.green | "===== [3kctl] deployment successful =====")

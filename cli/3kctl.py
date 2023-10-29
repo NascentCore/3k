@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from plumbum import cli, colors
-from deploy.deploy import DeployCluster
+from deploy.deploy import Deploy
 
 
 class MainApp(cli.Application):
@@ -8,14 +8,7 @@ class MainApp(cli.Application):
     VERSION = "0.1" | colors.blue
     DESCRIPTION = "CLI tool for 3k platform"
 
-    def main(self, *args):
-        pass
-
-
-@MainApp.subcommand("deploy")
-class DeployCluster(DeployCluster):
-    pass
-
 
 if __name__ == '__main__':
+    MainApp.subcommand("deploy", Deploy)
     MainApp.run()

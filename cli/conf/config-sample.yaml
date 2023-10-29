@@ -1,0 +1,56 @@
+apiVersion: kubekey.kubesphere.io/v1alpha2
+kind: Cluster
+metadata:
+  name: sample
+spec:
+  hosts:
+  - {name: master, internalAddress: 172.16.0.147, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  - {name: master2, internalAddress: 172.16.0.151, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  - {name: master3, internalAddress: 172.16.0.152, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  - {name: worker1, internalAddress: 172.16.0.148, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  - {name: worker2, internalAddress: 172.16.0.149, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  - {name: worker3, internalAddress: 172.16.0.150, port: 22, user: root, privateKeyPath: "/root/.ssh/id_rsa"}
+  roleGroups:
+    etcd:
+    - master
+    control-plane:
+    - master
+    worker:
+    - worker[1:3]
+    registry:
+    - master
+  controlPlaneEndpoint:
+    ## Internal loadbalancer for apiservers
+    internalLoadbalancer: haproxy
+
+    domain: lb.kubesphere.local
+    address: ""
+    port: 6443
+  kubernetes:
+    version: v1.24.3
+    clusterName: cluster.local
+    autoRenewCerts: true
+    containerManager: containerd
+  etcd:
+    type: kubekey
+  network:
+    plugin: calico
+    kubePodsCIDR: 10.233.64.0/18
+    kubeServiceCIDR: 10.233.0.0/18
+    ## multus support. https://github.com/k8snetworkplumbingwg/multus-cni
+    multusCNI:
+      enabled: false
+  registry:
+    type: harbor
+    auths:
+      # 私有仓库认证配置
+      "dockerhub.kubekey.local":
+        username: admin
+        password: Harbor12345
+        # 需在初始化registry之前加上，否则会报x509错误
+        certsPath: "/etc/docker/certs.d/dockerhub.kubekey.local"
+    privateRegistry: "dockerhub.kubekey.local"
+    namespaceOverride: "kubesphereio"
+    registryMirrors: []
+    insecureRegistries: []
+  addons: []
