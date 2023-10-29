@@ -162,6 +162,7 @@ training_args = TrainingArguments(
     deepspeed=args.ds_config_file,
 )
 
+logger.info("Creating trainer ...")
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -170,7 +171,7 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-logger.info("Begin training...")
+logger.info("Start training...")
 #trainer.train(resume_from_checkpoint=True)
 trainer.train()
 
