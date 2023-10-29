@@ -1,10 +1,45 @@
+"""
+On LY worker4/worker5:
+
+#export LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+export NCCL_DEBUG=INFO NCCL_NET=IB NCCL_P2P_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_IB_CUDA_SUPPORT=1 NCCL_NET_GDR_LEVEL=SYS NCCL_IB_GDR_LEVEL=SYS NCCL_DEBUG_SUBSYS=ALL NCCL_SOCKET_IFNAME=ibs1 NCCL_IB_HCA=mlx5_
+
+# LY worker4 (master host)
+python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=2 --node_rank=0 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2_worker4.log 2>&1 &
+
+# LY worker5
+python3 -m torch.distributed.launch --nproc-per-node=8 --nnodes=2 --node_rank=1 --master-addr="214.2.5.4" --master-port=29501 llama2_demo.py > ~/llama2_worker5.log 2>&1 &
+
+
+Env vars:
+- NCCL_DEBUG=INFO
+- NCCL_NET=IB
+- NCCL_P2P_LEVEL=SYS  # Try to enforce P2P anywhere.
+- NCCL_SOCKET_IFNAME=
+- NCCL_IB_HCA=
+- NCCL_IB_CUDA_SUPPORT=1  # Try to enforce GDR.
+- NCCL_NET_GDR_LEVEL=SYS
+- NCCL_IB_GDR_LEVEL=SYS
+- NCCL_NET_GDR_READ=1
+- NCCL_DEBUG_SUBSYS=ALL
+
+Note:
+- "NCCL_P2P_DISABLE=1" should not be set.
+- "NCCL_P2P_DIRECT_DISABLE=1" should not be set.
+- ibdev2netdev to check NCCL_SOCKET_IFNAME (rhs) and NCCL_IB_HCA (lhs)
+- "NCCL_COLLNET_ENABLE=1" may need to be set.
+- "NCCL_COLLNET_NODE_THRESHOLD=17" may need to be set.
+- NCCL version
+
+
+torch.distributed.launch OR torchrun
+"""
+
+
+# Standard libs.
 import argparse
-import logging
-import loguru
 import sys
 import os
-
-from typing import List
 from datetime import datetime
 
 # 3rd-party libs.
@@ -21,15 +56,14 @@ from transformers import (
     TrainingArguments,
 )
 
-# For testing multi-node-multi-gpu distibuted training,
-# we need to launch this script using MPI related commands (e.g., mpirun),
-# torch.distributed.launch, or torchrun with appropriate arguments and options.
-
-logger = loguru.logger
-
 
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node. Exiting...")
+# This is the number of total available GPUs on this node.
+# For testing multi-node-multi-gpu distibuted training,
+# we need to launch this script using MPI related commands (e.g., mpirun),
+# torch.distributed.launch, or torchrun with appropriate arguments and options.
+num_gpus = torch.cuda.device_count()
 
 # Linux is supposed to be always okay.
 if not torch.distributed.is_available():
@@ -42,8 +76,8 @@ torch.distributed.init_process_group(backend="nccl", init_method="env://")
 logger.info(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
 logger.info(f"Current global rank: {torch.distributed.get_rank()}")
 
+# python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
-
 # Fine-tuning or transfer learning.
 arg_parser.add_argument("--model-path", type=str,
                         default="./Llama2-Chinese-7b-Chat",
@@ -74,10 +108,10 @@ logger.info(f"Current local rank: {curr_local_rank}")
 
 #torch.cuda.set_device(curr_local_rank)
 
-logger.info("Creating llama config from pretrained model ...")
+logger.info("Creating llama config from pretrained model...")
 config = LlamaConfig.from_pretrained(args.model_config_file)
 
-logger.info("Creating llama model from llama config ...")
+logger.info("Creating llama model with llama config...")
 model = LlamaForCausalLM(config)
 
 gpu_name = f"cuda:{curr_local_rank}"
@@ -93,13 +127,13 @@ model.train()
 #print(model)
 
 # A single node with multiple GPUs.
-# num_gpus = torch.cuda.device_count()
-# estimate_zero3_model_states_mem_needs_all_live(model,
+#estimate_zero3_model_states_mem_needs_all_live(model,
 #                                               num_gpus_per_node=num_gpus,
 #                                               num_nodes=1)
 
 logger.info("Creating llama tokenizer...")
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
+# XXX
 tokenizer.pad_token = tokenizer.eos_token
 
 max_seq_length = 16
@@ -141,12 +175,11 @@ else:
     torch.save(test_dataset, f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 """
 
-logger.info("Creating data collector ...")
+logger.info("Creating data collator with tokenizer...")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
-    # log_level="debug",
+    #log_level="debug",
     log_level="info",
     log_on_each_node=True,
     output_dir=out_model_path,
@@ -155,18 +188,17 @@ training_args = TrainingArguments(
     num_train_epochs=num_train_epochs,
     per_device_train_batch_size=batch_size,
     save_strategy="epoch",  # TBD
-    # save_steps=2000,  # TBD
+    #save_steps=2000,  # TBD
     save_total_limit=4,  # TBD
-    # save_on_each_node=False,
+    #save_on_each_node=False,
     prediction_loss_only=True,
     report_to="none",
     push_to_hub=False,
-    local_rank=curr_local_rank,
-    # ddp_backend="nccl",
+    local_rank=curr_local_rank,  # XXX
+    #ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
 
-logger.info("Creating trainer ...")
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -175,14 +207,18 @@ trainer = Trainer(
     data_collator=data_collator,
 )
 
-logger.info("Start training ...")
+logger.info("Begin training...")
+#trainer.train(resume_from_checkpoint=True)
 trainer.train()
-logger.info("Done training...")
 
 logger.info("Saving model...")
+# FIXME
 trainer.save_model(args.saved_model_dir)
 
-# TODO(glen): Needs to check if `transformers.Trainer.train()`
+logger.info("Done training...")
+
+# XXX: Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
-logger.info("Destroying torch distributed training group ...")
 torch.distributed.destroy_process_group()
+
+#os.exit(0)
