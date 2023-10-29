@@ -137,7 +137,7 @@ else:
     torch.save(test_dataset, f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 """
 
-logger.info("Creating data collator with tokenizer...")
+logger.info("Creating data collector ...")
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 logger.info("Creating training arguments ...")
