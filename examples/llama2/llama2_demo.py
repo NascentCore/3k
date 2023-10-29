@@ -70,10 +70,10 @@ logger.info(f"Current local rank: {curr_local_rank}")
 
 #torch.cuda.set_device(curr_local_rank)
 
-logger.info("Creating llama config from pretrained model...")
+logger.info("Creating llama config from pretrained model ...")
 config = LlamaConfig.from_pretrained(args.model_config_file)
 
-logger.info("Creating llama model with llama config...")
+logger.info("Creating llama model with llama config ...")
 model = LlamaForCausalLM(config)
 
 gpu_name = f"cuda:{curr_local_rank}"
