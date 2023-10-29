@@ -1,13 +1,11 @@
+# Standard libs.
 import argparse
-import logging
-import loguru
 import sys
 import os
-
-from typing import List
 from datetime import datetime
 
 # 3rd-party libs.
+from loguru import logger
 import torch
 from deepspeed.runtime.zero.stage3 import estimate_zero3_model_states_mem_needs_all_live
 from transformers import (
@@ -20,15 +18,14 @@ from transformers import (
     TrainingArguments,
 )
 
-# For testing multi-node-multi-gpu distibuted training,
-# we need to launch this script using MPI related commands (e.g., mpirun),
-# torch.distributed.launch, or torchrun with appropriate arguments and options.
-
-logger = loguru.logger
-
 
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node. Exiting...")
+# This is the number of total available GPUs on this node.
+# For testing multi-node-multi-gpu distibuted training,
+# we need to launch this script using MPI related commands (e.g., mpirun),
+# torch.distributed.launch, or torchrun with appropriate arguments and options.
+num_gpus = torch.cuda.device_count()
 
 # Linux is supposed to be always okay.
 if not torch.distributed.is_available():
@@ -38,11 +35,11 @@ if not torch.distributed.is_available():
 # The default (working) group is the world.
 torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
-print(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
-print(f"Current global rank: {torch.distributed.get_rank()}")
+logger.info(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
+logger.info(f"Current global rank: {torch.distributed.get_rank()}")
 
+# python3 llama2_demo.py
 arg_parser = argparse.ArgumentParser()
-
 # Fine-tuning or transfer learning.
 arg_parser.add_argument("--model-path", type=str,
                         default="./Llama2-Chinese-7b-Chat",
@@ -61,19 +58,22 @@ arg_parser.add_argument("--tokenized-data-dir", type=str, default="./data/",
 arg_parser.add_argument("--saved-model-dir", type=str,
                         default="./llama2_output",
                         help="Path for saving learned models")
+arg_parser.add_argument("--ckpt-dir", type=str,
+                        default="./llama2_ckpt",
+                        help="Path for saving checkpoints during training")
 # --local-rank=LOCAL_PROCESS_RANK, which will be provided by `torch.distributed` module.
 arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
 
 curr_local_rank = args.local_rank
-print(f"Current local rank: {curr_local_rank}")
+logger.info(f"Current local rank: {curr_local_rank}")
 
 #torch.cuda.set_device(curr_local_rank)
 
 logger.info("Creating llama config from pretrained model ...")
 config = LlamaConfig.from_pretrained(args.model_config_file)
 
-logger.info("Creating llama model from llama config ...")
+logger.info("Creating llama model with llama config ...")
 model = LlamaForCausalLM(config)
 
 gpu_name = f"cuda:{curr_local_rank}"
@@ -89,22 +89,24 @@ model.train()
 #print(model)
 
 # A single node with multiple GPUs.
-# num_gpus = torch.cuda.device_count()
 # estimate_zero3_model_states_mem_needs_all_live(model,
-#                                               num_gpus_per_node=num_gpus,
-#                                               num_nodes=1)
+#                                                num_gpus_per_node=num_gpus,
+#                                                num_nodes=1)
 
+logger.info("Creating llama tokenizer...")
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
+# XXX
 tokenizer.pad_token = tokenizer.eos_token
 
 max_seq_length = 16
 # FIXME
-#out_model_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-out_model_path = args.saved_model_dir
+#ckpt_output_path = f"llama2_output_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+ckpt_output_path = args.ckpt_dir
 num_train_epochs = 4
 batch_size = 8
 
 # Train dataset
+logger.info("Loading or tokenizing training dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/train_dataset_ml8.pt"):
     train_dataset = torch.load(f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
 else:
@@ -112,7 +114,9 @@ else:
                                           file_path=f"{args.raw_data_dir}/wiki.train.raw",
                                           block_size=max_seq_length)
     torch.save(train_dataset, f"{args.tokenized_data_dir}/train_dataset_ml8.pt")
+
 # Evaluation dataset
+logger.info("Loading or tokenizing evaluation dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/eval_dataset_ml8.pt"):
     eval_dataset = torch.load(f"{args.tokenized_data_dir}/eval_dataset_ml8.pt")
 else:
@@ -139,7 +143,8 @@ logger.info("Creating training arguments ...")
 training_args = TrainingArguments(
     # log_level="debug",
     log_level="info",
-    output_dir=out_model_path,
+    log_on_each_node=False,
+    output_dir=ckpt_output_path,
     overwrite_output_dir=True,
     do_train=True,
     num_train_epochs=num_train_epochs,
@@ -152,6 +157,7 @@ training_args = TrainingArguments(
     report_to="none",
     push_to_hub=False,
     local_rank=curr_local_rank,
+    # ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
 
@@ -165,10 +171,12 @@ trainer = Trainer(
 )
 
 logger.info("Start training ...")
+#trainer.train(resume_from_checkpoint=True)
 trainer.train()
 
-logger.info("Saving model...")
-trainer.save_model()
+logger.info("Saving model ...")
+# FIXME
+trainer.save_model(args.saved_model_dir)
 
 logger.info("Destroying torch distributed training group ...")
 
