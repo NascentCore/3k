@@ -179,7 +179,7 @@ logger.info("Saving model...")
 # FIXME
 trainer.save_model(args.saved_model_dir)
 
-logger.info("Done training...")
+logger.info("Destroying torch distributed training group ...")
 
 # XXX: Needs to check if `transformers.Trainer.train()`
 # is sync or async by default.
