@@ -127,7 +127,6 @@ else:
 
 """
 # Test dataset
-logger.info("Loading or tokenizing test dataset...")
 if os.path.exists(f"./{args.tokenized_data_dir}/test_dataset_ml8.pt"):
     test_dataset = torch.load(f"{args.tokenized_data_dir}/test_dataset_ml8.pt")
 else:
