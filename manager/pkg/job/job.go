@@ -17,6 +17,7 @@ type (
 
 const (
 	JobTypeMPI   Type = "MPI" //与云市场一致
+	// TODO(issues/189): Consider move Jobs into seprate namespace
 	JobNamespace      = "cpod"
 )
 
