@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nascentcore.ai.modules.system.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="nascentcore.ai.modules.system.domain.User">
+        <id column="user_user_id" property="id"/>
+        <result column="user_username" property="username"/>
+        <result column="user_nick_name" property="nickName"/>
+        <result column="user_email" property="email"/>
+        <result column="user_phone" property="phone"/>
+        <result column="user_gender" property="gender"/>
+        <result column="user_avatar_name" property="avatarName"/>
+        <result column="user_avatar_path" property="avatarPath"/>
+        <result column="user_password" property="password"/>
+        <result column="user_is_admin" property="isAdmin"/>
+        <result column="user_enabled" property="enabled"/>
+        <result column="user_pwd_reset_time" property="pwdResetTime"/>
+        <result column="user_create_by" property="createBy"/>
+        <result column="user_update_by" property="updateBy"/>
+        <result column="user_create_time" property="createTime"/>
+        <result column="user_update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+           u.user_id as user_user_id, u.username as user_username,
+           u.nick_name as user_nick_name, u.email as user_email, u.phone as user_phone,
+           u.gender as user_gender, u.avatar_name as user_avatar_name, u.avatar_path as user_avatar_path,
+           u.enabled as user_enabled, u.pwd_reset_time as user_pwd_reset_time, u.create_by as user_create_by,
+           u.update_by as user_update_by, u.create_time as user_create_time, u.update_time as user_update_time
+    </sql>
+
+    <sql id="Whrer_Sql">
+        <where>
+            <if test="criteria.id != null">
+                and u.user_id = #{criteria.id}
+            </if>
+            <if test="criteria.enabled != null">
+                and u.enabled = #{criteria.enabled}
+            </if>
+            <if test="criteria.blurry != null and criteria.blurry != ''">
+                and (
+                u.username like concat('%', #{criteria.blurry}, '%')
+                or u.nick_name like concat('%', #{criteria.blurry}, '%')
+                or u.email like concat('%', #{criteria.blurry}, '%')
+                )
+            </if>
+            <if test="criteria.createTime != null and criteria.createTime.size() != 0">
+                and u.create_time between #{criteria.createTime[0]} and #{criteria.createTime[1]}
+            </if>
+        </where>
+    </sql>
+
+    <select id="findByUsername" resultMap="BaseResultMap">
+        select
+        u.password user_password, u.is_admin user_is_admin,
+        <include refid="Base_Column_List"/>
+        from sys_user u
+        where u.username = #{username}
+    </select>
+
+    <select id="findByEmail" resultType="nascentcore.ai.modules.system.domain.User">
+        select user_id as id, username from sys_user
+        where email = #{email}
+    </select>
+
+    <select id="findByPhone" resultType="nascentcore.ai.modules.system.domain.User">
+        select user_id as id, username from sys_user
+        where phone = #{phone}
+    </select>
+
+</mapper>
