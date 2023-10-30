@@ -4,6 +4,7 @@ import (
 	"strconv"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/log"
+	"sxwl/3k/pkg/utils/consts"
 )
 
 // 单个GPU的信息状态信息
@@ -98,7 +99,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 			t.LinuxDist = node.Status.NodeInfo.OSImage
 			t.Arch = node.Labels["kubernetes.io/arch"]
 			t.CPUInfo.Cores = int(node.Status.Capacity.Cpu().Value())
-			if v, ok := node.Labels["nvidia.com/gpu.product"]; ok {
+			if v, ok := node.Labels[consts.K8S_LABEL_NV_GPU_PRODUCT]; ok {
 				t.GPUInfo.Prod = v
 				t.GPUInfo.Vendor = "nvidia"
 				t.GPUInfo.Driver = node.Labels["nvidia.com/cuda.driver.major"] + "." +
@@ -108,7 +109,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 					node.Labels["nvidia.com/cuda.runtime.minor"]
 				t.GPUInfo.MemSize, _ = strconv.Atoi(node.Labels["nvidia.com/gpu.memory"])
 				t.GPUInfo.Status = "abnormal"
-				if node.Labels["nvidia.com/gpu.present"] == "true" {
+				if node.Labels[consts.K8S_LABEL_NV_GPU_PRESENT] == "true" {
 					t.GPUInfo.Status = "normal"
 				}
 				//init GPUState Array , accordding to nvidia.com/gpu.count label
