@@ -3,6 +3,7 @@ import argparse
 import sys
 import os
 from datetime import datetime
+import gc
 
 # 3rd-party libs.
 from loguru import logger
@@ -16,11 +17,79 @@ from transformers import (
     LineByLineTextDataset,
     Trainer,
     TrainingArguments,
+    TrainerCallback,
 )
+
+
+class DevicePlacementCheckCallback(TrainerCallback):
+    def on_train_begin(self, args, state, control, **kwargs):
+        curr_device = torch.cuda.current_device()
+        local_rank = int(os.environ['OMPI_COMM_WORLD_LOCAL_RANK'])
+        if curr_device != local_rank:
+            logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
+                        f"Expected: {local_rank}, current: {curr_device}.")
+            sys.exit(1);
+
+    def on_train_end(self, args, state, control, **kwargs):
+        curr_device = torch.cuda.current_device()
+        local_rank = int(os.environ['OMPI_COMM_WORLD_LOCAL_RANK'])
+        if curr_device != local_rank:
+            logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
+                        f"Expected: {local_rank}, current: {curr_device}.")
+            sys.exit(1);
+
+    def on_step_begin(self, args, state, control, **kwargs):
+        curr_device = torch.cuda.current_device()
+        local_rank = int(os.environ['OMPI_COMM_WORLD_LOCAL_RANK'])
+        if curr_device != local_rank:
+            logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
+                        f"Expected: {local_rank}, current: {curr_device}.")
+            sys.exit(1);
+
+    def on_step_end(self, args, state, control, **kwargs):
+        curr_device = torch.cuda.current_device()
+        local_rank = int(os.environ['OMPI_COMM_WORLD_LOCAL_RANK'])
+        if curr_device != local_rank:
+            logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
+                        f"Expected: {local_rank}, current: {curr_device}.")
+            sys.exit(1);
 
 
 if not torch.cuda.is_available():
     sys.exit("CUDA/GPU not available on this node. Exiting...")
+
+# Env vars supposed to be automatically created by `mpirun`.
+mpi_local_rank = int(os.environ["OMPI_COMM_WORLD_LOCAL_RANK"])
+mpi_world_size = int(os.environ["OMPI_COMM_WORLD_SIZE"])
+mpi_world_rank = int(os.environ["OMPI_COMM_WORLD_RANK"])
+
+if "CUDA_DEVICE_ORDER" not in os.environ:
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+if "CUDA_VISIBLE_DEVICES" not in os.environ:
+    # XXX: Not scalable enough.
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(mpi_local_rank)
+logger.info(f"CUDA_VISIBLE_DEVICES on process {os.getpid()}: {os.environ['CUDA_VISIBLE_DEVICES']}")
+
+#curr_local_rank = args.local_rank
+curr_local_rank = int(os.environ["CUDA_VISIBLE_DEVICES"])
+logger.info(f"Current local rank for process {os.getpid()}: {curr_local_rank}")
+
+torch.cuda.set_device(curr_local_rank)
+torch.cuda.device(curr_local_rank)
+
+gc.collect()
+torch.cuda.empty_cache()
+
+gpu_name = f"cuda:{curr_local_rank}"
+gpu_dev = torch.device(gpu_name)
+
+#curr_device = torch.cuda.current_device()
+#if curr_device != curr_local_rank:
+#    logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
+#                f"Expected: {curr_local_rank}, current: {curr_device}.")
+#    sys.exit(1)
+
+
 # This is the number of total available GPUs on this node.
 # For testing multi-node-multi-gpu distibuted training,
 # we need to launch this script using MPI related commands (e.g., mpirun),
@@ -33,7 +102,11 @@ if not torch.distributed.is_available():
 
 # In MPI, group -- handle -- comminucator -- processes.
 # The default (working) group is the world.
-torch.distributed.init_process_group(backend="nccl", init_method="env://")
+#torch.distributed.init_process_group(backend="nccl", init_method="env://")
+
+# How to work compatibaly with `mpirun`.
+torch.distributed.init_process_group(backend="nccl", init_method="env://",
+                                     world_size=mpi_world_size, rank=mpi_world_rank)
 
 logger.info(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
 logger.info(f"Current global rank: {torch.distributed.get_rank()}")
@@ -65,19 +138,17 @@ arg_parser.add_argument("--ckpt-dir", type=str,
 arg_parser.add_argument("--local-rank", type=int)
 args = arg_parser.parse_args()
 
-curr_local_rank = args.local_rank
-logger.info(f"Current local rank: {curr_local_rank}")
-
-#torch.cuda.set_device(curr_local_rank)
-
 logger.info("Creating llama config from pretrained model ...")
 config = LlamaConfig.from_pretrained(args.model_config_file)
 
 logger.info("Creating llama model with llama config ...")
 model = LlamaForCausalLM(config)
 
-gpu_name = f"cuda:{curr_local_rank}"
-gpu_dev = torch.device(gpu_name)
+# XXX: When to check in a smart way?
+#curr_device = torch.cuda.current_device()
+#if curr_device != curr_local_rank:
+#    sys.exit(f"Process {os.getpid()} is running on a wrong GPU. "
+#             f"Expected: {curr_local_rank}, current: {curr_device}.")
 
 logger.info(f"Copying llama model to {gpu_name} ...")
 model.to(gpu_dev)
@@ -92,6 +163,12 @@ model.train()
 # estimate_zero3_model_states_mem_needs_all_live(model,
 #                                                num_gpus_per_node=num_gpus,
 #                                                num_nodes=1)
+
+# XXX: When to check in a smart way?
+#curr_device = torch.cuda.current_device()
+#if curr_device != curr_local_rank:
+#    sys.exit(f"Process {os.getpid()} is running on a wrong GPU. "
+#             f"Expected: {curr_local_rank}, current: {curr_device}.")
 
 logger.info("Creating llama tokenizer...")
 tokenizer = LlamaTokenizer.from_pretrained(args.model_path)
@@ -161,6 +238,12 @@ training_args = TrainingArguments(
     deepspeed=args.ds_config_file,
 )
 
+# XXX: When to check in a smart way?
+curr_device = torch.cuda.current_device()
+if curr_device != curr_local_rank:
+    sys.exit(f"Process {os.getpid()} is running on a wrong GPU. "
+             f"Expected: {curr_local_rank}, current: {curr_device}.")
+
 logger.info("Creating trainer ...")
 trainer = Trainer(
     model=model,
@@ -168,7 +251,14 @@ trainer = Trainer(
     train_dataset=train_dataset,
     eval_dataset=eval_dataset,
     data_collator=data_collator,
+    callbacks=[DevicePlacementCheckCallback],
 )
+
+# XXX: When to check in a smart way?
+curr_device = torch.cuda.current_device()
+if curr_device != curr_local_rank:
+    sys.exit(f"Process {os.getpid()} is running on a wrong GPU. "
+             f"Expected: {curr_local_rank}, current: {curr_device}.")
 
 logger.info("Start training ...")
 #trainer.train(resume_from_checkpoint=True)
