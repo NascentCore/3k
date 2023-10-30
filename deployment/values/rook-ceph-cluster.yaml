@@ -1,0 +1,17 @@
+cephClusterSpec:
+  cephVersion:
+    image: dockerhub.kubekey.local/kubesphereio/ceph:v17.2.6
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                    - ceph
+
+toolbox:
+  enabled: true
+  image: dockerhub.kubekey.local/kubesphereio/ceph:v17.2.6

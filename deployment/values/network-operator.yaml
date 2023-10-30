@@ -1,0 +1,55 @@
+nfd:
+  enabled: false
+
+sriovNetworkOperator:
+  enabled: true
+
+sriov-network-operator:
+  images:
+    operator: dockerhub.kubekey.local/kubesphereio/sriov-network-operator:network-operator-23.7.0
+
+deployCR: true
+
+operator:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+ofedDriver:
+  deploy: true
+  repository: dockerhub.kubekey.local/kubesphereio
+
+  #nvPeerDriver:
+  #  deploy: true
+
+rdmaSharedDevicePlugin:
+  deploy: false
+  repository: dockerhub.kubekey.local/kubesphereio
+  resources:
+    - name: rdma_shared_device_a
+      ifNames: [ibs10, ibs11, ibs18, ibs19]
+
+sriovDevicePlugin:
+  deploy: false
+  repository: dockerhub.kubekey.local/kubesphereio
+
+      #ibKubernetes:
+      #  deploy: true
+      #  repository: dockerhub.kubekey.local/kubesphereio
+      #
+      #nvIpam:
+      #  deploy: true
+      #  repository: dockerhub.kubekey.local/kubesphereio
+
+secondaryNetwork:
+  deploy: true
+  cniPlugins:
+    deploy: true
+    repository: dockerhub.kubekey.local/kubesphereio
+  multus:
+    deploy: true
+    repository: dockerhub.kubekey.local/kubesphereio
+    #ipoib:
+    #  deploy: true
+    #  repository: dockerhub.kubekey.local/kubesphereio
+  ipamPlugin:
+    deploy: true
+    repository: dockerhub.kubekey.local/kubesphereio
