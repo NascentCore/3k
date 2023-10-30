@@ -1,0 +1,63 @@
+kubeStateMetrics:
+  enabled: false
+
+grafana:
+  enabled: true
+  image:
+    repository: dockerhub.kubekey.local/kubesphereio/grafana
+  sidecar:
+    image:
+      repository: dockerhub.kubekey.local/kubesphereio/k8s-sidecar
+  initChownData:
+    image:
+      repository: dockerhub.kubekey.local/kubesphereio/busybox
+  testFramework:
+    image: dockerhub.kubekey.local/kubesphereio/bats
+
+kube-state-metrics:
+  image:
+    registry: dockerhub.kubekey.local/kubesphereio
+    repository: kube-state-metrics
+
+prometheus-node-exporter:
+  image:
+    registry: dockerhub.kubekey.local/kubesphereio
+    repository: node-exporter
+
+global:
+  imageRegistry: dockerhub.kubekey.local/kubesphereio
+
+alertmanager:
+  alertmanagerSpec:
+    image:
+      registry: dockerhub.kubekey.local/kubesphereio
+      repository: alertmanager
+
+prometheusOperator:
+  image:
+    registry: dockerhub.kubekey.local/kubesphereio
+    repository: prometheus-operator
+  admissionWebhooks:
+    patch:
+      image:
+        registry: dockerhub.kubekey.local/kubesphereio
+        repository: kube-webhook-certgen
+  prometheusConfigReloader:
+    image:
+      registry: dockerhub.kubekey.local/kubesphereio
+      repository: prometheus-config-reloader
+  thanosImage:
+    registry: dockerhub.kubekey.local/kubesphereio
+    repository: thanos
+
+prometheus:
+  prometheusSpec:
+    image:
+      registry: dockerhub.kubekey.local/kubesphereio
+      repository: prometheus
+
+thanosRuler:
+  thanosRulerSpec:
+    image:
+      registry: dockerhub.kubekey.local/kubesphereio
+      repository: thanos
