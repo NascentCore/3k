@@ -23,3 +23,11 @@ type State struct {
 	JobStatus `json:"job_status"` //所处状态，
 	Extension interface{}         `json:"extension"` //不同类型的任务有自己的扩展
 }
+
+// 判断一个状态是否不会再有任何变化
+func (j JobStatus) NoMoreChange() bool {
+	if j == JobStatusCreateFailed || j == JobStatusSucceed || j == JobStatusFailed {
+		return true
+	}
+	return false
+}

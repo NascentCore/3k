@@ -3,6 +3,7 @@ package communication
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,43 +52,38 @@ type RawJobDataItem struct {
 type RawJobsData []RawJobDataItem
 
 // communicate with market manager get jobs should run in this cpod.
-func GetJobs(cpodid string) []job.Job {
+// return jobs and err , if err != nil , jobs means nothing
+func GetJobs(cpodid string) ([]job.Job, error) {
 	params := url.Values{}
+	jobs := []job.Job{}
 	u, err := url.Parse(baseURL + "/api/userJob/getjob")
 	if err != nil {
-		log.SLogger.Errorw("url error", "error", err)
-		return nil
+		return jobs, err
 	}
 	params.Set("cpodid", cpodid)
 	u.RawQuery = params.Encode()
 	urlPath := u.String()
 	resp, err := http.Get(urlPath)
 	if err != nil {
-		log.SLogger.Errorw("http get err", "error", err)
-		return nil
+		return jobs, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		log.SLogger.Errorw("status code not 200")
-		return nil
+		return jobs, errors.New(fmt.Sprintf("status code(%d) not 200", resp.StatusCode))
 	}
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.SLogger.Errorw("read body err", "error", err)
-		return nil
+		return jobs, err
 	}
-	fmt.Println(string(respData))
 	var parsedData RawJobsData
 	err = json.Unmarshal(respData, &parsedData)
 	if err != nil {
-		log.SLogger.Errorw("parse data err", "error", err)
-		return nil
+		return jobs, err
 	}
-	res := []job.Job{}
 	for _, rawJob := range parsedData {
-		res = append(res, rawJobToJob(rawJob))
+		jobs = append(jobs, rawJobToJob(rawJob))
 	}
-	return res
+	return jobs, nil
 }
 
 func rawJobToJob(rawJob RawJobDataItem) job.Job {
