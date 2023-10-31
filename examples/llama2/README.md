@@ -24,17 +24,24 @@ configures IB & RDMA related behaviors.
 
 ```
 # On master node, get IP with `ip a`; --node_rank=0 means this is master
-python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> --node_rank=0 \
-    --master_addr=<local-ip> --master_port=<port> llama2_demo.py
+python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> \
+    --node_rank=0 --master_addr=<local-ip> --master_port=<port> \
+    llama2_demo.py
 
 # All other nodes needs to set --node_rank accordingly
-python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> --node_rank=<node-index> \
-    --master_addr=<master-ip> --master_port=<port> llama2_demo.py
+python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> \
+    --node_rank=<node-rank> --master_addr=<master-ip> --master_port=<port> \
+    llama2_demo.py
 ```
 ### Multiple nodes launched by *mpirun*
 ```
-export NCCL_DEBUG=WARN NCCL_P2P_LEVEL=SYS NCCL_IB_CUDA_SUPPORT=1 NCCL_DEBUG_SUBSYS=ALL NCCL_IB_GDR_LEVEL=SYS NCCL_NET_GDR_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_NET=IB
-mpirun -np 8 --nooversubscribe -H worker4:4,worker5:4 -x MASTER_ADDR=worker4 -x MASTER_PORT=29501 -x PATH -bind-to none -map-by slot -mca pml ob1 -mca btl ^openib python3 llama2_demo.py
+export NCCL_DEBUG=WARN NCCL_P2P_LEVEL=SYS NCCL_IB_CUDA_SUPPORT=1 \
+    NCCL_DEBUG_SUBSYS=ALL NCCL_IB_GDR_LEVEL=SYS NCCL_NET_GDR_LEVEL=SYS \
+    NCCL_NET_GDR_READ=1 NCCL_NET=IB
+mpirun -np 8 --nooversubscribe -H worker4:4,worker5:4 -x MASTER_ADDR=worker4 \
+    -x MASTER_PORT=29501 -x PATH -bind-to none -map-by slot -mca pml ob1 \
+    -mca btl ^openib \
+    python3 llama2_demo.py
 ```
 
 ## Docker
