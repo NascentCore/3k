@@ -1,0 +1,96 @@
+psp:
+  enabled: false
+
+nfd:
+  enabled: false
+
+validator:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+operator:
+  repository: dockerhub.kubekey.local/kubesphereio
+  initContainer:
+    repository: dockerhub.kubekey.local/kubesphereio
+  cleanupCRD: true
+  defaultRuntime: containerd
+
+driver:
+  rdma:
+    enabled: true
+  repository: dockerhub.kubekey.local/kubesphereio
+  manager:
+    repository: dockerhub.kubekey.local/kubesphereio
+
+toolkit:
+  repository: dockerhub.kubekey.local/kubesphereio
+  env:
+   - name: CONTAINERD_CONFIG
+     value: /etc/containerd/config.toml
+   - name: CONTAINERD_SOCKET
+     value: /run/containerd/containerd.sock
+   - name: CONTAINERD_RUNTIME_CLASS
+     value: nvidia
+   - name: CONTAINERD_SET_AS_DEFAULT
+     value: true
+
+devicePlugin:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+dcgm:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+dcgmExporter:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+gfd:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+migManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+nodeStatusExporter:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+gds:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+vgpuManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+  driverManager:
+    repository: dockerhub.kubekey.local/kubesphereio
+
+vgpuDeviceManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+vfioManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+  driverManager:
+    repository: dockerhub.kubekey.local/kubesphereio
+
+kataManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+sandboxDevicePlugin:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+ccManager:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+validator:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+operator:
+  repository: dockerhub.kubekey.local/kubesphereio
+  initContainer:
+    repository: dockerhub.kubekey.local/kubesphereio
+
+driver:
+  repository: dockerhub.kubekey.local/kubesphereio
+  manager:
+    repository: dockerhub.kubekey.local/kubesphereio
+
+toolkit:
+  repository: dockerhub.kubekey.local/kubesphereio
+
+devicePlugin:
+  repository: dockerhub.kubekey.local/kubesphereio

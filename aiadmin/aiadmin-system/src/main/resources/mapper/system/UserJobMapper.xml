@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nascentcore.ai.modules.system.mapper.UserJobMapper">
+    <resultMap id="BaseResultMap" type="nascentcore.ai.modules.system.domain.UserJob">
+        <id column="job_id" property="jobId"/>
+        <result column="job_name" property="jobName"/>
+        <result column="gpu_number" property="gpuNumber"/>
+        <result column="gpu_type" property="gpuType"/>
+        <result column="ckpt_path" property="ckptPath"/>
+        <result column="ckpt_vol" property="ckptVol"/>
+        <result column="model_path" property="modelPath"/>
+        <result column="model_vol" property="modelVol"/>
+        <result column="image_path" property="imagePath"/>
+        <result column="hf_url" property="hfUrl"/>
+        <result column="dataset_path" property="datasetPath"/>
+        <result column="job_type" property="jobType"/>
+        <result column="stop_type" property="stopType"/>
+        <result column="stop_time" property="stopTime"/>
+        <result column="work_status" property="workStatus"/>
+        <result column="obtain_status" property="obtainStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="cpod_id" property="cpodId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        job_id, job_name, gpu_number, gpu_type, ckpt_path, ckpt_vol, model_path, model_vol, image_path, hf_url, dataset_path, job_type, stop_type, stop_time, work_status, obtain_status, create_time, update_time, user_id, cpod_id
+    </sql>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user_job
+        <where>
+            <if test="criteria.jobId != null">
+                and job_id = #{criteria.jobId}
+            </if>
+            <if test="criteria.jobName != null">
+                and job_name = #{criteria.jobName}
+            </if>
+            <if test="criteria.obtainStatus != null">
+                and obtain_status = #{criteria.obtainStatus}
+            </if>
+            <if test="criteria.userId != null">
+                and user_id = #{criteria.userId}
+            </if>
+            <if test="criteria.cpodId != null">
+                and cpod_id = #{criteria.cpodId}
+            </if>
+        </where>
+        order by job_id desc
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+image:
+  repository: dockerhub.kubekey.local/kubesphereio/node-feature-discovery
+
+worker:
+  config:
+    sources:
+      pci:
+        deviceClassWhitelist:
+          - "02"
+          - "0200"
+          - "0207"
+          - "0300"
+          - "0302"
+
+master:
+  config:
+    extraLabelNs:
+      - "nvidia.com"

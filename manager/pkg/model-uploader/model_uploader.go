@@ -39,12 +39,13 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		}
 		log.SLogger.Infow("mpijob status", "jobname", mpiJobName, "status", s.JobStatus)
 		//判断MPIJob是否已经终止（状态不会再变）
-		if s.JobStatus == state.JobStatusCreateFailed || s.JobStatus == state.JobStatusFailed {
+		if s.JobStatus.NoMoreChange() {
+			if s.JobStatus == state.JobStatusSucceed {
+				log.SLogger.Infow("mpijob succeed")
+				return StatusNeedUploadModel, nil
+			}
 			log.SLogger.Infow("mpijob failed , nothing to upload")
 			return "nouploadneeded", nil
-		} else if s.JobStatus == state.JobStatusSucceed {
-			log.SLogger.Infow("mpijob succeed")
-			return StatusNeedUploadModel, nil
 		}
 		//继续等待
 		log.SLogger.Infow("keep waiting")
