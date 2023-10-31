@@ -29,7 +29,10 @@ class DevicePlacementCheckCallback(TrainerCallback):
         if curr_device != local_rank:
             logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
                         f"Expected: {local_rank}, current: {curr_device}.")
-            sys.exit(1);
+            # FIXME: This way is literally wrong. What we really need to do
+            # is to get rid of the process from the wrong GPU placement,
+            # rather than terminating it.
+            sys.exit(1)
 
     def on_train_end(self, args, state, control, **kwargs):
         curr_device = torch.cuda.current_device()
@@ -37,7 +40,10 @@ class DevicePlacementCheckCallback(TrainerCallback):
         if curr_device != local_rank:
             logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
                         f"Expected: {local_rank}, current: {curr_device}.")
-            sys.exit(1);
+            # FIXME: This way is literally wrong. What we really need to do
+            # is to get rid of the process from the wrong GPU placement,
+            # rather than terminating it.
+            sys.exit(1)
 
     def on_step_begin(self, args, state, control, **kwargs):
         curr_device = torch.cuda.current_device()
@@ -45,7 +51,10 @@ class DevicePlacementCheckCallback(TrainerCallback):
         if curr_device != local_rank:
             logger.info(f"Process {os.getpid()} is running on a wrong GPU. "
                         f"Expected: {local_rank}, current: {curr_device}.")
-            sys.exit(1);
+            # FIXME: This way is literally wrong. What we really need to do
+            # is to get rid of the process from the wrong GPU placement,
+            # rather than terminating it.
+            sys.exit(1)
 
     def on_step_end(self, args, state, control, **kwargs):
         curr_device = torch.cuda.current_device()
@@ -231,6 +240,8 @@ training_args = TrainingArguments(
     # ddp_backend="nccl",
     deepspeed=args.ds_config_file,
 )
+# https://github.com/huggingface/transformers/blob/main/src/transformers/training_args.py
+# For some reason, when enabling DeepSpeed, we need to explicitly do this.
 training_args.distributed_state.distributed_type = DistributedType.DEEPSPEED
 
 # XXX: When to check in a smart way?
