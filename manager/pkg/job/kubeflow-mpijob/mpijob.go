@@ -97,15 +97,15 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 									},
 									"volumeMounts": []interface{}{
 										map[string]interface{}{
-											"mountPath": "/workspace/dataset1",
+											"mountPath": "/workspace/dataset1", //TODO: use kmf.DataPath
 											"name":      "dataset1",
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/ds-experiments",
+											"mountPath": "/workspace/ds-experiments", //TODO: use kmf.CKPTPath
 											"name":      "ckpt-pv",
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/saved-model",
+											"mountPath": "/workspace/saved-model", //TODO: use kmf.SaveModelPath
 											"name":      "saved-model-pv",
 										},
 									},
@@ -126,14 +126,14 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 								map[string]interface{}{
 									"name": "ckpt-pv",
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "ckpt",
+										"claimName": kfm.Name + "-ckpt",
 										"readOnly":  false,
 									},
 								},
 								map[string]interface{}{
 									"name": "saved-model-pv",
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "saved-model",
+										"claimName": kfm.Name + "-modelsave",
 										"readOnly":  false,
 									},
 								},

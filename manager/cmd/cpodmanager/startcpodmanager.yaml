@@ -28,7 +28,7 @@ spec:
         - cpod0001
         - http://cloud.nascentcore.ai
         name: cpodmanager
-        image: dockerhub.kubekey.local/kubesphereio/cpodmanager:931af58
+        image: dockerhub.kubekey.local/kubesphereio/cpodmanager:edbebf1
         imagePullPolicy: Always
         env:
         - name: UPLOADIMAGE
@@ -37,6 +37,8 @@ spec:
           value: saved-model
         - name: DEPLOY
           value: DEBUG
+        - name: StorageClass
+          value: cpod-cephfs
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
