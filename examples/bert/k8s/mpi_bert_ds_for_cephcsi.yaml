@@ -23,8 +23,8 @@ spec:
         spec:
           hostIPC: True
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
-            name: bert-launcher
+          - image: registry.cn-beijing.aliyuncs.com/sxwl-ai/bert:latest
+            name: launcher
             imagePullPolicy: Always
             command:
             - mpirun
@@ -51,7 +51,7 @@ spec:
             - --checkpoint_dir
             - ds-experiments
             - --dataset_dir
-            - dataset1/wikitext
+            - dataset/wikitext
             - --num_iterations=50
     Worker:
       replicas: 2
@@ -61,12 +61,10 @@ spec:
           nodeSelector:
             nvidia.com/gpu.product: NVIDIA-GeForce-RTX-3090
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:with-dataset-5
-            name: bert-ds-worker
+          - image: registry.cn-beijing.aliyuncs.com/sxwl-ai/bert:latest
+            name: worker
             imagePullPolicy: Always
             volumeMounts:
-            - mountPath: /workspace/dataset1
-              name: dataset1
             - mountPath: /workspace/ds-experiments
               name: ckpt-pv
             - mountPath: /workspace/saved-model
@@ -75,10 +73,6 @@ spec:
               limits:
                 nvidia.com/gpu: 2
           volumes:
-          - name: dataset1
-            persistentVolumeClaim:
-              claimName: dataset
-              readOnly: true
           - name: ckpt-pv
             persistentVolumeClaim:
               claimName: ckpt
