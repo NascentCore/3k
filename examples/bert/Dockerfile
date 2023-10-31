@@ -6,6 +6,6 @@ RUN wget --progress=dot:giga https://sxwl-ai.oss-cn-beijing.aliyuncs.com/hf-data
     mkdir dataset && tar zxvf hf_wikitext.tar.gz --directory dataset && \
     rm hf_wikitext.tar.gz
 # Allow editing source file when exec inside the container
-RUN apt-get -y install vim
+RUN apt-get update --fix-missing && apt-get install -y vim --fix-missing
 COPY *.py ./
 COPY model_roberta_base ./model_roberta_base
