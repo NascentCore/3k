@@ -1,12 +1,14 @@
 package modeluploader
 
+import "sxwl/3k/manager/pkg/config"
+
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
 	return map[string]interface{}{
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
 		"metadata": map[string]interface{}{
 			"name":      jobName,
-			"namespace": "cpod",
+			"namespace": config.CPOD_NAMESPACE,
 		},
 		"spec": map[string]interface{}{
 			"backoffLimit":   10,
@@ -31,7 +33,7 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 							"command": []interface{}{
 								"./modeluploadjob",
 								jobName,
-								"sxwl-ai",
+								config.OSS_BUCKET,
 							},
 							"name":            "uploadjob",
 							"image":           image,

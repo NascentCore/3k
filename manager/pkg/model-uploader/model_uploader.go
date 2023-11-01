@@ -3,15 +3,13 @@ package modeluploader
 import (
 	"errors"
 	"os"
+	"sxwl/3k/manager/pkg/config"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/storage"
 	"time"
 )
-
-const StatusNeedUploadModel = "Complete"
-const UploadStartedFlagFile = "upload_started_flag_file"
 
 // moniter the given mpijob , until it stops (fail , finish , mannual interrupt or whatever)
 // 返回 (KUBEFLOW)MPIJob结束时的状态 status  和  监控过程中发生的程序必须中断不可恢复的错误 err
@@ -21,7 +19,7 @@ const UploadStartedFlagFile = "upload_started_flag_file"
 func UntilMPIJobFinish(mpiJobName string) (string, error) {
 	errCnt := 0
 	for {
-		s, err := kubeflowmpijob.GetState("cpod", mpiJobName)
+		s, err := kubeflowmpijob.GetState(config.CPOD_NAMESPACE, mpiJobName)
 		if err != nil {
 			//如果MPIJob已经被删除
 			if errors.Is(err, kubeflowmpijob.ErrNotFound) {
@@ -42,7 +40,7 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		if s.JobStatus.NoMoreChange() {
 			if s.JobStatus == state.JobStatusSucceed {
 				log.SLogger.Infow("mpijob succeed")
-				return StatusNeedUploadModel, nil
+				return config.STATUS_NEEDS_UPLOAD_MODEL, nil
 			}
 			log.SLogger.Infow("mpijob failed , nothing to upload")
 			return "nouploadneeded", nil

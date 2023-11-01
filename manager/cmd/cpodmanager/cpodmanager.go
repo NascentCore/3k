@@ -7,6 +7,7 @@ import (
 	"sxwl/3k/manager/pkg/auth"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/communication"
+	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	"sxwl/3k/manager/pkg/job/state"
@@ -45,7 +46,7 @@ func main() {
 	var done chan struct{}
 	startUploadInfo(done, cpodid)
 	// clean mpijob job and pvc in specified namespace
-	startCleanUp(done, "cpod")
+	startCleanUp(done, config.CPOD_NAMESPACE)
 	// get tasks , then run them !!!
 	for {
 		//jobSet A
