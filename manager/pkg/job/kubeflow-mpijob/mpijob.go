@@ -21,12 +21,17 @@ type MPIJob struct {
 	Replicas             int // works
 }
 
-func (kfm MPIJob) GenYaml() string {
-	// TODO: impl it if needed
-	return ""
+func GetModelSavePVCName(jobName string) string {
+	return jobName + "-modelsave"
+}
+
+func GetCKPTPVCName(jobName string) string {
+	return jobName + "-ckpt"
 }
 
 func (kfm MPIJob) genJsonData() map[string]interface{} {
+	ckptVolumeName := "ckpt-pv"
+	modelSaveVolumeName := "saved-model-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -102,11 +107,11 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										},
 										map[string]interface{}{
 											"mountPath": "/workspace/ds-experiments", //TODO: use kmf.CKPTPath
-											"name":      "ckpt-pv",
+											"name":      ckptVolumeName,
 										},
 										map[string]interface{}{
 											"mountPath": "/workspace/saved-model", //TODO: use kmf.SaveModelPath
-											"name":      "saved-model-pv",
+											"name":      modelSaveVolumeName,
 										},
 									},
 								},
@@ -124,16 +129,16 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 									},
 								},
 								map[string]interface{}{
-									"name": "ckpt-pv",
+									"name": ckptVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": kfm.Name + "-ckpt",
+										"claimName": GetCKPTPVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},
 								map[string]interface{}{
-									"name": "saved-model-pv",
+									"name": modelSaveVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": kfm.Name + "-modelsave",
+										"claimName": GetModelSavePVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},
