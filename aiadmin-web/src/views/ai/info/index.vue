@@ -5,6 +5,7 @@
     </el-dialog>
     <!--表格渲染-->
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table-column prop="jobName" :label="$t('jobinfo.jobName')" />
       <el-table-column prop="gpuNumber" :label="$t('jobinfo.gpunumber')" />
       <el-table-column prop="gpuType" :label="$t('jobinfo.gputype')" />
       <el-table-column prop="ckptPath" :label="$t('jobinfo.ckptpath')" />
