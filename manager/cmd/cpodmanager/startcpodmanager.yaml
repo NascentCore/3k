@@ -26,7 +26,7 @@ spec:
         - ./cpodmanager 
         - user0001
         - cpod0001
-        - http://cloud.nascentcore.ai
+        - https://cloud.nascentcore.ai
         name: cpodmanager
         image: dockerhub.kubekey.local/kubesphereio/cpodmanager:edbebf1
         imagePullPolicy: Always
