@@ -59,9 +59,7 @@ service.interceptors.response.use(
       console.log(code)
       if (code) {
         if (code === 401) {
-          store.dispatch('LogOut').then(() => {
-            router.push({ path: '/' })
-          })
+          router.push({ path: '/' })
         } else if (code === 404) {
           store.dispatch('LogOut').then(() => {
             router.push({ path: '/' })
