@@ -5,6 +5,8 @@ package clientgo
 // operater cluster with client-go.
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,4 +54,39 @@ func GetNodeInfo() (*v1.NodeList, error) {
 		return nil, err
 	}
 	return nodes, nil
+}
+
+func CreatePVC(name, namespace, sc, accessMode string, MBs int) error {
+	// TODO:  use k8sClient
+	if accessMode != "ReadWriteMany" && accessMode != "ReadWriteOnce" && accessMode != "ReadWriteOncePod" {
+		return errors.New("invalid accessMode")
+	}
+	// TODO: adjust
+	if MBs > 1024*100 {
+		return errors.New("request volume too large")
+	}
+	if MBs <= 0 {
+		return errors.New("request volume too small")
+	}
+	return ApplyWithJsonData(namespace, "", "v1", "persistentvolumeclaims",
+		map[string]interface{}{
+			"apiVersion": "v1",
+			"kind":       "PersistentVolumeClaim",
+			"metadata": map[string]interface{}{
+				"name":      name,
+				"namespace": namespace,
+			},
+			"spec": map[string]interface{}{
+				"accessModes": []interface{}{
+					accessMode,
+				},
+				"resources": map[string]interface{}{
+					"requests": map[string]interface{}{
+						"storage": fmt.Sprintf("%dMi", MBs),
+					},
+				},
+				"storageClassName": sc,
+				"volumeMode":       "Filesystem",
+			},
+		})
 }

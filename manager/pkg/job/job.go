@@ -16,9 +16,9 @@ type (
 )
 
 const (
-	JobTypeMPI   Type = "MPI" //与云市场一致
+	JobTypeMPI Type = "MPI" //与云市场一致
 	// TODO(issues/189): Consider move Jobs into seprate namespace
-	JobNamespace      = "cpod"
+	JobNamespace = "cpod"
 )
 
 type Job struct {
@@ -38,7 +38,17 @@ type Job struct {
 
 func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
-		err := kubeflowmpijob.MPIJob{
+		//create pvc for ckpt and modelsave
+		//TODO: use the volume input from UI
+		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), JobNamespace, os.Getenv("StorageClass"), "ReadWriteMany", 1024)
+		if err != nil {
+			return err
+		}
+		err = clientgo.CreatePVC(kubeflowmpijob.GetModelSavePVCName(j.JobID), JobNamespace, os.Getenv("StorageClass"), "ReadWriteMany", 1024)
+		if err != nil {
+			return err
+		}
+		err = kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
 			Namespace:            JobNamespace,
 			Image:                j.Image,
@@ -55,7 +65,7 @@ func (j Job) Run() error {
 		}
 		//同时启动Upload Job
 		return clientgo.ApplyWithJsonData("cpod", "batch", "v1", "jobs",
-			modeluploader.GenK8SJobJsonData(j.JobID, os.Getenv("UPLOADIMAGE"), os.Getenv("MODELSAVEPVC"), "/data"))
+			modeluploader.GenK8SJobJsonData(j.JobID, os.Getenv("UPLOADIMAGE"), kubeflowmpijob.GetModelSavePVCName(j.JobID), "/data"))
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }

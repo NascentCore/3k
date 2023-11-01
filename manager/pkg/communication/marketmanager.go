@@ -56,7 +56,7 @@ type RawJobsData []RawJobDataItem
 func GetJobs(cpodid string) ([]job.Job, error) {
 	params := url.Values{}
 	jobs := []job.Job{}
-	u, err := url.Parse(baseURL + "/api/userJob/getjob")
+	u, err := url.Parse(baseURL + "/api/userJob/cpod_jobs")
 	if err != nil {
 		return jobs, err
 	}
@@ -118,7 +118,7 @@ func UploadCPodStatus(up UploadPayload) bool {
 		log.SLogger.Errorw("data error", "error", err)
 		return false
 	}
-	resp, err := http.Post(baseURL+"/api/userJob/putPodStatus", "application/json", bytes.NewReader(bytesData))
+	resp, err := http.Post(baseURL+"/api/userJob/cpod_status", "application/json", bytes.NewReader(bytesData))
 	if err != nil {
 		log.SLogger.Errorw("upload status err", "error", err)
 		return false
@@ -129,7 +129,7 @@ func UploadCPodStatus(up UploadPayload) bool {
 		if err != nil {
 			log.SLogger.Errorw("statuscode != 200 and read body err", "code", resp.StatusCode, "error", err)
 		} else {
-			log.SLogger.Warnw("statuscode != 200", "code", resp.StatusCode, "body", "respData", string(respData))
+			log.SLogger.Warnw("statuscode != 200", "code", resp.StatusCode, "body", string(respData))
 		}
 		return false
 	}

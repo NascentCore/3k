@@ -21,12 +21,17 @@ type MPIJob struct {
 	Replicas             int // works
 }
 
-func (kfm MPIJob) GenYaml() string {
-	// TODO: impl it if needed
-	return ""
+func GetModelSavePVCName(jobName string) string {
+	return jobName + "-modelsave"
+}
+
+func GetCKPTPVCName(jobName string) string {
+	return jobName + "-ckpt"
 }
 
 func (kfm MPIJob) genJsonData() map[string]interface{} {
+	ckptVolumeName := "ckpt-pv"
+	modelSaveVolumeName := "saved-model-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -97,16 +102,16 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 									},
 									"volumeMounts": []interface{}{
 										map[string]interface{}{
-											"mountPath": "/workspace/dataset1",
+											"mountPath": "/workspace/dataset1", //TODO: use kmf.DataPath
 											"name":      "dataset1",
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/ds-experiments",
-											"name":      "ckpt-pv",
+											"mountPath": "/workspace/ds-experiments", //TODO: use kmf.CKPTPath
+											"name":      ckptVolumeName,
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/saved-model",
-											"name":      "saved-model-pv",
+											"mountPath": "/workspace/saved-model", //TODO: use kmf.SaveModelPath
+											"name":      modelSaveVolumeName,
 										},
 									},
 								},
@@ -124,16 +129,16 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 									},
 								},
 								map[string]interface{}{
-									"name": "ckpt-pv",
+									"name": ckptVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "ckpt",
+										"claimName": GetCKPTPVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},
 								map[string]interface{}{
-									"name": "saved-model-pv",
+									"name": modelSaveVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "saved-model",
+										"claimName": GetModelSavePVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},

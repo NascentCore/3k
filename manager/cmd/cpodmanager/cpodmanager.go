@@ -43,14 +43,15 @@ func main() {
 	for {
 		//jobSet A
 		jobs, err := communication.GetJobs(cpodid)
-		jobSetA := map[string]struct{}{}
-		for _, j := range jobs {
-			jobSetA[j.JobID] = struct{}{}
-		}
 		if err != nil {
 			log.SLogger.Errorw("get jobs from portal error", "error", err)
 			continue
 		}
+		jobSetA := map[string]struct{}{}
+		for _, j := range jobs {
+			jobSetA[j.JobID] = struct{}{}
+		}
+
 		//get all jobs in cpod , jobSet B
 		jobStates, err := job.GetJobStates()
 		if err != nil {
