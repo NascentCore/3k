@@ -8,9 +8,14 @@ import (
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/communication"
 	"sxwl/3k/manager/pkg/job"
+	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/resource"
 	"time"
+
+	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func main() {
@@ -39,6 +44,8 @@ func main() {
 	// upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}
 	startUploadInfo(done, cpodid)
+	// clean mpijob job and pvc in specified namespace
+	startCleanUp(done, "cpod")
 	// get tasks , then run them !!!
 	for {
 		//jobSet A
@@ -145,6 +152,79 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 				log.SLogger.Info("uploaded cpod status data")
 			}
 			time.Sleep(time.Second * 10)
+		}
+	}()
+}
+
+// just clean up the succeed jobs
+// keep the failed jobs , convenient for problem detection
+func startCleanUp(done chan struct{}, ns string) {
+	go func() {
+		for {
+			// find k8s jobs whose state is complete
+			completeJobs := []string{}
+			k8sJobs, err := clientgo.GetK8SJobs(ns)
+			if err != nil {
+				log.SLogger.Errorw("error when get k8s job", "namespace", ns, "error", err)
+			}
+			for _, k8sJob := range k8sJobs.Items {
+				// check k8sJob is complete
+				complete := false
+				for _, cond := range k8sJob.Status.Conditions {
+					if cond.Type == batchv1.JobComplete && cond.Status == corev1.ConditionTrue {
+						complete = true
+						break
+					}
+				}
+				if complete {
+					// check whether corresponding mpijob is succeed
+					completeJobs = append(completeJobs, k8sJob.Name)
+				}
+			}
+			// get all succeeded mpijobs
+			mpiJobStates, err := job.GetJobStates()
+			if err != nil {
+				log.SLogger.Errorw("get jobs state error", "error", err)
+				continue
+			}
+			succeededMPIjobs := map[string]struct{}{}
+			for _, j := range mpiJobStates {
+				if j.JobStatus == state.JobStatusSucceed {
+					succeededMPIjobs[j.Name] = struct{}{}
+				}
+			}
+			// delete k8s job \ mpijob and related pvc in the both jobset above
+			for _, completeJob := range completeJobs {
+				if _, ok := succeededMPIjobs[completeJob]; ok {
+					//delete , error occurs , just log
+					err = clientgo.DeleteK8SJob(ns, completeJob)
+					if err != nil {
+						log.SLogger.Errorw("delete k8s job failed", "error", err)
+					}
+					err = clientgo.DeletePVC(ns, kubeflowmpijob.GetCKPTPVCName(completeJob))
+					if err != nil {
+						log.SLogger.Errorw("delete ckpt pvc failed", "error", err)
+					}
+					err = clientgo.DeletePVC(ns, kubeflowmpijob.GetModelSavePVCName(completeJob))
+					if err != nil {
+						log.SLogger.Errorw("delete modelsave pvc failed", "error", err)
+					}
+					err = job.Job{
+						JobID:   completeJob,
+						JobType: job.JobTypeMPI,
+					}.Stop()
+					if err != nil {
+						log.SLogger.Errorw("delete mpi job failed", "error", err)
+					}
+				}
+			}
+
+			select {
+			case <-done:
+				break
+			default:
+				time.Sleep(time.Minute)
+			}
 		}
 	}()
 }
