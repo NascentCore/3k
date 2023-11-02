@@ -4,7 +4,7 @@ from deploy.deploy import Deploy
 
 
 class MainApp(cli.Application):
-    PROGNAME = "cli" | colors.green
+    PROGNAME = "3kctl" | colors.green
     VERSION = "0.1" | colors.blue
     DESCRIPTION = "CLI tool for 3k platform"
 
