@@ -2,9 +2,9 @@
 import os
 import sys
 import yaml
+import time
 from yaml import SafeLoader
 from plumbum import cli, local, RETCODE, colors, TF
-from plumbum.cmd import ls, scp
 
 
 class Dict(dict):
@@ -82,20 +82,8 @@ def is_true(cmd, timeout=120):
         if second >= timeout:
             return False
 
-        second += 0
-
-
-def copy_package(node):
-    for file in ls("package").split():
-        if ".deb" in file:
-            scp[
-                "-o",
-                "stricthostkeychecking=no",
-                "-p",
-                "{}".format(node["port"]),
-                "package/{}".format(file),
-                "{}@{}:/tmp".format(node["user"], node["internalAddress"])
-            ] & TF(0)
+        time.sleep(1)
+        second += 1
 
 
 class Conf:
