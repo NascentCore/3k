@@ -38,7 +38,7 @@ module.exports = {
     valuenotnull: 'value not null'
   },
   login: {
-    title: 'NascentCore.AI LLM Compute Cloud',
+    title: 'NascentCore Cloud',
     username: 'Email',
     usernameru: 'not null',
     password: 'Password',
