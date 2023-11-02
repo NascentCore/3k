@@ -12,6 +12,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	apiv1 "k8s.io/api/batch/v1"
 )
 
 func GetObjectData(namespace, group, version, resources, name string) (map[string]interface{}, error) {
@@ -89,4 +91,20 @@ func CreatePVC(name, namespace, sc, accessMode string, MBs int) error {
 				"volumeMode":       "Filesystem",
 			},
 		})
+}
+
+func GetK8SJobs(namespace string) (*apiv1.JobList, error) {
+	jobs, err := k8sClient.BatchV1().Jobs(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return jobs, err
+}
+
+func DeleteK8SJob(namespace, name string) error {
+	return k8sClient.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+}
+
+func DeletePVC(namespace, name string) error {
+	return k8sClient.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job"
 	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
@@ -56,7 +57,7 @@ type RawJobsData []RawJobDataItem
 func GetJobs(cpodid string) ([]job.Job, error) {
 	params := url.Values{}
 	jobs := []job.Job{}
-	u, err := url.Parse(baseURL + "/api/userJob/cpod_jobs")
+	u, err := url.Parse(baseURL + config.URLPATH_FETCH_JOB)
 	if err != nil {
 		return jobs, err
 	}
@@ -118,7 +119,7 @@ func UploadCPodStatus(up UploadPayload) bool {
 		log.SLogger.Errorw("data error", "error", err)
 		return false
 	}
-	resp, err := http.Post(baseURL+"/api/userJob/cpod_status", "application/json", bytes.NewReader(bytesData))
+	resp, err := http.Post(baseURL+config.URLPATH_UPLOAD_CPOD_STATUS, "application/json", bytes.NewReader(bytesData))
 	if err != nil {
 		log.SLogger.Errorw("upload status err", "error", err)
 		return false

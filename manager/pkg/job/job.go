@@ -2,8 +2,8 @@ package job
 
 import (
 	"fmt"
-	"os"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+	"sxwl/3k/manager/pkg/config"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
@@ -16,9 +16,7 @@ type (
 )
 
 const (
-	JobTypeMPI Type = "MPI" //与云市场一致
-	// TODO(issues/189): Consider move Jobs into seprate namespace
-	JobNamespace = "cpod"
+	JobTypeMPI Type = config.PORTAL_JOBTYPE_MPI
 )
 
 type Job struct {
@@ -40,17 +38,17 @@ func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
 		//create pvc for ckpt and modelsave
 		//TODO: use the volume input from UI
-		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), JobNamespace, os.Getenv("StorageClass"), "ReadWriteMany", 1024)
+		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, 1024)
 		if err != nil {
 			return err
 		}
-		err = clientgo.CreatePVC(kubeflowmpijob.GetModelSavePVCName(j.JobID), JobNamespace, os.Getenv("StorageClass"), "ReadWriteMany", 1024)
+		err = clientgo.CreatePVC(kubeflowmpijob.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, 1024)
 		if err != nil {
 			return err
 		}
 		err = kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
-			Namespace:            JobNamespace,
+			Namespace:            config.CPOD_NAMESPACE,
 			Image:                j.Image,
 			DataPath:             j.DataPath,
 			CKPTPath:             j.CKPTPath,
@@ -64,8 +62,8 @@ func (j Job) Run() error {
 			return err
 		}
 		//同时启动Upload Job
-		return clientgo.ApplyWithJsonData("cpod", "batch", "v1", "jobs",
-			modeluploader.GenK8SJobJsonData(j.JobID, os.Getenv("UPLOADIMAGE"), kubeflowmpijob.GetModelSavePVCName(j.JobID), "/data"))
+		return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
+			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, kubeflowmpijob.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
@@ -74,7 +72,7 @@ func (j Job) Stop() error {
 	if j.JobType == JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
-			Namespace:            JobNamespace,
+			Namespace:            config.CPOD_NAMESPACE,
 			Image:                j.Image,
 			DataPath:             j.DataPath,
 			CKPTPath:             j.CKPTPath,

@@ -4,17 +4,16 @@ import (
 	"bufio"
 	"os"
 	"path"
+	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
-const FilesUploadedLogFile = "files_uploaded_log"
-
 var client oss.Client
 
 func InitClient(accessID, accessKey string) {
-	cli, err := oss.New("http://oss-cn-beijing.aliyuncs.com", accessID, accessKey)
+	cli, err := oss.New(config.OSS_ENDPOINT, accessID, accessKey)
 	if err != nil {
 		log.SLogger.Errorw("init oss client err", "error", err)
 		os.Exit(1)
@@ -39,7 +38,7 @@ func FilesToUpload(dir, prefix string) ([]string, error) {
 			res = append(res, files...)
 		} else {
 			//去除标识文件
-			if item.Name() == FilesUploadedLogFile || item.Name() == "upload_started_flag_file" {
+			if item.Name() == config.FILE_UPLOAD_LOG_FILE || item.Name() == config.UPLOAD_STARTED_FLAG_FILE {
 			} else {
 				res = append(res, path.Join(prefix, item.Name()))
 			}
@@ -50,7 +49,7 @@ func FilesToUpload(dir, prefix string) ([]string, error) {
 
 // 从日志文件中读取已上传文件列表
 func GetUploaded(dir string) (map[string]struct{}, error) {
-	file, err := os.Open(path.Join(dir, FilesUploadedLogFile))
+	file, err := os.Open(path.Join(dir, config.FILE_UPLOAD_LOG_FILE))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return map[string]struct{}{}, nil
@@ -72,7 +71,7 @@ func GetUploaded(dir string) (map[string]struct{}, error) {
 
 // 上传文件到OSS，开启断点续传
 func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
-	logfilePath := path.Join(dir, FilesUploadedLogFile)
+	logfilePath := path.Join(dir, config.FILE_UPLOAD_LOG_FILE)
 	ossPath := path.Join(pathPrefix, filePath)
 	bucket, err := client.Bucket(bucketName)
 	if err != nil {
