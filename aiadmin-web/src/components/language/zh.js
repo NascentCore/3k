@@ -38,7 +38,7 @@ module.exports = {
     valuenotnull: '值不能为空'
   },
   login: {
-    title: '算想未来大模型算力云市场',
+    title: '算想云',
     username: '邮箱',
     usernameru: '不能为空',
     password: '密码',
