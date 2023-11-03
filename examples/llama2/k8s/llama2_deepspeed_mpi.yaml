@@ -40,9 +40,9 @@ spec:
             #- NCCL_SOCKET_IFNAME=ibs1
             #- -x
             #- NCCL_IB_HCA=mlx5_
-            #- --allow-run-as-root
             - -np
             - "4"
+            #- --allow-run-as-root
             - --nooversubscribe
             - --bind-to
             - none
@@ -54,6 +54,8 @@ spec:
             - btl ^openlib
             - mca
             - mpi_warn_on_fork "0"
+            #- -H  # All nodes where training processes run, including 1 master and 1+ workers.
+            #- --hostfile  # Node configurations, includong host names, slots, etc.
             - python3
             - llama2_demo.py
             env:
