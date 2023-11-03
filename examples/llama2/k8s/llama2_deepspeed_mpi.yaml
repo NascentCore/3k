@@ -54,8 +54,10 @@ spec:
             - btl ^openlib
             - mca
             - mpi_warn_on_fork "0"
-            #- -H  # All nodes where training processes run, including 1 master and 1+ workers.
-            #- --hostfile  # Node configurations, includong host names, slots, etc.
+            # All nodes where training processes run, including 1 master and 1+ workers. Please reach out to Glen to talk about this.
+            #- -H
+            # Node configurations, includong host names, slots, etc. Please reach out to Glen to talk about this.
+            #- --hostfile
             - python3
             - llama2_demo.py
             env:

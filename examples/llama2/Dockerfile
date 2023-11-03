@@ -4,6 +4,7 @@
 
 # https://hub.docker.com/r/nvidia/cuda/tags
 #FROM nvidia/cuda:12.2.0-devel-ubuntu20.04
+# Where should we use "cuda_base"?
 FROM cuda_base
 
 LABEL sxwl.ai.maintainer="glen@nascentcore.ai"
