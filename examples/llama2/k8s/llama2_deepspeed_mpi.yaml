@@ -18,44 +18,44 @@ spec:
             imagePullPolicy: IfNotPresent
             command:
             - mpirun
-            - -np
-            - "4"
-            - --allow-run-as-root
-            - -bind-to
-            - none
-            - -map-by
-            - slot
             - -x
-            - LD_LIBRARY_PATH
-            - -x
-            - PATH
-            - -x
-            - NCCL_DEBUG=INFO
-            - -x
-            - NCCL_NET=IB
+            - NCCL_DEBUG=WARN
             - -x
             - NCCL_P2P_LEVEL=SYS
             - -x
-            - NCCL_NET_GDR_READ=1
-            - -x
             - NCCL_IB_CUDA_SUPPORT=1
-            - -x
-            - NCCL_NET_GDR_LEVEL=SYS
-            - -x
-            - NCCL_IB_GDR_LEVEL=SYS
             - -x
             - NCCL_DEBUG_SUBSYS=ALL
             - -x
-            - NCCL_SOCKET_IFNAME=ibs1
+            - NCCL_IB_GDR_LEVEL=SYS
             - -x
-            - NCCL_IB_HCA=mlx5_
+            - NCCL_NET_GDR_LEVEL=SYS
+            - -x
+            - NCCL_NET_GDR_READ=1
+            - -x
+            - NCCL_NET=IB
+            - -x
+            - PATH
+            #- -x
+            #- NCCL_SOCKET_IFNAME=ibs1
+            #- -x
+            #- NCCL_IB_HCA=mlx5_
+            #- --allow-run-as-root
+            - -np
+            - "4"
+            - --nooversubscribe
+            - --bind-to
+            - none
+            - --map-by
+            - slot
             - -mca
-            - mpi_warn_on_fork
-            - "0"
+            - pml ob1
+            - -mca
+            - btl ^openlib
+            - mca
+            - mpi_warn_on_fork "0"
             - python3
             - llama2_demo.py
-            - --deepspeed_mpi
-            - --deepspeed
             env:
             - name: NCCL_TREE_THRESHOLD
               value: "0"  # Set NCCL tree threshold to 0 for DeepSpeed.
