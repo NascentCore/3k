@@ -10,7 +10,7 @@ def install_kubernetes_cluster():
 
     local["dpkg"]["-i", "package/sshpass.deb"] & TF(0)
     for node in Conf.y.spec.hosts:
-        retcode = install_depend_packages(node)
+        retcode = install_dependent_packages(node)
         if retcode > 0:
             print("failed: {}".format(node["name"]))
             sys.exit(retcode)
@@ -95,7 +95,7 @@ def add_nodes():
         if node["name"] in cur_nodes:
             continue
 
-        install_depend_packages(node)
+        install_dependent_packages(node)
 
     kk_run("add", "nodes", "-y")
 
@@ -106,7 +106,7 @@ def delete_node(node):
     kk_run("delete", "node", node, "-y")
 
 
-def install_depend_packages(node):
+def install_dependent_packages(node):
     pass_info, key_info = get_ssh_info(node)
     copy_package(node, pass_info, key_info)
     args = [
