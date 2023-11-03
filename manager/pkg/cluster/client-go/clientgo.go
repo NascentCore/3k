@@ -102,7 +102,10 @@ func GetK8SJobs(namespace string) (*apiv1.JobList, error) {
 }
 
 func DeleteK8SJob(namespace, name string) error {
-	return k8sClient.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	t := metav1.DeletePropagationBackground
+	return k8sClient.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{
+		PropagationPolicy: &t,
+	})
 }
 
 func DeletePVC(namespace, name string) error {

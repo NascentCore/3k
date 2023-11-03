@@ -3,6 +3,7 @@ package modeluploader
 import "sxwl/3k/manager/pkg/config"
 
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
+	volumeName := "modelsave-pv" //should be read twice below
 	return map[string]interface{}{
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
@@ -18,12 +19,12 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 			"suspend":        false,
 			"template": map[string]interface{}{
 				"spec": map[string]interface{}{
-					"serviceAccountName": "sa-modeluploader",
+					"serviceAccountName": config.K8S_SA_NAME_FOR_MODELUPLOADER,
 					"volumes": []interface{}{
 						map[string]interface{}{
-							"name": "modelsave-pv",
+							"name": volumeName,
 							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": pvc, //should be saved-model in mvp
+								"claimName": pvc,
 								"readOnly":  false,
 							},
 						},
@@ -40,20 +41,20 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 							"imagePullPolicy": "Always",
 							"env": []interface{}{
 								map[string]interface{}{
-									"name": "AK",
+									"name": config.OSS_ACCESS_KEY_ENV_NAME,
 									"valueFrom": map[string]interface{}{
 										"secretKeyRef": map[string]interface{}{
-											"name": "akas4oss",
-											"key":  "AK",
+											"name": config.K8S_SECRET_NAME_FOR_OSS,
+											"key":  config.OSS_ACCESS_KEY_ENV_NAME,
 										},
 									},
 								},
 								map[string]interface{}{
-									"name": "AS",
+									"name": config.OSS_ACCESS_SECRET_ENV_NAME,
 									"valueFrom": map[string]interface{}{
 										"secretKeyRef": map[string]interface{}{
-											"name": "akas4oss",
-											"key":  "AS",
+											"name": config.K8S_SECRET_NAME_FOR_OSS,
+											"key":  config.OSS_ACCESS_SECRET_ENV_NAME,
 										},
 									},
 								},
@@ -61,7 +62,7 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 							"volumeMounts": []interface{}{
 								map[string]interface{}{
 									"mountPath": mountPath,
-									"name":      "modelsave-pv",
+									"name":      volumeName,
 								},
 							},
 						},

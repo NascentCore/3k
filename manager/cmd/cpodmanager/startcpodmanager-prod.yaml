@@ -33,12 +33,8 @@ spec:
         env:
         - name: UPLOADIMAGE
           value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
-        - name: MODELSAVEPVC
-          value: saved-model
         - name: DEPLOY
-          value: DEBUG
-        - name: StorageClass
-          value: cpod-cephfs
+          value: RPOD
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
