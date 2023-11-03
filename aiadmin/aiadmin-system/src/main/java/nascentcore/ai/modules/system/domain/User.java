@@ -1,6 +1,7 @@
 package nascentcore.ai.modules.system.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author jim
@@ -28,6 +30,9 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "用户角色")
+    private Set<Role> roles;
     @NotBlank
     @ApiModelProperty(value = "用户名称")
     private String username;
@@ -66,6 +71,9 @@ public class User extends BaseEntity implements Serializable {
 
     @ApiModelProperty(value = "最后修改密码的时间", hidden = true)
     private Date pwdResetTime;
+
+    @ApiModelProperty(value = "用户类型")
+    private Integer userType;
 
     @Override
     public boolean equals(Object o) {

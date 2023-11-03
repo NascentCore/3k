@@ -4,7 +4,6 @@ import { Notification } from 'element-ui'
 import store from '../store'
 import { getToken } from '@/utils/auth'
 import Config from '@/settings'
-import Cookies from 'js-cookie'
 
 // 创建axios实例
 const service = axios.create({
@@ -59,7 +58,7 @@ service.interceptors.response.use(
       console.log(code)
       if (code) {
         if (code === 401) {
-          router.push({ path: '/' })
+          router.replace({ path: '/login' })
         } else if (code === 404) {
           store.dispatch('LogOut').then(() => {
             router.push({ path: '/' })

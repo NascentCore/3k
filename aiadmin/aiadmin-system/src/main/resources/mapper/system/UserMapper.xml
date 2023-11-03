@@ -3,6 +3,7 @@
 <mapper namespace="nascentcore.ai.modules.system.mapper.UserMapper">
     <resultMap id="BaseResultMap" type="nascentcore.ai.modules.system.domain.User">
         <id column="user_user_id" property="id"/>
+        <id column="user_user_type" property="userType"/>
         <result column="user_username" property="username"/>
         <result column="user_nick_name" property="nickName"/>
         <result column="user_email" property="email"/>
@@ -21,7 +22,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-           u.user_id as user_user_id, u.username as user_username,
+           u.user_id as user_user_id, u.user_type as user_user_type, u.username as user_username,
            u.nick_name as user_nick_name, u.email as user_email, u.phone as user_phone,
            u.gender as user_gender, u.avatar_name as user_avatar_name, u.avatar_path as user_avatar_path,
            u.enabled as user_enabled, u.pwd_reset_time as user_pwd_reset_time, u.create_by as user_create_by,

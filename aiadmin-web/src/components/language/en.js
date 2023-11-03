@@ -73,6 +73,7 @@ module.exports = {
   router: {
     login: 'login',
     tasksub: 'Job submission',
+    hashrate: 'details',
     info: 'Job details',
     resultdownload: 'Model download',
     title: ''

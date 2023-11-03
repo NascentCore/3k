@@ -30,35 +30,6 @@ export const constantRouterMap = [
         component: (resolve) => require(['@/views/features/redirect'], resolve)
       }
     ]
-  },
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: (resolve) => require(['@/views/ai/first'], resolve),
-        name: 'Userai',
-        meta: { title: 'router.tasksub', icon: 'index', affix: true, noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/ai',
-    component: Layout,
-    hidden: false,
-    children: [
-      {
-        path: 'info',
-        component: (resolve) => require(['@/views/ai/info/index'], resolve),
-        name: 'Infoai',
-        meta: {
-          title: 'router.info',
-          icon: 'list'
-        }
-      }
-    ]
   }
 ]
 
