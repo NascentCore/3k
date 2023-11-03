@@ -35,8 +35,6 @@ spec:
           value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
         - name: DEPLOY
           value: RPOD
-        - name: StorageClass
-          value: cpod-cephfs
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler

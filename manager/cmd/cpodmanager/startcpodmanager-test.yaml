@@ -28,15 +28,13 @@ spec:
         - cpod0001
         - https://aiapi.yangapi.cn
         name: cpodmanager
-        image: dockerhub.kubekey.local/kubesphereio/cpodmanager:edbebf1
+        image:  dockerhub.kubekey.local/kubesphereio/cpodmanager:327c2d4 
         imagePullPolicy: Always
         env:
         - name: UPLOADIMAGE
-          value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
+          value: dockerhub.kubekey.local/kubesphereio/modeluploader:327c2d4
         - name: DEPLOY
           value: DEBUG
-        - name: StorageClass
-          value: ceph-filesystem
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler

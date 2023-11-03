@@ -23,7 +23,7 @@ spec:
         - dp-mpijob-bert
         - sxwl-ai
         name: uploadjob
-        image: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
+        image: dockerhub.kubekey.local/kubesphereio/modeluploader:327c2d4
         imagePullPolicy: Always 
         env:
         - name: AK
