@@ -1,0 +1,5 @@
+reviewers:
+  # The default reviewers
+  # https://github.com/marketplace/actions/auto-request-review#reviewers-configuration
+  defaults:
+    - glen-nascentcoreai
