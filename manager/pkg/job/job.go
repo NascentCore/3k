@@ -25,7 +25,9 @@ type Job struct {
 	Image                string
 	DataPath             string
 	CKPTPath             string
+	CKPTVolumeSize       int
 	ModelPath            string
+	ModelVolumeSize      int
 	GPUType              string
 	GPURequiredPerWorker int
 	Replicas             int
@@ -38,11 +40,11 @@ func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
 		//create pvc for ckpt and modelsave
 		//TODO: use the volume input from UI
-		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, 1024)
+		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
 		if err != nil {
 			return err
 		}
-		err = clientgo.CreatePVC(kubeflowmpijob.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, 1024)
+		err = clientgo.CreatePVC(kubeflowmpijob.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.ModelVolumeSize)
 		if err != nil {
 			return err
 		}

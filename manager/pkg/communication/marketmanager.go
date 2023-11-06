@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job"
 	"sxwl/3k/manager/pkg/job/state"
@@ -96,13 +97,27 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 		replicas = rawJob.GpuNumber / 8
 	}
 
+	ckptVolumeSize, err := strconv.Atoi(rawJob.CkptVol)
+	if err != nil {
+		log.SLogger.Warnw("invalid ckpt volume size , use default size", "text", rawJob.CkptVol)
+		ckptVolumeSize = 1024 * 10
+	}
+
+	modelVolumeSize, err := strconv.Atoi(rawJob.ModelVol)
+	if err != nil {
+		log.SLogger.Warnw("invalid model volume size , use default size", "text", rawJob.ModelVol)
+		modelVolumeSize = 1024 * 10
+	}
+
 	return job.Job{
 		JobID:                rawJob.JobName,
 		JobType:              job.Type(rawJob.JobType),
 		Image:                rawJob.ImagePath,
 		DataPath:             rawJob.DatasetPath,
 		CKPTPath:             rawJob.CkptPath,
+		CKPTVolumeSize:       ckptVolumeSize,
 		ModelPath:            rawJob.ModelPath,
+		ModelVolumeSize:      modelVolumeSize,
 		GPUType:              rawJob.GpuType,
 		GPURequiredPerWorker: gpuPerWorker,
 		Replicas:             replicas,
