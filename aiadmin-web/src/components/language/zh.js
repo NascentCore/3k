@@ -74,6 +74,7 @@ module.exports = {
     login: '登陆',
     tasksub: '任务提交',
     info: '任务详情',
+    hashrate: '算力详情',
     resultdownload: '下载模型',
     title: ''
   },

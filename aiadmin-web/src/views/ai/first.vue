@@ -116,7 +116,7 @@ export default {
           this.fullscreenLoading = true
           add(this.form).then(res => {
             this.fullscreenLoading = false
-            this.$router.replace('/ai/info')
+            this.$router.replace('/ai/index')
           }).catch(err => {
             this.fullscreenLoading = false
             console.log(err.response.data.message)
