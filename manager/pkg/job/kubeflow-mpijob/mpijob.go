@@ -150,6 +150,10 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 			"runPolicy": map[string]interface{}{
 				"cleanPodPolicy": "Running",
 				"suspend":        false,
+				//see https://www.kubeflow.org/docs/components/training/mpi/#scheduling-policy
+				"schedulingPolicy": map[string]interface{}{
+					"minAvailable": kfm.Replicas,
+				},
 			},
 			"slotsPerWorker":   kfm.GPURequiredPerWorker,
 			"sshAuthMountPath": "/root/.ssh",
