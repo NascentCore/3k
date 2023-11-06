@@ -32,6 +32,7 @@ func GetCKPTPVCName(jobName string) string {
 func (kfm MPIJob) genJsonData() map[string]interface{} {
 	ckptVolumeName := "ckpt-pv"
 	modelSaveVolumeName := "saved-model-pv"
+	dataSetVolumeName := "dataset-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -102,15 +103,15 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 									},
 									"volumeMounts": []interface{}{
 										map[string]interface{}{
-											"mountPath": "/workspace/dataset1", //TODO: use kmf.DataPath
-											"name":      "dataset1",
+											"mountPath": kfm.DataPath,
+											"name":      dataSetVolumeName,
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/ds-experiments", //TODO: use kmf.CKPTPath
+											"mountPath": kfm.CKPTPath,
 											"name":      ckptVolumeName,
 										},
 										map[string]interface{}{
-											"mountPath": "/workspace/saved-model", //TODO: use kmf.SaveModelPath
+											"mountPath": kfm.ModelSavePath,
 											"name":      modelSaveVolumeName,
 										},
 									},
@@ -122,7 +123,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 							},
 							"volumes": []interface{}{
 								map[string]interface{}{
-									"name": "dataset1",
+									"name": dataSetVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
 										"claimName": "dataset",
 										"readOnly":  true,
