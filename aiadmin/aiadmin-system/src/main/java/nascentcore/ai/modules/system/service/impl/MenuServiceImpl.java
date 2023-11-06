@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author jim
- */
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "menu")

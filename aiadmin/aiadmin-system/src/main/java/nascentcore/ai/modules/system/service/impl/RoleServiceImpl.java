@@ -9,10 +9,6 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
-/**
- * @author jim
- * @date 2023-11-01
- */
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "role")

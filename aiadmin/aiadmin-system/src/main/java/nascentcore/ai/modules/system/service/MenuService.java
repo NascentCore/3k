@@ -5,10 +5,6 @@ import nascentcore.ai.modules.system.domain.Menu;
 import nascentcore.ai.modules.system.domain.vo.MenuVo;
 import java.util.List;
 
-/**
- * @author jim
- * @date 2023-11-01
- */
 public interface MenuService extends IService<Menu> {
     /**
      * 构建菜单树

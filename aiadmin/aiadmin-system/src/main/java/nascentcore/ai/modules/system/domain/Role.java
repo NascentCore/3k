@@ -15,11 +15,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * 角色
- * @author jim
- * @date 2023-11-01
- */
 @Getter
 @Setter
 @TableName("sys_role")

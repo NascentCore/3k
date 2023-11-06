@@ -5,10 +5,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import nascentcore.ai.modules.system.domain.Role;
 import java.util.List;
 
-/**
- * @author jim
- * @date 2023-11-01
- */
 public interface RoleService extends IService<Role> {
     /**
      * 根据用户ID查询

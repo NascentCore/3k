@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * @author jim
- * @date 2023-11-01
- */
 @Getter
 @Setter
 @TableName("sys_menu")
