@@ -15,6 +15,8 @@ operator:
   defaultRuntime: containerd
 
 driver:
+  repoConfig:
+    configMapName: repo-config
   rdma:
     enabled: true
   repository: dockerhub.kubekey.local/kubesphereio
@@ -31,7 +33,7 @@ toolkit:
    - name: CONTAINERD_RUNTIME_CLASS
      value: nvidia
    - name: CONTAINERD_SET_AS_DEFAULT
-     value: true
+     value: "true"
 
 devicePlugin:
   repository: dockerhub.kubekey.local/kubesphereio
@@ -74,23 +76,4 @@ sandboxDevicePlugin:
   repository: dockerhub.kubekey.local/kubesphereio
 
 ccManager:
-  repository: dockerhub.kubekey.local/kubesphereio
-
-validator:
-  repository: dockerhub.kubekey.local/kubesphereio
-
-operator:
-  repository: dockerhub.kubekey.local/kubesphereio
-  initContainer:
-    repository: dockerhub.kubekey.local/kubesphereio
-
-driver:
-  repository: dockerhub.kubekey.local/kubesphereio
-  manager:
-    repository: dockerhub.kubekey.local/kubesphereio
-
-toolkit:
-  repository: dockerhub.kubekey.local/kubesphereio
-
-devicePlugin:
   repository: dockerhub.kubekey.local/kubesphereio
