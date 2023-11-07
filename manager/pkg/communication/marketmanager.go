@@ -36,7 +36,7 @@ type JobPayload struct {
 
 type RawJobDataItem struct {
 	CkptPath    string `json:"ckptPath"`
-	CkptVol     string `json:"ckptVol"`
+	CkptVol     int    `json:"ckptVol"`
 	DatasetPath string `json:"datasetPath"`
 	GpuNumber   int    `json:"gpuNumber"`
 	GpuType     string `json:"gpuType"`
@@ -46,7 +46,7 @@ type RawJobDataItem struct {
 	JobName     string `json:"jobName"`
 	JobType     string `json:"jobType"`
 	ModelPath   string `json:"modelPath"`
-	ModelVol    string `json:"modelVol"`
+	ModelVol    int    `json:"modelVol"`
 	StopTime    int    `json:"stopTime"`
 	StopType    int    `json:"stopType"`
 }
