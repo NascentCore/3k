@@ -54,10 +54,6 @@ spec:
             - btl ^openlib
             - mca
             - mpi_warn_on_fork "0"
-            # All nodes where training processes run, including 1 master and 1+ workers. Please reach out to Glen to talk about this.
-            #- -H
-            # Node configurations, includong host names, slots, etc. Please reach out to Glen to talk about this.
-            #- --hostfile
             - python3
             - llama2_demo.py
             env:
@@ -76,7 +72,43 @@ spec:
           - name: llama2-training-deepspeed-mpi
             image: dockerhub.kubekey.local/kubesphereio/llama2_demo:2023-10-25
             imagePullPolicy: IfNotPresent
+            volumneMounts:
+            - mountPath: /workspace/dataset1
+              name: dataset1
+            - mountPath: /workspace/ds-experiments
+              name: ckpt-pv
+            - mountPath: /workspace/saved-model
+              name: saved-model-pv
             resources:
               limits:
                 # TODO(yzhao): 添加 IB 设备
                 nvidia.com/gpu: 2  # Number of GPUs required per replica.
+          volumes:
+          - name: dataset1
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              # CephFS' internal path
+              path: /readonly/hf/dataset
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: true
+          - name: ckpt-pv
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              path: /readwrite/mvp-ckpt
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: false
+          - name: saved-model-pv
+            cephfs:
+              monitors:
+              - 10.233.33.169:6789
+              path: /readwrite/mvp-saved-model
+              user: admin
+              secretRef:
+                name: ceph-secret
+              readOnly: false
