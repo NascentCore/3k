@@ -32,8 +32,8 @@ type Job struct {
 	GPURequiredPerWorker int
 	Replicas             int
 	HuggingFaceURL       string
-	Duration             int
-	StopType             int
+	Duration             int //单位 分钟
+	StopType             int //0 自然终止  1 设定时长
 }
 
 func (j Job) Run() error {
