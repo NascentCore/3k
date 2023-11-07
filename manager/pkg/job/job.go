@@ -65,7 +65,7 @@ func (j Job) Run() error {
 			GPUType:              j.GPUType,
 			GPURequiredPerWorker: j.GPURequiredPerWorker,
 			Replicas:             j.Replicas,
-			Deadline:             dl.Format(time.DateTime),
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 		}.Run()
 		if err != nil {
 			return err

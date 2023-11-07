@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
 	"time"
@@ -74,7 +75,7 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	if ok {
 		dl, ok := labels["deadline"].(string)
 		if ok {
-			t, err := time.Parse(time.DateTime, dl)
+			t, err := time.Parse(config.TIME_FORMAT_FOR_K8S_LABEL, dl)
 			if err != nil {
 				log.SLogger.Warnw("deadline parse err", "str", dl, "error", err)
 			} else {
