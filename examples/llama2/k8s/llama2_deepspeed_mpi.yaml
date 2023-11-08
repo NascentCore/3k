@@ -53,7 +53,8 @@ spec:
             #- -mca
             #- btl ^openib  # We don't want to disables IB.
             - mca
-            - mpi_warn_on_fork "0"
+            - mpi_warn_on_fork
+            - "0"
             # All nodes where training processes run, including 1 master and 1+ workers. Please reach out to Glen to talk about this.
             #- -H
             # Node configurations, includong host names, slots, etc. Please reach out to Glen to talk about this.
