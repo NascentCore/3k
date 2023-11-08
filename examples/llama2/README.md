@@ -35,6 +35,7 @@ python3 -m torch.distributed.launch --nproc_per_node=2 --nnodes=<node-count> \
 ```
 ### Multiple nodes launched by *mpirun*
 ```
+[详细信息](https://tricorder.feishu.cn/wiki/CVumwQVEyi2pilkHpMucsKbanFg)<br>
 export NCCL_DEBUG=WARN NCCL_P2P_LEVEL=SYS NCCL_IB_CUDA_SUPPORT=1 \
     NCCL_DEBUG_SUBSYS=ALL NCCL_IB_GDR_LEVEL=SYS NCCL_NET_GDR_LEVEL=SYS \
     NCCL_NET_GDR_READ=1 NCCL_NET=IB
