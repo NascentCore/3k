@@ -84,5 +84,5 @@ spec:
             imagePullPolicy: IfNotPresent
             resources:
               limits:
-                # TODO(yzhao): 添加 IB 设备
+                # TODO(yzhao): Add IB devices.
                 nvidia.com/gpu: 2  # Number of GPUs required per replica.
