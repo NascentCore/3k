@@ -24,9 +24,6 @@ spec:
       containers:
       - command:
         - ./cpodmanager 
-        - user0001
-        - cpod0001
-        - https://aiapi.yangapi.cn
         name: cpodmanager
         image:  dockerhub.kubekey.local/kubesphereio/cpodmanager:327c2d4 
         imagePullPolicy: Always
@@ -35,6 +32,16 @@ spec:
           value: dockerhub.kubekey.local/kubesphereio/modeluploader:327c2d4
         - name: DEPLOY
           value: DEBUG
+        - name: ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: cpod-info
+              key: access_key
+        - name: CPOD_ID
+          valueFrom:
+            configMapKeyRef:
+              name: cpod-info
+              key: cpod_id
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler

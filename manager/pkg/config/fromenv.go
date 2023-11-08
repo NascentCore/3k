@@ -21,4 +21,12 @@ var (
 		}
 		return "ceph-filesystem"
 	}()
+	BASE_URL = func() string { //portal base url
+		if DEPLOY == "PROD" {
+			return "https://cloud.nascentcore.ai"
+		}
+		return "https://aiapi.yangapi.cn"
+	}()
+	ACCESS_KEY = os.Getenv("ACCESS_KEY") //from configmap provided by cairong
+	CPOD_ID    = os.Getenv("CPOD_ID")    //from configmap provided by cairong
 )

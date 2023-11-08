@@ -3,8 +3,6 @@ package main
 // NO_TEST_NEEDED
 
 import (
-	"os"
-	"sxwl/3k/manager/pkg/auth"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/communication"
 	"sxwl/3k/manager/pkg/config"
@@ -20,37 +18,17 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 4 {
-		log.Logger.Error("Usage : cpodmanager  [ USER_ID ] [ CPOD_ID ] [ BASE_URL ]")
-		os.Exit(1)
-	}
-
-	// check parameters
-	userid := os.Args[1]
-	if err := auth.CheckUserId(userid); err != nil {
-		panic(err)
-	}
-	cpodid := os.Args[2]
-	if err := auth.CheckCPodId(cpodid); err != nil {
-		panic(err)
-	}
-
-	base_url := os.Args[3]
-	if err := communication.CheckURL(base_url); err != nil {
-		panic(err)
-	}
-	communication.SetBaseURL(base_url)
 	clientgo.InitClient()
 
 	// upload resource & task info , also as heartbeat , indicate this cpod is alive and ready for tasks
 	var done chan struct{}
-	startUploadInfo(done, cpodid)
+	startUploadInfo(done)
 	// clean mpijob job and pvc in specified namespace
 	startCleanUp(done, config.CPOD_NAMESPACE)
 	// get tasks , then run them !!!
 	for {
 		//jobSet A
-		jobs, err := communication.GetJobs(cpodid)
+		jobs, err := communication.GetJobs(config.CPOD_ID)
 		if err != nil {
 			log.SLogger.Errorw("get jobs from portal error", "error", err)
 			continue
@@ -109,7 +87,7 @@ func main() {
 	}
 }
 
-func startUploadInfo(done chan struct{}, cpodid string) {
+func startUploadInfo(done chan struct{}) {
 	ch := make(chan communication.UploadPayload, 1)
 	// collect data
 	go func() {
@@ -121,8 +99,8 @@ func startUploadInfo(done chan struct{}, cpodid string) {
 
 			select {
 			case ch <- communication.UploadPayload{
-				CPodID:       cpodid,
-				ResourceInfo: resource.GetResourceInfo(cpodid, "v0.1"), // TODO: 获取版本信息
+				CPodID:       config.CPOD_ID,
+				ResourceInfo: resource.GetResourceInfo(config.CPOD_ID, "v0.1"), // TODO: 获取版本信息
 				JobStatus:    js,
 				UpdateTime:   time.Now(),
 			}:
