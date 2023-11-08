@@ -99,7 +99,9 @@ if not torch.distributed.is_available():
 #torch.distributed.init_process_group(backend="nccl", init_method="env://")
 
 # How to work compatibaly with `mpirun`.
-torch.distributed.init_process_group(backend="nccl", init_method="env://",
+#torch.distributed.init_process_group(backend="nccl", init_method="env://",
+# FIXME: For running on K8s using MPI operator. Correct?
+torch.distributed.init_process_group(backend="mpi", init_method="env://",
                                      world_size=mpi_world_size, rank=mpi_world_rank)
 
 logger.info(f"WORLD_SIZE: {torch.distributed.get_world_size()}")
