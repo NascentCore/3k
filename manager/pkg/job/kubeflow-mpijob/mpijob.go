@@ -17,8 +17,9 @@ type MPIJob struct {
 	PretrainModelPath    string //预训练模型的路径
 	ModelSavePath        string //最终模型的保存路径
 	GPUType              string
-	GPURequiredPerWorker int //
-	Replicas             int // works
+	GPURequiredPerWorker int    //
+	Replicas             int    // works
+	Deadline             string // 运行截止时间
 }
 
 func GetModelSavePVCName(jobName string) string {
@@ -39,6 +40,9 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 		"metadata": map[string]interface{}{
 			"name":      kfm.Name,
 			"namespace": kfm.Namespace,
+			"labels": map[string]interface{}{
+				"deadline": kfm.Deadline,
+			},
 		},
 		"spec": map[string]interface{}{
 			"launcherCreationPolicy": "WaitForWorkersReady",

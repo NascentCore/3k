@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
+	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
+	"time"
 )
 
 // NO_TEST_NEEDED
@@ -53,6 +55,41 @@ func GetState(namespace, name string) (state.State, error) {
 
 func parseState(data map[string]interface{}) (state.State, error) {
 	s := state.State{}
+	metadata_, ok := data["metadata"].(map[string]interface{})
+	if !ok {
+		return state.State{}, errors.New("no metadata")
+	}
+	name_, ok := metadata_["name"].(string)
+	if !ok {
+		return state.State{}, errors.New("invalid metadata")
+	}
+	s.Name = name_
+	namespace_, ok := metadata_["namespace"].(string)
+	if !ok {
+		return state.State{}, errors.New("invalid metadata")
+	}
+	s.Namespace = namespace_
+	//判断是否已经到截止时间
+	timeup := false
+	labels, ok := metadata_["labels"].(map[string]interface{})
+	if ok {
+		dl, ok := labels["deadline"].(string)
+		if ok {
+			t, err := time.Parse(config.TIME_FORMAT_FOR_K8S_LABEL, dl)
+			if err != nil {
+				log.SLogger.Warnw("deadline parse err", "str", dl, "error", err)
+			} else {
+				if t.Before(time.Now()) { // job time is up
+					timeup = true
+				}
+			}
+		} else {
+			log.SLogger.Warnw("labels have no field of deadline")
+		}
+	} else {
+		log.SLogger.Warnw("metadata have no labels")
+	}
+
 	//从Data中提取State信息
 	status, ok := data["status"].(map[string]interface{})
 	if !ok {
@@ -90,19 +127,15 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	} else { //beside all above , then create failed
 		s.JobStatus = state.JobStatusCreateFailed
 	}
-	metadata_, ok := data["metadata"].(map[string]interface{})
-	if !ok {
-		return state.State{}, errors.New("no metadata")
+
+	if !s.JobStatus.NoMoreChange() { //还在运行中
+		if timeup {
+			if s.JobStatus == state.JobStatusRunning { // running to succeed
+				s.JobStatus = state.JobStatusSucceed
+			} else { // others to failed
+				s.JobStatus = state.JobStatusFailed
+			}
+		}
 	}
-	name_, ok := metadata_["name"].(string)
-	if !ok {
-		return state.State{}, errors.New("invalid metadata")
-	}
-	s.Name = name_
-	namespace_, ok := metadata_["namespace"].(string)
-	if !ok {
-		return state.State{}, errors.New("invalid metadata")
-	}
-	s.Namespace = namespace_
 	return s, nil
 }

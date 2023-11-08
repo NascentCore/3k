@@ -7,6 +7,7 @@ import (
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
+	"time"
 )
 
 // NO_TEST_NEEDED
@@ -32,8 +33,8 @@ type Job struct {
 	GPURequiredPerWorker int
 	Replicas             int
 	HuggingFaceURL       string
-	Duration             int
-	StopType             int
+	Duration             int //单位 分钟
+	StopType             int //0 自然终止  1 设定时长
 }
 
 func (j Job) Run() error {
@@ -48,6 +49,11 @@ func (j Job) Run() error {
 		if err != nil {
 			return err
 		}
+		dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
+		if j.StopType == 1 {
+			dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
+		}
+
 		err = kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
 			Namespace:            config.CPOD_NAMESPACE,
@@ -59,6 +65,7 @@ func (j Job) Run() error {
 			GPUType:              j.GPUType,
 			GPURequiredPerWorker: j.GPURequiredPerWorker,
 			Replicas:             j.Replicas,
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 		}.Run()
 		if err != nil {
 			return err
