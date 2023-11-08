@@ -43,7 +43,7 @@ def install_operators():
     for app in Conf.c.deploy.yaml_apps.split(","):
         print(colors.yellow | "===== [3kctl] install {} =====".format(app))
 
-        kubectl_run("apply",
+        kubectl_run("create",
                     "-f",
                     "{}/deploy/yaml_apps/{}.yaml".format(Conf.c.deploy.work_dir, app)
                     )

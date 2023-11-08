@@ -2,7 +2,7 @@ nfd:
   enabled: false
 
 sriovNetworkOperator:
-  enabled: true
+  enabled: false
 
 sriov-network-operator:
   images:
@@ -16,12 +16,14 @@ operator:
 ofedDriver:
   deploy: true
   repository: dockerhub.kubekey.local/kubesphereio
+  repoConfig:
+    name: repo-config
 
-  #nvPeerDriver:
-  #  deploy: true
+nvPeerDriver:
+  deploy: false
 
 rdmaSharedDevicePlugin:
-  deploy: false
+  deploy: true
   repository: dockerhub.kubekey.local/kubesphereio
   resources:
     - name: rdma_shared_device_a
@@ -40,7 +42,7 @@ sriovDevicePlugin:
       #  repository: dockerhub.kubekey.local/kubesphereio
 
 secondaryNetwork:
-  deploy: true
+  deploy: false
   cniPlugins:
     deploy: true
     repository: dockerhub.kubekey.local/kubesphereio
