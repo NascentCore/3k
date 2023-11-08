@@ -128,6 +128,7 @@ func UploadCPodStatus(up UploadPayload) bool {
 		return false
 	}
 	req.Header.Add("Authorization", "Bearer "+config.ACCESS_KEY)
+	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	//resp, err := http.Post(config.BASE_URL+config.URLPATH_UPLOAD_CPOD_STATUS, "application/json", bytes.NewReader(bytesData))
 	if err != nil {
