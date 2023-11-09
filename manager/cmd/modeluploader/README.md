@@ -11,4 +11,4 @@ CPod Manager在创建一个MPIJob的同时，会创建一个K8S Job， 此Job会
 
 # 部署
 ## 首先要创建Secret
-kubectl create secret generic akas4oss -n cpod --from-literal=AK=[AccessKey] --from-literal=AS=[AccessSecret]
+kubectl create secret generic akas4oss -n cpod --from-literal=AK=[AccessKey] --from-literal=AS=[AccessSecret] --from-literal=EXPIRED=86400

@@ -94,7 +94,7 @@ func main() {
 			//if job not in B
 			if _, ok := jobSetB[job.JobID]; !ok {
 				//if create failed , just skip , try nexttime
-				err := job.Run()
+				err := job.Run(base_url)
 				if err != nil {
 					log.SLogger.Errorw("Job run failed",
 						"job", job,

@@ -23,6 +23,7 @@ func main() {
 	}
 	mpiJobName := os.Args[1]
 	bucket := os.Args[2]
+	base_url := os.Args[3]
 	//检查上传任务是否已经开始
 	if started, err := modeluploader.CheckUploadStarted(path.Join(config.MODELUPLOADER_PVC_MOUNT_PATH, config.UPLOAD_STARTED_FLAG_FILE)); err != nil {
 		log.SLogger.Infow("checkupload started failed", "error", err)
@@ -53,6 +54,10 @@ func main() {
 	//如果发生错误，进程异常退出
 	if err := modeluploader.UploadModel(bucket, mpiJobName, config.MODELUPLOADER_PVC_MOUNT_PATH); err != nil {
 		log.SLogger.Infow("upload model error", "error", err)
+		os.Exit(1)
+	}
+	if err := modeluploader.PostUrlsToMarket(path.Join(config.MODELUPLOADER_PVC_MOUNT_PATH, config.PRESIGNED_URL_FILE), mpiJobName, base_url+config.URLPATH_UPLOAD_URLS); err != nil {
+		log.SLogger.Infow("post presigned urls to market error", "error", err)
 		os.Exit(1)
 	}
 	log.SLogger.Infow("upload model done , job finish")

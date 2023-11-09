@@ -2,7 +2,7 @@ package modeluploader
 
 import "sxwl/3k/manager/pkg/config"
 
-func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
+func GenK8SJobJsonData(jobName, image, pvc, mountPath, baseURL string) map[string]interface{} {
 	volumeName := "modelsave-pv" //should be read twice below
 	return map[string]interface{}{
 		"apiVersion": "batch/v1",
@@ -35,11 +35,30 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 								"./modeluploadjob",
 								jobName,
 								config.OSS_BUCKET,
+								baseURL,
 							},
 							"name":            "uploadjob",
 							"image":           image,
 							"imagePullPolicy": "Always",
 							"env": []interface{}{
+								map[string]interface{}{
+									"name": config.MARKET_ACCESS_KEY,
+									"valueFrom": map[string]interface{}{
+										"configMapKeyRef": map[string]interface{}{
+											"name": "cpod-info",
+											"key":  config.MARKET_ACCESS_KEY,
+										},
+									},
+								},
+								map[string]interface{}{
+									"name": config.OSS_URL_EXPIRED_SECOND,
+									"valueFrom": map[string]interface{}{
+										"secretKeyRef": map[string]interface{}{
+											"name": config.K8S_SECRET_NAME_FOR_OSS,
+											"key":  config.OSS_URL_EXPIRED_SECOND,
+										},
+									},
+								},
 								map[string]interface{}{
 									"name": config.OSS_ACCESS_KEY_ENV_NAME,
 									"valueFrom": map[string]interface{}{

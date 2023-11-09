@@ -36,3 +36,21 @@ func TestCheckUploadStarted(t *testing.T) {
 		}
 	}
 }
+
+func TestGetUrls(t *testing.T) {
+	fileName := "./unittestfile"
+	f, err := os.Create(fileName)
+	if err != nil {
+		t.Error("wrong result", err)
+	}
+	defer f.Close()
+	_, err = f.Write([]byte("line1\nline2\n"))
+	if err != nil {
+		t.Error("wrong result", err)
+	}
+	lines, err := GetUrls(fileName)
+	if !(err == nil && lines[0] == "line1" && lines[1] == "line2") {
+		t.Error("wrong result", err)
+	}
+	defer os.Remove(fileName)
+}

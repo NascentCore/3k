@@ -37,7 +37,7 @@ type Job struct {
 	StopType             int //0 自然终止  1 设定时长
 }
 
-func (j Job) Run() error {
+func (j Job) Run(baseURL string) error {
 	if j.JobType == JobTypeMPI {
 		//create pvc for ckpt and modelsave
 		//TODO: use the volume input from UI
@@ -72,7 +72,7 @@ func (j Job) Run() error {
 		}
 		//同时启动Upload Job
 		return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
-			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, kubeflowmpijob.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
+			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, kubeflowmpijob.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH, baseURL))
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }

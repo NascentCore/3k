@@ -1,7 +1,11 @@
 package modeluploader
 
 import (
+	"bufio"
+	"bytes"
+	"encoding/json"
 	"errors"
+	"net/http"
 	"os"
 	"sxwl/3k/manager/pkg/config"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
@@ -71,4 +75,62 @@ func CheckUploadStarted(fileName string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// 获取presignedUrl列表
+func PostUrlsToMarket(fileName, jobName, url string) error {
+	lines, err := GetUrls(fileName)
+	if err != nil {
+		return err
+	}
+
+	data := map[string]interface{}{
+		"job_name":      jobName,
+		"download_urls": lines,
+	}
+	body, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	r, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	r.Header.Add("Content-Type", "application/json")
+	r.Header.Add("Authorization", "Bearer "+config.ACCESS_KEY_MARKET)
+
+	client := &http.Client{}
+	res, err := client.Do(r)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		return errors.New("post presigned url to market failed")
+	}
+
+	return nil
+}
+
+func GetUrls(fileName string) ([]string, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	if err = scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
 }

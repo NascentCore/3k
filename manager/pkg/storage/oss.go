@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"path"
+	"strconv"
 	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/log"
 
@@ -72,6 +73,7 @@ func GetUploaded(dir string) (map[string]struct{}, error) {
 // 上传文件到OSS，开启断点续传
 func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
 	logfilePath := path.Join(dir, config.FILE_UPLOAD_LOG_FILE)
+	signedUrlPath := path.Join(dir, config.PRESIGNED_URL_FILE)
 	ossPath := path.Join(pathPrefix, filePath)
 	bucket, err := client.Bucket(bucketName)
 	if err != nil {
@@ -81,12 +83,20 @@ func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(logfilePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.ModePerm)
+	// 获取 presigned url
+	expiredInSec, err := strconv.Atoi(config.PRESIGNED_URL_EXPIRED)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	_, err = f.Write([]byte(filePath + "\n"))
+	signedURL, err := bucket.SignURL(ossPath, oss.HTTPGet, int64(expiredInSec))
+	if err != nil {
+		return err
+	}
+	err = WriteFile(signedUrlPath, signedURL)
+	if err != nil {
+		return err
+	}
+	err = WriteFile(logfilePath, filePath)
 	if err != nil {
 		return err
 	}
@@ -119,6 +129,19 @@ func UploadDirToOSS(bucket, prefix, dir string) error {
 			return err
 		}
 		log.SLogger.Infow("uploaded", "file", file)
+	}
+	return nil
+}
+
+func WriteFile(filePath, content string) error {
+	f, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.Write([]byte(content + "\n"))
+	if err != nil {
+		return err
 	}
 	return nil
 }
