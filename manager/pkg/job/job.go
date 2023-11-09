@@ -5,6 +5,7 @@ import (
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/manager/pkg/config"
 	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/manager/pkg/log"
 	modeluploader "sxwl/3k/manager/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
 	"time"
@@ -92,4 +93,51 @@ func (j Job) Stop() error {
 		}.Delete()
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
+}
+
+func DeleteJob(jobName string, jobType Type, deleteRelated bool) {
+	//delete job first
+	err := Job{
+		JobID:   jobName,
+		JobType: jobType,
+	}.Stop()
+	if err != nil {
+		log.SLogger.Errorw("Job delete failed",
+			"job name", jobName)
+	} else {
+		log.SLogger.Infow("Job deleted",
+			"job", jobName)
+	}
+	// dont care job is deleted or not
+	if deleteRelated {
+		DeleteJobRelated(jobName)
+	}
+}
+
+func DeleteJobRelated(jobName string) {
+	err := clientgo.DeleteK8SJob(config.CPOD_NAMESPACE, jobName)
+	if err != nil {
+		log.SLogger.Errorw("Uploader Job delete failed",
+			"job name", jobName)
+	} else {
+		log.SLogger.Infow("Uploader Job deleted",
+			"job", jobName)
+	}
+	// dont care uploader job is deleted or not
+	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, kubeflowmpijob.GetCKPTPVCName(jobName))
+	if err != nil {
+		log.SLogger.Errorw("PVC for checkpoint delete failed",
+			"job name", jobName)
+	} else {
+		log.SLogger.Infow("PVC for checkpoint deleted",
+			"job", jobName)
+	}
+	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, kubeflowmpijob.GetModelSavePVCName(jobName))
+	if err != nil {
+		log.SLogger.Errorw("PVC for modelsave delete failed",
+			"job name", jobName)
+	} else {
+		log.SLogger.Infow("PVC for modelsave deleted",
+			"job", jobName)
+	}
 }
