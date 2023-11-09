@@ -68,7 +68,9 @@ module.exports = {
     pdmesnull: 'verification code must be filled',
     sendmesafter: 'Sent successfully, verification code is valid for 5 minutes',
     aftersec: 'seconds resend',
-    aftersecre: 'seconds again'
+    aftersecre: 'seconds again',
+    powerregister: 'Source registration',
+    userregister: 'User registration'
   },
   router: {
     login: 'login',
@@ -105,5 +107,23 @@ module.exports = {
     trainingsource: 'Training dataset',
     mountpath: 'Mount path',
     jobtype: 'Job type'
+  },
+  componyuser: {
+    user: 'Computing power info',
+    name: 'Company Name',
+    accesskey: 'accesskey',
+    componyphone: 'Company contact',
+    componyemail: 'Apply for email',
+    createtime: 'Creation date'
+  },
+  hashrate: {
+    cpodid: 'Cpod ID',
+    cpodv: 'Cpod Version',
+    gpuProd: 'GPU Model',
+    gpuvendor: 'GPU Manufacturer',
+    gputotal: 'GPU total amount',
+    gpuAllocatable: 'GPU allocable quantity',
+    createtime: 'Creation date',
+    updateTime: 'Update time'
   }
 }

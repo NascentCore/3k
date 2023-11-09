@@ -53,11 +53,7 @@
 
     <select id="findByRoleIdsAndTypeNot" resultMap="BaseResultMap">
         SELECT m.* FROM sys_menu m, sys_roles_menus r
-        WHERE m.menu_id = r.menu_id AND r.role_id IN
-        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
-            #{roleId}
-        </foreach>
-        AND type != #{type}
+        WHERE m.menu_id = r.menu_id AND r.role_id = #{roleId}
         order by m.menu_sort
     </select>
 </mapper>

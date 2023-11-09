@@ -30,9 +30,6 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "ID", hidden = true)
     private Long id;
 
-    @TableField(exist = false)
-    @ApiModelProperty(value = "用户角色")
-    private Set<Role> roles;
     @NotBlank
     @ApiModelProperty(value = "用户名称")
     private String username;
@@ -72,8 +69,25 @@ public class User extends BaseEntity implements Serializable {
     @ApiModelProperty(value = "最后修改密码的时间", hidden = true)
     private Date pwdResetTime;
 
-    @ApiModelProperty(value = "用户类型")
+    @NotNull
+    @ApiModelProperty(value = "2为算力用户 3为算力源用户")
     private Integer userType;
+
+    @ApiModelProperty(value = "公司名称")
+    private String companyName;
+
+    @ApiModelProperty(value = "公司联系方式")
+    private String companyPhone;
+
+    @ApiModelProperty(value = "公司其他信息")
+    private String companyOther;
+
+    @ApiModelProperty(value = "算力源标签ID")
+    private String companyId;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "用户token")
+    private String accessKey;
 
     @Override
     public boolean equals(Object o) {

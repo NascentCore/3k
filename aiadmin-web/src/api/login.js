@@ -24,7 +24,10 @@ export function registerUser(form) {
     password: encrypt(form.password1),
     email: form.email,
     username: form.email,
-    enabled: 1
+    enabled: 1,
+    userType: form.userType,
+    companyPhone: form.companyPhone,
+    companyName: form.companyName
   }
   return request({
     url: 'api/users/registerUser/' + form.codemes,

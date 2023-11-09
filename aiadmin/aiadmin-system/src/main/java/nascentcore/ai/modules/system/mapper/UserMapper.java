@@ -16,6 +16,8 @@ import java.util.Set;
  */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
+    List<User> findAll(@Param("criteria") UserQueryCriteria criteria);
+    Long countAll(@Param("criteria") UserQueryCriteria criteria);
     User findByUsername(@Param("username") String username);
 
     User findByEmail(@Param("email") String email);

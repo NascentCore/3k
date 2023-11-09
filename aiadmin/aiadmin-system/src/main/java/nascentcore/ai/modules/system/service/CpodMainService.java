@@ -17,7 +17,13 @@ import nascentcore.ai.utils.PageResult;
 * @date 2023-10-23
 **/
 public interface CpodMainService extends IService<CpodMain> {
-
+    /**
+     * 查询数据分页
+     * @param criteria 条件
+     * @param page 分页参数
+     * @return PageResult
+     */
+    PageResult<CpodMain> queryAll(CpodMainQueryCriteria criteria, Page<Object> page);
     /**
     * 查询所有数据不分页
     * @param criteria 条件参数

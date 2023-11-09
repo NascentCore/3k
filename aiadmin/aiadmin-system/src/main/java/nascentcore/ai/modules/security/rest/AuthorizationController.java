@@ -11,6 +11,7 @@ import nascentcore.ai.modules.security.security.TokenProvider;
 import nascentcore.ai.modules.security.service.dto.AuthUserDto;
 import nascentcore.ai.modules.security.service.OnlineUserService;
 import nascentcore.ai.modules.security.service.dto.JwtUserDto;
+import nascentcore.ai.utils.RedisUtils;
 import nascentcore.ai.utils.RsaUtils;
 import nascentcore.ai.utils.SecurityUtils;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class AuthorizationController {
     private final OnlineUserService onlineUserService;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RedisUtils redisUtils;
 
     @ApiOperation("登录授权")
     @AnonymousPostMapping(value = "/login")
@@ -52,17 +54,29 @@ public class AuthorizationController {
                 new UsernamePasswordAuthenticationToken(authUser.getUsername(), password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenProvider.createToken(authentication);
-        final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
-        // 返回 token 与 用户信息
-        Map<String, Object> authInfo = new HashMap<String, Object>(2) {{
-            put("token", properties.getTokenStartWith() + token);
-            put("user", jwtUserDto);
-        }};
-        // 保存在线信息
-        onlineUserService.save(jwtUserDto, token, request);
-        // 返回登录信息
-        return ResponseEntity.ok(authInfo);
+        if (redisUtils.hasKey(authUser.getUsername())) {
+            String token = (String) redisUtils.get(authUser.getUsername());
+            final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
+            Map<String, Object> authInfo = new HashMap<String, Object>(2) {{
+                put("token", properties.getTokenStartWith() + token);
+                put("user", jwtUserDto);
+            }};
+            onlineUserService.save(jwtUserDto, token, request);
+            return ResponseEntity.ok(authInfo);
+        } else {
+            String token = tokenProvider.createToken(authentication);
+            final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
+            // 返回 token 与 用户信息
+            Map<String, Object> authInfo = new HashMap<String, Object>(2) {{
+                put("token", properties.getTokenStartWith() + token);
+                put("user", jwtUserDto);
+            }};
+            redisUtils.set(authUser.getUsername(), token);
+            // 保存在线信息
+            onlineUserService.save(jwtUserDto, token, request);
+            // 返回登录信息
+            return ResponseEntity.ok(authInfo);
+        }
     }
 
     @ApiOperation("退出登录")

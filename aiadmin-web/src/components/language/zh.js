@@ -46,7 +46,7 @@ module.exports = {
     rememberme: '记住我',
     login: '登 陆',
     logining: '登 陆 中...',
-    registertitle: '注册',
+    registertitle: '邮箱注册',
     registername: '账户名',
     registeremail: '请输入邮箱',
     registercodemes: '邮箱验证码',
@@ -68,7 +68,9 @@ module.exports = {
     pdmesnull: '当前密码不能为空',
     sendmesafter: '发送成功，验证码有效期5分钟',
     aftersec: '秒后重新发送',
-    aftersecre: '秒后重新发送'
+    aftersecre: '秒后重新发送',
+    powerregister: '算力源注册',
+    userregister: '算力用户注册'
   },
   router: {
     login: '登陆',
@@ -104,6 +106,24 @@ module.exports = {
     ckptpath: 'CKPT 路径',
     trainingsource: '训练数据源',
     mountpath: '挂载路径',
-    jobtype: '任务类型',
+    jobtype: '任务类型'
+  },
+  componyuser: {
+    user: '算力源用户',
+    name: '公司名称',
+    accesskey: 'accesskey',
+    componyphone: '公司联系方式',
+    componyemail: '申请邮箱',
+    createtime: '创建日期'
+  },
+  hashrate: {
+    cpodid: 'Cpod ID',
+    cpodv: 'Cpod 版本',
+    gpuProd: 'GPU 型号',
+    gpuvendor: 'GPU厂商',
+    gputotal: 'GPU总数量',
+    gpuAllocatable: 'GPU可分配数量',
+    createtime: '创建日期',
+    updateTime: '更新时间'
   }
 }

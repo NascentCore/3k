@@ -13,5 +13,5 @@ import java.util.Set;
  */
 @Mapper
 public interface MenuMapper extends BaseMapper<Menu> {
-    LinkedHashSet<Menu> findByRoleIdsAndTypeNot(@Param("roleIds") Set<Long> roleIds, @Param("type") Integer type);
+    LinkedHashSet<Menu> findByRoleIdsAndTypeNot(@Param("roleId") int roleId);
 }

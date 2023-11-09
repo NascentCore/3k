@@ -5,15 +5,17 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import nascentcore.ai.modules.system.domain.Menu;
-import nascentcore.ai.modules.system.domain.Role;
+import nascentcore.ai.modules.system.domain.User;
 import nascentcore.ai.modules.system.domain.vo.MenuMetaVo;
 import nascentcore.ai.modules.system.domain.vo.MenuVo;
 import nascentcore.ai.modules.system.mapper.MenuMapper;
+import nascentcore.ai.modules.system.mapper.UserMapper;
 import nascentcore.ai.modules.system.service.MenuService;
-import nascentcore.ai.modules.system.service.RoleService;
 import nascentcore.ai.utils.*;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,14 +25,13 @@ import java.util.stream.Collectors;
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
 
     private final MenuMapper menuMapper;
-    private final RoleService roleService;
+    private final UserMapper userMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    //@Cacheable(key = "'user:' + #p0")
     public List<Menu> findByUser(Long currentUserId) {
-        List<Role> roles = roleService.findByUsersId(currentUserId);
-        Set<Long> roleIds = roles.stream().map(Role::getId).collect(Collectors.toSet());
-        LinkedHashSet<Menu> menus = menuMapper.findByRoleIdsAndTypeNot(roleIds, 2);
+        User user = userMapper.selectById(currentUserId);
+        LinkedHashSet<Menu> menus = menuMapper.findByRoleIdsAndTypeNot(user.getUserType());
         return new ArrayList<>(menus);
     }
 

@@ -22,13 +22,13 @@ public class UserJobRes implements Serializable {
     private String ckptPath;
 
     @ApiModelProperty(value = "cktp容量")
-    private String ckptVol;
+    private Integer ckptVol;
 
     @ApiModelProperty(value = "save model路径")
     private String modelPath;
 
     @ApiModelProperty(value = "save model容量")
-    private String modelVol;
+    private Integer modelVol;
 
     @ApiModelProperty(value = "镜像路径")
     private String imagePath;
@@ -45,7 +45,7 @@ public class UserJobRes implements Serializable {
     @ApiModelProperty(value = "0 自然终止 1设定时长")
     private Integer stopType;
 
-    @ApiModelProperty(value = "设定时常以小时为单位")
+    @ApiModelProperty(value = "设定时常以分钟为单位")
     private Integer stopTime;
 }
 

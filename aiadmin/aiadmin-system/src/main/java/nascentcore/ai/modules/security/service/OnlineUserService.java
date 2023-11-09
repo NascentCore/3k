@@ -89,7 +89,6 @@ public class OnlineUserService {
      */
     public void logout(String token) {
         String loginKey = tokenProvider.loginKey(token);
-        redisUtils.del(loginKey);
     }
 
     /**
