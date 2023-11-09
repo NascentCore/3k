@@ -1,5 +1,10 @@
 # Bert
 
+You can a publically available docker container image at:
+```
+registry.cn-beijing.aliyuncs.com/sxwl-ai/bert:latest
+```
+
 Bert training written in PyTorch+DeepSpeed.
 Based on the examples in the official DeepSpeed repo:
 * https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
