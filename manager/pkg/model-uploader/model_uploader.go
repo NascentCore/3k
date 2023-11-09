@@ -24,7 +24,9 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 			//如果MPIJob已经被删除
 			if errors.Is(err, kubeflowmpijob.ErrNotFound) {
 				log.SLogger.Infow("mpijob is deleted")
-				return "deleted", nil
+				//if job is deleted , do upload as well
+				return config.STATUS_NEEDS_UPLOAD_MODEL, nil
+				//return "deleted", nil
 			}
 			log.SLogger.Errorw("error when wait mpijob finish", "error", err, "errcnt", errCnt)
 			errCnt += 1

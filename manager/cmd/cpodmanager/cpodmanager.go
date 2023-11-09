@@ -7,7 +7,6 @@ import (
 	"sxwl/3k/manager/pkg/communication"
 	"sxwl/3k/manager/pkg/config"
 	"sxwl/3k/manager/pkg/job"
-	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
 	"sxwl/3k/manager/pkg/job/state"
 	"sxwl/3k/manager/pkg/log"
 	"sxwl/3k/manager/pkg/resource"
@@ -26,12 +25,17 @@ func main() {
 	// clean mpijob job and pvc in specified namespace
 	startCleanUp(done, config.CPOD_NAMESPACE)
 	// get tasks , then run them !!!
+	//wait to delete
+	deleteBuffer := map[string]time.Time{}
 	for {
+		time.Sleep(time.Second * 10)
 		//jobSet A
 		jobs, err := communication.GetJobs(config.CPOD_ID)
 		if err != nil {
 			log.SLogger.Errorw("get jobs from portal error", "error", err)
 			continue
+		} else {
+			log.SLogger.Info("get jobs from portal succeed")
 		}
 		jobSetA := map[string]struct{}{}
 		for _, j := range jobs {
@@ -48,22 +52,23 @@ func main() {
 		for _, j := range jobStates {
 			jobSetB[j.Name] = struct{}{}
 		}
-		//delete all jobs in B whose state is not NoMoreChange and not in A
+		//delete all jobs in B and not in A
 		for _, jobState := range jobStates {
-			if !jobState.JobStatus.NoMoreChange() {
-				if _, ok := jobSetA[jobState.Name]; !ok {
-					//if delete failed , just skip
-					err := job.Job{
-						JobID:   jobState.Name,
-						JobType: "MPI",
-					}.Stop()
-					if err != nil {
-						log.SLogger.Errorw("Job delete failed",
-							"job name", jobState.Name)
-					} else {
-						log.SLogger.Infow("Job deleted",
-							"job", jobState.Name)
+			//if !jobState.JobStatus.NoMoreChange() {
+			if _, ok := jobSetA[jobState.Name]; !ok {
+				//keep the failed mpijobs for 24 hours for error detection)
+				if jobState.JobStatus == state.JobStatusCreateFailed || jobState.JobStatus == state.JobStatusFailed {
+					// delete after 24 hours
+					if _, ok := deleteBuffer[jobState.Name]; !ok {
+						deleteBuffer[jobState.Name] = time.Now().Add(time.Hour * 24)
+						log.SLogger.Infow("queued for delete job", "jobname", jobState.Name)
 					}
+				} else if jobState.JobStatus == state.JobStatusSucceed {
+					// just delete the mpijob , keep the uploader job and pvc
+					// when status is succeed , either the job is succeeded or the job is time up
+					job.DeleteJob(jobState.Name, job.JobTypeMPI, false)
+				} else { // triggered by user , delete all related resources(uploader job and pvcs)
+					job.DeleteJob(jobState.Name, job.JobTypeMPI, true)
 				}
 			}
 		}
@@ -83,7 +88,12 @@ func main() {
 				}
 			}
 		}
-		time.Sleep(time.Second * 10)
+		for jobName, deleteTime := range deleteBuffer {
+			if deleteTime.Before(time.Now()) {
+				job.DeleteJob(jobName, job.JobTypeMPI, true)
+				delete(deleteBuffer, jobName)
+			}
+		}
 	}
 }
 
@@ -135,10 +145,11 @@ func startUploadInfo(done chan struct{}) {
 	}()
 }
 
-// just clean up the succeed jobs
-// keep the failed jobs , convenient for problem detection
+// clean up completed uploader job and pvc when job is deleted
 func startCleanUp(done chan struct{}, ns string) {
 	go func() {
+		//wait to delete
+		deleteBuffer := map[string]time.Time{}
 		for {
 			// find k8s jobs whose state is complete
 			completeJobs := []string{}
@@ -156,45 +167,38 @@ func startCleanUp(done chan struct{}, ns string) {
 					}
 				}
 				if complete {
-					// check whether corresponding mpijob is succeed
-					completeJobs = append(completeJobs, k8sJob.Name)
+					// if not in delete buffer
+					if _, ok := deleteBuffer[k8sJob.Name]; !ok {
+						completeJobs = append(completeJobs, k8sJob.Name)
+					}
 				}
 			}
-			// get all succeeded mpijobs
-			mpiJobStates, err := job.GetJobStates()
-			if err != nil {
-				log.SLogger.Errorw("get jobs state error", "error", err)
-				continue
-			}
-			succeededMPIjobs := map[string]struct{}{}
-			for _, j := range mpiJobStates {
-				if j.JobStatus == state.JobStatusSucceed {
-					succeededMPIjobs[j.Name] = struct{}{}
+			if len(completeJobs) != 0 {
+				// get all mpijobs
+				mpiJobStates, err := job.GetJobStates()
+				if err != nil {
+					log.SLogger.Errorw("get jobs state error", "error", err)
+					continue
+				}
+				MPIjobs := map[string]struct{}{}
+				for _, j := range mpiJobStates {
+					MPIjobs[j.Name] = struct{}{}
+				}
+				// delete k8s job and related pvc
+				for _, completeJob := range completeJobs {
+					// when job is deleted
+					if _, ok := MPIjobs[completeJob]; !ok {
+						// delete after 5 minutes
+						deleteBuffer[completeJob] = time.Now().Add(time.Minute * 5)
+						log.SLogger.Infow("queued for delete job related resources", "jobname", completeJob)
+					}
 				}
 			}
-			// delete k8s job \ mpijob and related pvc in the both jobset above
-			for _, completeJob := range completeJobs {
-				if _, ok := succeededMPIjobs[completeJob]; ok {
-					//delete , error occurs , just log
-					err = clientgo.DeleteK8SJob(ns, completeJob)
-					if err != nil {
-						log.SLogger.Errorw("delete k8s job failed", "error", err)
-					}
-					err = clientgo.DeletePVC(ns, kubeflowmpijob.GetCKPTPVCName(completeJob))
-					if err != nil {
-						log.SLogger.Errorw("delete ckpt pvc failed", "error", err)
-					}
-					err = clientgo.DeletePVC(ns, kubeflowmpijob.GetModelSavePVCName(completeJob))
-					if err != nil {
-						log.SLogger.Errorw("delete modelsave pvc failed", "error", err)
-					}
-					err = job.Job{
-						JobID:   completeJob,
-						JobType: job.JobTypeMPI,
-					}.Stop()
-					if err != nil {
-						log.SLogger.Errorw("delete mpi job failed", "error", err)
-					}
+
+			for jobName, deleteTime := range deleteBuffer {
+				if deleteTime.Before(time.Now()) {
+					job.DeleteJobRelated(jobName)
+					delete(deleteBuffer, jobName)
 				}
 			}
 

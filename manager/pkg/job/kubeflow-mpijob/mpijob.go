@@ -80,7 +80,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										"ds-experiments",
 										"--dataset_dir",
 										"dataset1/wikitext",
-										"--num_iterations=50",
+										"--num_iterations=50000",
 									},
 									"image":           kfm.Image,
 									"imagePullPolicy": "IfNotPresent",
