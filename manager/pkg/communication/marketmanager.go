@@ -16,12 +16,6 @@ import (
 	"time"
 )
 
-var baseURL string //nolint:unused
-
-func SetBaseURL(url string) {
-	baseURL = url
-}
-
 type UploadPayload struct {
 	CPodID       string                    `json:"cpod_id"`
 	JobStatus    []state.State             `json:"job_status"`
@@ -57,14 +51,21 @@ type RawJobsData []RawJobDataItem
 func GetJobs(cpodid string) ([]job.Job, error) {
 	params := url.Values{}
 	jobs := []job.Job{}
-	u, err := url.Parse(baseURL + config.URLPATH_FETCH_JOB)
+	u, err := url.Parse(config.BASE_URL + config.URLPATH_FETCH_JOB)
 	if err != nil {
 		return jobs, err
 	}
 	params.Set("cpodid", cpodid)
 	u.RawQuery = params.Encode()
 	urlPath := u.String()
-	resp, err := http.Get(urlPath)
+
+	req, err := http.NewRequest(http.MethodGet, urlPath, nil)
+	if err != nil {
+		return jobs, err
+	}
+	req.Header.Add("Authorization", "Bearer "+config.ACCESS_KEY)
+	resp, err := http.DefaultClient.Do(req)
+	//resp, err := http.Get(urlPath)
 	if err != nil {
 		return jobs, err
 	}
@@ -121,7 +122,15 @@ func UploadCPodStatus(up UploadPayload) bool {
 		log.SLogger.Errorw("data error", "error", err)
 		return false
 	}
-	resp, err := http.Post(baseURL+config.URLPATH_UPLOAD_CPOD_STATUS, "application/json", bytes.NewReader(bytesData))
+	req, err := http.NewRequest(http.MethodPost, config.BASE_URL+config.URLPATH_UPLOAD_CPOD_STATUS, bytes.NewBuffer(bytesData))
+	if err != nil {
+		log.SLogger.Errorw("build request error", "error", err)
+		return false
+	}
+	req.Header.Add("Authorization", "Bearer "+config.ACCESS_KEY)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	//resp, err := http.Post(config.BASE_URL+config.URLPATH_UPLOAD_CPOD_STATUS, "application/json", bytes.NewReader(bytesData))
 	if err != nil {
 		log.SLogger.Errorw("upload status err", "error", err)
 		return false

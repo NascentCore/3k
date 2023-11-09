@@ -24,9 +24,6 @@ spec:
       containers:
       - command:
         - ./cpodmanager 
-        - user0001
-        - cpod0001
-        - https://cloud.nascentcore.ai
         name: cpodmanager
         image: dockerhub.kubekey.local/kubesphereio/cpodmanager:edbebf1
         imagePullPolicy: Always
@@ -35,6 +32,16 @@ spec:
           value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
         - name: DEPLOY
           value: RPOD
+        - name: ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: cpod-info
+              key: access_key
+        - name: CPOD_ID
+          valueFrom:
+            configMapKeyRef:
+              name: cpod-info
+              key: cpod_id
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
