@@ -170,7 +170,7 @@ def gen_cpod_id():
     return hashlib.md5(str.encode(ns_uid)).hexdigest()
 
 
-def init_cpod_info(tenant_id):
+def init_cpod_info(access_key):
     if not (local["kubectl"]["get", "ns"] | grep["^cpod"]) & TF(0):
         kubectl_run("create", "ns", "cpod")
 
@@ -182,7 +182,7 @@ def init_cpod_info(tenant_id):
         "cpod-info",
         "-n",
         "cpod",
-        "--from-literal=tenant_id={}".format(tenant_id),
+        "--from-literal=access_key={}".format(access_key),
         "--from-literal=cpod_id={}".format(gen_cpod_id())
     )
 
