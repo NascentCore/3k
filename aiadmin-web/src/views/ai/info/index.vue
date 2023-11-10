@@ -35,7 +35,9 @@
       </el-table-column>
     </el-table>
     <el-dialog :visible.sync="dialogdown" :title="$t('jobinfo.downloadpath')" width="85%">
-      <pre><el-link type="primary" :href="downloadInfo">{{ downloadInfo }}</el-link></pre>
+      <div v-for="(item, index) in modelurls" :key="index">
+        <el-link type="primary" :href="item.fileUrl" style="margin-top: 10px">{{ item.fileUrl }}</el-link>
+      </div>
     </el-dialog>
     <!--分页组件-->
     <pagination />
@@ -47,6 +49,7 @@ import crudJob from '@/api/system/userJob'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import pagination from '@crud/Pagination.vue'
 import Background from '@/assets/images/GPUpic.png'
+import { getUrls } from '@/api/system/fileurl'
 
 const defaultForm = { jobId: null, jobName: null, gpuNumber: null, gpuType: null, ckptPath: null, ckptVol: null, modelPath: null, modelVol: null, imagePath: null, hfUrl: null, datasetPath: null, jobType: null, stopType: null, stopTime: null, workStatus: null, obtainStatus: null, createTime: null, updateTime: null }
 export default {
@@ -62,7 +65,8 @@ export default {
       delLoading: false,
       centerDialogVisible: false,
       downloadInfo: '',
-      dialogdown: false
+      dialogdown: false,
+      modelurls: []
     }
   },
   activated() {
@@ -76,9 +80,10 @@ export default {
       }, 9000)
     },
     executedownload(jobname) {
-      this.dialogdown = true
-      const path = 'https:' + '//' + 'sxwl-ai.oss-cn-beijing.aliyuncs.com' + '/' + jobname
-      this.downloadInfo = path
+      getUrls({ jobName: jobname }).then(res => {
+        this.modelurls = res
+        this.dialogdown = true
+      }).catch(() => { })
     },
     delMethod(id) {
       this.delLoading = true

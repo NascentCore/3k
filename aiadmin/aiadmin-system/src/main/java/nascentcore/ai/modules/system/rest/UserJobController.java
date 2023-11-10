@@ -130,6 +130,7 @@ public class UserJobController {
                         if (cpodMain.getGpuAllocatable() != gpuSummariesDTO.getAllocatable()) {
                             cpodMain.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
                         }
+                        cpodMain.setUserId(String.valueOf(userId));
                         cpodMain.setUpdateTime(DateTime.now().toTimestamp());
                         cpodMainService.update(cpodMain);
                     } else {
