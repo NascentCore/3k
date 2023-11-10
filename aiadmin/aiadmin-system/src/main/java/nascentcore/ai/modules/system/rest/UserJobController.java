@@ -110,6 +110,7 @@ public class UserJobController {
     @PostMapping(value = "/cpod_status")
     @ApiOperation("上传三千平台信息")
     public ResponseEntity<Object> putPodStatus(@Validated @RequestBody String resources) {
+        Long userId = SecurityUtils.getCurrentUserId();
         CpodStatusReq cpodStatusReq = JSON.parseObject(resources, CpodStatusReq.class);
         String cpodid = cpodStatusReq.getCpodId();
         List<JobStatusDTO> jobStatusDTOSList = cpodStatusReq.getJobStatus();
