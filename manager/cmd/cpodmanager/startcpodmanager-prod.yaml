@@ -29,7 +29,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: UPLOADIMAGE
-          value: dockerhub.kubekey.local/kubesphereio/modeluploader:cca99d4
+          value: dockerhub.kubekey.local/kubesphereio/modeluploader:4eaabe9
         - name: DEPLOY
           value: RPOD
         - name: ACCESS_KEY

@@ -41,7 +41,6 @@ type Job struct {
 func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
 		//create pvc for ckpt and modelsave
-		//TODO: use the volume input from UI
 		err := clientgo.CreatePVC(kubeflowmpijob.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
 		if err != nil {
 			return err
