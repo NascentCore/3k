@@ -120,9 +120,9 @@ module.exports = {
     cpodid: 'Cpod ID',
     cpodv: 'Cpod 版本',
     gpuProd: 'GPU 型号',
-    gpuvendor: 'GPU厂商',
-    gputotal: 'GPU总数量',
-    gpuAllocatable: 'GPU可分配数量',
+    gpuvendor: 'GPU 厂商',
+    gputotal: 'GPU 总数量',
+    gpuAllocatable: 'GPU 可分配数量',
     createtime: '创建日期',
     updateTime: '更新时间'
   }
