@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nascentcore.ai.modules.system.mapper.FileurlMapper">
+    <resultMap id="BaseResultMap" type="nascentcore.ai.modules.system.domain.Fileurl">
+        <id column="file_id" property="fileId"/>
+        <result column="job_name" property="jobName"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        file_id, job_name, file_url, create_time, update_time
+    </sql>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_fileurl
+        <where>
+            <if test="criteria.jobName != null">
+                and job_name = #{criteria.jobName}
+            </if>
+        </where>
+        order by file_id desc
+    </select>
+</mapper>
