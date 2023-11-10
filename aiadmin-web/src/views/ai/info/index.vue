@@ -34,8 +34,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :visible.sync="dialogdown" :title="$t('jobinfo.downloadpath')"  width="85%">
-      <pre>{{ downloadInfo }}</pre>
+    <el-dialog :visible.sync="dialogdown" :title="$t('jobinfo.downloadpath')" width="85%">
+      <pre><el-link type="primary" :href="downloadInfo">{{ downloadInfo }}</el-link></pre>
     </el-dialog>
     <!--分页组件-->
     <pagination />

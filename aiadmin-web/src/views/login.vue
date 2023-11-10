@@ -1,5 +1,5 @@
 <template>
-  <div class="home" style="background: #FFFAFA">
+  <div class="home" style="background: #f2f8fe">
     <div class="navbar">
       <div class="right-menu">
         <el-dropdown trigger="click" class=" languageswitch " @command="handleSetLanguage">
@@ -24,15 +24,14 @@
         </h3>
         <el-form-item prop="username">
           <el-input v-model="loginForm.username" type="text" auto-complete="off" :placeholder="$t('login.username')">
-            <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
+            <svg-icon icon-class="user" class="el-input__icon input-icon" />
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
           <el-input v-model="loginForm.password" type="password" auto-complete="off" :placeholder="$t('login.password')" show-password @keyup.enter.native="handleLogin">
-            <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+            <svg-icon icon-class="password" class="el-input__icon input-icon" />
           </el-input>
         </el-form-item>
-
         <el-checkbox v-model="loginForm.rememberMe" style="margin:0 0 25px 0;">
           {{ $t("login.rememberme") }}
         </el-checkbox>
@@ -59,40 +58,89 @@
         <h3 class="title">
           {{ $t("login.registertitle") }}
         </h3>
-        <el-form-item prop="email">
-          <el-input v-model="registerForm.email" type="text" auto-complete="off" :placeholder="$t('login.registeremail')" />
-        </el-form-item>
-        <el-form-item prop="codemes">
-          <el-input v-model="registerForm.codemes" type="text" auto-complete="off" :placeholder="$t('login.registercodemes')" style="width: 46%">
-            <svg-icon slot="prefix" icon-class="message" class="el-input__icon input-icon" />
-          </el-input>
-          <el-button :loading="codeLoading" :disabled="isDisabled" size="medium" style="width: 52%" @click="sendCode"><span>{{ buttonName }}</span></el-button>
-        </el-form-item>
-        <el-form-item prop="password1">
-          <el-input v-model="registerForm.password1" type="password" auto-complete="off" :placeholder="$t('login.registerpd')" show-password>
-            <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
-          </el-input>
-        </el-form-item>
-        <el-form-item prop="password2">
-          <el-input v-model="registerForm.password2" type="password" auto-complete="off" :placeholder="$t('login.registerpd2')" show-password>
-            <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
-          </el-input>
-        </el-form-item>
+        <el-tabs v-model="activeName" type="border-card" stretch @tab-click="tabClick">
+          <el-tab-pane :label="$t('login.userregister')" name="first">
+            <el-form-item prop="email" style="margin-top: 8px">
+              <el-input v-model="registerForm.email" type="text" auto-complete="off" :placeholder="$t('login.registeremail')" />
+            </el-form-item>
+            <el-form-item prop="codemes">
+              <el-input v-model="registerForm.codemes" type="text" auto-complete="off" :placeholder="$t('login.registercodemes')" style="width: 46%">
+                <svg-icon slot="prefix" icon-class="message" class="el-input__icon input-icon" />
+              </el-input>
+              <el-button :loading="codeLoading" :disabled="isDisabled" size="medium" style="width: 52%" @click="sendCode"><span>{{ buttonName }}</span></el-button>
+            </el-form-item>
+            <el-form-item prop="password1">
+              <el-input v-model="registerForm.password1" type="password" auto-complete="off" :placeholder="$t('login.registerpd')" show-password>
+                <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="password2">
+              <el-input v-model="registerForm.password2" type="password" auto-complete="off" :placeholder="$t('login.registerpd2')" show-password>
+                <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
 
-        <el-checkbox v-model="registerForm.readMe" style="margin:0 0 25px 0;">
-          {{ $t("login.registerreadMe") }}
-        </el-checkbox>
-        <el-form-item style="width:100%;">
-          <el-button :loading="registerloading" size="medium" type="primary" style="width:100%;" @click.native.prevent="handleregister">
-            <span v-if="!registerloading"> {{ $t("login.registersub") }}</span>
-            <span v-else>{{ $t("login.registersubing") }}</span>
-          </el-button>
-        </el-form-item>
-        <el-form-item style="width:100%;">
-          <el-button :loading="loading" size="medium" type="primary" plain style="width:100%;" @click.native.prevent="backlogin">
-            <span>{{ $t("login.registerback") }}</span>
-          </el-button>
-        </el-form-item>
+            <el-checkbox v-model="registerForm.readMe" style="margin:0 0 25px 0;">
+              {{ $t("login.registerreadMe") }}
+            </el-checkbox>
+            <el-form-item style="width:100%;">
+              <el-button :loading="registerloading" size="medium" type="primary" style="width:100%;" @click.native.prevent="handleregister">
+                <span v-if="!registerloading"> {{ $t("login.registersub") }}</span>
+                <span v-else>{{ $t("login.registersubing") }}</span>
+              </el-button>
+            </el-form-item>
+            <el-form-item style="width:100%;">
+              <el-button :loading="loading" size="medium" type="primary" plain style="width:100%;" @click.native.prevent="backlogin">
+                <span>{{ $t("login.registerback") }}</span>
+              </el-button>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('login.powerregister')" name="second">
+            <el-form-item prop="email" style="margin-top: 8px">
+              <el-input v-model="registerForm.email" type="text" auto-complete="off" :placeholder="$t('login.registeremail')" />
+            </el-form-item>
+            <el-form-item prop="codemes">
+              <el-input v-model="registerForm.codemes" type="text" auto-complete="off" :placeholder="$t('login.registercodemes')" style="width: 46%">
+                <svg-icon slot="prefix" icon-class="message" class="el-input__icon input-icon" />
+              </el-input>
+              <el-button :loading="codeLoading" :disabled="isDisabled" size="medium" style="width: 52%" @click="sendCode"><span>{{ buttonName }}</span></el-button>
+            </el-form-item>
+            <el-form-item prop="password1">
+              <el-input v-model="registerForm.password1" type="password" auto-complete="off" :placeholder="$t('login.registerpd')" show-password>
+                <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="password2">
+              <el-input v-model="registerForm.password2" type="password" auto-complete="off" :placeholder="$t('login.registerpd2')" show-password>
+                <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="companyName">
+              <el-input v-model="registerForm.companyName" type="text" auto-complete="off" placeholder="请输入公司名称">
+                <svg-icon slot="prefix" icon-class="message" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="companyPhone">
+              <el-input v-model="registerForm.companyPhone" type="text" auto-complete="off" placeholder="请输入联系电话">
+                <svg-icon slot="prefix" icon-class="phone" class="el-input__icon input-icon" />
+              </el-input>
+            </el-form-item>
+            <el-checkbox v-model="registerForm.readMe" style="margin:0 0 25px 0;">
+              {{ $t("login.registerreadMe") }}
+            </el-checkbox>
+            <el-form-item style="width:100%;">
+              <el-button :loading="registerloading" size="medium" type="primary" style="width:100%;" @click.native.prevent="handleregister">
+                <span v-if="!registerloading"> {{ $t("login.registersub") }}</span>
+                <span v-else>{{ $t("login.registersubing") }}</span>
+              </el-button>
+            </el-form-item>
+            <el-form-item style="width:100%;">
+              <el-button :loading="loading" size="medium" type="primary" plain style="width:100%;" @click.native.prevent="backlogin">
+                <span>{{ $t("login.registerback") }}</span>
+              </el-button>
+            </el-form-item>
+          </el-tab-pane>
+        </el-tabs>
       </el-form>
       <!--  底部  -->
       <div v-if="$store.state.settings.showFooter" id="el-login-footer">
@@ -133,22 +181,24 @@ export default {
       }
     }
     return {
+      activeName: 'first',
       language: this.$i18n.locale,
       codeUrl: '',
       cookiePass: '',
       loginForm: {
         username: '',
         password: '',
-        rememberMe: false,
-        code: '',
-        uuid: ''
+        rememberMe: false
       },
       registerForm: {
         password1: '',
         password2: '',
         readMe: false,
         email: '',
-        codemes: ''
+        codemes: '',
+        userType: 2,
+        companyPhone: '',
+        companyName: ''
       },
       buttonName: this.$t('login.registersendcode'), isDisabled: false, time: 60,
       codeLoading: false,
@@ -198,6 +248,13 @@ export default {
     this.point()
   },
   methods: {
+    tabClick() {
+      if (this.activeName === 'first') {
+        this.registerForm.userType = 2
+      } else {
+        this.registerForm.userType = 3
+      }
+    },
     backlogin() {
       this.isnotregister = true
       this.buttonName = this.$t('login.registersendcode')
@@ -215,7 +272,7 @@ export default {
         this.codeLoading = true
         this.buttonName = this.$t('login.registersendcode1')
         const _this = this
-        sendEmail(this.registerForm.email).then(res => {
+        sendEmail(this.registerForm.email).then(() => {
           this.$message({
             showClose: true,
             message: _this.$t('login.sendmesafter'),

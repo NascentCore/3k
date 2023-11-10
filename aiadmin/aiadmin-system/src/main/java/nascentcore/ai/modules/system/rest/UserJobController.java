@@ -3,8 +3,6 @@ package nascentcore.ai.modules.system.rest;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
-import nascentcore.ai.annotation.rest.AnonymousGetMapping;
-import nascentcore.ai.annotation.rest.AnonymousPostMapping;
 import nascentcore.ai.modules.system.domain.CpodMain;
 import nascentcore.ai.modules.system.domain.UserJob;
 import nascentcore.ai.modules.system.domain.UserJobRes;
@@ -39,7 +37,7 @@ import static cn.hutool.core.util.IdUtil.randomUUID;
  **/
 @RestController
 @RequiredArgsConstructor
-@Api(tags = "任务:  任务管理")
+@Api(tags = "任务：任务管理")
 @RequestMapping("/api/userJob")
 public class UserJobController {
 
@@ -74,7 +72,7 @@ public class UserJobController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @AnonymousGetMapping(value = "/cpod_jobs")
+    @GetMapping(value = "/cpod_jobs")
     @ApiOperation("获取未下发的用户新任务")
     public ResponseEntity<List<UserJobRes>> getNewJob(String cpodid) {
         List<CpodMain> cpodMains = cpodMainService.findByCpodId(cpodid);
@@ -109,7 +107,7 @@ public class UserJobController {
         return new ResponseEntity<>(userJobResList, HttpStatus.OK);
     }
 
-    @AnonymousPostMapping(value = "/cpod_status")
+    @PostMapping(value = "/cpod_status")
     @ApiOperation("上传三千平台信息")
     public ResponseEntity<Object> putPodStatus(@Validated @RequestBody String resources) {
         CpodStatusReq cpodStatusReq = JSON.parseObject(resources, CpodStatusReq.class);
@@ -141,6 +139,7 @@ public class UserJobController {
                         cpod.setGpuProd(gpuSummariesDTO.getProd());
                         cpod.setGpuTotal(gpuSummariesDTO.getTotal());
                         cpod.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
+                        cpod.setUserId(String.valueOf(userId));
                         cpod.setCreateTime(DateTime.now().toTimestamp());
                         cpod.setUpdateTime(DateTime.now().toTimestamp());
                         cpodMainService.create(cpod);

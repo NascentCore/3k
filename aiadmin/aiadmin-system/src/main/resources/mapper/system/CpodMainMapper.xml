@@ -4,6 +4,7 @@
     <resultMap id="BaseResultMap" type="nascentcore.ai.modules.system.domain.CpodMain">
         <id column="main_id" property="mainId"/>
         <result column="cpod_id" property="cpodId"/>
+        <result column="user_id" property="userId"/>
         <result column="cpod_version" property="cpodVersion"/>
         <result column="gpu_vendor" property="gpuVendor"/>
         <result column="gpu_prod" property="gpuProd"/>
@@ -30,6 +31,9 @@
             </if>
             <if test="criteria.gpuAllocatable != null">
                 and gpu_allocatable &gt;= #{criteria.gpuAllocatable}
+            </if>
+            <if test="criteria.userId != null">
+                and user_id = #{criteria.userId}
             </if>
         </where>
         order by main_id desc

@@ -19,6 +19,10 @@
         <result column="user_update_by" property="updateBy"/>
         <result column="user_create_time" property="createTime"/>
         <result column="user_update_time" property="updateTime"/>
+        <result column="user_company_name" property="companyName"/>
+        <result column="user_company_phone" property="companyPhone"/>
+        <result column="user_company_other" property="companyOther"/>
+        <result column="user_company_id" property="companyId"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -26,30 +30,31 @@
            u.nick_name as user_nick_name, u.email as user_email, u.phone as user_phone,
            u.gender as user_gender, u.avatar_name as user_avatar_name, u.avatar_path as user_avatar_path,
            u.enabled as user_enabled, u.pwd_reset_time as user_pwd_reset_time, u.create_by as user_create_by,
-           u.update_by as user_update_by, u.create_time as user_create_time, u.update_time as user_update_time
+           u.update_by as user_update_by, u.create_time as user_create_time, u.update_time as user_update_time,
+           u.company_name as user_company_name,u.company_phone as user_company_phone,u.company_id as user_company_id
     </sql>
 
-    <sql id="Whrer_Sql">
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user u
         <where>
-            <if test="criteria.id != null">
-                and u.user_id = #{criteria.id}
-            </if>
-            <if test="criteria.enabled != null">
-                and u.enabled = #{criteria.enabled}
-            </if>
-            <if test="criteria.blurry != null and criteria.blurry != ''">
-                and (
-                u.username like concat('%', #{criteria.blurry}, '%')
-                or u.nick_name like concat('%', #{criteria.blurry}, '%')
-                or u.email like concat('%', #{criteria.blurry}, '%')
-                )
-            </if>
-            <if test="criteria.createTime != null and criteria.createTime.size() != 0">
-                and u.create_time between #{criteria.createTime[0]} and #{criteria.createTime[1]}
+            <if test="criteria.userId != null">
+                and user_id = #{criteria.userId}
             </if>
         </where>
-    </sql>
+        order by user_id desc
+    </select>
 
+    <select id="countAll" resultType="java.lang.Long">
+        select count(*)
+        from sys_user u
+        <where>
+            <if test="criteria.userId != null">
+                and user_id = #{criteria.userId}
+            </if>
+        </where>
+    </select>
     <select id="findByUsername" resultMap="BaseResultMap">
         select
         u.password user_password, u.is_admin user_is_admin,

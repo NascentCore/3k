@@ -47,6 +47,9 @@ public class CpodMain implements Serializable {
     @ApiModelProperty(value = "更新时间")
     private Timestamp updateTime;
 
+    @ApiModelProperty(value = "算力源注册ID")
+    private String userId;
+
     public void copy(CpodMain source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }

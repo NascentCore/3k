@@ -11,4 +11,5 @@ public class CpodMainQueryCriteria{
     private String cpodId;
     private String gpuProd;
     private Integer gpuAllocatable;
+    private String userId;
 }
