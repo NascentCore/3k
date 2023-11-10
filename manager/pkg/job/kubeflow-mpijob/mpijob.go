@@ -1,7 +1,6 @@
 package kubeflowmpijob
 
 import (
-	"fmt"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
 	"sxwl/3k/pkg/utils/consts"
 )
@@ -33,7 +32,7 @@ func GetCKPTPVCName(jobName string) string {
 func (kfm MPIJob) genJsonData() map[string]interface{} {
 	ckptVolumeName := "ckpt-pv"
 	modelSaveVolumeName := "saved-model-pv"
-	dataSetVolumeName := "dataset-pv"
+	//dataSetVolumeName := "dataset-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -54,34 +53,6 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 						"spec": map[string]interface{}{
 							"containers": []interface{}{
 								map[string]interface{}{
-									"command": []interface{}{
-										"mpirun",
-										"-np",
-										fmt.Sprintf("%d", kfm.GPURequiredPerWorker*kfm.Replicas),
-										"--allow-run-as-root",
-										"-bind-to",
-										"none",
-										"-map-by",
-										"slot",
-										"-x",
-										"NCCL_DEBUG=INFO",
-										"-x",
-										"NCCL_P2P_DISABLE=1",
-										"-x",
-										"LD_LIBRARY_PATH",
-										"-x",
-										"PATH",
-										"-mca",
-										"mpi_warn_on_fork",
-										"0",
-										"python3",
-										"train_bert_ds.py",
-										"--checkpoint_dir",
-										"ds-experiments",
-										"--dataset_dir",
-										"dataset1/wikitext",
-										"--num_iterations=50000",
-									},
 									"image":           kfm.Image,
 									"imagePullPolicy": "IfNotPresent",
 									"name":            "launcher",
@@ -106,10 +77,12 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										},
 									},
 									"volumeMounts": []interface{}{
+										/* comment for public launch
 										map[string]interface{}{
 											"mountPath": kfm.DataPath,
 											"name":      dataSetVolumeName,
 										},
+										*/
 										map[string]interface{}{
 											"mountPath": kfm.CKPTPath,
 											"name":      ckptVolumeName,
@@ -126,6 +99,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 								consts.K8S_LABEL_NV_GPU_PRODUCT: kfm.GPUType,
 							},
 							"volumes": []interface{}{
+								/* comment for public launch
 								map[string]interface{}{
 									"name": dataSetVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
@@ -133,6 +107,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										"readOnly":  true,
 									},
 								},
+								*/
 								map[string]interface{}{
 									"name": ckptVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
