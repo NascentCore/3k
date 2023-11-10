@@ -40,6 +40,19 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 							"image":           image,
 							"imagePullPolicy": "Always",
 							"env": []interface{}{
+								map[string]string{
+									"name": "DEPLOY",
+									"value": config.DEPLOY,
+								},
+								map[string]interface{}{
+									"name": config.MARKET_ACCESS_KEY,
+									"valueFrom": map[string]interface{}{
+										"configMapKeyRef": map[string]interface{}{
+											"name": "cpod-info",
+											"key":  config.MARKET_ACCESS_KEY,
+										},
+									},
+								},
 								map[string]interface{}{
 									"name": config.OSS_ACCESS_KEY_ENV_NAME,
 									"valueFrom": map[string]interface{}{

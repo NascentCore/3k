@@ -18,5 +18,9 @@ const (
 	UPLOAD_STARTED_FLAG_FILE     = "upload_started_flag_file"           //标识上传工作开始的文件的名称
 	FILE_UPLOAD_LOG_FILE         = "files_uploaded_log"                 //记录上传工作进度的文件的名称
 	OSS_ENDPOINT                 = "http://oss-cn-beijing.aliyuncs.com" //阿里云OSS Endpoint
+	PRESIGNED_URL_FILE           = "presigned_url_file"                 //记录文件下载链接的文件名称
+	MARKET_ACCESS_KEY            = "access_key"                         //云市场 access key
+	OSS_URL_EXPIRED_SECOND       = 2592000                              //oss presigned url 过期秒数，默认30天
+	URLPATH_UPLOAD_URLS          = "/api/info/upload_status"            //上报 presigned url 接口
 
 )

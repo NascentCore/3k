@@ -55,5 +55,9 @@ func main() {
 		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)
 	}
+	if err := modeluploader.PostUrlsToMarket(path.Join(config.MODELUPLOADER_PVC_MOUNT_PATH, config.PRESIGNED_URL_FILE), mpiJobName, config.BASE_URL+config.URLPATH_UPLOAD_URLS); err != nil {
+		log.SLogger.Infow("post presigned urls to market error", "error", err)
+		os.Exit(1)
+	}
 	log.SLogger.Infow("upload model done , job finish")
 }
