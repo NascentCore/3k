@@ -29,4 +29,5 @@ var (
 	}()
 	ACCESS_KEY = os.Getenv("ACCESS_KEY") //from configmap provided by cairong
 	CPOD_ID    = os.Getenv("CPOD_ID")    //from configmap provided by cairong
+	ACCESS_KEY_MARKET     = os.Getenv(MARKET_ACCESS_KEY)
 )
