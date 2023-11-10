@@ -80,6 +80,11 @@ func CheckUploadStarted(fileName string) (bool, error) {
 }
 
 func PostUrlsToMarket(fileName, jobName, url string) error {
+	_, err := os.Stat(fileName)
+	if err != nil && os.IsNotExist(err) {
+		log.SLogger.Infow("not found ", fileName, ", post aborted")
+		return nil
+	}
 	lines, err := GetUrls(fileName)
 	if err != nil {
 		return err
