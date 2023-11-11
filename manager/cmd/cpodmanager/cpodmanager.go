@@ -52,6 +52,7 @@ func main() {
 		for _, j := range jobStates {
 			jobSetB[j.Name] = struct{}{}
 		}
+		// TODO: Use set difference to calculate the jobs in A & B that should be removed or created.
 		//delete all jobs in B and not in A
 		for _, jobState := range jobStates {
 			//if !jobState.JobStatus.NoMoreChange() {
