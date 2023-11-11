@@ -27,6 +27,7 @@ public class UserJobServiceImpl extends ServiceImpl<UserJobMapper, UserJob> impl
     private final UserJobMapper userJobMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PageResult<UserJob> queryAll(UserJobQueryCriteria criteria, Page<Object> page){
         return PageUtil.toPage(userJobMapper.findAll(criteria, page));
     }
@@ -38,6 +39,7 @@ public class UserJobServiceImpl extends ServiceImpl<UserJobMapper, UserJob> impl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<UserJob> queryAll(UserJobQueryCriteria criteria){
         return userJobMapper.findAll(criteria);
     }

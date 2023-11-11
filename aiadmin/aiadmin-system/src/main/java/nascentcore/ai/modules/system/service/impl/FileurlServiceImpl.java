@@ -15,6 +15,7 @@ import java.util.List;
 public class FileurlServiceImpl extends ServiceImpl<FileurlMapper, Fileurl> implements FileurlService {
     private final FileurlMapper fileurlMapper;
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<Fileurl> queryAll(FileurlQueryCriteria criteria){
         return fileurlMapper.findAll(criteria);
     }

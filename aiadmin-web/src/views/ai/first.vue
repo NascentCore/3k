@@ -35,7 +35,7 @@
       <el-form-item :label="$t('ai.stopcondition')" prop="stopType">
         <el-radio v-model="form.stopType" label="0" disabled @change="agreeChange">{{ $t("ai.stopradio1") }}</el-radio>
         <el-radio v-model="form.stopType" label="1" disabled @change="agreeChange">{{ $t("ai.stopradio2") }}</el-radio>
-        <el-input v-if="timestatus" v-model="form.stopTime" :disabled="true" style="width: 60px" placeholder="1" />
+        <el-input v-if="timestatus" v-model="form.stopTime"  @input="onInputChange" type="number" style="width: 60px" placeholder="1" />
         <span v-if="timestatus" style="color: #000000;margin-left: 10px;">{{ $t("ai.hour") }}</span>
       </el-form-item>
       <el-form-item>
@@ -117,6 +117,11 @@ export default {
     }
   },
   methods: {
+    onInputChange(value) {
+      if (value > 5) {
+        this.form.stopTime = 5
+      }
+    },
     doSubmit() {
       this.$refs['form'].validate((valid) => {
         if (valid) {

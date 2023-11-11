@@ -10,7 +10,8 @@ module.exports = {
     switchlanguage: 'Switch language successful',
     changelanguage: 'switch language',
     chinese: 'Chinese',
-    english: 'English'
+    english: 'English',
+    feedback: 'feedback'
   },
   ai: {
     trainingsource: 'Training dataset：',

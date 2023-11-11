@@ -10,7 +10,8 @@ module.exports = {
     switchlanguage: '切换语言成功',
     changelanguage: '切换语言',
     chinese: '中文',
-    english: '英语'
+    english: '英语',
+    feedback: '问题反馈'
   },
   ai: {
     trainingsource: '训练数据源：',
@@ -86,7 +87,7 @@ module.exports = {
     isPause: '运行状态',
     runstatus: '运行中',
     runstatusfail: '运行失败',
-    runstatussuc: '运行完成',
+    runstatussuc: '运行成功',
     operate: '操作',
     monitor: '监控',
     checklog: '查日志',
