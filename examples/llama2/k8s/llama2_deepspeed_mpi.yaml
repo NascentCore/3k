@@ -18,6 +18,8 @@ spec:
             imagePullPolicy: IfNotPresent
             command:
             - mpirun
+            - x
+            - RANK
             - -x
             - NCCL_DEBUG=WARN
             - -x
