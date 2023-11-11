@@ -24,10 +24,11 @@ class Registry(cli.Application):
 @Init.subcommand("cpodinfo")
 class CpodInfo(cli.Application):
     """initialize cpod info"""
-    tenant_id = cli.SwitchAttr("--tenant-id", str, mandatory=True, help="cloud.nascentcore.ai user id")
+    access_key = cli.SwitchAttr("--access-key", str, mandatory=True,
+                                help="cloud.nascentcore.ai user accessKey")
 
     def main(self):
-        init_cpod_info(self.tenant_id)
+        init_cpod_info(self.access_key)
 
 
 @Deploy.subcommand("push")
@@ -117,7 +118,8 @@ class All(cli.Application):
     no_push_images = cli.Flag("--no-push-images", default=False, help="default: false")
     no_push_charts = cli.Flag("--no-push-charts", default=False, help="default: false")
     no_install_operators = cli.Flag("--no-install-operators", default=False, help="default: false")
-    tenant_id = cli.SwitchAttr("--tenant-id", str, mandatory=True, help="cloud.nascentcore.ai user id")
+    access_key = cli.SwitchAttr("--access-key", str, mandatory=True,
+                                help="cloud.nascentcore.ai user accessKey")
 
     def main(self):
         if not self.no_init_registry:
@@ -128,7 +130,7 @@ class All(cli.Application):
             push_images()
 
         install_kubernetes_cluster()
-        init_cpod_info(self.tenant_id)
+        init_cpod_info(self.access_key)
         check_coredns_schedule()
 
         if not self.no_push_charts:
