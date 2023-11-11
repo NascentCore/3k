@@ -6,6 +6,9 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'" />
+      <el-tooltip :content="$t('message.feedback')" effect="dark" placement="bottom">
+        <Doc class="right-menu-item hover-effect" />
+      </el-tooltip>
       <el-dropdown trigger="click" class=" languageswitch " @command="handleSetLanguage">
         <div>
           <span>{{ $t('message.changelanguage') }}</span>
@@ -42,11 +45,13 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Avatar from '@/assets/images/avatar.png'
+import Doc from '@/components/Doc'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    Doc
   },
   data() {
     return {

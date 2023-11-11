@@ -24,15 +24,18 @@ public class CpodMainServiceImpl extends ServiceImpl<CpodMainMapper, CpodMain> i
 
     private final CpodMainMapper cpodMainMapper;
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PageResult<CpodMain> queryAll(CpodMainQueryCriteria criteria, Page<Object> page){
         return PageUtil.toPage(cpodMainMapper.findAll(criteria, page));
     }
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<CpodMain> queryAll(CpodMainQueryCriteria criteria){
         return cpodMainMapper.findAll(criteria);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<CpodMain> queryAllGpuType(){
         return cpodMainMapper.queryAllGpuType();
     }
@@ -52,6 +55,7 @@ public class CpodMainServiceImpl extends ServiceImpl<CpodMainMapper, CpodMain> i
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<CpodMain> findByCpodId(String cpodid) {
         return cpodMainMapper.findByCpodId(cpodid);
     }

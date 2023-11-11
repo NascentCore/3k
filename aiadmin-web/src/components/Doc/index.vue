@@ -1,6 +1,6 @@
 <template>
   <div>
-    <svg-icon icon-class="doc" @click="click" />
+    <svg-icon icon-class="feedback" @click="click" />
   </div>
 </template>
 
@@ -9,7 +9,7 @@ export default {
   name: 'Doc',
   methods: {
     click() {
-      window.open('', '_blank')
+      window.open('https://tricorder.feishu.cn/share/base/form/shrcnIfP4YYdip9m4JflYVEVy4d', '_blank')
     }
   }
 }
