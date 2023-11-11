@@ -3,7 +3,7 @@ name: DevOps
 about: 创建 DevOps 相关任务和工作
 title: "【DevOps】"
 labels: DevOps
-assignees: cairong-ai
+assignees: ''
 
 ---
 

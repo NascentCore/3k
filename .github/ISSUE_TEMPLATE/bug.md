@@ -2,7 +2,7 @@
 name: Bug
 about: 报告系统 Bug
 title: "【BUG】"
-labels: bug
+labels: bug, enhancement
 assignees: yzhao-2023
 
 ---
