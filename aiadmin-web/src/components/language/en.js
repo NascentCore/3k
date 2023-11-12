@@ -77,6 +77,7 @@ module.exports = {
     login: 'login',
     tasksub: 'Job submission',
     hashrate: 'details',
+    guide: 'Guidance',
     info: 'Job details',
     resultdownload: 'Model download',
     title: ''
