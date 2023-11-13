@@ -91,9 +91,12 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	}
 
 	//从Data中提取State信息
+	//When status is not there , maybe something wrong in job creation
+	//mpijob is created , but cant run
 	status, ok := data["status"].(map[string]interface{})
 	if !ok {
-		return state.State{}, errors.New("no status")
+		s.JobStatus = state.JobStatusCreated
+		return s, nil
 	}
 	conditions_, ok := status["conditions"].([]interface{})
 	if !ok {
