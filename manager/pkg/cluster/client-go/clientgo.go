@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sxwl/3k/manager/pkg/log"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -58,11 +59,22 @@ func GetNodeInfo() (*v1.NodeList, error) {
 	return nodes, nil
 }
 
-func CreatePVC(name, namespace, sc, accessMode string, MBs int) error {
+func GetPVC(name, namespace string) (*v1.PersistentVolumeClaim, error) {
+	return k8sClient.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+}
+
+func CreatePVCIFNotExist(name, namespace, sc, accessMode string, MBs int) error {
 	// TODO:  use k8sClient
 	if accessMode != "ReadWriteMany" && accessMode != "ReadWriteOnce" && accessMode != "ReadWriteOncePod" {
 		return errors.New("invalid accessMode")
 	}
+	// check existence
+	_, err := GetPVC(name, namespace)
+	if err == nil { //如果可以取得，代表PVC一定存在
+		log.SLogger.Infow("pvc is already there", "pvc name", name)
+		return nil
+	}
+
 	// TODO: adjust
 	if MBs > 1024*100 {
 		return errors.New("request volume too large")
