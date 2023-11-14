@@ -71,7 +71,9 @@ module.exports = {
     aftersec: '秒后重新发送',
     aftersecre: '秒后重新发送',
     powerregister: '算力源注册',
-    userregister: '算力用户注册'
+    userregister: '算力用户注册',
+    email: '客服邮箱：',
+    phone: '客服电话：'
   },
   router: {
     login: '登陆',

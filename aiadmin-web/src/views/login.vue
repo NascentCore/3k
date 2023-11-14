@@ -44,6 +44,10 @@
             <span>{{ $t("login.registersub") }}</span>
           </el-button>
         </el-form-item>
+        <pre class="my-codes">
+          {{ $t("login.phone") }}<el-link href="tel://15910236560" type="primary">15910236560</el-link>
+          {{ $t("login.email") }}help@sxwl.ai
+        </pre>
       </el-form>
       <!--  底部  -->
       <div v-if="$store.state.settings.showFooter" id="el-login-footer">
@@ -436,7 +440,14 @@ export default {
     height: 100%;
     background-size: cover;
   }
-
+  .my-codes{
+    position: relative;
+    padding: 20px;
+    line-height: 20px;
+    color: #333;
+    font-family: Courier New, serif;
+    font-size: 12px
+  }
   .title {
     margin: 0 auto 30px auto;
     text-align: center;

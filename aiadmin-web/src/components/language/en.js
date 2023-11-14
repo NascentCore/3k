@@ -71,7 +71,9 @@ module.exports = {
     aftersec: 'seconds resend',
     aftersecre: 'seconds again',
     powerregister: 'Source registration',
-    userregister: 'User registration'
+    userregister: 'User registration',
+    email: 'Service Email：',
+    phone: 'Service Phone：'
   },
   router: {
     login: 'login',
