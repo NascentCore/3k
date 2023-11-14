@@ -80,7 +80,8 @@ module.exports = {
     hashrate: '算力详情',
     guide: '使用指南',
     resultdownload: '下载模型',
-    title: ''
+    title: '',
+    userguide: '使用导读'
   },
   jobinfo: {
     jobName: '任务名称',

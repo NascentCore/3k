@@ -80,7 +80,8 @@ module.exports = {
     guide: 'Guidance',
     info: 'Job details',
     resultdownload: 'Model download',
-    title: ''
+    title: '',
+    userguide: 'User Guidance'
   },
   jobinfo: {
     jobName: 'job name',
