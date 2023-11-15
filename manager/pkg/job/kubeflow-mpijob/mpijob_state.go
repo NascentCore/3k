@@ -118,7 +118,8 @@ func parseState(data map[string]interface{}) (state.State, error) {
 		}
 		condMap[ty] = st
 	}
-	// TODO: analyze more data or find some doc , known more about mpijob status
+	// ConditionType defination can be found in :
+	// https://github.com/kubeflow/mpi-operator/blob/4a63d3cb35454d072c63fc84aeb5766878701ead/pkg/apis/kubeflow/v2beta1/types.go#L286
 	if condMap["Failed"] == "True" { // check failed
 		s.JobStatus = state.JobStatusFailed
 	} else if condMap["Succeeded"] == "True" { // check succeed
