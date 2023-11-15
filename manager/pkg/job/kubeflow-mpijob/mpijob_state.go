@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-// NO_TEST_NEEDED
-
 var ErrNotFound error = errors.New("not found")
 
 func GetStates(namespace string) ([]state.State, error) {
@@ -118,7 +116,9 @@ func parseState(data map[string]interface{}) (state.State, error) {
 		}
 		condMap[ty] = st
 	}
-	// TODO: analyze more data or find some doc , known more about mpijob status
+	// ConditionType defination can be found in :
+	// https://github.com/kubeflow/mpi-operator/blob/4a63d3cb35454d072c63fc84aeb5766878701ead/pkg/apis/kubeflow/v2beta1/types.go#L286
+	// 在上面还定义了两种状态 Suspended 和 Restarting ， Restarting在MPIOperater的代码中没有用到，Suspended在现在的任务中不会出现
 	if condMap["Failed"] == "True" { // check failed
 		s.JobStatus = state.JobStatusFailed
 	} else if condMap["Succeeded"] == "True" { // check succeed
@@ -130,7 +130,6 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	} else { //beside all above , then create failed
 		s.JobStatus = state.JobStatusCreateFailed
 	}
-
 	if !s.JobStatus.NoMoreChange() { //还在运行中
 		if timeup {
 			if s.JobStatus == state.JobStatusRunning { // running to succeed

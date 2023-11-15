@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+// NO_TEST_NEEDED
+
 type UploadPayload struct {
 	CPodID       string                    `json:"cpod_id"`
 	JobStatus    []state.State             `json:"job_status"`

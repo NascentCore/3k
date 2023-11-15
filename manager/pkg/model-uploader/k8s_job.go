@@ -1,5 +1,7 @@
 package modeluploader
 
+// NO_TEST_NEEDED
+
 import "sxwl/3k/manager/pkg/config"
 
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
@@ -41,7 +43,7 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 							"imagePullPolicy": "Always",
 							"env": []interface{}{
 								map[string]string{
-									"name": "DEPLOY",
+									"name":  "DEPLOY",
 									"value": config.DEPLOY,
 								},
 								map[string]interface{}{
