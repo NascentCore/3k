@@ -1,5 +1,5 @@
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 
 grafana:
   enabled: true
@@ -55,6 +55,32 @@ prometheus:
     image:
       registry: dockerhub.kubekey.local/kubesphereio
       repository: prometheus
+    serviceMonitorSelectorNilUsesHelmValues: false
+    additionalScrapeConfigs:
+      - job_name: gpu-metrics
+        scrape_interval: 1s
+        metrics_path: /metrics
+        scheme: http
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+              - gpu-operator
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: kubernetes_node
+      - job_name: infiniband-exporter
+        scrape_interval: 30s
+        metrics_path: /metrics
+        scheme: http
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+              - network-operator
+        static_configs:
+          - targets: ['infiniband-exporter.network-operator.svc.cluster.local:9683']
 
 thanosRuler:
   thanosRulerSpec:
