@@ -5,6 +5,8 @@ import (
 	"sxwl/3k/pkg/utils/consts"
 )
 
+// NO_TEST_NEEDED
+
 // TODO: 根据实际情况增加或者删除一些字段
 // 表示创建一个KubeFLowMPIJob需要知道的信息.
 type MPIJob struct {

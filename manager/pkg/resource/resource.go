@@ -1,5 +1,7 @@
 package resource
 
+// NO_TEST_NEEDED
+
 import (
 	"strconv"
 	clientgo "sxwl/3k/manager/pkg/cluster/client-go"

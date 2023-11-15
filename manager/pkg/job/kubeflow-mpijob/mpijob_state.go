@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-// NO_TEST_NEEDED
-
 var ErrNotFound error = errors.New("not found")
 
 func GetStates(namespace string) ([]state.State, error) {
@@ -132,7 +130,6 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	} else { //beside all above , then create failed
 		s.JobStatus = state.JobStatusCreateFailed
 	}
-
 	if !s.JobStatus.NoMoreChange() { //还在运行中
 		if timeup {
 			if s.JobStatus == state.JobStatusRunning { // running to succeed
