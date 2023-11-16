@@ -3,7 +3,7 @@ package storage
 import (
 	"os"
 	"path"
-	"sxwl/3k/manager/pkg/config"
+	"sxwl/3k/pkg/config"
 	"testing"
 )
 

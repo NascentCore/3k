@@ -1,8 +1,8 @@
 package kubeflowmpijob
 
 import (
-	"sxwl/3k/manager/pkg/config"
-	"sxwl/3k/manager/pkg/job/state"
+	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/job/state"
 	"testing"
 	"time"
 )

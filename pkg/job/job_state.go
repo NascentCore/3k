@@ -3,10 +3,10 @@ package job
 // NO_TEST_NEEDED
 
 import (
-	"sxwl/3k/manager/pkg/config"
-	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
-	"sxwl/3k/manager/pkg/job/state"
-	"sxwl/3k/manager/pkg/log"
+	"sxwl/3k/pkg/config"
+	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/pkg/job/state"
+	"sxwl/3k/pkg/log"
 )
 
 func GetJobStates() ([]state.State, error) {

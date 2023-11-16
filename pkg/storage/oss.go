@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"os"
 	"path"
-	"sxwl/3k/manager/pkg/config"
-	"sxwl/3k/manager/pkg/log"
+	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )

@@ -1,7 +1,7 @@
 package log
 
 import (
-	"sxwl/3k/manager/pkg/config"
+	"sxwl/3k/pkg/config"
 
 	"go.uber.org/zap"
 )

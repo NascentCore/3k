@@ -4,8 +4,8 @@ package resource
 
 import (
 	"strconv"
-	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
-	"sxwl/3k/manager/pkg/log"
+	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/log"
 	"sxwl/3k/pkg/utils/consts"
 )
 
