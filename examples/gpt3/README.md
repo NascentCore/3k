@@ -1,5 +1,8 @@
 # GPT3
 
+This sample is based on [ModeScope GPT3](
+https://modelscope.cn/models/damo/nlp_gpt3_text-generation_1.3B/summary).
+
 ## The original samples
 ```
 torchrun finetune_poetry.py
