@@ -46,7 +46,7 @@ def cfg_modify_fn(cfg):
     return cfg
 
 kwargs = dict(
-    model='damo/nlp_gpt3_text-generation_1.3B',
+    model='./nlp_gpt3_text-generation_1.3B',
     train_dataset=train_dataset,
     eval_dataset=eval_dataset,
     max_epochs=max_epochs,
