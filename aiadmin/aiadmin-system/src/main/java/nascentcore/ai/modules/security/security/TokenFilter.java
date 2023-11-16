@@ -68,8 +68,6 @@ public class TokenFilter extends GenericFilterBean {
             if (onlineUserDto != null && StringUtils.hasText(token)) {
                 Authentication authentication = tokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                // Token 续期
-                tokenProvider.checkRenewal(token);
             }
         }
         filterChain.doFilter(servletRequest, servletResponse);
