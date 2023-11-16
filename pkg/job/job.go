@@ -2,11 +2,11 @@ package job
 
 import (
 	"fmt"
-	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
-	"sxwl/3k/manager/pkg/config"
-	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
-	"sxwl/3k/manager/pkg/log"
-	modeluploader "sxwl/3k/manager/pkg/model-uploader"
+	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/config"
+	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/pkg/log"
+	modeluploader "sxwl/3k/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
 	"time"
 )

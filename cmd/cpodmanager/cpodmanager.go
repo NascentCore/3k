@@ -3,13 +3,13 @@ package main
 // NO_TEST_NEEDED
 
 import (
-	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
-	"sxwl/3k/manager/pkg/communication"
-	"sxwl/3k/manager/pkg/config"
-	"sxwl/3k/manager/pkg/job"
-	"sxwl/3k/manager/pkg/job/state"
-	"sxwl/3k/manager/pkg/log"
-	"sxwl/3k/manager/pkg/resource"
+	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/communication"
+	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/job"
+	"sxwl/3k/pkg/job/state"
+	"sxwl/3k/pkg/log"
+	"sxwl/3k/pkg/resource"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"

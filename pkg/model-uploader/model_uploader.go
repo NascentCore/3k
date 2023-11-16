@@ -7,11 +7,11 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"sxwl/3k/manager/pkg/config"
-	kubeflowmpijob "sxwl/3k/manager/pkg/job/kubeflow-mpijob"
-	"sxwl/3k/manager/pkg/job/state"
-	"sxwl/3k/manager/pkg/log"
-	"sxwl/3k/manager/pkg/storage"
+	"sxwl/3k/pkg/config"
+	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/pkg/job/state"
+	"sxwl/3k/pkg/log"
+	"sxwl/3k/pkg/storage"
 	"time"
 )
 

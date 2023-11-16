@@ -2,7 +2,7 @@ package modeluploader
 
 // NO_TEST_NEEDED
 
-import "sxwl/3k/manager/pkg/config"
+import "sxwl/3k/pkg/config"
 
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
 	volumeName := "modelsave-pv" //should be read twice below

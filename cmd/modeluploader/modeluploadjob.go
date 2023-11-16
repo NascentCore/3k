@@ -5,11 +5,11 @@ import (
 	"os"
 	"path"
 
-	clientgo "sxwl/3k/manager/pkg/cluster/client-go"
-	"sxwl/3k/manager/pkg/config"
-	"sxwl/3k/manager/pkg/log"
-	modeluploader "sxwl/3k/manager/pkg/model-uploader"
-	"sxwl/3k/manager/pkg/storage"
+	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/log"
+	modeluploader "sxwl/3k/pkg/model-uploader"
+	"sxwl/3k/pkg/storage"
 )
 
 // NO_TEST_NEEDED
