@@ -1,13 +1,19 @@
 # Install ModelScope library core framework
 
-\# https://modelscope.oss-cn-beijing.aliyuncs.com/releases/repo.html
+```
+https://modelscope.oss-cn-beijing.aliyuncs.com/releases/repo.html
 pip install modelscope
+```
 
 # Env vars
 
-export NCCL\_DEBUG=WARN NCCL\_P2P\_LEVEL=SYS NCCL\_IB\_CUDA\_SUPPORT=1 NCCL\_DEBUG\_SUBSYS=ALL NCCL\_IB\_GDR\_LEVEL=SYS NCCL\_NET\_GDR\_LEVEL=SYS NCCL\_NET\_GDR\_READ=1 NCCL\_NET=IB
+```
+export NCCL_DEBUG=WARN NCCL_P2P_LEVEL=SYS NCCL_IB_CUDA_SUPPORT=1 NCCL_DEBUG_SUBSYS=ALL NCCL_IB_GDR_LEVEL=SYS NCCL_NET_GDR_LEVEL=SYS NCCL_NET_GDR_READ=1 NCCL_NET=IB
+```
 
 # Single node
 
-\#torchrun --standalone --nproc\_per\_node 8 --nnodes=1 --node\_rank=0 --master\_addr= --master\_port= modelscope\_sxwl\_gpt3.py
-torchrun --standalone --nproc\_per\_node 8 --nnodes=1 modelscope\_sxwl\_gpt3.py
+```
+torchrun --standalone --nproc_per_node 8 --nnodes=1 --node_rank=0 --master_addr= --master_port= modelscope_sxwl_gpt3.py
+torchrun --standalone --nproc_per_node 8 --nnodes=1 modelscope_sxwl_gpt3.py
+```
