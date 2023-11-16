@@ -48,7 +48,7 @@ public class OnlineUserService {
             log.error(e.getMessage(),e);
         }
         String loginKey = tokenProvider.loginKey(token);
-        redisUtils.set(loginKey, onlineUserDto, properties.getTokenValidityInSeconds(), TimeUnit.MILLISECONDS);
+        redisUtils.set(loginKey, onlineUserDto, 0, TimeUnit.MILLISECONDS);
     }
 
     /**
