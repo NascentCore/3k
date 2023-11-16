@@ -40,6 +40,11 @@ def install_operators():
                  "{}/deploy/values/{}.yaml".format(Conf.c.deploy.work_dir, app)
                  )
 
+    for node in Conf.c.deploy.ib_nodes.split(","):
+        retcode = (local["kubectl"]["get", "node", node, "--show-labels=true"] | grep["infiniband=available"]) & RETCODE
+        if retcode != 0:
+            kubectl_run("label", "node", node, "infiniband=available")
+
     for app in Conf.c.deploy.yaml_apps.split(","):
         print(colors.yellow | "===== [3kctl] install {} =====".format(app))
 
