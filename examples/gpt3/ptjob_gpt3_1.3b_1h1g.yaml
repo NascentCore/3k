@@ -1,3 +1,4 @@
+# 单机单卡训练基于gpt3-1.3b 续写模型
 apiVersion: "kubeflow.org/v1"
 kind: PyTorchJob
 metadata:
@@ -12,7 +13,7 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: dockerhub.kubekey.local/kubesphereio/modelscope_gpt3:v002
+              image: dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h1g1dp:latest
               imagePullPolicy: Always
               command:
                 - "torchrun"

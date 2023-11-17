@@ -1,0 +1,24 @@
+# 单机八卡训练基于gpt3-1.3b 续写模型
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: pytorch-torchrun
+  namespace: training-operator
+spec:
+  pytorchReplicaSpecs:
+    Worker:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h8g2dp:latest
+              imagePullPolicy: Always
+              resources:
+                limits:
+                  nvidia.com/gpu: 8
+              command:
+                - "torchrun"
+                - "--nproc_per_node=8"
+                - "finetune_poetry.py"
