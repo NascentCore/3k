@@ -1,4 +1,4 @@
-FROM  alpine:3.18.4
+FROM  ubuntu
 WORKDIR /app
 COPY ./modeluploadjob /app/
 CMD /app/modeluploadjob
