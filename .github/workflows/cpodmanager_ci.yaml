@@ -27,8 +27,8 @@ jobs:
 
       - name: Build and Push images
         run: |
-          go build -v ./cmd/cpodmanager
-          go build -v ./cmd/modeluploader
+          go build -o cpodmanager ./cmd/cpodmanager/cpodmanager.go
+          go build -o modeluploadjob ./cmd/modeluploader/modeluploadjob.go
           docker build --tag ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ env.COMMIT_ID }} --file ./deployment/cpodmanager/Dockerfile .
           docker build --tag ${{ env.DOCKERHUB_REPO }}/modeluploader:${{ env.COMMIT_ID }} --file ./deployment/modeluploader/Dockerfile .
           docker push ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ env.COMMIT_ID }}
