@@ -45,7 +45,7 @@ jobs:
           file: ./deployment/cpodmanager/Dockerfile
           platforms: linux/amd64
           tags: |
-            ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ COMMIT_ID }} 
+            ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ env.COMMIT_ID }} 
 
       - name: Build modeluploader image and push 
         uses: docker/build-push-action@v2 
@@ -55,4 +55,4 @@ jobs:
           file: ./deployment/modeluploader/Dockerfile
           platforms: linux/amd64 
           tags: |
-            ${{ env.DOCKERHUB_REPO }}/modeluploader:${{ COMMIT_ID }}
+            ${{ env.DOCKERHUB_REPO }}/modeluploader:${{ env.COMMIT_ID }}
