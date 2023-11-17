@@ -22,14 +22,14 @@ jobs:
         with:
           go-version: '1.21.1'
 
-      - name: Build image
+      - name: Generate image tag
+        run: echo COMMIT_ID=`git rev-parse --short HEAD` >> $GITHUB_ENV
+
+      - name: Build and Push images
         run: |
           go build -v ./cmd/cpodmanager
           go build -v ./cmd/modeluploader
-
-      - name: Push image
-        run: |
-          docker build --tag ${{ env.DOCKERHUB_REPO }}/cpodmanager:`git rev-parse --short HEAD` --file ./deployment/cpodmanager/Dockerfile .
-          docker build --tag ${{ env.DOCKERHUB_REPO }}/modeluploader:`git rev-parse --short HEAD` --file ./deployment/modeluploader/Dockerfile .
-          docker push ${{ env.DOCKERHUB_REPO }}/cpodmanager:`git rev-parse --short HEAD`
-          docker push ${{ env.DOCKERHUB_REPO }}/modeluploader:`git rev-parse --short HEAD`
+          docker build --tag ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ env.COMMIT_ID }} --file ./deployment/cpodmanager/Dockerfile .
+          docker build --tag ${{ env.DOCKERHUB_REPO }}/modeluploader:${{ env.COMMIT_ID }} --file ./deployment/modeluploader/Dockerfile .
+          docker push ${{ env.DOCKERHUB_REPO }}/cpodmanager:${{ env.COMMIT_ID }}
+          docker push ${{ env.DOCKERHUB_REPO }}/modeluploader:${{ env.COMMIT_ID }}
