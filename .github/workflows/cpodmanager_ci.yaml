@@ -1,0 +1,58 @@
+name: CPodManager-CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cmd/**.go'
+      - 'deployment/**Dockerfile'
+
+env:
+  DOCKERHUB_REPO: registry.cn-beijing.aliyuncs.com/sxwl-ai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.1'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Generate image tag
+        run: echo COMMIT_ID=`git rev-parse --short HEAD` >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          go build -v ./cmd/cpodmanager
+          go build -v ./cmd/modeluploader
+
+      - name: Build cpodmanager image and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: .
+          file: ./deployment/cpodmanager/Dockerfile
+          platforms: linux/amd64
+          tags: |
+            ${{ DOCKERHUB_REPO }}/cpodmanager:${{ COMMIT_ID }}
+
+      - name: Build modeluploader image and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: .
+          file: ./deployment/modeluploader/Dockerfile
+          platforms: linux/amd64
+          tags: |
+            ${{ DOCKERHUB_REPO }}/modeluploader:${{ COMMIT_ID }}
