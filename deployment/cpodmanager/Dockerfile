@@ -1,4 +1,4 @@
-FROM alpine:3.18.4
+FROM ubuntu
 WORKDIR /app
 COPY ./cpodmanager /app/
 CMD /app/cpodmanager
