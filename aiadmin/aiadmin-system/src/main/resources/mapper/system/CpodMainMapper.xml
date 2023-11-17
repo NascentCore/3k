@@ -48,6 +48,6 @@
 
     <select id="queryAllGpuType" resultMap="BaseResultMap">
         select distinct gpu_prod
-        from sys_cpod_main
+        from sys_cpod_main where `gpu_prod` != ""
     </select>
 </mapper>
