@@ -2,8 +2,7 @@ name: CPodManager-CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
     paths:
       - 'cmd/**.go'
       - 'deployment/**Dockerfile'
@@ -18,13 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build the Docker image
+      - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: '1.21.1'
+
+      - name: Build image
         run: |
           go build -v ./cmd/cpodmanager
           go build -v ./cmd/modeluploader
+
+      - name: Push image
+        run: |
           docker build --tag ${{ env.DOCKERHUB_REPO }}/cpodmanager:`git rev-parse --short HEAD` --file ./deployment/cpodmanager/Dockerfile .
           docker build --tag ${{ env.DOCKERHUB_REPO }}/modeluploader:`git rev-parse --short HEAD` --file ./deployment/modeluploader/Dockerfile .
           docker push ${{ env.DOCKERHUB_REPO }}/cpodmanager:`git rev-parse --short HEAD`
