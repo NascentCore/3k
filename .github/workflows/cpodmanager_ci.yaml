@@ -34,8 +34,8 @@ jobs:
 
       - name: Build and Push images
         run: |
-          CGO_ENABLE=0 go build -o cpodmanager ./cmd/cpodmanager/cpodmanager.go
-          CGO_ENABLE=0 go build -o modeluploadjob ./cmd/modeluploader/modeluploadjob.go
+          CGO_ENABLE=0 go build -tags netgo -o cpodmanager ./cmd/cpodmanager/cpodmanager.go
+          CGO_ENABLE=0 go build -tags netgo -o modeluploadjob ./cmd/modeluploader/modeluploadjob.go
           docker build --tag ${{ env.DOCKERHUB_REPO }}/sxwl-ai/cpodmanager:${{ env.COMMIT_ID }} --file ./deployment/cpodmanager/Dockerfile .
           docker build --tag ${{ env.DOCKERHUB_REPO }}/sxwl-ai/modeluploader:${{ env.COMMIT_ID }} --file ./deployment/modeluploader/Dockerfile .
           docker push ${{ env.DOCKERHUB_REPO }}/sxwl-ai/cpodmanager:${{ env.COMMIT_ID }}
