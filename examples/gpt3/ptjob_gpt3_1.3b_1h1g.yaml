@@ -17,5 +17,4 @@ spec:
               imagePullPolicy: Always
               command:
                 - "torchrun"
-                - "--nproc_per_node=1"
                 - "finetune_poetry.py"

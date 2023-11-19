@@ -1,4 +1,4 @@
-基于魔搭 GPT-3 预训练生成模型-中文-1.3B 的 ML 模型二次训练
+# 基于魔搭 GPT-3 预训练生成模型-中文-1.3B 的 ML 模型二次训练
 
 This sample is adapted from [ModeScope GPT3](https://modelscope.cn/models/damo/nlp_gpt3_text-generation_1.3B/summary).
 
@@ -8,7 +8,7 @@ This sample is adapted from [ModeScope GPT3](https://modelscope.cn/models/damo/n
 sudo apt install git-lfs
 git lfs install
 
-# Download model
+# Download pretrained model
 git clone https://modelscope.cn/damo/nlp_gpt3_text-generation_1.3B.git
 cd nlp_gpt3_text-generation_1.3B
 # This removes git metadata, and almost halves the size
@@ -32,23 +32,6 @@ docker push registry.cn-hangzhou.aliyuncs.com/sxwl-ai/modelscope_gpt3:v002
 
 ## 裸机中容器运行
 
-需要注意裸机容器运行时是否正确配置：
-
-- 安装 [nvidai-docker](https://github.com/NVIDIA/nvidia-docker)
-- 修改 docker daemon 配置文件 `/etc/docker/daemon.json`
-
-```
-{
-    "default-runtime": "nvidia",
-    "runtimes": {
-        "nvidia": {
-            "path": "/usr/bin/nvidia-container-runtime",
-            "runtimeArgs": []
-        }
-    }
-}
-```
-
 执行以下命令
 
 ```
@@ -61,7 +44,7 @@ root@a2bd9b4ad983:/workspace# torchrun --nproc_per_node=1 finetune_poetry.py
 
 ## 通过 pytorchjob 运行
 
-运行`ptjob_gpt3_1.3b_1h1g.yaml`单机单卡训练任务，次任务最小需要 32G 显存。如果单卡内存小于 32G 显存如 3090，则可以运行单机多卡的 pytorch job `ptjob_gpt3_1.3b_1h8g.yaml`。
+运行`ptjob_gpt3_1.3b_1h1g.yaml`单机单卡训练任务，此任务最小需要 32G 显存。如果单卡内存小于 32G 显存如 3090，则可以运行单机多卡的 pytorch job `ptjob_gpt3_1.3b_1h8g.yaml`。
 
 ```
 kubectl create -f ptjob_gpt3_1.3b_1h1g.yaml

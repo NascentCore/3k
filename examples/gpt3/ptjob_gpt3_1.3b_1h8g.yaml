@@ -20,5 +20,4 @@ spec:
                   nvidia.com/gpu: 8
               command:
                 - "torchrun"
-                - "--nproc_per_node=8"
                 - "finetune_poetry.py"
