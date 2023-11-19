@@ -8,10 +8,16 @@ from modelscope.trainers import build_trainer
 from modelscope.metainfo import Trainers
 
 
-dataset_dict = MsDataset.load('chinese-poetry-collection')
-train_dataset = dataset_dict['train'].remap_columns(
-    {'text1': 'src_txt'})
-eval_dataset = dataset_dict['test'].remap_columns({'text1': 'src_txt'})
+# load dataset from MsDataset hub
+#dataset_dict = MsDataset.load('chinese-poetry-collection')
+#train_dataset = dataset_dict['train'].remap_columns(
+#    {'text1': 'src_txt'})
+#eval_dataset = dataset_dict['test'].remap_columns({'text1': 'src_txt'})
+
+# load dataset from local path
+train_dataset = MsDataset.load("/workspace/chinese-poetry-collection/train.csv").remap_columns({'text1': 'src_txt'})
+eval_dataset = MsDataset.load("/workspace/chinese-poetry-collection/test.csv").remap_columns({'text1': 'src_txt'})
+
 max_epochs = 10
 tmp_dir = './gpt3_poetry'
 
