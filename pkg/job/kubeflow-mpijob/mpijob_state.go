@@ -93,42 +93,43 @@ func parseState(data map[string]interface{}) (state.State, error) {
 	//mpijob is created , but cant run
 	status, ok := data["status"].(map[string]interface{})
 	if !ok {
-		s.JobStatus = state.JobStatusCreated
-		return s, nil
-	}
-	conditions_, ok := status["conditions"].([]interface{})
-	if !ok {
-		return state.State{}, errors.New("no conditions")
-	}
-	condMap := map[string]string{}
-	for _, cond := range conditions_ {
-		cond_, ok := cond.(map[string]interface{})
+		log.SLogger.Warnw("no status in kubeflow mpijob data")
+		s.JobStatus = state.JobStatusUnknown
+	} else {
+		conditions_, ok := status["conditions"].([]interface{})
 		if !ok {
-			continue
+			return state.State{}, errors.New("no conditions")
 		}
-		ty, ok := cond_["type"].(string)
-		if !ok {
-			continue
+		condMap := map[string]string{}
+		for _, cond := range conditions_ {
+			cond_, ok := cond.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			ty, ok := cond_["type"].(string)
+			if !ok {
+				continue
+			}
+			st, ok := cond_["status"].(string)
+			if !ok {
+				continue
+			}
+			condMap[ty] = st
 		}
-		st, ok := cond_["status"].(string)
-		if !ok {
-			continue
+		// ConditionType defination can be found in :
+		// https://github.com/kubeflow/mpi-operator/blob/4a63d3cb35454d072c63fc84aeb5766878701ead/pkg/apis/kubeflow/v2beta1/types.go#L286
+		// 在上面还定义了两种状态 Suspended 和 Restarting ， Restarting在MPIOperater的代码中没有用到，Suspended在现在的任务中不会出现
+		if condMap["Failed"] == "True" { // check failed
+			s.JobStatus = state.JobStatusFailed
+		} else if condMap["Succeeded"] == "True" { // check succeed
+			s.JobStatus = state.JobStatusSucceed
+		} else if condMap["Running"] == "True" { // check running
+			s.JobStatus = state.JobStatusRunning
+		} else if condMap["Created"] == "True" { //  check created
+			s.JobStatus = state.JobStatusCreated
+		} else { //beside all above , then create failed
+			s.JobStatus = state.JobStatusCreateFailed
 		}
-		condMap[ty] = st
-	}
-	// ConditionType defination can be found in :
-	// https://github.com/kubeflow/mpi-operator/blob/4a63d3cb35454d072c63fc84aeb5766878701ead/pkg/apis/kubeflow/v2beta1/types.go#L286
-	// 在上面还定义了两种状态 Suspended 和 Restarting ， Restarting在MPIOperater的代码中没有用到，Suspended在现在的任务中不会出现
-	if condMap["Failed"] == "True" { // check failed
-		s.JobStatus = state.JobStatusFailed
-	} else if condMap["Succeeded"] == "True" { // check succeed
-		s.JobStatus = state.JobStatusSucceed
-	} else if condMap["Running"] == "True" { // check running
-		s.JobStatus = state.JobStatusRunning
-	} else if condMap["Created"] == "True" { //  check created
-		s.JobStatus = state.JobStatusCreated
-	} else { //beside all above , then create failed
-		s.JobStatus = state.JobStatusCreateFailed
 	}
 	if !s.JobStatus.NoMoreChange() { //还在运行中
 		if timeup {

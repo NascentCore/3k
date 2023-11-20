@@ -15,6 +15,7 @@ const (
 	JobStatusUploadingModel JobStatus = "uploadingmodel" //正在上传模型文件（训练结果）
 	JobStatusSucceed        JobStatus = "succeeded"      //所有工作成功完成
 	JobStatusFailed         JobStatus = "failed"         //在中途以失败中止
+	JobStatusUnknown        JobStatus = "unknown"        //无法获取任务状态，状态未知
 )
 
 type State struct {
