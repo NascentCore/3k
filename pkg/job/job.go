@@ -5,6 +5,8 @@ import (
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/config"
 	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	kubeflowpytorchjob "sxwl/3k/pkg/job/kubeflow-pytorchjob"
+	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/log"
 	modeluploader "sxwl/3k/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
@@ -18,7 +20,8 @@ type (
 )
 
 const (
-	JobTypeMPI Type = config.PORTAL_JOBTYPE_MPI
+	JobTypeMPI     Type = config.PORTAL_JOBTYPE_MPI
+	JobTypePytorch Type = config.PORTAL_JOBTYPE_PYTORCH
 )
 
 type Job struct {
@@ -26,7 +29,10 @@ type Job struct {
 	JobType              Type
 	Image                string
 	DataPath             string
+	DataUrl              string
 	CKPTPath             string
+	PretrainModelPath    string
+	PretrainModelUrl     string
 	CKPTVolumeSize       int
 	ModelPath            string
 	ModelVolumeSize      int
@@ -41,11 +47,11 @@ type Job struct {
 func (j Job) Run() error {
 	if j.JobType == JobTypeMPI {
 		//create pvc for ckpt and modelsave
-		err := clientgo.CreatePVCIFNotExist(kubeflowmpijob.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
+		err := clientgo.CreatePVCIFNotExist(utils.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
 		if err != nil {
 			return err
 		}
-		err = clientgo.CreatePVCIFNotExist(kubeflowmpijob.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.ModelVolumeSize)
+		err = clientgo.CreatePVCIFNotExist(utils.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.ModelVolumeSize)
 		if err != nil {
 			return err
 		}
@@ -72,7 +78,51 @@ func (j Job) Run() error {
 		}
 		//同时启动Upload Job
 		return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
-			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, kubeflowmpijob.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
+			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
+	} else if j.JobType == JobTypePytorch {
+		//create pvc for ckpt and modelsave
+		dataPVC, err := utils.GetModelPVC(j.PretrainModelUrl)
+		if err != nil {
+			return err
+		}
+		modelPVC, err := utils.GetDataPVC(j.DataUrl)
+		if err != nil {
+			return err
+		}
+		err = clientgo.CreatePVCIFNotExist(utils.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
+		if err != nil {
+			return err
+		}
+		err = clientgo.CreatePVCIFNotExist(utils.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.ModelVolumeSize)
+		if err != nil {
+			return err
+		}
+		dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
+		if j.StopType == 1 {
+			dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
+		}
+
+		err = kubeflowpytorchjob.PytorchJob{
+			Name:                 j.JobID,
+			Namespace:            config.CPOD_NAMESPACE,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			DataPVC:              dataPVC,
+			CKPTPath:             j.CKPTPath,
+			PretrainModelPath:    j.PretrainModelPath,
+			PretrainModelPVC:     modelPVC,
+			ModelSavePath:        j.ModelPath,
+			GPUType:              j.GPUType,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Replicas:             j.Replicas,
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+		}.Run()
+		if err != nil {
+			return err
+		}
+		//同时启动Upload Job
+		return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
+			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
@@ -80,20 +130,19 @@ func (j Job) Run() error {
 func (j Job) Stop() error {
 	if j.JobType == JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
-			Name:                 j.JobID,
-			Namespace:            config.CPOD_NAMESPACE,
-			Image:                j.Image,
-			DataPath:             j.DataPath,
-			CKPTPath:             j.CKPTPath,
-			PretrainModelPath:    "",
-			ModelSavePath:        j.ModelPath,
-			GPURequiredPerWorker: j.GPURequiredPerWorker,
-			Replicas:             j.Replicas,
+			Name:      j.JobID,
+			Namespace: config.CPOD_NAMESPACE,
+		}.Delete()
+	} else if j.JobType == JobTypePytorch {
+		return kubeflowpytorchjob.PytorchJob{
+			Name:      j.JobID,
+			Namespace: config.CPOD_NAMESPACE,
 		}.Delete()
 	}
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
 
+// TODO: suport pytorchjob
 func DeleteJob(jobName string, jobType Type, deleteRelated bool) {
 	//delete job first
 	err := Job{
@@ -113,6 +162,7 @@ func DeleteJob(jobName string, jobType Type, deleteRelated bool) {
 	}
 }
 
+// TODO: suport pytorchjob
 func DeleteJobRelated(jobName string) {
 	err := clientgo.DeleteK8SJob(config.CPOD_NAMESPACE, jobName)
 	if err != nil {
@@ -123,7 +173,7 @@ func DeleteJobRelated(jobName string) {
 			"job", jobName)
 	}
 	// dont care uploader job is deleted or not
-	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, kubeflowmpijob.GetCKPTPVCName(jobName))
+	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, utils.GetCKPTPVCName(jobName))
 	if err != nil {
 		log.SLogger.Errorw("PVC for checkpoint delete failed",
 			"job name", jobName)
@@ -131,7 +181,7 @@ func DeleteJobRelated(jobName string) {
 		log.SLogger.Infow("PVC for checkpoint deleted",
 			"job", jobName)
 	}
-	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, kubeflowmpijob.GetModelSavePVCName(jobName))
+	err = clientgo.DeletePVC(config.CPOD_NAMESPACE, utils.GetModelSavePVCName(jobName))
 	if err != nil {
 		log.SLogger.Errorw("PVC for modelsave delete failed",
 			"job name", jobName)

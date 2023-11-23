@@ -1,4 +1,4 @@
-package job
+package utils
 
 import (
 	"errors"
@@ -9,6 +9,18 @@ import (
 
 // NO_TEST_NEEDED
 func GetModelPVC(modelurl string) (string, error) {
+	m, e := GetModelStorageMap()
+	if e != nil {
+		return "", e
+	}
+	if v, ok := m[modelurl]; !ok {
+		return "", errors.New(fmt.Sprintf("no pvc found for model %s", modelurl))
+	} else {
+		return v, nil
+	}
+}
+
+func GetDataPVC(modelurl string) (string, error) {
 	m, e := GetModelStorageMap()
 	if e != nil {
 		return "", e

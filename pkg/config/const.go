@@ -4,8 +4,9 @@ package config
 
 const (
 	//cpod manager相关的配置
-	CPOD_NAMESPACE                = "cpod"                     //CPod 所工作的NameSpace
-	PORTAL_JOBTYPE_MPI            = "MPI"                      //Portal中MPI JobType的表示
+	CPOD_NAMESPACE                = "cpod" //CPod 所工作的NameSpace
+	PORTAL_JOBTYPE_MPI            = "MPI"  //Portal中MPI JobType的表示
+	PORTAL_JOBTYPE_PYTORCH        = "PYTORCH"
 	URLPATH_FETCH_JOB             = "/api/userJob/cpod_jobs"   //获取Job的Path
 	URLPATH_UPLOAD_CPOD_STATUS    = "/api/userJob/cpod_status" //上传信息的Path
 	CPOD_CREATED_PVC_ACCESS_MODE  = "ReadWriteMany"            //创建PVC时所指定的Access Mode
