@@ -1,7 +1,7 @@
 # 介绍
 检测机器是否安装完成了model scope运行所需的环境
 
-## cudn
+## cuda
 nvcc test_cuda.cu -o test_cuda
 ./test_cuda
 
