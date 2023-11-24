@@ -4,6 +4,8 @@
 #
 # Usage: python nccl_test_locally.py
 # -------------------------------------------------------------------
+# TODO: Add tests for "reduce", "broadcast", "all_gather", "reduce_scatter" other NCCL wrapper APIs
+# in PyTorch.
 
 import torch
 import os
