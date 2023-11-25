@@ -16,6 +16,10 @@
 
 其中的主要测试用例是调用NCCL做一次allreduce，包括单机多卡情况（`nccl_test_locally.py`）、和多机情况（`dist_nccl_demo.py`）。只要allreduce跑通，则可以在此配置下跑通分布式训练。
 
+## CoreWeave NCCL tests
+
+* https://github.com/coreweave/nccl-tests
+
 ## 构造容器镜像（`0.build_and_push_docker_image.sh`）、在k8s下启动镜像（`1.k8s_apply_yaml.sh`）、在docker下启动镜像（`2.docker_run.sh`）
 
 ### 构造容器镜像（`0.build_and_push_docker_image.sh`）
