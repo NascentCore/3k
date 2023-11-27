@@ -1,0 +1,12 @@
+apiVersion: cpod.sxwl.ai/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    app.kubernetes.io/name: cpodjob
+    app.kubernetes.io/instance: cpodjob-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: cpodjob-sample
+spec:
+  # TODO(user): Add fields here
