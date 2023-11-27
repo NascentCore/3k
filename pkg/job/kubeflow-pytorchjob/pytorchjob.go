@@ -28,7 +28,6 @@ type PytorchJob struct {
 }
 
 func (kfp PytorchJob) genJsonData() map[string]interface{} {
-	//ckptVolumeName := "ckpt-pv"
 	modelSaveVolumeName := "saved-model-pv"
 	dataSetVolumeName := "dataset-pv"
 	pretrainModelVolumeName := "pretrain-pv"
