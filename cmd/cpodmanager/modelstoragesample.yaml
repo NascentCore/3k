@@ -5,5 +5,5 @@ metadata:
   namespace: cpod
 spec:
   modeltype: huggingface
-  modelurl: https://huggingface.co/fka/awesome-chatgpt-prompts
+  modelname: https://huggingface.co/fka/awesome-chatgpt-prompts
   pvc: pvc1

@@ -8,21 +8,21 @@ import (
 )
 
 // NO_TEST_NEEDED
-func GetModelPVC(modelname string) (string, error) {
-	m, e := GetModelStorageMap()
+func GetDatasetPVC(datasetname string) (string, error) {
+	m, e := GetDatasetStorageMap()
 	if e != nil {
 		return "", e
 	}
-	if v, ok := m[modelname]; !ok {
-		return "", errors.New(fmt.Sprintf("no pvc found for model %s", modelname))
+	if v, ok := m[datasetname]; !ok {
+		return "", errors.New(fmt.Sprintf("no pvc found for dataset %s", datasetname))
 	} else {
 		return v, nil
 	}
 }
 
-// map  modelname : pvc
-func GetModelStorageMap() (map[string]string, error) {
-	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, "cpod.sxwl.ai", "v1", "modelstorages")
+// map  datasetname : pvc
+func GetDatasetStorageMap() (map[string]string, error) {
+	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, "cpod.sxwl.ai", "v1", "datasetstorages")
 	if err != nil {
 		return nil, err
 	}
@@ -32,15 +32,15 @@ func GetModelStorageMap() (map[string]string, error) {
 		if !ok {
 			return nil, errors.New("no spec in data")
 		}
-		modelname, ok := spec["modelname"].(string)
+		datasetname, ok := spec["datasetname"].(string)
 		if !ok {
-			return nil, errors.New("no modelname in spec")
+			return nil, errors.New("no datasetname in spec")
 		}
 		pvc, ok := spec["pvc"].(string)
 		if !ok {
 			return nil, errors.New("no pvc in spec")
 		}
-		res[modelname] = pvc
+		res[datasetname] = pvc
 	}
 	return res, nil
 }

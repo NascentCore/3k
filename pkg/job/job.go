@@ -16,17 +16,20 @@ import (
 // NO_TEST_NEEDED
 
 type (
-	Type string
+	JobType  string
+	StopType int
 )
 
 const (
-	JobTypeMPI     Type = config.PORTAL_JOBTYPE_MPI
-	JobTypePytorch Type = config.PORTAL_JOBTYPE_PYTORCH
+	JobTypeMPI           JobType  = config.PORTAL_JOBTYPE_MPI
+	JobTypePytorch       JobType  = config.PORTAL_JOBTYPE_PYTORCH
+	StopTypeWithLimit    StopType = config.PORTAL_STOPTYPE_WITHLIMIT
+	StopTypeWithoutLimit StopType = config.PORTAL_STOPTYPE_WITHOUTLIMIT
 )
 
 type Job struct {
 	JobID                string
-	JobType              Type
+	JobType              JobType
 	Image                string
 	DataPath             string
 	DataUrl              string
@@ -40,8 +43,8 @@ type Job struct {
 	GPURequiredPerWorker int
 	Replicas             int
 	HuggingFaceURL       string
-	Duration             int //单位 分钟
-	StopType             int //0 自然终止  1 设定时长
+	Duration             int      //单位 分钟
+	StopType             StopType //0 自然终止  1 设定时长
 }
 
 func (j Job) Run() error {
@@ -81,11 +84,13 @@ func (j Job) Run() error {
 			modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 	} else if j.JobType == JobTypePytorch {
 		//create pvc for ckpt and modelsave
-		dataPVC, err := utils.GetModelPVC(j.PretrainModelUrl)
+		dataPVC, err := utils.GetDatasetPVC(j.DataUrl)
+		fmt.Println("dataPVC : ", dataPVC, err)
 		if err != nil {
 			return err
 		}
-		modelPVC, err := utils.GetDataPVC(j.DataUrl)
+		modelPVC, err := utils.GetModelPVC(j.PretrainModelUrl)
+		fmt.Println("modelPVC : ", modelPVC, err)
 		if err != nil {
 			return err
 		}
@@ -98,7 +103,7 @@ func (j Job) Run() error {
 			return err
 		}
 		dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
-		if j.StopType == 1 {
+		if j.StopType == StopTypeWithLimit {
 			dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
 		}
 
@@ -143,7 +148,7 @@ func (j Job) Stop() error {
 }
 
 // TODO: suport pytorchjob
-func DeleteJob(jobName string, jobType Type, deleteRelated bool) {
+func DeleteJob(jobName string, jobType JobType, deleteRelated bool) {
 	//delete job first
 	err := Job{
 		JobID:   jobName,

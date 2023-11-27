@@ -36,12 +36,10 @@ func (kfp PytorchJob) genJsonData() map[string]interface{} {
 		"apiVersion": "kubeflow.org/v1",
 		"kind":       "PyTorchJob",
 		"metadata": map[string]interface{}{
-			"metadata": map[string]interface{}{
-				"name":      kfp.Name,
-				"namespace": kfp.Namespace,
-				"labels": map[string]interface{}{
-					"deadline": kfp.Deadline,
-				},
+			"name":      kfp.Name,
+			"namespace": kfp.Namespace,
+			"labels": map[string]interface{}{
+				"deadline": kfp.Deadline,
 			},
 		},
 		"spec": map[string]interface{}{

@@ -101,7 +101,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 
 	return job.Job{
 		JobID:                rawJob.JobName,
-		JobType:              job.Type(rawJob.JobType),
+		JobType:              job.JobType(rawJob.JobType),
 		Image:                rawJob.ImagePath,
 		DataPath:             rawJob.DatasetPath,
 		CKPTPath:             rawJob.CkptPath,
@@ -113,7 +113,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 		Replicas:             replicas,
 		HuggingFaceURL:       rawJob.HfURL,
 		Duration:             rawJob.StopTime,
-		StopType:             rawJob.StopType,
+		StopType:             job.StopType(rawJob.StopType),
 	}
 }
 

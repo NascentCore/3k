@@ -1,0 +1,9 @@
+apiVersion: cpod.sxwl.ai/v1
+kind: DatasetStorage
+metadata:
+  name: datasetstorage-sample
+  namespace: cpod
+spec:
+  datasettype: huggingface
+  datasetname: https://huggingface.co/fka/awesome-chatgpt-prompts
+  pvc: pvc1
