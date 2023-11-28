@@ -1,0 +1,49 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: pytorch-torchrun
+  namespace: training-operator
+spec:
+  # 每个节点运行的worker数量，和启动命令--nproc_per_node=8保持一致
+  nprocPerNode: "8"
+  elasticPolicy:
+    # 指定rdzv后端实现为c10d,rdzv负责协调分布式训练中的各个worker
+    rdzvBackend: c10d
+  pytorchReplicaSpecs:
+    worker:
+      # 节点数量，需要与启动命令--nnodes=2保持一致
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_2h16g4tp:latest
+              imagePullPolicy: Always
+              env:
+              - name: NCCL_DEBUG
+                value: "INFO"
+              - name: NCCL_NET
+                value: "IB"
+              resources:
+                limits:
+                  nvidia.com/gpu: 8
+                  rdma/rdma_shared_device_a: 1
+              command:
+                - "torchrun"
+                - "--nnodes=2"
+                # 需要显示指定 https://github.com/kubeflow/training-operator/pull/1948/files
+                - "--nproc_per_node=8"
+                - "finetune_poetry.py"
+              securityContext:
+                capabilities:
+                  add: [ "IPC_LOCK" ]
+              volumeMounts:
+                - name: shm
+                  mountPath: /dev/shm
+          volumes:
+              # 设置共享内存大小，具体什么大小合适需要，怎么计算后续改进
+              - name: shm
+                emptyDir:
+                  medium: Memory
+                  sizeLimit: 5120Mi

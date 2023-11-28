@@ -1,0 +1,68 @@
+{
+    "framework": "pytorch",
+    "task": "text-generation",
+    "preprocessor": {
+        "type": "text-gen-jieba-tokenizer"
+    },
+    "model": {
+        "type": "gpt3",
+        "world_size": 1,
+        "model_parallel_size": 1
+    },
+    "pipeline": {
+        "type": "gpt3-generation"
+    },
+    "train": {
+        "work_dir": "/tmp",
+        "max_epochs": 3,
+        "dataloader": {
+            "batch_size_per_gpu": 32,
+            "workers_per_gpu": 1
+        },
+        "optimizer": {
+            "type": "AdamW",
+            "lr": 2e-5,
+            "options": {
+                "grad_clip": {
+                    "max_norm": 2.0
+                }
+            }
+        },
+        "lr_scheduler": {
+            "type": "StepLR",
+            "step_size": 2,
+            "options": {
+                "warmup": {
+                    "type": "LinearWarmup",
+                    "warmup_iters": 2
+                }
+            }
+        },
+        "hooks": [{
+            "type": "CheckpointHook",
+            "interval": 1
+        }, {
+            "type": "TextLoggerHook",
+            "interval": 1
+        }, {
+            "type": "IterTimerHook"
+        }, {
+            "type": "EvaluationHook",
+            "by_epoch": true,
+            "interval": 1
+        }]
+    },
+    "evaluation": {
+        "dataloader": {
+            "batch_size_per_gpu": 1,
+            "workers_per_gpu": 1,
+            "shuffle": false
+        },
+        "gpu_collect": true
+    },
+    "megatron": {
+        "checkpoint_tensor_model_parallel_size": 1,
+        "world_size": 16,
+        "tensor_model_parallel_size": 8
+    }
+}
