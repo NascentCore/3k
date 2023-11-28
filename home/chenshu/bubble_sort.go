@@ -1,6 +1,6 @@
 package chenshu
 
-func bubbleSort(nums []int) []int {
+func BubbleSort(nums []int) []int {
 	if len(nums) <= 1 {
 		return nums
 	}
