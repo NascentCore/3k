@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - first_pr
 jobs:
   build:
     name: Lint Code Base
@@ -24,7 +27,7 @@ jobs:
       - name: Lint Code Base
         # https://github.com/github/super-linter#slim-image
         # Linters missing from slim image are not useful for Tricorder codebase
-        uses: github/super-linter/slim@v5
+        uses: super-linter/super-linter/slim@v5
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

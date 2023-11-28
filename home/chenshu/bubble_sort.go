@@ -1,8 +1,8 @@
 package chenshu
 
-func BubbleSort(nums []int) []int {
+func BubbleSort(nums []int) {
 	if len(nums) <= 1 {
-		return nums
+		return
 	}
 
 	for i := 0; i < len(nums); i++ {
@@ -17,5 +17,4 @@ func BubbleSort(nums []int) []int {
 			break
 		}
 	}
-	return nums
 }
