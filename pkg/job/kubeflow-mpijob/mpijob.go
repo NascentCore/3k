@@ -2,6 +2,7 @@ package kubeflowmpijob
 
 import (
 	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/utils/consts"
 )
 
@@ -21,14 +22,6 @@ type MPIJob struct {
 	GPURequiredPerWorker int    //
 	Replicas             int    // works
 	Deadline             string // 运行截止时间
-}
-
-func GetModelSavePVCName(jobName string) string {
-	return jobName + "-modelsave"
-}
-
-func GetCKPTPVCName(jobName string) string {
-	return jobName + "-ckpt"
 }
 
 func (kfm MPIJob) genJsonData() map[string]interface{} {
@@ -113,14 +106,14 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 								map[string]interface{}{
 									"name": ckptVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": GetCKPTPVCName(kfm.Name),
+										"claimName": utils.GetCKPTPVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},
 								map[string]interface{}{
 									"name": modelSaveVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": GetModelSavePVCName(kfm.Name),
+										"claimName": utils.GetModelSavePVCName(kfm.Name),
 										"readOnly":  false,
 									},
 								},

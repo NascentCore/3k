@@ -1,4 +1,4 @@
-package kubeflowmpijob
+package kubeflowpytorchjob
 
 import (
 	"errors"
@@ -9,8 +9,10 @@ import (
 	"time"
 )
 
+// NO_TEST_NEEDED
+
 func GetStates(namespace string) ([]state.State, error) {
-	data, err := listMPIJob(namespace)
+	data, err := listPytorchJob(namespace)
 	if err != nil {
 		return []state.State{}, err
 	}
@@ -31,14 +33,14 @@ func GetStates(namespace string) ([]state.State, error) {
 }
 
 func GetState(namespace, name string) (state.State, error) {
-	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v2beta1", "mpijobs", name)
+	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v1", "pytorchjobs", name)
 	if err != nil {
-		log.SLogger.Errorw("get mpijob state err", "error", err)
+		log.SLogger.Errorw("get pytorchjob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
 	if err != nil {
-		log.SLogger.Errorw("parse mpijob state err", "error", err, "data", data)
+		log.SLogger.Errorw("parse pytorchjob state err", "error", err, "data", data)
 		return state.State{}, err
 	}
 	return s, err
@@ -83,10 +85,10 @@ func parseState(data map[string]interface{}) (state.State, error) {
 
 	//从Data中提取State信息
 	//When status is not there , maybe something wrong in job creation
-	//mpijob is created , but cant run
+	//pytorchjob is created , but cant run
 	status, ok := data["status"].(map[string]interface{})
 	if !ok {
-		log.SLogger.Warnw("no status in kubeflow mpijob data")
+		log.SLogger.Warnw("no status in kubeflow pytorchjob data")
 		s.JobStatus = state.JobStatusUnknown
 	} else {
 		conditions_, ok := status["conditions"].([]interface{})

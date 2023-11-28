@@ -13,6 +13,8 @@ import (
 	"sxwl/3k/pkg/log"
 	"sxwl/3k/pkg/storage"
 	"time"
+
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 // moniter the given mpijob , until it stops (fail , finish , mannual interrupt or whatever)
@@ -26,7 +28,7 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		s, err := kubeflowmpijob.GetState(config.CPOD_NAMESPACE, mpiJobName)
 		if err != nil {
 			//如果MPIJob已经被删除
-			if errors.Is(err, kubeflowmpijob.ErrNotFound) {
+			if k8serrors.IsNotFound(err) {
 				log.SLogger.Infow("mpijob is deleted")
 				//if job is deleted , do upload as well
 				return config.STATUS_NEEDS_UPLOAD_MODEL, nil
