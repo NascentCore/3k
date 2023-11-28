@@ -21,7 +21,8 @@ func Test_bubbleSort(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if BubbleSort(tt.args.nums); !reflect.DeepEqual(tt.args.nums, tt.want) {
+			BubbleSort(tt.args.nums)
+			if !reflect.DeepEqual(tt.args.nums, tt.want) {
 				t.Errorf("BubbleSort() = %v, want %v", tt.args.nums, tt.want)
 			}
 		})
