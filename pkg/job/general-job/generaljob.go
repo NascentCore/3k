@@ -3,7 +3,6 @@ package generaljob
 import (
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/job/utils"
-	"sxwl/3k/pkg/utils/consts"
 )
 
 // NO_TEST_NEEDED
@@ -27,10 +26,6 @@ type GeneralJob struct {
 }
 
 func (gj GeneralJob) genJsonData() map[string]interface{} {
-	ckptVolumeName := "ckpt-pv"
-	modelSaveVolumeName := "saved-model-pv"
-	dataSetVolumeName := "dataset-pv"
-	pretrainModelVolumeName := "pretrain-pv"
 	return map[string]interface{}{
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
@@ -48,74 +43,8 @@ func (gj GeneralJob) genJsonData() map[string]interface{} {
 			"completions":    1,
 			"parallelism":    1,
 			"suspend":        false,
-			"template": map[string]interface{}{
-				"spec": map[string]interface{}{
-					"containers": []interface{}{
-						map[string]interface{}{
-							"image":           gj.Image,
-							"imagePullPolicy": "IfNotPresent",
-							"name":            "worker",
-							"resources": map[string]interface{}{
-								"limits": map[string]interface{}{
-									"nvidia.com/gpu": gj.GPURequiredPerWorker,
-								},
-							},
-							"volumeMounts": []interface{}{
-								map[string]interface{}{
-									"name":      dataSetVolumeName,
-									"mountPath": gj.DataPath,
-								},
-								map[string]interface{}{
-									"name":      pretrainModelVolumeName,
-									"mountPath": gj.PretrainModelPath,
-								},
-								map[string]interface{}{
-									"mountPath": gj.CKPTPath,
-									"name":      ckptVolumeName,
-								},
-								map[string]interface{}{
-									"mountPath": gj.ModelSavePath,
-									"name":      modelSaveVolumeName,
-								},
-							},
-						},
-					},
-					"hostIPC": true,
-					"nodeSelector": map[string]interface{}{
-						consts.K8S_LABEL_NV_GPU_PRODUCT: gj.GPUType,
-					},
-					"volumes": []interface{}{
-						map[string]interface{}{
-							"name": dataSetVolumeName,
-							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": gj.DataPVC,
-								"readOnly":  true,
-							},
-						},
-						map[string]interface{}{
-							"name": pretrainModelVolumeName,
-							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": gj.PretrainModelPVC,
-								"readOnly":  true,
-							},
-						},
-						map[string]interface{}{
-							"name": ckptVolumeName,
-							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": utils.GetCKPTPVCName(gj.Name),
-								"readOnly":  false,
-							},
-						},
-						map[string]interface{}{
-							"name": modelSaveVolumeName,
-							"persistentVolumeClaim": map[string]interface{}{
-								"claimName": utils.GetModelSavePVCName(gj.Name),
-								"readOnly":  false,
-							},
-						},
-					},
-				},
-			},
+			"template": utils.GenPodTemplate(gj.Name, gj.Image, "IfNotPresent", gj.GPURequiredPerWorker, gj.GPUType,
+				gj.Command, gj.DataPVC, gj.DataPath, gj.PretrainModelPVC, gj.PretrainModelPath, gj.CKPTPath, gj.ModelSavePath, true),
 		},
 	}
 }

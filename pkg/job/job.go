@@ -56,10 +56,14 @@ type Interface interface {
 }
 
 func (j Job) createPVCs() error {
-	err := clientgo.CreatePVCIFNotExist(utils.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
-	if err != nil {
-		return err
+	var err error
+	if j.CKPTPath != "" { // if ckpt not specified , just skip
+		err = clientgo.CreatePVCIFNotExist(utils.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
+		if err != nil {
+			return err
+		}
 	}
+	// however , modelsave pvc must be there
 	err = clientgo.CreatePVCIFNotExist(utils.GetModelSavePVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.ModelVolumeSize)
 	if err != nil {
 		return err
@@ -68,13 +72,20 @@ func (j Job) createPVCs() error {
 }
 
 func (j Job) toActualJob() (Interface, error) {
-	dataPVC, err := utils.GetDatasetPVC(j.DataName)
-	if err != nil {
-		return nil, err
+	dataPVC := ""
+	var err error
+	if j.DataName != "" { // if not specified , skip
+		dataPVC, err = utils.GetDatasetPVC(j.DataName)
+		if err != nil {
+			return nil, err
+		}
 	}
-	modelPVC, err := utils.GetModelPVC(j.PretrainModelName)
-	if err != nil {
-		return nil, err
+	modelPVC := ""
+	if j.PretrainModelName != "" { // if not specified , skip
+		modelPVC, err = utils.GetModelPVC(j.PretrainModelName)
+		if err != nil {
+			return nil, err
+		}
 	}
 	dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
 	if j.StopType == StopTypeWithLimit {
