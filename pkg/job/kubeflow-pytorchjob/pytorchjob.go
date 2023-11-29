@@ -87,14 +87,14 @@ func (kfp PytorchJob) genJsonData() map[string]interface{} {
 									"name": dataSetVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
 										"claimName": kfp.DataPVC,
-										"readOnly":  false,
+										"readOnly":  true,
 									},
 								},
 								map[string]interface{}{
 									"name": pretrainModelVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
 										"claimName": kfp.PretrainModelPVC,
-										"readOnly":  false,
+										"readOnly":  true,
 									},
 								},
 								map[string]interface{}{

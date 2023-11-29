@@ -30,7 +30,8 @@ type MPIJob struct {
 func (kfm MPIJob) genJsonData() map[string]interface{} {
 	ckptVolumeName := "ckpt-pv"
 	modelSaveVolumeName := "saved-model-pv"
-	//dataSetVolumeName := "dataset-pv"
+	dataSetVolumeName := "dataset-pv"
+	pretrainModelVolumeName := "pretrain-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -76,12 +77,14 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 										},
 									},
 									"volumeMounts": []interface{}{
-										/* comment for public launch
 										map[string]interface{}{
-											"mountPath": kfm.DataPath,
 											"name":      dataSetVolumeName,
+											"mountPath": kfm.DataPath,
 										},
-										*/
+										map[string]interface{}{
+											"name":      pretrainModelVolumeName,
+											"mountPath": kfm.PretrainModelPath,
+										},
 										map[string]interface{}{
 											"mountPath": kfm.CKPTPath,
 											"name":      ckptVolumeName,
@@ -98,15 +101,20 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 								consts.K8S_LABEL_NV_GPU_PRODUCT: kfm.GPUType,
 							},
 							"volumes": []interface{}{
-								/* comment for public launch
 								map[string]interface{}{
 									"name": dataSetVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "dataset",
+										"claimName": kfm.DataPVC,
 										"readOnly":  true,
 									},
 								},
-								*/
+								map[string]interface{}{
+									"name": pretrainModelVolumeName,
+									"persistentVolumeClaim": map[string]interface{}{
+										"claimName": kfm.PretrainModelPVC,
+										"readOnly":  true,
+									},
+								},
 								map[string]interface{}{
 									"name": ckptVolumeName,
 									"persistentVolumeClaim": map[string]interface{}{
