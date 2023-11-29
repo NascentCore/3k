@@ -1,7 +1,6 @@
 package kubeflowpytorchjob
 
 import (
-	"fmt"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/utils/consts"
@@ -23,6 +22,7 @@ type PytorchJob struct {
 	ModelSavePath        string //最终模型的保存路径
 	GPUType              string //GPU类型
 	GPURequiredPerWorker int    //每个实例所需要的GPU数量
+	Command              []string
 	Replicas             int    // workers
 	Deadline             string // 运行截止时间
 }
@@ -58,11 +58,7 @@ func (kfp PytorchJob) genJsonData() map[string]interface{} {
 											"nvidia.com/gpu": kfp.GPURequiredPerWorker,
 										},
 									},
-									"command": []interface{}{
-										"torchrun",
-										fmt.Sprintf("--nproc_per_node=%d", kfp.GPURequiredPerWorker),
-										"finetune_poetry.py",
-									},
+									"command": kfp.Command,
 									"volumeMounts": []interface{}{
 										map[string]interface{}{
 											"name":      dataSetVolumeName,

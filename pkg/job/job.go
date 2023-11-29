@@ -32,17 +32,17 @@ type Job struct {
 	JobType              JobType
 	Image                string
 	DataPath             string
-	DataUrl              string
+	DataName             string
 	CKPTPath             string
 	PretrainModelPath    string
-	PretrainModelUrl     string
+	PretrainModelName    string
 	CKPTVolumeSize       int
 	ModelPath            string
 	ModelVolumeSize      int
 	GPUType              string
 	GPURequiredPerWorker int
 	Replicas             int
-	HuggingFaceURL       string
+	Command              []string
 	Duration             int      //单位 分钟
 	StopType             StopType //0 自然终止  1 设定时长
 }
@@ -74,11 +74,12 @@ func (j Job) runMPIJob() error {
 		Image:                j.Image,
 		DataPath:             j.DataPath,
 		CKPTPath:             j.CKPTPath,
-		PretrainModelPath:    "",
+		PretrainModelPath:    j.PretrainModelPath,
 		ModelSavePath:        j.ModelPath,
 		GPUType:              j.GPUType,
 		GPURequiredPerWorker: j.GPURequiredPerWorker,
 		Replicas:             j.Replicas,
+		Command:              j.Command,
 		Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 	}.Run()
 	if err != nil {
@@ -91,12 +92,12 @@ func (j Job) runMPIJob() error {
 
 func (j Job) runPytorchJob() error {
 	//create pvc for ckpt and modelsave
-	dataPVC, err := utils.GetDatasetPVC(j.DataUrl)
+	dataPVC, err := utils.GetDatasetPVC(j.DataName)
 	fmt.Println("dataPVC : ", dataPVC, err)
 	if err != nil {
 		return err
 	}
-	modelPVC, err := utils.GetModelPVC(j.PretrainModelUrl)
+	modelPVC, err := utils.GetModelPVC(j.PretrainModelName)
 	fmt.Println("modelPVC : ", modelPVC, err)
 	if err != nil {
 		return err
@@ -123,6 +124,7 @@ func (j Job) runPytorchJob() error {
 		GPUType:              j.GPUType,
 		GPURequiredPerWorker: j.GPURequiredPerWorker,
 		Replicas:             j.Replicas,
+		Command:              j.Command,
 		Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 	}.Run()
 	if err != nil {

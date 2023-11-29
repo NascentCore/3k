@@ -15,11 +15,14 @@ type MPIJob struct {
 	Namespace            string // k8s namespace
 	Image                string // docker image
 	DataPath             string // path to trainning data
+	DataPVC              string //训练数据所在的PVC
 	CKPTPath             string // path to checkpoint
 	PretrainModelPath    string //预训练模型的路径
+	PretrainModelPVC     string //预训练模型所在的PVC
 	ModelSavePath        string //最终模型的保存路径
 	GPUType              string
-	GPURequiredPerWorker int    //
+	GPURequiredPerWorker int //
+	Command              []string
 	Replicas             int    // works
 	Deadline             string // 运行截止时间
 }
@@ -48,6 +51,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 						"spec": map[string]interface{}{
 							"containers": []interface{}{
 								map[string]interface{}{
+									"command":         kfm.Command,
 									"image":           kfm.Image,
 									"imagePullPolicy": "IfNotPresent",
 									"name":            "launcher",
