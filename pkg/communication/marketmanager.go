@@ -103,6 +103,10 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 	} else {
 		replicas = rawJob.GpuNumber / 8
 	}
+	var cmd []string
+	if rawJob.Command != "" {
+		cmd = strings.Split(rawJob.Command, " ")
+	}
 
 	return job.Job{
 		JobID:                rawJob.JobName,
@@ -119,7 +123,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 		GPUType:              rawJob.GpuType,
 		GPURequiredPerWorker: gpuPerWorker,
 		Replicas:             replicas,
-		Command:              strings.Split(rawJob.Command, " "),
+		Command:              cmd,
 		Duration:             rawJob.StopTime,
 		StopType:             job.StopType(rawJob.StopType),
 	}

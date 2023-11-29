@@ -100,6 +100,7 @@ func GenPodTemplate(jobName, image, imagePolicy string, gpus int, gpuType string
 
 	return map[string]interface{}{
 		"spec": map[string]interface{}{
+			"restartPolicy": "OnFailure",
 			"containers": []interface{}{
 				container,
 			},

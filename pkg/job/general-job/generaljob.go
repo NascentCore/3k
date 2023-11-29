@@ -44,7 +44,7 @@ func (gj GeneralJob) genJsonData() map[string]interface{} {
 			"parallelism":    1,
 			"suspend":        false,
 			"template": utils.GenPodTemplate(gj.Name, gj.Image, "IfNotPresent", gj.GPURequiredPerWorker, gj.GPUType,
-				gj.Command, gj.DataPVC, gj.DataPath, gj.PretrainModelPVC, gj.PretrainModelPath, gj.CKPTPath, gj.ModelSavePath, true),
+				gj.Command, gj.DataPVC, gj.DataPath, gj.PretrainModelPVC, gj.PretrainModelPath, gj.CKPTPath, gj.ModelSavePath, false),
 		},
 	}
 }
