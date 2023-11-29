@@ -6,7 +6,9 @@ const (
 	//cpod manager相关的配置
 	CPOD_NAMESPACE                 = "cpod"                     //CPod 所工作的NameSpace
 	PORTAL_JOBTYPE_MPI             = "MPI"                      //Portal中MPI JobType的表示
-	PORTAL_JOBTYPE_PYTORCH         = "PYTORCH"                  //Portal中对于PytorchJob类型的表示
+	PORTAL_JOBTYPE_PYTORCH         = "Pytorch"                  //Portal中对于PytorchJob类型的表示
+	PORTAL_JOBTYPE_GENERAL         = "GeneralJob"               //Portal中对于GeneralJob类型的表示
+	PORTAL_JOBTYPE_TENSORFLOW      = "TensorFlow"               //Portal中对于TensorFlowJob类型的表示
 	PORTAL_STOPTYPE_WITHLIMIT      = 1                          //定时结束
 	PORTAL_STOPTYPE_VOLUNTARY_STOP = 0                          //自行停止
 	URLPATH_FETCH_JOB              = "/api/userJob/cpod_jobs"   //获取Job的Path

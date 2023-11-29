@@ -4,6 +4,7 @@ import (
 	"fmt"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/config"
+	generaljob "sxwl/3k/pkg/job/general-job"
 	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
 	kubeflowpytorchjob "sxwl/3k/pkg/job/kubeflow-pytorchjob"
 	"sxwl/3k/pkg/job/utils"
@@ -21,8 +22,10 @@ type (
 )
 
 const (
-	JobTypeMPI           JobType  = config.PORTAL_JOBTYPE_MPI
-	JobTypePytorch       JobType  = config.PORTAL_JOBTYPE_PYTORCH
+	JobTypeMPI     JobType = config.PORTAL_JOBTYPE_MPI
+	JobTypePytorch JobType = config.PORTAL_JOBTYPE_PYTORCH
+	JobTypeGeneral JobType = config.PORTAL_JOBTYPE_GENERAL
+
 	StopTypeWithLimit    StopType = config.PORTAL_STOPTYPE_WITHLIMIT
 	StopTypeWithoutLimit StopType = config.PORTAL_STOPTYPE_VOLUNTARY_STOP
 )
@@ -47,6 +50,11 @@ type Job struct {
 	StopType             StopType //0 自然终止  1 设定时长
 }
 
+type Interface interface {
+	Run() error
+	Delete() error
+}
+
 func (j Job) createPVCs() error {
 	err := clientgo.CreatePVCIFNotExist(utils.GetCKPTPVCName(j.JobID), config.CPOD_NAMESPACE, config.STORAGE_CLASS_TO_CREATE_PVC, config.CPOD_CREATED_PVC_ACCESS_MODE, j.CKPTVolumeSize)
 	if err != nil {
@@ -59,46 +67,76 @@ func (j Job) createPVCs() error {
 	return nil
 }
 
-func (j Job) runMPIJob() error {
-	err := j.createPVCs()
-	if err != nil {
-		return err
-	}
-	dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
-	if j.StopType == 1 {
-		dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
-	}
-	err = kubeflowmpijob.MPIJob{
-		Name:                 j.JobID,
-		Namespace:            config.CPOD_NAMESPACE,
-		Image:                j.Image,
-		DataPath:             j.DataPath,
-		CKPTPath:             j.CKPTPath,
-		PretrainModelPath:    j.PretrainModelPath,
-		ModelSavePath:        j.ModelPath,
-		GPUType:              j.GPUType,
-		GPURequiredPerWorker: j.GPURequiredPerWorker,
-		Replicas:             j.Replicas,
-		Command:              j.Command,
-		Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
-	}.Run()
-	if err != nil {
-		return err
-	}
-	//同时启动Upload Job
-	return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
-		modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
-}
-
-func (j Job) runPytorchJob() error {
-	//create pvc for ckpt and modelsave
+func (j Job) toActualJob() (Interface, error) {
 	dataPVC, err := utils.GetDatasetPVC(j.DataName)
-	fmt.Println("dataPVC : ", dataPVC, err)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	modelPVC, err := utils.GetModelPVC(j.PretrainModelName)
-	fmt.Println("modelPVC : ", modelPVC, err)
+	if err != nil {
+		return nil, err
+	}
+	dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
+	if j.StopType == StopTypeWithLimit {
+		dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
+	}
+	if j.JobType == JobTypePytorch {
+		return kubeflowpytorchjob.PytorchJob{
+			Name:                 j.JobID,
+			Namespace:            config.CPOD_NAMESPACE,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			DataPVC:              dataPVC,
+			CKPTPath:             j.CKPTPath,
+			PretrainModelPath:    j.PretrainModelPath,
+			PretrainModelPVC:     modelPVC,
+			ModelSavePath:        j.ModelPath,
+			GPUType:              j.GPUType,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Replicas:             j.Replicas,
+			Command:              j.Command,
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+		}, nil
+	} else if j.JobType == JobTypeMPI {
+		return kubeflowmpijob.MPIJob{
+			Name:                 j.JobID,
+			Namespace:            config.CPOD_NAMESPACE,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			DataPVC:              dataPVC,
+			CKPTPath:             j.CKPTPath,
+			PretrainModelPath:    j.PretrainModelPath,
+			PretrainModelPVC:     modelPVC,
+			ModelSavePath:        j.ModelPath,
+			GPUType:              j.GPUType,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Command:              j.Command,
+			Replicas:             j.Replicas,
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+		}, nil
+	} else if j.JobType == JobTypeGeneral {
+		return generaljob.GeneralJob{
+			Name:                 j.JobID,
+			Namespace:            config.CPOD_NAMESPACE,
+			Image:                j.Image,
+			DataPath:             j.DataPath,
+			DataPVC:              dataPVC,
+			CKPTPath:             j.CKPTPath,
+			PretrainModelPath:    j.PretrainModelPath,
+			PretrainModelPVC:     modelPVC,
+			ModelSavePath:        j.ModelPath,
+			GPUType:              j.GPUType,
+			GPURequiredPerWorker: j.GPURequiredPerWorker,
+			Command:              j.Command,
+			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+		}, nil
+	} else {
+		return nil, commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
+	}
+}
+
+func (j Job) Run() error {
+	aj, err := j.toActualJob()
 	if err != nil {
 		return err
 	}
@@ -106,27 +144,7 @@ func (j Job) runPytorchJob() error {
 	if err != nil {
 		return err
 	}
-	dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
-	if j.StopType == StopTypeWithLimit {
-		dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
-	}
-
-	err = kubeflowpytorchjob.PytorchJob{
-		Name:                 j.JobID,
-		Namespace:            config.CPOD_NAMESPACE,
-		Image:                j.Image,
-		DataPath:             j.DataPath,
-		DataPVC:              dataPVC,
-		CKPTPath:             j.CKPTPath,
-		PretrainModelPath:    j.PretrainModelPath,
-		PretrainModelPVC:     modelPVC,
-		ModelSavePath:        j.ModelPath,
-		GPUType:              j.GPUType,
-		GPURequiredPerWorker: j.GPURequiredPerWorker,
-		Replicas:             j.Replicas,
-		Command:              j.Command,
-		Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
-	}.Run()
+	err = aj.Run()
 	if err != nil {
 		return err
 	}
@@ -134,15 +152,6 @@ func (j Job) runPytorchJob() error {
 	return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
 		modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 
-}
-
-func (j Job) Run() error {
-	if j.JobType == JobTypeMPI {
-		return j.runMPIJob()
-	} else if j.JobType == JobTypePytorch {
-		return j.runPytorchJob()
-	}
-	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
 
 func (j Job) Stop() error {
@@ -153,6 +162,11 @@ func (j Job) Stop() error {
 		}.Delete()
 	} else if j.JobType == JobTypePytorch {
 		return kubeflowpytorchjob.PytorchJob{
+			Name:      j.JobID,
+			Namespace: config.CPOD_NAMESPACE,
+		}.Delete()
+	} else if j.JobType == JobTypeGeneral {
+		return generaljob.GeneralJob{
 			Name:      j.JobID,
 			Namespace: config.CPOD_NAMESPACE,
 		}.Delete()
