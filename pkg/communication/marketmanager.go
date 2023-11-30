@@ -110,7 +110,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 
 	return job.Job{
 		JobID:                rawJob.JobName,
-		JobType:              job.JobType(rawJob.JobType),
+		JobType:              state.JobType(rawJob.JobType),
 		Image:                rawJob.ImagePath,
 		DataPath:             rawJob.DatasetPath,
 		DataName:             rawJob.DatasetName,

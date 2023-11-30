@@ -46,7 +46,7 @@ func GetState(namespace, name string) (state.State, error) {
 }
 
 func parseState(data *apiv1.Job) (state.State, error) {
-	s := state.State{}
+	s := state.State{JobType: state.JobTypeGeneral}
 	s.Name = data.Name
 	s.Namespace = data.Namespace
 	//判断是否已经到截止时间

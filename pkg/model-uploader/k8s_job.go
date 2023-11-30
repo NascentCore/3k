@@ -2,7 +2,10 @@ package modeluploader
 
 // NO_TEST_NEEDED
 
-import "sxwl/3k/pkg/config"
+import (
+	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/job/utils"
+)
 
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
 	volumeName := "modelsave-pv" //should be read twice below
@@ -10,7 +13,7 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
 		"metadata": map[string]interface{}{
-			"name":      "modeluploader-" + jobName,
+			"name":      utils.GenModelUploaderJobName(jobName),
 			"namespace": config.CPOD_NAMESPACE,
 		},
 		"spec": map[string]interface{}{

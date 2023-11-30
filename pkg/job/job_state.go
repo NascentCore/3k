@@ -4,7 +4,9 @@ package job
 
 import (
 	"sxwl/3k/pkg/config"
+	generaljob "sxwl/3k/pkg/job/general-job"
 	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	kubeflowpytorchjob "sxwl/3k/pkg/job/kubeflow-pytorchjob"
 	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/log"
 )
@@ -19,6 +21,19 @@ func GetJobStates() ([]state.State, error) {
 		log.SLogger.Errorw("err when get mpijob states", "error", err)
 		return []state.State{}, err
 	}
-	// more if exists
+	// KubeflowPytorch
+	if data, err := kubeflowpytorchjob.GetStates(config.CPOD_NAMESPACE); err == nil {
+		res = append(res, data...)
+	} else {
+		log.SLogger.Errorw("err when get pytorchjob states", "error", err)
+		return []state.State{}, err
+	}
+	// GeneralJob
+	if data, err := generaljob.GetStates(config.CPOD_NAMESPACE); err == nil {
+		res = append(res, data...)
+	} else {
+		log.SLogger.Errorw("err when get generaljob states", "error", err)
+		return []state.State{}, err
+	}
 	return res, nil
 }

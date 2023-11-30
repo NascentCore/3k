@@ -45,7 +45,7 @@ func GetState(namespace, name string) (state.State, error) {
 }
 
 func parseState(data map[string]interface{}) (state.State, error) {
-	s := state.State{}
+	s := state.State{JobType: state.JobTypeMPI}
 	metadata_, ok := data["metadata"].(map[string]interface{})
 	if !ok {
 		return state.State{}, errors.New("no metadata")

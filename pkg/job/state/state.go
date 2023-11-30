@@ -1,5 +1,7 @@
 package state
 
+import "sxwl/3k/pkg/config"
+
 // NO_TEST_NEEDED
 
 type JobStatus string
@@ -18,9 +20,20 @@ const (
 	JobStatusUnknown        JobStatus = "unknown"        //无法获取任务状态，状态未知
 )
 
+type (
+	JobType string
+)
+
+const (
+	JobTypeMPI     JobType = config.PORTAL_JOBTYPE_MPI
+	JobTypePytorch JobType = config.PORTAL_JOBTYPE_PYTORCH
+	JobTypeGeneral JobType = config.PORTAL_JOBTYPE_GENERAL
+)
+
 type State struct {
 	Name      string              `json:"name"`      //JobName
 	Namespace string              `json:"namespace"` //K8S NameSpace
+	JobType   JobType             `json:"jobtype"`
 	JobStatus `json:"job_status"` //所处状态，
 	Extension interface{}         `json:"extension"` //不同类型的任务有自己的扩展
 }
