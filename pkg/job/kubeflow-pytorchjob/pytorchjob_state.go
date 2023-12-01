@@ -35,7 +35,6 @@ func GetStates(namespace string) ([]state.State, error) {
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v1", "pytorchjobs", name)
 	if err != nil {
-		log.SLogger.Errorw("get pytorchjob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
