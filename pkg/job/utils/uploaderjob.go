@@ -1,10 +1,9 @@
-package modeluploader
+package utils
 
 // NO_TEST_NEEDED
 
 import (
 	"sxwl/3k/pkg/config"
-	"sxwl/3k/pkg/job/utils"
 )
 
 func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interface{} {
@@ -13,7 +12,7 @@ func GenK8SJobJsonData(jobName, image, pvc, mountPath string) map[string]interfa
 		"apiVersion": "batch/v1",
 		"kind":       "Job",
 		"metadata": map[string]interface{}{
-			"name":      utils.GenModelUploaderJobName(jobName),
+			"name":      GenModelUploaderJobName(jobName),
 			"namespace": config.CPOD_NAMESPACE,
 		},
 		"spec": map[string]interface{}{

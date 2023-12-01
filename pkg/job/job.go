@@ -10,9 +10,10 @@ import (
 	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/log"
-	modeluploader "sxwl/3k/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
 	"time"
+
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 // NO_TEST_NEEDED
@@ -157,7 +158,7 @@ func (j Job) Run() error {
 	}
 	//同时启动Upload Job
 	return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
-		modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
+		utils.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 
 }
 
@@ -226,4 +227,32 @@ func DeleteJobRelated(jobName string) {
 		log.SLogger.Infow("PVC for modelsave deleted",
 			"job", jobName)
 	}
+}
+
+func GetState(namespace, name string) (state.State, error) {
+	s, err := kubeflowmpijob.GetState(namespace, name)
+	if err != nil {
+		// if err is other errs
+		if !k8serrors.IsNotFound(err) {
+			return state.State{}, err
+		}
+		// else try next job type
+	} else {
+		return s, nil
+	}
+	s, err = kubeflowpytorchjob.GetState(namespace, name)
+	if err != nil {
+		// if err is other errs
+		if !k8serrors.IsNotFound(err) {
+			return state.State{}, err
+		}
+		// else try next job type
+	} else {
+		return s, nil
+	}
+	s, err = generaljob.GetState(namespace, name)
+	if err != nil {
+		return state.State{}, err
+	}
+	return s, err
 }
