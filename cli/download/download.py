@@ -31,7 +31,8 @@ class Model(cli.Application):
         # todo 前置检查
         pvc = create_pvc_name(model_id)
         config.load_kube_config()
-        v1 = client.CoreV1Api()
+        core_v1_api = client.CoreV1Api()
+        batch_v1_api = client.BatchV1Api()
 
         # 创建PVC
         storage = model_size * 1.25
@@ -41,14 +42,14 @@ class Model(cli.Application):
             storage = "%dMi" % math.ceil(model_size)
 
         try:
-            create_pvc(v1, "cpod", pvc, storage)
+            create_pvc(core_v1_api, "cpod", pvc, storage)
         except ApiException as e:
             print("create_pvc exception: %s" % e)
             return
 
         # 创建下载Job
         try:
-            create_download_job(v1,
+            create_download_job(batch_v1_api,
                                 "model-download",
                                 "model-downloader",
                                 "registry.cn-hangzhou.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
