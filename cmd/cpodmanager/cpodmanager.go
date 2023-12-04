@@ -34,7 +34,7 @@ func startUploadInfo(done chan struct{}) {
 	// collect data
 	go func() {
 		for {
-			js, err := job.GetJobStates()
+			js, err := job.GetJobStatesWithUploaderInfo()
 			if err != nil {
 				log.SLogger.Errorw("get job state error", "error", err)
 			}

@@ -14,7 +14,8 @@ const (
 	JobStatusRunning        JobStatus = "running"        //Pod全部创建成功，并正常运行
 	JobStatusPending        JobStatus = "pending"        //因为资源不足，在等待
 	JobStatusErrorLoop      JobStatus = "crashloop"      //进入crashloop
-	JobStatusUploadingModel JobStatus = "uploadingmodel" //正在上传模型文件（训练结果）
+	JobStatusModelUploaded  JobStatus = "modeluploaded"  //模型文件（训练结果）已上传
+	JobStatusModelUploading JobStatus = "modeluploading" //模型文件（训练结果）正在上传
 	JobStatusSucceed        JobStatus = "succeeded"      //所有工作成功完成
 	JobStatusFailed         JobStatus = "failed"         //在中途以失败中止
 	JobStatusUnknown        JobStatus = "unknown"        //无法获取任务状态，状态未知
