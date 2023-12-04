@@ -39,9 +39,7 @@ func GetJobStatesWithUploaderInfo() ([]state.State, error) {
 	for _, uploaderJob := range uploaderJobs {
 		jobName := utils.ParseJobNameFromModelUploader(uploaderJob.Name)
 		if jobState, ok := jobStateMap[jobName]; ok {
-			log.SLogger.Infow("job is found", "jobName", jobName)
 			if jobState.JobStatus == state.JobStatusSucceed {
-				log.SLogger.Infow("job status is succeed", "jobName", jobName)
 				s := jobState
 				if isJobComplete(uploaderJob) {
 					s.JobStatus = state.JobStatusModelUploaded
@@ -51,7 +49,6 @@ func GetJobStatesWithUploaderInfo() ([]state.State, error) {
 			}
 		} else {
 			//job is deleted
-			log.SLogger.Infow("job is deleted", "jobName", jobName)
 			s := state.State{
 				Name:      jobName,
 				Namespace: config.CPOD_NAMESPACE,
