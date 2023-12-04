@@ -30,5 +30,5 @@ const (
 	MARKET_ACCESS_KEY            = "access_key"                          //云市场 access key
 	OSS_URL_EXPIRED_SECOND       = 2592000                               //oss presigned url 过期秒数，默认30天
 	URLPATH_UPLOAD_URLS          = "/api/info/upload_status"             //上报 presigned url 接口
-
+	MODELUPLOADER_JOBNAME_PREFIX = "modeluploader-"
 )

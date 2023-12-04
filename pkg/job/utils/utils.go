@@ -1,6 +1,6 @@
 package utils
 
-// NO_TEST_NEEDED
+import "sxwl/3k/pkg/config"
 
 func GetModelSavePVCName(jobName string) string {
 	return jobName + "-modelsave"
@@ -11,11 +11,11 @@ func GetCKPTPVCName(jobName string) string {
 }
 
 func GenModelUploaderJobName(jobName string) string {
-	return "modeluploader-" + jobName
+	return config.MODELUPLOADER_JOBNAME_PREFIX + jobName
 }
 
 func ParseJobNameFromModelUploader(uploaderJob string) string {
-	prefix := "modeluploader-"
+	prefix := config.MODELUPLOADER_JOBNAME_PREFIX
 	if len(uploaderJob) > len(prefix) && uploaderJob[:len(prefix)] == prefix {
 		return uploaderJob[len(prefix):]
 	}

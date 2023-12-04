@@ -42,9 +42,10 @@ func main() {
 			return
 		}
 		//打包文件
-		err = storage.Pack("/data", []string{})
+		err = storage.Pack(config.MODELUPLOADER_PVC_MOUNT_PATH, []string{})
 		if err != nil {
 			log.Logger.Error(err.Error())
+			// k8s job controller will backoff and retry
 			os.Exit(1)
 		}
 		//写入开始上传标志
@@ -56,7 +57,6 @@ func main() {
 	//（继续）上传模型
 	//add access key before build
 	storage.InitClient(config.OSS_ACCESS_KEY, config.OSS_ACCESS_SECRET)
-	//上传打包好的模型
 	if err := modeluploader.UploadPackedFile(bucket, mpiJobName); err != nil {
 		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)

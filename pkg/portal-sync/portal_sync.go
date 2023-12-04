@@ -16,8 +16,6 @@ type itemToDelete struct {
 }
 
 func StartPortalSync() {
-	// get tasks , then run them !!!
-	//wait to delete
 	deleteBuffer := map[string]itemToDelete{}
 	for {
 		time.Sleep(time.Second * 10)

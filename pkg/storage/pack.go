@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/log"
 )
 
@@ -13,7 +14,7 @@ import (
 // 打包后的文件名是 data.zip
 func Pack(dir string, excludeFiles []string) error {
 	log.SLogger.Infow("start packing")
-	archive, err := os.OpenFile(path.Join(dir, "data.zip"), os.O_RDWR|os.O_CREATE, 0666)
+	archive, err := os.OpenFile(path.Join(dir, config.PACK_FILE_NAME), os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}

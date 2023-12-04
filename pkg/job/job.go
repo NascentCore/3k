@@ -232,21 +232,19 @@ func DeleteJobRelated(jobName string) {
 func GetState(namespace, name string) (state.State, error) {
 	s, err := kubeflowmpijob.GetState(namespace, name)
 	if err != nil {
-		// if err is other errs
 		if !k8serrors.IsNotFound(err) {
 			return state.State{}, err
+		} else {
+			// else try next job type
 		}
-		// else try next job type
 	} else {
 		return s, nil
 	}
 	s, err = kubeflowpytorchjob.GetState(namespace, name)
 	if err != nil {
-		// if err is other errs
 		if !k8serrors.IsNotFound(err) {
 			return state.State{}, err
 		}
-		// else try next job type
 	} else {
 		return s, nil
 	}
