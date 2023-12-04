@@ -1,0 +1,51 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: ib-check
+spec:
+  # 每个节点运行一个worker（pod）,每个worker只运行一个进程绑定一块GPU
+  nprocPerNode: "1"
+  elasticPolicy:
+    rdzvBackend: c10d
+  pytorchReplicaSpecs:
+    Worker:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          affinity:
+            # 保证一个节点一个worker,防止所有worker都调度到一个k8s node上
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: training.kubeflow.org/job-name
+                    operator: In
+                    values:
+                      - ib-check
+                topologyKey: kubernetes.io/hostname
+          containers:
+            - name: pytorch
+              image: dockerhub.kubekey.local/kubesphereio/ib:latest
+              env:
+              - name: NCCL_DEBUG
+                value: "INFO"
+              - name: NCCL_NET
+                value: "IB"
+              - name: NCCL_IB_DISABLE
+                value: "0"
+              imagePullPolicy: Always
+              resources:
+                requests:
+                  nvidia.com/gpu: 1
+                  rdma/rdma_shared_device_a: 1
+                limits:
+                  nvidia.com/gpu: 1
+                  rdma/rdma_shared_device_a: 1 
+              command:
+                - "torchrun"
+                - "--nproc_per_node=1"
+                - "all_reduce.py"
+              securityContext:
+                capabilities:
+                  add: [ "IPC_LOCK" ]

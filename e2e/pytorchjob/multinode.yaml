@@ -1,0 +1,28 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: pytorch-multinode-linertrain
+  namespace: training-operator
+spec:
+  nprocPerNode: "4"
+  elasticPolicy:
+    rdzvBackend: c10d
+  pytorchReplicaSpecs:
+    Worker:
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: dockerhub.kubekey.local/kubesphereio/pytorch-example:latest
+              imagePullPolicy: Always
+              resources:
+                limits:
+                  nvidia.com/gpu: 4
+              command:
+                - "torchrun"
+                - "--nproc_per_node=4"
+                - "main.py"
+                - "50"
+                - "10"
