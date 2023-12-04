@@ -79,6 +79,21 @@ public class UserJob implements Serializable {
 
     @ApiModelProperty(value = "cpod id")
     private String cpodId;
+
+    @ApiModelProperty(value = "模型启动命令")
+    private String runCommand;
+
+    @ApiModelProperty(value = "第三方回调接口url")
+    private String callbackUrl;
+
+    @ApiModelProperty(value = "挂载路径名称")
+    private String datasetName;
+
+    @ApiModelProperty(value = "模型基座名称")
+    private String pretrainedModelName;
+
+    @ApiModelProperty(value = "模型基座对应路径")
+    private String pretrainedModelPath;
     public void copy(UserJob source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
