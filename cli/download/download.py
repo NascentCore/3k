@@ -5,8 +5,6 @@ import math
 
 from kubernetes import client, config
 from kubernetes.client import ApiException
-from kubernetes.client.models import V1ObjectMeta, V1PersistentVolumeClaimSpec, V1ResourceRequirements, \
-    V1PersistentVolumeClaim
 from plumbum import cli
 
 from .model_scope import ModelScopeHub
@@ -31,16 +29,9 @@ class Model(cli.Application):
         print("model {0} size {1} GB".format(hub_name, model_size))
 
         # todo 前置检查
-
-        pvc = pvc_name(model_id)
+        pvc = create_pvc_name(model_id)
         config.load_kube_config()
         v1 = client.CoreV1Api()
-
-        # ret = v1.list_persistent_volume_claim_for_all_namespaces(watch=False)
-        # for i in ret.items:
-        #     if i.metadata.name == pvc:
-        #         print("PVC %s for model_id %s already exists" % (pvc, model_id))
-        #         return
 
         # 创建PVC
         storage = model_size * 1.25
@@ -55,9 +46,19 @@ class Model(cli.Application):
             print("create_pvc exception: %s" % e)
             return
 
-        # 开启下载Job
+        # 创建下载Job
+        try:
+            create_download_job(v1,
+                                "model-download",
+                                "model-downloader",
+                                "registry.cn-hangzhou.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
+                                pvc,
+                                ["-s", hub.git_url(model_id)])
+        except ApiException as e:
+            print("create_download_job exception: %s" % e)
+            return
 
-
+        # 写CRD
 
 
 def hub_factory(hub_name):
@@ -67,26 +68,9 @@ def hub_factory(hub_name):
         return None
 
 
-def pvc_name(model_id):
+def create_pvc_name(model_id):
     hash_sha1 = hashlib.sha1(model_id.encode("utf-8"))
     return "model-{0}".format(hash_sha1.hexdigest()[:16])
-
-
-# def create_ceph_pvc(api, namespace, name, storage):
-#     body = V1PersistentVolumeClaim(api_version="v1", kind="PersistentVolumeClaim",
-#                                    metadata=V1ObjectMeta(namespace=namespace, name=name),
-#                                    spec=V1PersistentVolumeClaimSpec(
-#                                        access_modes=["ReadWriteMany"],
-#                                        resources=V1ResourceRequirements(requests={"storage": storage}),
-#                                        storage_class_name="ceph-filesystem",
-#                                        volume_mode="Filesystem"
-#                                    ))
-#     resp = api.create_namespaced_persistent_volume_claim(namespace, body=body)
-#     if isinstance(resp, V1PersistentVolumeClaim):
-#         print("create pvc %s ok" % name)
-#     else:
-#         print(resp)
-#         raise Exception()
 
 
 def create_pvc(api_instance, namespace, pvc_name, storage_size):
@@ -108,4 +92,32 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         return api_response
     except ApiException as e:
         print("Error creating PVC: %s" % e)
+        raise e
+
+
+def create_download_job(api_instance, job_name, container_name, image, pvc_name, args):
+    # 创建 Job 的配置
+    job = client.V1Job(api_version="batch/v1", kind="Job", metadata=client.V1ObjectMeta(name=job_name))
+    container = client.V1Container(name=container_name, image=image, args=args)
+
+    # 定义卷挂载
+    volume_mount = client.V1VolumeMount(name="data-volume", mount_path="/data")
+    container.volume_mounts = [volume_mount]
+
+    # 定义 Volume
+    volume = client.V1Volume(name="data-volume",
+                             persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=pvc_name))
+    pod_spec = client.V1PodSpec(restart_policy="Never", containers=[container], volumes=[volume])
+
+    # 定义 Job 规范
+    job.spec = client.V1JobSpec(template=client.V1PodTemplateSpec(spec=pod_spec))
+    job.spec.completions = 1
+    job.spec.parallelism = 1
+
+    try:
+        # 创建 Job
+        api_response = api_instance.create_namespaced_job(namespace="default", body=job)
+        print(f"Job '{job_name}' created. status='{str(api_response.status)}'")
+    except ApiException as e:
+        print(f"Exception when creating Job '{job_name}': {e}\n")
         raise e
