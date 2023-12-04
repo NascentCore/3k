@@ -89,7 +89,7 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         api_response = api_instance.create_namespaced_persistent_volume_claim(
             namespace=namespace, body=body
         )
-        print("PVC created. Status: %s" % str(api_response.status))
+        print("PVC %s in namespace %s created. Status: %s" % (pvc_name, namespace, str(api_response.status)))
         return api_response
     except ApiException as e:
         print("Error creating PVC: %s" % e)
