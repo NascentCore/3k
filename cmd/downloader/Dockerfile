@@ -1,23 +1,20 @@
-# 使用 Alpine Linux 作为基础镜像
-FROM --platform=linux/amd64 golang:alpine:v1.21.1 AS builder
+FROM golang:1.21-alpine AS builder
 
-# 安装 Git
-RUN apk --no-cache add git
-
+ENV GOPROXY https://goproxy.cn,direct
 WORKDIR /build
-
-ADD ../../go.mod .
-ADD ../../go.sum .
-ADD . ./cmd/downloader
+ADD go.mod .
+ADD go.sum .
+ADD ./cmd/downloader ./cmd/downloader
 
 WORKDIR /build/cmd/downloader
-RUN make build
+RUN go build -o app main.go
 
-FROM scratch
+FROM alpine/git
 
 ENV TZ Asia/Shanghai
 
 WORKDIR /app
 COPY --from=builder /build/cmd/downloader/app /app/app
 
-CMD ["./app", "git", "-s", "https://www.modelscope.cn/qwen/Qwen-72B-Chat.git"]
+ENTRYPOINT ["./app"]
+CMD ["-o","/data", "-s", ""]
