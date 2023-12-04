@@ -1,0 +1,19 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: pytorch-torchrun
+  namespace: training-operator
+spec:
+  pytorchReplicaSpecs:
+    Worker:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h1g1dp:latest
+              imagePullPolicy: Always
+              command:
+                - "torchrun"
+                - "finetune_poetry.py"
