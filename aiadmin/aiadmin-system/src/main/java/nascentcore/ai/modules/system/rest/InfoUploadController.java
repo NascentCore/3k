@@ -7,9 +7,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import nascentcore.ai.modules.system.domain.Fileurl;
+import nascentcore.ai.modules.system.domain.UserJob;
+import nascentcore.ai.modules.system.domain.bean.Constants;
 import nascentcore.ai.modules.system.domain.dto.file.ModelUrl;
 import nascentcore.ai.modules.system.domain.vo.FileurlQueryCriteria;
+import nascentcore.ai.modules.system.domain.vo.UserJobQueryCriteria;
 import nascentcore.ai.modules.system.service.FileurlService;
+import nascentcore.ai.modules.system.service.UserJobService;
+import nascentcore.ai.modules.system.thread.HttpSenddateThread;
+import nascentcore.ai.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +31,7 @@ import java.util.List;
 public class InfoUploadController {
 
     private final FileurlService fileurlService;
+    private final UserJobService userJobService;
     @PostMapping(value = "/upload_status")
     @ApiOperation("上传模型数据文件 url")
     public ResponseEntity<Object> uploadStatus(@Validated @RequestBody String resources) {
@@ -39,6 +47,15 @@ public class InfoUploadController {
                 fileurlList.add(fileurl);
             }
             fileurlService.save(fileurlList);
+            UserJobQueryCriteria criteria = new UserJobQueryCriteria();
+            criteria.setJobName(modelUrl.getJobName());
+            List<UserJob> userJobList = userJobService.queryAll(criteria);
+            if(null != userJobList && !userJobList.isEmpty()){
+                UserJob userJob = userJobList.get(0);
+                if(!StringUtils.isEmpty(userJob.getCallbackUrl())){
+                    HttpSenddateThread.add(userJob);
+                }
+            }
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
