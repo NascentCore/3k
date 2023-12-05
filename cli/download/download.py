@@ -28,7 +28,8 @@ class Model(cli.Application):
         model_size = math.ceil(hub.size(model_id))  # in GB
         print("model {0} size {1} GB".format(hub_name, model_size))
 
-        pvc = create_pvc_name(model_id)
+        crd_name = create_crd_name(hub, model_id)
+        pvc = create_pvc_name(hub, model_id)
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -64,7 +65,7 @@ class Model(cli.Application):
                 crd_group="cpod.sxwl.ai",
                 crd_version="v1",
                 crd_plural="ModelStorage",
-                crd_name="modelstorage-sample",
+                crd_name=crd_name,
                 crd_data={
                     "modelHub": hub_name,
                     "modelId": model_id,
@@ -82,6 +83,11 @@ def hub_factory(hub_name):
         return ModelScopeHub()
     else:
         return None
+
+
+def create_crd_name(hub, model_id):
+    hash_sha1 = hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8"))
+    return "model-storage-{0}".format(hash_sha1.hexdigest()[:16])
 
 
 def create_pvc_name(hub, model_id):
