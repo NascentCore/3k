@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 	"sxwl/3k/pkg/config"
-	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
+	"sxwl/3k/pkg/job"
 	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/log"
 	"sxwl/3k/pkg/storage"
@@ -25,16 +25,16 @@ import (
 func UntilMPIJobFinish(mpiJobName string) (string, error) {
 	errCnt := 0
 	for {
-		s, err := kubeflowmpijob.GetState(config.CPOD_NAMESPACE, mpiJobName)
+		s, err := job.GetState(config.CPOD_NAMESPACE, mpiJobName)
 		if err != nil {
 			//如果MPIJob已经被删除
 			if k8serrors.IsNotFound(err) {
-				log.SLogger.Infow("mpijob is deleted")
+				log.SLogger.Infow("job is deleted")
 				//if job is deleted , do upload as well
 				return config.STATUS_NEEDS_UPLOAD_MODEL, nil
 				//return "deleted", nil
 			}
-			log.SLogger.Errorw("error when wait mpijob finish", "error", err, "errcnt", errCnt)
+			log.SLogger.Errorw("error when wait job finish", "error", err, "errcnt", errCnt)
 			errCnt += 1
 			//持续报错， 返回异常
 			if errCnt > 10 {
@@ -43,14 +43,14 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 		} else { //errCnt置0
 			errCnt = 0
 		}
-		log.SLogger.Infow("mpijob status", "jobname", mpiJobName, "status", s.JobStatus)
+		log.SLogger.Infow("job status", "jobname", mpiJobName, "status", s.JobStatus)
 		//判断MPIJob是否已经终止（状态不会再变）
 		if s.JobStatus.NoMoreChange() {
 			if s.JobStatus == state.JobStatusSucceed {
-				log.SLogger.Infow("mpijob succeed")
+				log.SLogger.Infow("job succeed")
 				return config.STATUS_NEEDS_UPLOAD_MODEL, nil
 			}
-			log.SLogger.Infow("mpijob failed , nothing to upload")
+			log.SLogger.Infow("job failed , nothing to upload")
 			return "nouploadneeded", nil
 		}
 		//继续等待
@@ -63,6 +63,10 @@ func UntilMPIJobFinish(mpiJobName string) (string, error) {
 // 需要由K8S触发重启
 func UploadModel(bucket string, jobName string, modelPath string) error {
 	return storage.UploadDirToOSS(bucket, jobName, modelPath)
+}
+
+func UploadPackedFile(bucket string, jobName string) error {
+	return storage.UploadFileToOSS(bucket, jobName, config.PACK_FILE_NAME, config.MODELUPLOADER_PVC_MOUNT_PATH)
 }
 
 // 标记上传开始

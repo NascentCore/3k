@@ -45,8 +45,8 @@ type RawJobDataItem struct {
 	JobType           string `json:"jobType"`
 	ModelPath         string `json:"modelPath"`
 	ModelVol          int    `json:"modelVol"`
-	PretrainModelName string `json:"modelBed"`
-	PretrainModelPath string `json:"modelBedPath"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelPath string `json:"pretrainedModelPath"`
 	StopTime          int    `json:"stopTime"`
 	StopType          int    `json:"stopType"`
 }
@@ -110,7 +110,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 
 	return job.Job{
 		JobID:                rawJob.JobName,
-		JobType:              job.JobType(rawJob.JobType),
+		JobType:              state.JobType(rawJob.JobType),
 		Image:                rawJob.ImagePath,
 		DataPath:             rawJob.DatasetPath,
 		DataName:             rawJob.DatasetName,
