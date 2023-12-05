@@ -19,6 +19,7 @@
           <el-tag :type="scope.row.workStatus === 1 ? 'danger' : scope.row.workStatus === 3 ? 'success' : ''">{{ scope.row.workStatus === 1 ? $t('jobinfo.runstatusfail') : scope.row.workStatus === 3 ? $t('jobinfo.runstatussuc'):$t('jobinfo.runstatus') }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="createTime" :label="$t('jobinfo.createtime')" />
       <el-table-column :label="$t('jobinfo.operate')" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button style="margin-right: 3px;" type="text" size="medium" @click="executeinfo(scope.row)">{{ $t('jobinfo.info') }}</el-button>
