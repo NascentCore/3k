@@ -25,7 +25,7 @@ class Model(cli.Application):
             print("hub {0} is not supported".format(hub_name))
             return
 
-        model_size = math.ceil(hub.size(model_id))
+        model_size = math.ceil(hub.size(model_id)) # in GB
         print("model {0} size {1} GB".format(hub_name, model_size))
 
         # todo 前置检查
@@ -36,11 +36,7 @@ class Model(cli.Application):
 
         # 创建PVC
         storage = model_size * 1.25
-        if model_size > 1024:
-            storage = "%dGi" % math.ceil(model_size / 1024)
-        else:
-            storage = "%dMi" % math.ceil(model_size)
-
+        storage = "%dGi" % math.ceil(storage)
         try:
             create_pvc(core_v1_api, "cpod", pvc, storage)
         except ApiException as e:
@@ -50,11 +46,13 @@ class Model(cli.Application):
         # 创建下载Job
         try:
             create_download_job(batch_v1_api,
-                                "model-download",
+                                "download-%s" % pvc,
                                 "model-downloader",
-                                "registry.cn-hangzhou.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
                                 pvc,
-                                ["-s", hub.git_url(model_id)])
+                                ["git", "-s", hub.git_url(model_id)],
+                                "cpod",
+                                "aliyun-enterprise-registry")
         except ApiException as e:
             print("create_download_job exception: %s" % e)
             return
@@ -82,6 +80,8 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         "spec": {
             "accessModes": ["ReadWriteOnce"],
             "resources": {"requests": {"storage": storage_size}},
+            "storageClassName": "ceph-filesystem",
+            "volumeMode:": "Filesystem"
         },
     }
 
@@ -96,9 +96,9 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         raise e
 
 
-def create_download_job(api_instance, job_name, container_name, image, pvc_name, args):
+def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, namespace="default", secret="aliyun-enterprise-registry"):
     # 创建 Job 的配置
-    job = client.V1Job(api_version="batch/v1", kind="Job", metadata=client.V1ObjectMeta(name=job_name))
+    job = client.V1Job(api_version="batch/v1", kind="Job", metadata=client.V1ObjectMeta(name=job_name, namespace=namespace))
     container = client.V1Container(name=container_name, image=image, args=args)
 
     # 定义卷挂载
@@ -110,6 +110,11 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
                              persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=pvc_name))
     pod_spec = client.V1PodSpec(restart_policy="Never", containers=[container], volumes=[volume])
 
+    # 引用 Secret
+    image_pull_secret = client.V1LocalObjectReference(name=secret)
+    pod_spec.image_pull_secrets = [image_pull_secret]
+
+
     # 定义 Job 规范
     job.spec = client.V1JobSpec(template=client.V1PodTemplateSpec(spec=pod_spec))
     job.spec.completions = 1
@@ -117,7 +122,7 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
 
     try:
         # 创建 Job
-        api_response = api_instance.create_namespaced_job(namespace="default", body=job)
+        api_response = api_instance.create_namespaced_job(namespace=namespace, body=job)
         print(f"Job '{job_name}' created. status='{str(api_response.status)}'")
     except ApiException as e:
         print(f"Exception when creating Job '{job_name}': {e}\n")
