@@ -57,4 +57,10 @@ public class UserJobServiceImpl extends ServiceImpl<UserJobMapper, UserJob> impl
             removeById(id);
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deletebyName(String name){
+        userJobMapper.deletebyName(name);
+    }
 }

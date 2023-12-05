@@ -19,4 +19,6 @@ public interface UserJobMapper extends BaseMapper<UserJob> {
     IPage<UserJob> findAll(@Param("criteria") UserJobQueryCriteria criteria, Page<Object> page);
 
     List<UserJob> findAll(@Param("criteria") UserJobQueryCriteria criteria);
+
+    void deletebyName(@Param("name") String name);
 }
