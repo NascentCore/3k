@@ -111,7 +111,8 @@ module.exports = {
     ckptpath: 'CKPT path',
     trainingsource: 'Training dataset',
     mountpath: 'Mount path',
-    jobtype: 'Job type'
+    jobtype: 'Job type',
+    createtime: 'Creation time'
   },
   componyuser: {
     user: 'Computing power info',
