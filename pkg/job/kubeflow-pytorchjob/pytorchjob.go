@@ -1,10 +1,8 @@
 package kubeflowpytorchjob
 
 import (
-	"fmt"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/job/utils"
-	"sxwl/3k/pkg/utils/consts"
 )
 
 // NO_TEST_NEEDED
@@ -23,14 +21,12 @@ type PytorchJob struct {
 	ModelSavePath        string //最终模型的保存路径
 	GPUType              string //GPU类型
 	GPURequiredPerWorker int    //每个实例所需要的GPU数量
+	Command              []string
 	Replicas             int    // workers
 	Deadline             string // 运行截止时间
 }
 
 func (kfp PytorchJob) genJsonData() map[string]interface{} {
-	modelSaveVolumeName := "saved-model-pv"
-	dataSetVolumeName := "dataset-pv"
-	pretrainModelVolumeName := "pretrain-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v1",
 		"kind":       "PyTorchJob",
@@ -46,78 +42,8 @@ func (kfp PytorchJob) genJsonData() map[string]interface{} {
 				"Worker": map[string]interface{}{
 					"replicas":      kfp.Replicas,
 					"restartPolicy": "OnFailure",
-					"template": map[string]interface{}{
-						"spec": map[string]interface{}{
-							"containers": []interface{}{
-								map[string]interface{}{
-									"name":            "pytorch",
-									"image":           kfp.Image,
-									"imagePullPolicy": "Always",
-									"resources": map[string]interface{}{
-										"limits": map[string]interface{}{
-											"nvidia.com/gpu": kfp.GPURequiredPerWorker,
-										},
-									},
-									"command": []interface{}{
-										"torchrun",
-										fmt.Sprintf("--nproc_per_node=%d", kfp.GPURequiredPerWorker),
-										"finetune_poetry.py",
-									},
-									"volumeMounts": []interface{}{
-										map[string]interface{}{
-											"name":      dataSetVolumeName,
-											"mountPath": kfp.DataPath,
-										},
-										map[string]interface{}{
-											"name":      pretrainModelVolumeName,
-											"mountPath": kfp.PretrainModelPath,
-										},
-										map[string]interface{}{
-											"name":      modelSaveVolumeName,
-											"mountPath": kfp.ModelSavePath,
-										},
-										map[string]interface{}{
-											"name":      "shm",
-											"mountPath": "/dev/shm",
-										},
-									},
-								},
-							},
-							"nodeSelector": map[string]interface{}{
-								consts.K8S_LABEL_NV_GPU_PRODUCT: kfp.GPUType,
-							},
-							"volumes": []interface{}{
-								map[string]interface{}{
-									"name": dataSetVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": kfp.DataPVC,
-										"readOnly":  false,
-									},
-								},
-								map[string]interface{}{
-									"name": pretrainModelVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": kfp.PretrainModelPVC,
-										"readOnly":  false,
-									},
-								},
-								map[string]interface{}{
-									"name": modelSaveVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": utils.GetModelSavePVCName(kfp.Name),
-										"readOnly":  false,
-									},
-								},
-								map[string]interface{}{
-									"name": "shm",
-									"emptyDir": map[string]interface{}{
-										"medium":    "Memory",
-										"sizeLimit": "5120Mi",
-									},
-								},
-							},
-						},
-					},
+					"template": utils.GenPodTemplate(kfp.Name, kfp.Image, "IfNotPresent", kfp.GPURequiredPerWorker, kfp.GPUType,
+						kfp.Command, kfp.DataPVC, kfp.DataPath, kfp.PretrainModelPVC, kfp.PretrainModelPath, kfp.CKPTPath, kfp.ModelSavePath, true),
 				},
 			},
 		},

@@ -41,6 +41,13 @@ func main() {
 			log.SLogger.Infow("nothing to upload , job finish")
 			return
 		}
+		//打包文件
+		err = storage.Pack(config.MODELUPLOADER_PVC_MOUNT_PATH, []string{})
+		if err != nil {
+			log.Logger.Error(err.Error())
+			// k8s job controller will backoff and retry
+			os.Exit(1)
+		}
 		//写入开始上传标志
 		if err := modeluploader.MarkUploadStarted(path.Join(config.MODELUPLOADER_PVC_MOUNT_PATH, config.UPLOAD_STARTED_FLAG_FILE)); err != nil {
 			log.SLogger.Infow("error when mark upload started", "error", err)
@@ -50,8 +57,7 @@ func main() {
 	//（继续）上传模型
 	//add access key before build
 	storage.InitClient(config.OSS_ACCESS_KEY, config.OSS_ACCESS_SECRET)
-	//如果发生错误，进程异常退出
-	if err := modeluploader.UploadModel(bucket, mpiJobName, config.MODELUPLOADER_PVC_MOUNT_PATH); err != nil {
+	if err := modeluploader.UploadPackedFile(bucket, mpiJobName); err != nil {
 		log.SLogger.Infow("upload model error", "error", err)
 		os.Exit(1)
 	}

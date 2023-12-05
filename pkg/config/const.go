@@ -6,7 +6,9 @@ const (
 	//cpod manager相关的配置
 	CPOD_NAMESPACE                 = "cpod"                     //CPod 所工作的NameSpace
 	PORTAL_JOBTYPE_MPI             = "MPI"                      //Portal中MPI JobType的表示
-	PORTAL_JOBTYPE_PYTORCH         = "PYTORCH"                  //Portal中对于PytorchJob类型的表示
+	PORTAL_JOBTYPE_PYTORCH         = "Pytorch"                  //Portal中对于PytorchJob类型的表示
+	PORTAL_JOBTYPE_GENERAL         = "GeneralJob"               //Portal中对于GeneralJob类型的表示
+	PORTAL_JOBTYPE_TENSORFLOW      = "TensorFlow"               //Portal中对于TensorFlowJob类型的表示
 	PORTAL_STOPTYPE_WITHLIMIT      = 1                          //定时结束
 	PORTAL_STOPTYPE_VOLUNTARY_STOP = 0                          //自行停止
 	URLPATH_FETCH_JOB              = "/api/userJob/cpod_jobs"   //获取Job的Path
@@ -18,14 +20,15 @@ const (
 	K8S_SA_NAME_FOR_MODELUPLOADER  = "sa-modeluploader"         //Modeluploader用来访问集群所使用的 Service Account Name（运行CpodManager之前必须已经创建好）
 	TIME_FORMAT_FOR_K8S_LABEL      = "2006-01-02_15-04-05MST"   //用来作为K8S Labels的Time Format
 	//Model Uploader 相关的配置
-	MODELUPLOADER_PVC_MOUNT_PATH = "/data"                               //在Pod中的PVC挂载路径
-	STATUS_NEEDS_UPLOAD_MODEL    = "Complete"                            //需要上传模型时MPIJob的状态
-	UPLOAD_STARTED_FLAG_FILE     = "upload_started_flag_file"            //标识上传工作开始的文件的名称
-	FILE_UPLOAD_LOG_FILE         = "files_uploaded_log"                  //记录上传工作进度的文件的名称
+	MODELUPLOADER_PVC_MOUNT_PATH = "/data"                    //在Pod中的PVC挂载路径
+	STATUS_NEEDS_UPLOAD_MODEL    = "Complete"                 //需要上传模型时MPIJob的状态
+	UPLOAD_STARTED_FLAG_FILE     = "upload_started_flag_file" //标识上传工作开始的文件的名称
+	FILE_UPLOAD_LOG_FILE         = "files_uploaded_log"       //记录上传工作进度的文件的名称
+	PACK_FILE_NAME               = "data.zip"
 	OSS_ENDPOINT                 = "https://oss-cn-beijing.aliyuncs.com" //阿里云OSS Endpoint
 	PRESIGNED_URL_FILE           = "presigned_url_file"                  //记录文件下载链接的文件名称
 	MARKET_ACCESS_KEY            = "access_key"                          //云市场 access key
 	OSS_URL_EXPIRED_SECOND       = 2592000                               //oss presigned url 过期秒数，默认30天
 	URLPATH_UPLOAD_URLS          = "/api/info/upload_status"             //上报 presigned url 接口
-
+	MODELUPLOADER_JOBNAME_PREFIX = "modeluploader-"
 )

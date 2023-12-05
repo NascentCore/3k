@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/job"
 	"sxwl/3k/pkg/job/state"
@@ -30,20 +31,24 @@ type JobPayload struct {
 }
 
 type RawJobDataItem struct {
-	CkptPath    string `json:"ckptPath"`
-	CkptVol     int    `json:"ckptVol"`
-	DatasetPath string `json:"datasetPath"`
-	GpuNumber   int    `json:"gpuNumber"`
-	GpuType     string `json:"gpuType"`
-	HfURL       string `json:"hfUrl"`
-	ImagePath   string `json:"imagePath"`
-	JobID       int    `json:"jobId"`
-	JobName     string `json:"jobName"`
-	JobType     string `json:"jobType"`
-	ModelPath   string `json:"modelPath"`
-	ModelVol    int    `json:"modelVol"`
-	StopTime    int    `json:"stopTime"`
-	StopType    int    `json:"stopType"`
+	CkptPath          string `json:"ckptPath"`
+	CkptVol           int    `json:"ckptVol"`
+	Command           string `json:"runCommand"`
+	DatasetPath       string `json:"datasetPath"`
+	DatasetName       string `json:"DatasetName"`
+	GpuNumber         int    `json:"gpuNumber"`
+	GpuType           string `json:"gpuType"`
+	HfURL             string `json:"hfUrl"`
+	ImagePath         string `json:"imagePath"`
+	JobID             int    `json:"jobId"`
+	JobName           string `json:"jobName"`
+	JobType           string `json:"jobType"`
+	ModelPath         string `json:"modelPath"`
+	ModelVol          int    `json:"modelVol"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelPath string `json:"pretrainedModelPath"`
+	StopTime          int    `json:"stopTime"`
+	StopType          int    `json:"stopType"`
 }
 
 type RawJobsData []RawJobDataItem
@@ -98,12 +103,19 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 	} else {
 		replicas = rawJob.GpuNumber / 8
 	}
+	var cmd []string
+	if rawJob.Command != "" {
+		cmd = strings.Split(rawJob.Command, " ")
+	}
 
 	return job.Job{
 		JobID:                rawJob.JobName,
-		JobType:              job.JobType(rawJob.JobType),
+		JobType:              state.JobType(rawJob.JobType),
 		Image:                rawJob.ImagePath,
 		DataPath:             rawJob.DatasetPath,
+		DataName:             rawJob.DatasetName,
+		PretrainModelPath:    rawJob.PretrainModelPath,
+		PretrainModelName:    rawJob.PretrainModelName,
 		CKPTPath:             rawJob.CkptPath,
 		CKPTVolumeSize:       rawJob.CkptVol,
 		ModelPath:            rawJob.ModelPath,
@@ -111,7 +123,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 		GPUType:              rawJob.GpuType,
 		GPURequiredPerWorker: gpuPerWorker,
 		Replicas:             replicas,
-		HuggingFaceURL:       rawJob.HfURL,
+		Command:              cmd,
 		Duration:             rawJob.StopTime,
 		StopType:             job.StopType(rawJob.StopType),
 	}

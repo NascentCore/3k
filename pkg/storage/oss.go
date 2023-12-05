@@ -38,7 +38,8 @@ func FilesToUpload(dir, prefix string) ([]string, error) {
 			res = append(res, files...)
 		} else {
 			//去除标识文件
-			if item.Name() == config.FILE_UPLOAD_LOG_FILE || item.Name() == config.UPLOAD_STARTED_FLAG_FILE {
+			if item.Name() == config.FILE_UPLOAD_LOG_FILE || item.Name() == config.UPLOAD_STARTED_FLAG_FILE ||
+				item.Name() == config.PRESIGNED_URL_FILE || item.Name() == config.PACK_FILE_NAME {
 			} else {
 				res = append(res, path.Join(prefix, item.Name()))
 			}

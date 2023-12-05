@@ -39,7 +39,7 @@ public class UserJobRes implements Serializable {
     @ApiModelProperty(value = "挂载路径")
     private String datasetPath;
 
-    @ApiModelProperty(value = "任务类型 mpi")
+    @ApiModelProperty(value = "任务类型 MPI;Pytorch;TensorFlow;GeneralJob")
     private String jobType;
 
     @ApiModelProperty(value = "0 自然终止 1设定时长")
@@ -47,5 +47,17 @@ public class UserJobRes implements Serializable {
 
     @ApiModelProperty(value = "设定时常以分钟为单位")
     private Integer stopTime;
+
+    @ApiModelProperty(value = "模型启动命令")
+    private String runCommand;
+
+    @ApiModelProperty(value = "挂载路径名称")
+    private String datasetName;
+
+    @ApiModelProperty(value = "模型基座名称")
+    private String pretrainedModelName;
+
+    @ApiModelProperty(value = "模型基座对应路径")
+    private String pretrainedModelPath;
 }
 
