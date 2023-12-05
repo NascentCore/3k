@@ -50,7 +50,7 @@ func downloadGitRepo(repoURL, outputPath string) error {
 	}
 
 	// 使用 git clone 命令下载仓库
-	cmd := exec.Command("git", "clone", "--depth", "1", repoURL, outputPath)
+	cmd := exec.Command("git", "clone", repoURL, outputPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
