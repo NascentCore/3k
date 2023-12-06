@@ -28,9 +28,9 @@ class Model(cli.Application):
         model_size = math.ceil(hub.size(model_id))  # in GB
         print("model {0} size {1} GB".format(hub_name, model_size))
 
-        crd_name = create_crd_name(hub, model_id)
-        pvc = create_pvc_name(hub, model_id)
-        job_name = create_job_name(hub, model_id)
+        crd_name = create_crd_name(hub_name, model_id)
+        pvc = create_pvc_name(hub_name, model_id)
+        job_name = create_job_name(hub_name, model_id)
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -219,7 +219,7 @@ def update_custom_resource_status(api_instance, group, version, plural, name, na
         current_object["status"]["phase"] = new_phase
 
         # 替换对象的状态
-        api_response = api_instance.replace_namespaced_custom_object(
+        api_response = api_instance.patch_namespaced_custom_object_status(
             group=group,
             version=version,
             namespace=namespace,
