@@ -7,6 +7,12 @@
 *.swn
 .vscode/
 
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
 # Model checkpoint
 examples/llama2/Llama2-Chinese-7b-Chat/
 
@@ -20,3 +26,6 @@ examples/bert/experiments/
 
 # Ignore experiment directory
 *ds_experiments
+
+# Jetbrain 
+.idea/
