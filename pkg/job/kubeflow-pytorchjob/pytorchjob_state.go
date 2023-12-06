@@ -35,7 +35,6 @@ func GetStates(namespace string) ([]state.State, error) {
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v1", "pytorchjobs", name)
 	if err != nil {
-		log.SLogger.Errorw("get pytorchjob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
@@ -47,7 +46,7 @@ func GetState(namespace, name string) (state.State, error) {
 }
 
 func parseState(data map[string]interface{}) (state.State, error) {
-	s := state.State{}
+	s := state.State{JobType: state.JobTypePytorch}
 	metadata_, ok := data["metadata"].(map[string]interface{})
 	if !ok {
 		return state.State{}, errors.New("no metadata")
@@ -111,9 +110,6 @@ func parseState(data map[string]interface{}) (state.State, error) {
 			}
 			condMap[ty] = st
 		}
-		// ConditionType defination can be found in :
-		// https://github.com/kubeflow/mpi-operator/blob/4a63d3cb35454d072c63fc84aeb5766878701ead/pkg/apis/kubeflow/v2beta1/types.go#L286
-		// 在上面还定义了两种状态 Suspended 和 Restarting ， Restarting在MPIOperater的代码中没有用到，Suspended在现在的任务中不会出现
 		if condMap["Failed"] == "True" { // check failed
 			s.JobStatus = state.JobStatusFailed
 		} else if condMap["Succeeded"] == "True" { // check succeed

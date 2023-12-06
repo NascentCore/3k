@@ -83,24 +83,28 @@ func TestParseState(t *testing.T) {
 	sSucceed := state.State{
 		Name:      "job1",
 		Namespace: "cpod",
+		JobType:   state.JobTypeMPI,
 		JobStatus: state.JobStatusSucceed,
 		Extension: nil,
 	}
 	sRunning := state.State{
 		Name:      "job1",
 		Namespace: "cpod",
+		JobType:   state.JobTypeMPI,
 		JobStatus: state.JobStatusRunning,
 		Extension: nil,
 	}
 	sFailed := state.State{
 		Name:      "job1",
 		Namespace: "cpod",
+		JobType:   state.JobTypeMPI,
 		JobStatus: state.JobStatusFailed,
 		Extension: nil,
 	}
 	sCreated := state.State{
 		Name:      "job1",
 		Namespace: "cpod",
+		JobType:   state.JobTypeMPI,
 		JobStatus: state.JobStatusCreated,
 		Extension: nil,
 	}

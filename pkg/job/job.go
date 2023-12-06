@@ -7,32 +7,29 @@ import (
 	generaljob "sxwl/3k/pkg/job/general-job"
 	kubeflowmpijob "sxwl/3k/pkg/job/kubeflow-mpijob"
 	kubeflowpytorchjob "sxwl/3k/pkg/job/kubeflow-pytorchjob"
+	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/log"
-	modeluploader "sxwl/3k/pkg/model-uploader"
 	commonerrors "sxwl/3k/pkg/utils/errors"
 	"time"
+
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 // NO_TEST_NEEDED
 
 type (
-	JobType  string
 	StopType int
 )
 
 const (
-	JobTypeMPI     JobType = config.PORTAL_JOBTYPE_MPI
-	JobTypePytorch JobType = config.PORTAL_JOBTYPE_PYTORCH
-	JobTypeGeneral JobType = config.PORTAL_JOBTYPE_GENERAL
-
 	StopTypeWithLimit    StopType = config.PORTAL_STOPTYPE_WITHLIMIT
 	StopTypeWithoutLimit StopType = config.PORTAL_STOPTYPE_VOLUNTARY_STOP
 )
 
 type Job struct {
 	JobID                string
-	JobType              JobType
+	JobType              state.JobType
 	Image                string
 	DataPath             string
 	DataName             string
@@ -91,7 +88,7 @@ func (j Job) toActualJob() (Interface, error) {
 	if j.StopType == StopTypeWithLimit {
 		dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
 	}
-	if j.JobType == JobTypePytorch {
+	if j.JobType == state.JobTypePytorch {
 		return kubeflowpytorchjob.PytorchJob{
 			Name:                 j.JobID,
 			Namespace:            config.CPOD_NAMESPACE,
@@ -108,7 +105,7 @@ func (j Job) toActualJob() (Interface, error) {
 			Command:              j.Command,
 			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 		}, nil
-	} else if j.JobType == JobTypeMPI {
+	} else if j.JobType == state.JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
 			Name:                 j.JobID,
 			Namespace:            config.CPOD_NAMESPACE,
@@ -125,7 +122,7 @@ func (j Job) toActualJob() (Interface, error) {
 			Replicas:             j.Replicas,
 			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 		}, nil
-	} else if j.JobType == JobTypeGeneral {
+	} else if j.JobType == state.JobTypeGeneral {
 		return generaljob.GeneralJob{
 			Name:                 j.JobID,
 			Namespace:            config.CPOD_NAMESPACE,
@@ -161,22 +158,22 @@ func (j Job) Run() error {
 	}
 	//同时启动Upload Job
 	return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
-		modeluploader.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
+		utils.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 
 }
 
 func (j Job) Stop() error {
-	if j.JobType == JobTypeMPI {
+	if j.JobType == state.JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
 			Name:      j.JobID,
 			Namespace: config.CPOD_NAMESPACE,
 		}.Delete()
-	} else if j.JobType == JobTypePytorch {
+	} else if j.JobType == state.JobTypePytorch {
 		return kubeflowpytorchjob.PytorchJob{
 			Name:      j.JobID,
 			Namespace: config.CPOD_NAMESPACE,
 		}.Delete()
-	} else if j.JobType == JobTypeGeneral {
+	} else if j.JobType == state.JobTypeGeneral {
 		return generaljob.GeneralJob{
 			Name:      j.JobID,
 			Namespace: config.CPOD_NAMESPACE,
@@ -185,8 +182,7 @@ func (j Job) Stop() error {
 	return commonerrors.UnImpl(fmt.Sprintf("job of type %s", j.JobType))
 }
 
-// TODO: suport pytorchjob
-func DeleteJob(jobName string, jobType JobType, deleteRelated bool) {
+func DeleteJob(jobName string, jobType state.JobType, deleteRelated bool) {
 	//delete job first
 	err := Job{
 		JobID:   jobName,
@@ -205,9 +201,8 @@ func DeleteJob(jobName string, jobType JobType, deleteRelated bool) {
 	}
 }
 
-// TODO: suport pytorchjob
 func DeleteJobRelated(jobName string) {
-	err := clientgo.DeleteK8SJob(config.CPOD_NAMESPACE, jobName)
+	err := clientgo.DeleteK8SJob(config.CPOD_NAMESPACE, utils.GenModelUploaderJobName(jobName))
 	if err != nil {
 		log.SLogger.Errorw("Uploader Job delete failed",
 			"job name", jobName)
@@ -232,4 +227,30 @@ func DeleteJobRelated(jobName string) {
 		log.SLogger.Infow("PVC for modelsave deleted",
 			"job", jobName)
 	}
+}
+
+func GetState(namespace, name string) (state.State, error) {
+	s, err := kubeflowmpijob.GetState(namespace, name)
+	if err != nil {
+		if !k8serrors.IsNotFound(err) {
+			return state.State{}, err
+		} else {
+			// else try next job type
+		}
+	} else {
+		return s, nil
+	}
+	s, err = kubeflowpytorchjob.GetState(namespace, name)
+	if err != nil {
+		if !k8serrors.IsNotFound(err) {
+			return state.State{}, err
+		}
+	} else {
+		return s, nil
+	}
+	s, err = generaljob.GetState(namespace, name)
+	if err != nil {
+		return state.State{}, err
+	}
+	return s, err
 }

@@ -33,7 +33,6 @@ func GetStates(namespace string) ([]state.State, error) {
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetObjectData(namespace, "kubeflow.org", "v2beta1", "mpijobs", name)
 	if err != nil {
-		log.SLogger.Errorw("get mpijob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
@@ -45,7 +44,7 @@ func GetState(namespace, name string) (state.State, error) {
 }
 
 func parseState(data map[string]interface{}) (state.State, error) {
-	s := state.State{}
+	s := state.State{JobType: state.JobTypeMPI}
 	metadata_, ok := data["metadata"].(map[string]interface{})
 	if !ok {
 		return state.State{}, errors.New("no metadata")

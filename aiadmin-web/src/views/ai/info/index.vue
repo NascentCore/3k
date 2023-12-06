@@ -16,13 +16,14 @@
       <el-table-column prop="jobType" :label="$t('jobinfo.jobtype')" />
       <el-table-column prop="workStatus" :label="$t('jobinfo.isPause')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.workStatus === 0 ? '' : scope.row.workStatus === 1 ? 'danger' : 'success'">{{ scope.row.workStatus === 0 ? $t('jobinfo.runstatus') : scope.row.workStatus === 1 ? $t('jobinfo.runstatusfail'):$t('jobinfo.runstatussuc') }}</el-tag>
+          <el-tag :type="scope.row.workStatus === 1 ? 'danger' : scope.row.workStatus === 3 ? 'success' : ''">{{ scope.row.workStatus === 1 ? $t('jobinfo.runstatusfail') : scope.row.workStatus === 3 ? $t('jobinfo.runstatussuc'):$t('jobinfo.runstatus') }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="createTime" :label="$t('jobinfo.createtime')" />
       <el-table-column :label="$t('jobinfo.operate')" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button style="margin-right: 3px;" type="text" size="medium" @click="executeinfo(scope.row)">{{ $t('jobinfo.info') }}</el-button>
-          <el-button v-if="scope.row.workStatus === 2" style="margin-right: 3px;" type="text" size="medium" @click="executedownload(scope.row.jobName)">{{ $t('router.resultdownload') }}</el-button>
+          <el-button v-if="scope.row.workStatus === 3" style="margin-right: 3px;" type="text" size="medium" @click="executedownload(scope.row.jobName)">{{ $t('router.resultdownload') }}</el-button>
           <el-popover :ref="scope.row.jobId" placement="top" width="200">
             <p>{{ $t('jobinfo.suredel') }}</p>
             <div style="text-align: right; margin: 0">

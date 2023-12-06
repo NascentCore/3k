@@ -34,7 +34,6 @@ func GetStates(namespace string) ([]state.State, error) {
 func GetState(namespace, name string) (state.State, error) {
 	data, err := clientgo.GetK8SJob(namespace, name)
 	if err != nil {
-		log.SLogger.Errorw("get generaljob state err", "error", err)
 		return state.State{}, err
 	}
 	s, err := parseState(data)
@@ -46,7 +45,7 @@ func GetState(namespace, name string) (state.State, error) {
 }
 
 func parseState(data *apiv1.Job) (state.State, error) {
-	s := state.State{}
+	s := state.State{JobType: state.JobTypeGeneral}
 	s.Name = data.Name
 	s.Namespace = data.Namespace
 	//判断是否已经到截止时间

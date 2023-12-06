@@ -3,7 +3,9 @@ package nascentcore.ai.modules.system.rest;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import nascentcore.ai.modules.system.domain.CpodMain;
+import nascentcore.ai.modules.system.domain.Fileurl;
 import nascentcore.ai.modules.system.domain.UserJob;
 import nascentcore.ai.modules.system.domain.UserJobRes;
 import nascentcore.ai.modules.system.domain.bean.Constants;
@@ -11,7 +13,9 @@ import nascentcore.ai.modules.system.domain.dto.cpod.CpodStatusReq;
 import nascentcore.ai.modules.system.domain.dto.cpod.GpuSummariesDTO;
 import nascentcore.ai.modules.system.domain.dto.cpod.JobStatusDTO;
 import nascentcore.ai.modules.system.domain.vo.CpodMainQueryCriteria;
+import nascentcore.ai.modules.system.domain.vo.FileurlQueryCriteria;
 import nascentcore.ai.modules.system.service.CpodMainService;
+import nascentcore.ai.modules.system.service.FileurlService;
 import nascentcore.ai.modules.system.service.JobManager;
 import nascentcore.ai.modules.system.service.UserJobService;
 import nascentcore.ai.modules.system.domain.vo.UserJobQueryCriteria;
@@ -24,9 +28,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import nascentcore.ai.utils.PageResult;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 import static cn.hutool.core.util.IdUtil.randomUUID;
 
@@ -44,6 +47,7 @@ public class UserJobController {
     private final UserJobService userJobService;
     private final CpodMainService cpodMainService;
     private final JobManager jobManager;
+    private final FileurlService fileurlService;
     @GetMapping
     @ApiOperation("查询用户任务")
     public ResponseEntity<PageResult<UserJob>> queryUserJob(UserJobQueryCriteria criteria, Page<Object> page) {
@@ -58,18 +62,46 @@ public class UserJobController {
         }
     }
 
+    @PostMapping(value = "/job_status")
+    @ApiOperation("查询用户任务状态")
+    public ResponseEntity<Object> queryUserJobStatus(@Validated @RequestBody String resources) {
+        JSONObject obj = JSON.parseObject(resources);
+        String jobId = obj.getString("job_id");
+        Map<String, Object> objmap = new HashMap<String, Object>();
+        UserJobQueryCriteria criteria = new UserJobQueryCriteria();
+        criteria.setJobName(jobId);
+        List<UserJob> userJobList = userJobService.queryAll(criteria);
+        if (null != userJobList && !userJobList.isEmpty()) {
+            int workstatus = userJobList.get(0).getWorkStatus();
+            if(Constants.WORKER_STATUS_URL_SUCCESS == workstatus){
+                objmap.put("status","success");
+                FileurlQueryCriteria fileurlQueryCriteria = new FileurlQueryCriteria();
+                fileurlQueryCriteria.setJobName(jobId);
+                List<Fileurl> fileurlList = fileurlService.queryAll(fileurlQueryCriteria);
+                objmap.put("url",fileurlList.get(0).getFileUrl());
+            }else if(Constants.WORKER_STATUS_FIAL == workstatus){
+                objmap.put("status","fail");
+            }else {
+                objmap.put("status","working");
+            }
+        }
+        return new ResponseEntity<>(objmap,HttpStatus.OK);
+    }
+
     @PostMapping
     @ApiOperation("新增用户任务")
     public ResponseEntity<Object> createUserJob(@Validated @RequestBody UserJob resources){
         Long userId = SecurityUtils.getCurrentUserId();
+        Map<String, Object> obj = new HashMap<String, Object>();
         if(null != resources){
             resources.setUserId(userId);
             resources.setJobName("ai" + randomUUID());
             resources.setCreateTime(DateTime.now().toTimestamp());
             resources.setUpdateTime(DateTime.now().toTimestamp());
+            obj.put("job_id",resources.getJobName());
         }
         userJobService.create(resources);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(obj,HttpStatus.OK);
     }
 
     @GetMapping(value = "/cpod_jobs")
@@ -162,6 +194,15 @@ public class UserJobController {
     @DeleteMapping
     public ResponseEntity<Object> deleteJob(@RequestBody Set<Long> ids){
         userJobService.delete(ids);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("终止任务")
+    @PostMapping(value = "/job_del")
+    public ResponseEntity<Object> logicDeleteJob(@RequestBody String body){
+        JSONObject obj = JSON.parseObject(body);
+        String jobId = obj.getString("job_id");
+        userJobService.deletebyName(jobId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
