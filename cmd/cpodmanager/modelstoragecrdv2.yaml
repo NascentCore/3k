@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: modelstoragesV2.cpod.sxwl.ai
+  name: modelstoragesv2.cpod.sxwl.ai
 spec:
   group: cpod.sxwl.ai
   names:
     kind: ModelStorageV2
     listKind: ModelStorageV2List
-    plural: modelstoragesV2
-    singular: modelstorageV2
+    plural: modelstoragesv2
+    singular: modelstoragev2
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: ModelStorageV2 is the Schema for the modelstoragesV2 API
+        description: ModelStorageV2 is the Schema for the modelstoragev2 API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
