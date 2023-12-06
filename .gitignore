@@ -5,6 +5,7 @@
 *.swl
 *.swm
 *.swn
+.vscode/
 
 # Model checkpoint
 examples/llama2/Llama2-Chinese-7b-Chat/
