@@ -88,7 +88,7 @@ class Model(cli.Application):
                 plural="modelstorages",
                 name=crd_name,
                 namespace=namespace,
-                new_status="downloading"
+                new_phase="downloading"
             )
         except ApiException as e:
             print("create_crd_record exception: %s" % e)
@@ -200,7 +200,7 @@ def create_custom_resource(api_instance, group, version, kind, plural, name, nam
         raise e
 
 
-def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_status):
+def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_phase):
     try:
         # 获取当前对象
         current_object = api_instance.get_namespaced_custom_object(
@@ -211,8 +211,12 @@ def update_custom_resource_status(api_instance, group, version, plural, name, na
             name=name
         )
 
-        # 更新 status 字段
-        current_object["status"]["phase"] = new_status
+        # 检查是否存在 status 字段，如果不存在，则创建
+        if "status" not in current_object:
+            current_object["status"] = {}
+
+        # 设置 status.phase 字段
+        current_object["status"]["phase"] = new_phase
 
         # 替换对象的状态
         api_response = api_instance.replace_namespaced_custom_object(
