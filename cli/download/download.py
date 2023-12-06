@@ -33,7 +33,7 @@ class Model(cli.Application):
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
-        custom_object_api = client.CustomObjectsApi()
+        extensions_v1_api = client.ApiextensionsV1Api()
 
         # 创建PVC
         storage = model_size * 1.25
@@ -61,7 +61,7 @@ class Model(cli.Application):
         # 写CRD
         try:
             create_crd_record(
-                api_instance=custom_object_api,
+                api_instance=extensions_v1_api,
                 crd_group="cpod.sxwl.ai",
                 crd_version="v1",
                 crd_plural="ModelStorageV2",
