@@ -34,6 +34,7 @@ class Model(cli.Application):
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
         extensions_v1_api = client.ApiextensionsV1Api()
+        custome_objects_api = client.CustomObjectsApi()
 
         # 创建PVC
         storage = model_size * 1.25
@@ -60,13 +61,29 @@ class Model(cli.Application):
 
         # 写CRD
         try:
-            create_crd_record(
-                api_instance=extensions_v1_api,
-                crd_group="cpod.sxwl.ai",
-                crd_version="v1",
-                crd_kind="ModelStorageV2",
-                crd_name=crd_name,
-                crd_data={
+            # create_crd_record(
+            #     api_instance=extensions_v1_api,
+            #     crd_group="cpod.sxwl.ai",
+            #     crd_version="v1",
+            #     crd_kind="ModelStorageV2",
+            #     crd_name=crd_name,
+            #     crd_data={
+            #         "modelHub": hub_name,
+            #         "modelId": model_id,
+            #         "pvc": pvc,
+            #     },
+            #     namespace=namespace
+            # )
+
+            # Call create_custom_resource function
+            create_custom_resource(
+                api_instance=custome_objects_api,
+                group="cpod.sxwl.ai",
+                version="v1",
+                kind="ModelStorageV2",
+                plural="modelstoragesv2",
+                name=crd_name,
+                spec={
                     "modelHub": hub_name,
                     "modelId": model_id,
                     "pvc": pvc,
@@ -178,4 +195,29 @@ def create_crd_record(api_instance, crd_group, crd_version, crd_kind, crd_name, 
         )
         print(f"CRD record '{crd_name}' created in namespace '{namespace}'. status='{str(api_response)}'")
     except ApiException as e:
+        raise e
+
+
+def create_custom_resource(api_instance, group, version, kind, plural, name, namespace, spec):
+    crd_instance = {
+        "apiVersion": f"{group}/{version}",
+        "kind": kind,
+        "metadata": {
+            "name": name,
+            "namespace": namespace
+        },
+        "spec": spec
+    }
+
+    try:
+        api_instance.create_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,  # 根据需要指定命名空间
+            plural=plural,
+            body=crd_instance
+        )
+        print(f"Custom Resource '{name}' created.")
+    except ApiException as e:
+        print(f"Exception when creating Custom Resource: {e}")
         raise e
