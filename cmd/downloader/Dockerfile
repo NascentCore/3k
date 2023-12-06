@@ -9,7 +9,7 @@ ADD ./cmd/downloader ./cmd/downloader
 WORKDIR /build/cmd/downloader
 RUN go build -o app main.go
 
-FROM alpine/git
+FROM sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/alpine-git-lfs:v1
 
 ENV TZ Asia/Shanghai
 
