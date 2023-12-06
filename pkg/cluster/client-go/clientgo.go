@@ -113,6 +113,14 @@ func GetK8SJobs(namespace string) (*apiv1.JobList, error) {
 	return jobs, err
 }
 
+func GetK8SJob(namespace, name string) (*apiv1.Job, error) {
+	job, err := k8sClient.BatchV1().Jobs(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return job, err
+}
+
 func DeleteK8SJob(namespace, name string) error {
 	t := metav1.DeletePropagationBackground
 	return k8sClient.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{

@@ -48,4 +48,10 @@ public interface UserJobService extends IService<UserJob> {
      * @param ids /
      */
     void delete(Set<Long> ids);
+
+    /**
+     * 通过jobname删除任务
+     * @param name /
+     */
+    void deletebyName(String name);
 }

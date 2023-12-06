@@ -3,7 +3,6 @@ package kubeflowmpijob
 import (
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/job/utils"
-	"sxwl/3k/pkg/utils/consts"
 )
 
 // NO_TEST_NEEDED
@@ -15,19 +14,19 @@ type MPIJob struct {
 	Namespace            string // k8s namespace
 	Image                string // docker image
 	DataPath             string // path to trainning data
+	DataPVC              string //训练数据所在的PVC
 	CKPTPath             string // path to checkpoint
 	PretrainModelPath    string //预训练模型的路径
+	PretrainModelPVC     string //预训练模型所在的PVC
 	ModelSavePath        string //最终模型的保存路径
 	GPUType              string
-	GPURequiredPerWorker int    //
+	GPURequiredPerWorker int //
+	Command              []string
 	Replicas             int    // works
 	Deadline             string // 运行截止时间
 }
 
 func (kfm MPIJob) genJsonData() map[string]interface{} {
-	ckptVolumeName := "ckpt-pv"
-	modelSaveVolumeName := "saved-model-pv"
-	//dataSetVolumeName := "dataset-pv"
 	return map[string]interface{}{
 		"apiVersion": "kubeflow.org/v2beta1",
 		"kind":       "MPIJob",
@@ -48,6 +47,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 						"spec": map[string]interface{}{
 							"containers": []interface{}{
 								map[string]interface{}{
+									"command":         kfm.Command,
 									"image":           kfm.Image,
 									"imagePullPolicy": "IfNotPresent",
 									"name":            "launcher",
@@ -59,67 +59,8 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 				},
 				"Worker": map[string]interface{}{
 					"replicas": kfm.Replicas,
-					"template": map[string]interface{}{
-						"spec": map[string]interface{}{
-							"containers": []interface{}{
-								map[string]interface{}{
-									"image":           kfm.Image,
-									"imagePullPolicy": "IfNotPresent",
-									"name":            "worker",
-									"resources": map[string]interface{}{
-										"limits": map[string]interface{}{
-											"nvidia.com/gpu": kfm.GPURequiredPerWorker,
-										},
-									},
-									"volumeMounts": []interface{}{
-										/* comment for public launch
-										map[string]interface{}{
-											"mountPath": kfm.DataPath,
-											"name":      dataSetVolumeName,
-										},
-										*/
-										map[string]interface{}{
-											"mountPath": kfm.CKPTPath,
-											"name":      ckptVolumeName,
-										},
-										map[string]interface{}{
-											"mountPath": kfm.ModelSavePath,
-											"name":      modelSaveVolumeName,
-										},
-									},
-								},
-							},
-							"hostIPC": true,
-							"nodeSelector": map[string]interface{}{
-								consts.K8S_LABEL_NV_GPU_PRODUCT: kfm.GPUType,
-							},
-							"volumes": []interface{}{
-								/* comment for public launch
-								map[string]interface{}{
-									"name": dataSetVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": "dataset",
-										"readOnly":  true,
-									},
-								},
-								*/
-								map[string]interface{}{
-									"name": ckptVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": utils.GetCKPTPVCName(kfm.Name),
-										"readOnly":  false,
-									},
-								},
-								map[string]interface{}{
-									"name": modelSaveVolumeName,
-									"persistentVolumeClaim": map[string]interface{}{
-										"claimName": utils.GetModelSavePVCName(kfm.Name),
-										"readOnly":  false,
-									},
-								},
-							},
-						},
-					},
+					"template": utils.GenPodTemplate(kfm.Name, kfm.Image, "IfNotPresent", kfm.GPURequiredPerWorker, kfm.GPUType,
+						nil, kfm.DataPVC, kfm.DataPath, kfm.PretrainModelPVC, kfm.PretrainModelPath, kfm.CKPTPath, kfm.ModelSavePath, false),
 				},
 			},
 			"runPolicy": map[string]interface{}{
