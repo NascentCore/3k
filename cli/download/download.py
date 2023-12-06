@@ -33,8 +33,7 @@ class Model(cli.Application):
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
-        extensions_v1_api = client.ApiextensionsV1Api()
-        custome_objects_api = client.CustomObjectsApi()
+        custom_objects_api = client.CustomObjectsApi()
 
         # 创建PVC
         storage = model_size * 1.25
@@ -59,36 +58,36 @@ class Model(cli.Application):
             print("create_download_job exception: %s" % e)
             return
 
-        # 写CRD
+        # 创建CRD对象
         try:
-            # create_crd_record(
-            #     api_instance=extensions_v1_api,
-            #     crd_group="cpod.sxwl.ai",
-            #     crd_version="v1",
-            #     crd_kind="ModelStorageV2",
-            #     crd_name=crd_name,
-            #     crd_data={
-            #         "modelHub": hub_name,
-            #         "modelId": model_id,
-            #         "pvc": pvc,
-            #     },
-            #     namespace=namespace
-            # )
-
-            # Call create_custom_resource function
             create_custom_resource(
-                api_instance=custome_objects_api,
+                api_instance=custom_objects_api,
                 group="cpod.sxwl.ai",
                 version="v1",
-                kind="ModelStorageV2",
-                plural="modelstoragesv2",
+                kind="ModelStorage",
+                plural="modelstorages",
                 name=crd_name,
                 spec={
-                    "modelHub": hub_name,
-                    "modelId": model_id,
+                    "modeltype": hub_name,
+                    "modelname": model_id,
                     "pvc": pvc,
                 },
                 namespace=namespace
+            )
+        except ApiException as e:
+            print("create_crd_record exception: %s" % e)
+            return
+
+        # 更新CRD状态为downloading
+        try:
+            update_custom_resource_status(
+                api_instance=custom_objects_api,
+                group="cpod.sxwl.ai",
+                version="v1",
+                plural="modelstorages",
+                name=crd_name,
+                namespace=namespace,
+                new_status="downloading"
             )
         except ApiException as e:
             print("create_crd_record exception: %s" % e)
@@ -175,29 +174,6 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
         raise e
 
 
-def create_crd_record(api_instance, crd_group, crd_version, crd_kind, crd_name, crd_data, namespace="default"):
-    crd_body = {
-        "apiVersion": f"{crd_group}/{crd_version}",
-        "kind": crd_kind,
-        "metadata": {
-            "name": crd_name,
-            "namespace": namespace
-        },
-        "spec": crd_data
-    }
-
-    try:
-        api_response = api_instance.create_custom_resource_definition(
-            group=crd_group,
-            version=crd_version,
-            namespace=namespace,
-            body=crd_body
-        )
-        print(f"CRD record '{crd_name}' created in namespace '{namespace}'. status='{str(api_response)}'")
-    except ApiException as e:
-        raise e
-
-
 def create_custom_resource(api_instance, group, version, kind, plural, name, namespace, spec):
     crd_instance = {
         "apiVersion": f"{group}/{version}",
@@ -221,3 +197,18 @@ def create_custom_resource(api_instance, group, version, kind, plural, name, nam
     except ApiException as e:
         print(f"Exception when creating Custom Resource: {e}")
         raise e
+
+
+def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_status):
+    try:
+        api_response = api_instance.replace_namespaced_custom_object_status(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=name,
+            body={"status": new_status}
+        )
+        print(f"Custom Resource '{name}' status updated. Status='{str(api_response)}'")
+    except ApiException as e:
+        print(f"Exception when updating Custom Resource status: {e}")
