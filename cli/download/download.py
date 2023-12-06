@@ -30,6 +30,7 @@ class Model(cli.Application):
 
         crd_name = create_crd_name(hub, model_id)
         pvc = create_pvc_name(hub, model_id)
+        job_name = create_job_name(hub, model_id)
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -47,7 +48,7 @@ class Model(cli.Application):
         # 创建下载Job
         try:
             create_download_job(batch_v1_api,
-                                "download-%s" % pvc,
+                                job_name,
                                 "model-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
                                 pvc,
@@ -211,7 +212,7 @@ def update_custom_resource_status(api_instance, group, version, plural, name, na
         )
 
         # 更新 status 字段
-        current_object["status"] = new_status
+        current_object["status"]["phase"] = new_status
 
         # 替换对象的状态
         api_response = api_instance.replace_namespaced_custom_object(
