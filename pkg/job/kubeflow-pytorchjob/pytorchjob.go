@@ -43,7 +43,7 @@ func (kfp PytorchJob) genJsonData() map[string]interface{} {
 					"replicas":      kfp.Replicas,
 					"restartPolicy": "OnFailure",
 					"template": utils.GenPodTemplate(kfp.Name, kfp.Image, "IfNotPresent", kfp.GPURequiredPerWorker, kfp.GPUType,
-						kfp.Command, kfp.DataPVC, kfp.DataPath, kfp.PretrainModelPVC, kfp.PretrainModelPath, kfp.CKPTPath, kfp.ModelSavePath, true),
+						kfp.Command, nil, kfp.DataPVC, kfp.DataPath, kfp.PretrainModelPVC, kfp.PretrainModelPath, kfp.CKPTPath, kfp.ModelSavePath, true),
 				},
 			},
 		},
