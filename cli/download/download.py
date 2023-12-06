@@ -201,14 +201,28 @@ def create_custom_resource(api_instance, group, version, kind, plural, name, nam
 
 def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_status):
     try:
-        api_response = api_instance.replace_namespaced_custom_object_status(
+        # 获取当前对象
+        current_object = api_instance.get_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=name
+        )
+
+        # 更新 status 字段
+        current_object["status"] = new_status
+
+        # 替换对象的状态
+        api_response = api_instance.replace_namespaced_custom_object(
             group=group,
             version=version,
             namespace=namespace,
             plural=plural,
             name=name,
-            body={"status": new_status}
+            body=current_object
         )
         print(f"Custom Resource '{name}' status updated. Status='{str(api_response)}'")
     except ApiException as e:
         print(f"Exception when updating Custom Resource status: {e}")
+        raise e
