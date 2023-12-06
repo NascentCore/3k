@@ -64,7 +64,7 @@ class Model(cli.Application):
                 api_instance=custom_object_api,
                 crd_group="cpod.sxwl.ai",
                 crd_version="v1",
-                crd_plural="ModelStorage",
+                crd_plural="ModelStorageV2",
                 crd_name=crd_name,
                 crd_data={
                     "modelHub": hub_name,
