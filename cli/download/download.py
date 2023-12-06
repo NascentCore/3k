@@ -64,7 +64,7 @@ class Model(cli.Application):
                 api_instance=extensions_v1_api,
                 crd_group="cpod.sxwl.ai",
                 crd_version="v1",
-                crd_plural="ModelStorageV2",
+                crd_kind="ModelStorageV2",
                 crd_name=crd_name,
                 crd_data={
                     "modelHub": hub_name,
@@ -153,10 +153,10 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
         raise e
 
 
-def create_crd_record(api_instance, crd_group, crd_version, crd_plural, crd_name, crd_data, namespace="default"):
+def create_crd_record(api_instance, crd_group, crd_version, crd_kind, crd_name, crd_data, namespace="default"):
     crd_body = {
         "apiVersion": f"{crd_group}/{crd_version}",
-        "kind": crd_plural,
+        "kind": crd_kind,
         "metadata": {
             "name": crd_name,
             "namespace": namespace
@@ -165,11 +165,10 @@ def create_crd_record(api_instance, crd_group, crd_version, crd_plural, crd_name
     }
 
     try:
-        api_response = api_instance.create_namespaced_custom_object(
+        api_response = api_instance.create_custom_resource_definition(
             group=crd_group,
             version=crd_version,
             namespace=namespace,
-            plural=crd_plural,
             body=crd_body
         )
         print(f"CRD record '{crd_name}' created in namespace '{namespace}'. status='{str(api_response)}'")
