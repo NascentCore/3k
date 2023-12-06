@@ -74,7 +74,7 @@ public class UserJobController {
         if (null != userJobList && !userJobList.isEmpty()) {
             int workstatus = userJobList.get(0).getWorkStatus();
             if(Constants.WORKER_STATUS_URL_SUCCESS == workstatus){
-                objmap.put("status","sucess");
+                objmap.put("status","success");
                 FileurlQueryCriteria fileurlQueryCriteria = new FileurlQueryCriteria();
                 fileurlQueryCriteria.setJobName(jobId);
                 List<Fileurl> fileurlList = fileurlService.queryAll(fileurlQueryCriteria);

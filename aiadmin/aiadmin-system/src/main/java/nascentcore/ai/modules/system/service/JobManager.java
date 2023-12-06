@@ -27,7 +27,7 @@ public class JobManager {
                 for (UserJob userJob : userJobList) {
                     if (jobStatusDTO.getName().equals(userJob.getJobName())) {
                         String status = jobStatusDTO.getJobStatus();
-                        if ("createfailed".equals(status) || "failed".equals(status)) {
+                        if (("createfailed".equals(status) || "failed".equals(status)) && Constants.WORKER_STATUS_FIAL != userJob.getWorkStatus()) {
                             userJob.setWorkStatus(Constants.WORKER_STATUS_FIAL);
                             userJob.setObtainStatus(Constants.NOTNEEDSEND);
                             userJob.setUpdateTime(DateTime.now().toTimestamp());
@@ -37,14 +37,14 @@ public class JobManager {
                             if(!StringUtils.isEmpty(userJob.getCallbackUrl())){
                                 HttpSenddateThread.add(job);
                             }
-                        } else if ("succeeded".equals(status)) {
+                        } else if ("succeeded".equals(status) && Constants.WORKER_STATUS_SUCCESS != userJob.getWorkStatus()) {
                             userJob.setWorkStatus(Constants.WORKER_STATUS_SUCCESS);
                             userJob.setObtainStatus(Constants.NOTNEEDSEND);
                             userJob.setUpdateTime(DateTime.now().toTimestamp());
                             UserJob job = new UserJob();
                             BeanUtil.copyProperties(userJob, job);
                             userJobListtmp.add(job);
-                        } else if ("modeluploaded".equals(status)) {
+                        } else if ("modeluploaded".equals(status) && Constants.WORKER_STATUS_URL_SUCCESS != userJob.getWorkStatus()) {
                             userJob.setWorkStatus(Constants.WORKER_STATUS_URL_SUCCESS);
                             userJob.setObtainStatus(Constants.NOTNEEDSEND);
                             UserJob job = new UserJob();
