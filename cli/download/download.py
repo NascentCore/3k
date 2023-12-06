@@ -95,6 +95,11 @@ def create_pvc_name(hub, model_id):
     return "pvc-model-{0}".format(hash_sha1.hexdigest()[:16])
 
 
+def create_job_name(hub, model_id):
+    hash_sha1 = hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8"))
+    return "download-model-{0}".format(hash_sha1.hexdigest()[:16])
+
+
 def create_pvc(api_instance, namespace, pvc_name, storage_size):
     body = {
         "apiVersion": "v1",
