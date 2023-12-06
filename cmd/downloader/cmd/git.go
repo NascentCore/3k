@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	clientgo "sxwl/3k/pkg/cluster/client-go"
 
 	"github.com/spf13/cobra"
 )
@@ -60,5 +61,8 @@ func downloadGitRepo(repoURL, outputPath string) error {
 	}
 
 	fmt.Printf("Downloaded Git repository from %s and saved to %s\n", repoURL, outputPath)
+
+	// update phase
+	clientgo.UpdateCRDStatus()
 	return nil
 }
