@@ -508,7 +508,7 @@ def create_experiment_dir(ckpt_dir: pathlib.Path,
         json.dump(obj=all_arguments, fp=handle, indent=2)
 
     print("writing into {}/hparams.json".format(ckpt_dir))
-    ckpt_dir.mkdir()
+    ckpt_dir.mkdir(exist_ok=True)
     hparams_file = ckpt_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
@@ -780,7 +780,7 @@ def train(
         print("load_checkpoint_dir=", checkpoint_dir)
         checkpoint_dir = pathlib.Path(checkpoint_dir)
         ckpt_dir = pathlib.Path(ckpt_dir)
-        assert checkpoint_dir.exists()
+        #assert checkpoint_dir.exists()
         print("load_checkpoint_dir=", checkpoint_dir)
         with (ckpt_dir / "hparams.json").open("r") as handle:
             hparams = json.load(handle)
@@ -868,7 +868,7 @@ def train(
     #### Load Model checkpoint #####
     ################################
     start_step = 1
-    if ckpt_dir is not None:
+    if ckpt_dir is not None and os.path.exists(ckpt_dir / "latest"):
         _, client_state = model.load_checkpoint(load_dir=ckpt_dir)
         checkpoint_step = client_state['checkpoint_step']
         start_step = checkpoint_step + 1
