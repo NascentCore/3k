@@ -80,11 +80,7 @@ func parseState(data *apiv1.Job) (state.State, error) {
 
 	if !s.JobStatus.NoMoreChange() { //还在运行中
 		if timeup {
-			//if s.JobStatus == state.JobStatusRunning { // running to succeed
 			s.JobStatus = state.JobStatusSucceed
-			//} else { // others to failed
-			//s.JobStatus = state.JobStatusFailed
-			//}
 		}
 	}
 	return s, nil
