@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/fs"
 )
 
@@ -28,7 +27,7 @@ var gitCmd = &cobra.Command{
 	Short: "download data from git url",
 	Long:  `download data from git url`,
 	Run: func(cmd *cobra.Command, args []string) {
-		clientgo.InitClient()
+		//clientgo.InitClient()
 
 		if gitUrl == "" {
 			fmt.Println("please input the git url for downloading")

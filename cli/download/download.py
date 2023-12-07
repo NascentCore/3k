@@ -144,7 +144,7 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         api_response = api_instance.create_namespaced_persistent_volume_claim(
             namespace=namespace, body=body
         )
-        print("PVC %s in namespace %s created. Status: %s" % (pvc_name, namespace, str(api_response.status)))
+        print("PVC %s in namespace %s created" % (pvc_name, namespace))
         return api_response
     except ApiException as e:
         print("Error creating PVC: %s" % e)
@@ -179,7 +179,7 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
     try:
         # 创建 Job
         api_response = api_instance.create_namespaced_job(namespace=namespace, body=job)
-        print(f"Job '{job_name}' created. status='{str(api_response.status)}'")
+        print(f"Job '{job_name}' created.")
     except ApiException as e:
         print(f"Exception when creating Job '{job_name}': {e}\n")
         raise e
@@ -237,7 +237,7 @@ def update_custom_resource_status(api_instance, group, version, plural, name, na
             name=name,
             body=current_object
         )
-        print(f"Custom Resource '{name}' status updated. Status='{str(api_response)}'")
+        print(f"Custom Resource '{name}' status updated.")
     except ApiException as e:
         print(f"Exception when updating Custom Resource status: {e}")
         raise e
