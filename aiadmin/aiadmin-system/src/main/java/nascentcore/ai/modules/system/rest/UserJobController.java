@@ -6,7 +6,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import nascentcore.ai.modules.system.domain.CpodMain;
 import nascentcore.ai.modules.system.domain.Fileurl;
 import nascentcore.ai.modules.system.domain.UserJob;
-import nascentcore.ai.modules.system.domain.UserJobRes;
 import nascentcore.ai.modules.system.domain.bean.Constants;
 import nascentcore.ai.modules.system.domain.dto.cpod.CpodStatusReq;
 import nascentcore.ai.modules.system.domain.dto.cpod.GpuSummariesDTO;
@@ -94,7 +93,7 @@ public class UserJobController {
         Long userId = SecurityUtils.getCurrentUserId();
         UserJob userJob = JSON.parseObject(resources,UserJob.class);
         Map<String, Object> obj = new HashMap<String, Object>();
-        if(null != resources){
+        if(null != userJob){
             userJob.setUserId(userId);
             userJob.setJobName("ai" + randomUUID());
             userJob.setCreateTime(DateUtil.getUTCTimeStamp());
@@ -102,6 +101,9 @@ public class UserJobController {
             obj.put("job_id",userJob.getJobName());
             JSONObject jsonObjectobj = JSON.parseObject(resources);
             jsonObjectobj.put("jobName",userJob.getJobName());
+            jsonObjectobj.put("modelVol",Integer.valueOf(userJob.getModelVol()));
+            jsonObjectobj.put("ckptVol",Integer.valueOf(userJob.getCkptVol()));
+            jsonObjectobj.put("stopType", userJob.getStopType());
             String output = JSON.toJSONString(jsonObjectobj, SerializerFeature.PrettyFormat);
             userJob.setJsonAll(output);
         }
@@ -111,12 +113,12 @@ public class UserJobController {
 
     @GetMapping(value = "/cpod_jobs")
     @ApiOperation("获取未下发的用户新任务")
-    public ResponseEntity<List<UserJobRes>> getNewJob(String cpodid) {
+    public ResponseEntity<List<JSONObject>> getNewJob(String cpodid) {
         List<CpodMain> cpodMains = cpodMainService.findByCpodId(cpodid);
         UserJobQueryCriteria criteria = new UserJobQueryCriteria();
         criteria.setObtainStatus(Constants.NEEDSEND);
         List<UserJob> userJobList = userJobService.queryAll(criteria);
-        List<UserJobRes> userJobResList = new ArrayList<>();
+        List<JSONObject> userJobResList = new ArrayList<>();
         if (!cpodMains.isEmpty()) {
             for (CpodMain cpodMain : cpodMains) {
                 for (UserJob job : userJobList) {
@@ -126,14 +128,14 @@ public class UserJobController {
                             job.setCpodId(cpodid);
                             job.setUpdateTime(DateUtil.getUTCTimeStamp());
                             if(null != job.getJsonAll()){
-                                userJobResList.add(JSON.parseObject(job.getJsonAll(), UserJobRes.class));
+                                userJobResList.add(JSON.parseObject(job.getJsonAll()));
                             }
                             cpodMain.setGpuAllocatable(diff);
                         }
                     } else if (job.getCpodId().equals(cpodMain.getCpodId())) {
                         if (cpodMain.getGpuProd().equals(job.getGpuType())) {
                             if(null != job.getJsonAll()){
-                                userJobResList.add(JSON.parseObject(job.getJsonAll(), UserJobRes.class));
+                                userJobResList.add(JSON.parseObject(job.getJsonAll()));
                             }
                         }
                     }
