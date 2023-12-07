@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class EnvDTO {
-    @JsonProperty("modihandOpenNodeToken")
+    @JsonProperty("MODIHAND_OPEN_NODE_TOKEN")
     private String modihandOpenNodeToken;
 }
