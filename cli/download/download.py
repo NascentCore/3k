@@ -11,7 +11,7 @@ from .model_scope import ModelScopeHub
 
 GROUP = "cpod.sxwl.ai"
 VERSION = "v1"
-PLURAL = "modelstorages",
+PLURAL = "modelstorages"
 
 
 class Download(cli.Application):
@@ -61,7 +61,7 @@ class Model(cli.Application):
                                  "-g", GROUP,
                                  "-v", VERSION,
                                  "-p", PLURAL,
-                                 "-n", job_name,
+                                 "-n", crd_name,
                                  "--namespace", namespace],
                                 namespace,
                                 "aliyun-enterprise-registry")

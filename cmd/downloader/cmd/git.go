@@ -6,7 +6,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"os"
 	"os/exec"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
@@ -52,17 +51,17 @@ var gitCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// update status phase
-		var gvr = schema.GroupVersionResource{
-			Group:    group,
-			Version:  version,
-			Resource: plural,
-		}
-		err = clientgo.UpdateCRDStatus(gvr, namespace, name, "phase", "done")
-		if err != nil {
-			fmt.Printf("Error UpdateCRDStatus err : %v\n", err)
-			os.Exit(1)
-		}
+		//// update status phase
+		//var gvr = schema.GroupVersionResource{
+		//	Group:    group,
+		//	Version:  version,
+		//	Resource: plural,
+		//}
+		//err = clientgo.UpdateCRDStatus(gvr, namespace, name, "phase", "done")
+		//if err != nil {
+		//	fmt.Printf("Error UpdateCRDStatus err : %v\n", err)
+		//	os.Exit(1)
+		//}
 	},
 }
 
