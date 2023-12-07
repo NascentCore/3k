@@ -41,7 +41,7 @@ class Model(cli.Application):
         custom_objects_api = client.CustomObjectsApi()
 
         # 创建PVC
-        storage = model_size * 1.25
+        storage = model_size * 2
         storage = "%dGi" % math.ceil(storage)
         try:
             create_pvc(core_v1_api, namespace, pvc, storage)

@@ -31,6 +31,41 @@ kubectl get job download-model-7b4ff4e80a400408 -n cpod
 ```bash
 kubectl get pod -n cpod | grep download-model-7b4ff4e80a400408
 ```
-正常应该显示 Running
 
-查看CRD状态
+- Running 下载中
+- Completed 下载完成
+
+查看模型文件
+```yaml
+# pod-pvc.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine
+  namespace: cpod
+  labels:
+    app: alpine
+spec:
+  volumes:
+  - name: modelsave-pv
+    persistentVolumeClaim:
+      claimName: pvc-model-2e5ac6b350e54f96 # 替换成对应的pvc name
+      readOnly: false
+  containers:
+  - name: alpine
+    image: alpine
+    stdin: true
+    tty: true
+    volumeMounts:
+    - mountPath: "/data"
+      name: modelsave-pv
+```
+
+```bash
+kubectl apply -f pod-pvc.yaml
+kubectl exec -it alpine -n cpod -- /bin/sh
+```
+进入到容器后
+```yaml
+ls -l /data
+```
