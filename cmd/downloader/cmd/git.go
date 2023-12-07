@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"os"
 	"os/exec"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
@@ -19,7 +20,7 @@ var (
 	version   string // "v1"
 	plural    string // "modelstorages"
 	name      string // "example-modelstorage"
-	namespace string // "default"
+	namespace string // "cpod"
 )
 
 // gitCmd represents the git command
@@ -28,6 +29,8 @@ var gitCmd = &cobra.Command{
 	Short: "download data from git url",
 	Long:  `download data from git url`,
 	Run: func(cmd *cobra.Command, args []string) {
+		clientgo.InitClient()
+
 		if gitUrl == "" {
 			fmt.Println("please input the git url for downloading")
 			return
@@ -50,7 +53,12 @@ var gitCmd = &cobra.Command{
 		}
 
 		// update status phase
-		err = clientgo.UpdateCRDStatus(namespace, name, plural, "phase", "done")
+		var gvr = schema.GroupVersionResource{
+			Group:    group,
+			Version:  version,
+			Resource: plural,
+		}
+		err = clientgo.UpdateCRDStatus(gvr, namespace, name, "phase", "done")
 		if err != nil {
 			fmt.Printf("Error UpdateCRDStatus err : %v\n", err)
 			os.Exit(1)

@@ -5,10 +5,8 @@ package clientgo
 // operater cluster with client-go.
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"k8s.io/client-go/util/retry"
 	"sxwl/3k/pkg/log"
 
 	v1 "k8s.io/api/core/v1"
@@ -134,53 +132,20 @@ func DeletePVC(namespace, name string) error {
 	return k8sClient.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
-func UpdateCRDStatus(plural, name, namespace, statusField, newValue string) error {
-	ctx := context.TODO()
+func UpdateCRDStatus(gvr schema.GroupVersionResource, namespace, name, field, value string) error {
+	crdInstance, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
 
-	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// 获取当前对象
-		currentObject, err := k8sClient.RESTClient().Get().
-			Resource(plural).
-			Namespace(namespace).
-			Name(name).
-			SubResource("status").
-			VersionedParams(&metav1.GetOptions{}, metav1.ParameterCodec).
-			DoRaw(ctx)
+	if err := unstructured.SetNestedField(crdInstance.Object, value, "status", field); err != nil {
+		return err
+	}
 
-		if err != nil {
-			return fmt.Errorf("failed to get CRD object: %v", err)
-		}
+	_, err = dynamicClient.Resource(gvr).Namespace(namespace).UpdateStatus(context.TODO(), crdInstance, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
 
-		// 使用 map[string]interface{} 解码 status 字段
-		statusMap := make(map[string]interface{})
-		if err := json.Unmarshal(currentObject, &statusMap); err != nil {
-			return fmt.Errorf("failed to unmarshal status: %v", err)
-		}
-
-		// 更新 statusField
-		statusMap[statusField] = newValue
-
-		// 将更新后的 map[string]interface{} 编码为 JSON 字符串
-		newStatusJSON, err := json.Marshal(statusMap)
-		if err != nil {
-			return fmt.Errorf("failed to marshal updated status: %v", err)
-		}
-
-		// 使用 RESTClient 执行对 status 的更新
-		_, err = k8sClient.RESTClient().Put().
-			Resource(plural).
-			Namespace(namespace).
-			Name(name).
-			SubResource("status").
-			Body(newStatusJSON).
-			VersionedParams(&metav1.GetOptions{}, metav1.ParameterCodec).
-			DoRaw(ctx)
-
-		if err != nil {
-			return fmt.Errorf("failed to update CRD status.%s: %v", statusField, err)
-		}
-
-		return nil
-	})
-	return retryErr
+	return nil
 }
