@@ -54,7 +54,7 @@ class Model(cli.Application):
             create_download_job(batch_v1_api,
                                 job_name,
                                 "model-downloader",
-                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v2.0.0",
                                 pvc,
                                 ["git",
                                  "-s", hub.git_url(model_id),
