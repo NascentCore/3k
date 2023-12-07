@@ -5,16 +5,21 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
-
-	"github.com/spf13/cobra"
+	"sxwl/3k/pkg/fs"
 )
 
 var (
-	gitUrl string
-	outDir string
+	gitUrl    string
+	outDir    string
+	group     string // "cpod.sxwl.ai"
+	version   string // "v1"
+	plural    string // "modelstorages"
+	name      string // "example-modelstorage"
+	namespace string // "default"
 )
 
 // gitCmd represents the git command
@@ -28,9 +33,26 @@ var gitCmd = &cobra.Command{
 			return
 		}
 
+		// empty dir /data
+		if fs.IsDirExist(outDir) {
+			err := fs.RemoveAllFilesInDir(outDir)
+			if err != nil {
+				fmt.Printf("Error RemoveAllFilesInDir %s err: %v\n", outDir, err)
+				os.Exit(1)
+			}
+		}
+
+		// download repo
 		err := downloadGitRepo(gitUrl, outDir)
 		if err != nil {
-			fmt.Printf("Error downloading Git repository: %v\n", err)
+			fmt.Printf("Error downloading Git repository err: %v\n", err)
+			os.Exit(1)
+		}
+
+		// update status phase
+		err = clientgo.UpdateCRDStatus(namespace, name, plural, "phase", "done")
+		if err != nil {
+			fmt.Printf("Error UpdateCRDStatus err : %v\n", err)
 			os.Exit(1)
 		}
 	},
@@ -41,6 +63,11 @@ func init() {
 	gitCmd.Flags().SortFlags = false
 	gitCmd.Flags().StringVarP(&gitUrl, "source_url", "s", "", "git url of the resource")
 	gitCmd.Flags().StringVarP(&outDir, "output_dir", "o", "/data", "output dir")
+	gitCmd.Flags().StringVarP(&group, "group", "g", "cpod.sxwl.ai", "k8s group")
+	gitCmd.Flags().StringVarP(&version, "version", "v", "v1", "k8s version")
+	gitCmd.Flags().StringVarP(&plural, "plural", "p", "", "k8s plural")
+	gitCmd.Flags().StringVarP(&name, "name", "n", "", "k8s name")
+	gitCmd.Flags().StringVar(&namespace, "namespace", "cpod", "k8s namespace")
 }
 
 func downloadGitRepo(repoURL, outputPath string) error {
@@ -62,7 +89,5 @@ func downloadGitRepo(repoURL, outputPath string) error {
 
 	fmt.Printf("Downloaded Git repository from %s and saved to %s\n", repoURL, outputPath)
 
-	// update phase
-	clientgo.UpdateCRDStatus()
 	return nil
 }

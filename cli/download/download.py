@@ -9,6 +9,10 @@ from plumbum import cli
 
 from .model_scope import ModelScopeHub
 
+GROUP = "cpod.sxwl.ai"
+VERSION = "v1"
+PLURAL = "modelstorages",
+
 
 class Download(cli.Application):
     """Download model or dataset"""
@@ -52,7 +56,13 @@ class Model(cli.Application):
                                 "model-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
                                 pvc,
-                                ["git", "-s", hub.git_url(model_id)],
+                                ["git",
+                                 "-s", hub.git_url(model_id),
+                                 "-g", GROUP,
+                                 "-v", VERSION,
+                                 "-p", PLURAL,
+                                 "-n", job_name,
+                                 "--namespace", namespace],
                                 namespace,
                                 "aliyun-enterprise-registry")
         except ApiException as e:
@@ -63,10 +73,10 @@ class Model(cli.Application):
         try:
             create_custom_resource(
                 api_instance=custom_objects_api,
-                group="cpod.sxwl.ai",
-                version="v1",
+                group=GROUP,
+                version=VERSION,
                 kind="ModelStorage",
-                plural="modelstorages",
+                plural=PLURAL,
                 name=crd_name,
                 spec={
                     "modeltype": hub_name,
@@ -83,9 +93,9 @@ class Model(cli.Application):
         try:
             update_custom_resource_status(
                 api_instance=custom_objects_api,
-                group="cpod.sxwl.ai",
-                version="v1",
-                plural="modelstorages",
+                group=GROUP,
+                version=VERSION,
+                plural=PLURAL,
                 name=crd_name,
                 namespace=namespace,
                 new_phase="downloading"
