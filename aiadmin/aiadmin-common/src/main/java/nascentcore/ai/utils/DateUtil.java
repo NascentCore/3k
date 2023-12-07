@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author: jim
@@ -40,7 +41,18 @@ public class DateUtil {
     public static Long getTimeStamp(LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
     }
-
+    /**
+     * 获取北京时区时间
+     *
+     * @return Timestamp/
+     */
+    public static Timestamp getUTCTimeStamp() {
+        LocalDateTime now = LocalDateTime.now();
+        TimeZone timeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        ZoneId zoneId = timeZone.toZoneId();
+        now.atZone(zoneId);
+        return Timestamp.valueOf(now);
+    }
     /**
      * 时间戳转LocalDateTime
      *
