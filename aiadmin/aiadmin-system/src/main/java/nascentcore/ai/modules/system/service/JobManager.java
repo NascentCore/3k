@@ -7,6 +7,7 @@ import nascentcore.ai.modules.system.domain.bean.Constants;
 import nascentcore.ai.modules.system.domain.dto.cpod.JobStatusDTO;
 import nascentcore.ai.modules.system.domain.vo.UserJobQueryCriteria;
 import nascentcore.ai.modules.system.thread.HttpSenddateThread;
+import nascentcore.ai.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import nascentcore.ai.utils.StringUtils;
@@ -30,7 +31,7 @@ public class JobManager {
                         if (("createfailed".equals(status) || "failed".equals(status)) && Constants.WORKER_STATUS_FIAL != userJob.getWorkStatus()) {
                             userJob.setWorkStatus(Constants.WORKER_STATUS_FIAL);
                             userJob.setObtainStatus(Constants.NOTNEEDSEND);
-                            userJob.setUpdateTime(DateTime.now().toTimestamp());
+                            userJob.setUpdateTime(DateUtil.getUTCTimeStamp());
                             UserJob job = new UserJob();
                             BeanUtil.copyProperties(userJob, job);
                             userJobListtmp.add(job);
@@ -40,7 +41,7 @@ public class JobManager {
                         } else if ("succeeded".equals(status) && Constants.WORKER_STATUS_SUCCESS != userJob.getWorkStatus()) {
                             userJob.setWorkStatus(Constants.WORKER_STATUS_SUCCESS);
                             userJob.setObtainStatus(Constants.NOTNEEDSEND);
-                            userJob.setUpdateTime(DateTime.now().toTimestamp());
+                            userJob.setUpdateTime(DateUtil.getUTCTimeStamp());
                             UserJob job = new UserJob();
                             BeanUtil.copyProperties(userJob, job);
                             userJobListtmp.add(job);

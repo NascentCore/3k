@@ -15,6 +15,7 @@ import nascentcore.ai.modules.system.domain.vo.UserJobQueryCriteria;
 import nascentcore.ai.modules.system.service.FileurlService;
 import nascentcore.ai.modules.system.service.UserJobService;
 import nascentcore.ai.modules.system.thread.HttpSenddateThread;
+import nascentcore.ai.utils.DateUtil;
 import nascentcore.ai.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
+
+import static java.util.TimeZone.getTimeZone;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,8 +46,8 @@ public class InfoUploadController {
                 Fileurl fileurl = new Fileurl();
                 fileurl.setJobName(modelUrl.getJobName());
                 fileurl.setFileUrl(it);
-                fileurl.setCreateTime(DateTime.now().toTimestamp());
-                fileurl.setUpdateTime(DateTime.now().toTimestamp());
+                fileurl.setCreateTime(DateUtil.getUTCTimeStamp());
+                fileurl.setUpdateTime(DateUtil.getUTCTimeStamp());
                 fileurlList.add(fileurl);
             }
             fileurlService.save(fileurlList);
