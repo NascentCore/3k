@@ -1,9 +1,8 @@
 package nascentcore.ai.modules.system.rest;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import nascentcore.ai.modules.system.domain.CpodMain;
 import nascentcore.ai.modules.system.domain.Fileurl;
 import nascentcore.ai.modules.system.domain.UserJob;
@@ -20,6 +19,7 @@ import nascentcore.ai.modules.system.service.JobManager;
 import nascentcore.ai.modules.system.service.UserJobService;
 import nascentcore.ai.modules.system.domain.vo.UserJobQueryCriteria;
 import lombok.RequiredArgsConstructor;
+import nascentcore.ai.utils.DateUtil;
 import nascentcore.ai.utils.SecurityUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,17 +90,22 @@ public class UserJobController {
 
     @PostMapping
     @ApiOperation("新增用户任务")
-    public ResponseEntity<Object> createUserJob(@Validated @RequestBody UserJob resources){
+    public ResponseEntity<Object> createUserJob(@Validated @RequestBody String resources){
         Long userId = SecurityUtils.getCurrentUserId();
+        UserJob userJob = JSON.parseObject(resources,UserJob.class);
         Map<String, Object> obj = new HashMap<String, Object>();
         if(null != resources){
-            resources.setUserId(userId);
-            resources.setJobName("ai" + randomUUID());
-            resources.setCreateTime(DateTime.now().toTimestamp());
-            resources.setUpdateTime(DateTime.now().toTimestamp());
-            obj.put("job_id",resources.getJobName());
+            userJob.setUserId(userId);
+            userJob.setJobName("ai" + randomUUID());
+            userJob.setCreateTime(DateUtil.getUTCTimeStamp());
+            userJob.setUpdateTime(DateUtil.getUTCTimeStamp());
+            obj.put("job_id",userJob.getJobName());
+            JSONObject jsonObjectobj = JSON.parseObject(resources);
+            jsonObjectobj.put("jobName",userJob.getJobName());
+            String output = JSON.toJSONString(jsonObjectobj, SerializerFeature.PrettyFormat);
+            userJob.setJsonAll(output);
         }
-        userJobService.create(resources);
+        userJobService.create(userJob);
         return new ResponseEntity<>(obj,HttpStatus.OK);
     }
 
@@ -119,17 +124,17 @@ public class UserJobController {
                         int diff = cpodMain.getGpuAllocatable() - job.getGpuNumber();
                         if (diff >= 0 && cpodMain.getGpuProd().equals(job.getGpuType())) {
                             job.setCpodId(cpodid);
-                            job.setUpdateTime(DateTime.now().toTimestamp());
-                            UserJobRes userJobRes = new UserJobRes();
-                            BeanUtil.copyProperties(job, userJobRes);
-                            userJobResList.add(userJobRes);
+                            job.setUpdateTime(DateUtil.getUTCTimeStamp());
+                            if(null != job.getJsonAll()){
+                                userJobResList.add(JSON.parseObject(job.getJsonAll(), UserJobRes.class));
+                            }
                             cpodMain.setGpuAllocatable(diff);
                         }
                     } else if (job.getCpodId().equals(cpodMain.getCpodId())) {
                         if (cpodMain.getGpuProd().equals(job.getGpuType())) {
-                            UserJobRes userJobRes = new UserJobRes();
-                            BeanUtil.copyProperties(job, userJobRes);
-                            userJobResList.add(userJobRes);
+                            if(null != job.getJsonAll()){
+                                userJobResList.add(JSON.parseObject(job.getJsonAll(), UserJobRes.class));
+                            }
                         }
                     }
                 }
@@ -163,7 +168,7 @@ public class UserJobController {
                             cpodMain.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
                         }
                         cpodMain.setUserId(String.valueOf(userId));
-                        cpodMain.setUpdateTime(DateTime.now().toTimestamp());
+                        cpodMain.setUpdateTime(DateUtil.getUTCTimeStamp());
                         cpodMainService.update(cpodMain);
                     } else {
                         CpodMain cpod = new CpodMain();
@@ -174,8 +179,8 @@ public class UserJobController {
                         cpod.setGpuTotal(gpuSummariesDTO.getTotal());
                         cpod.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
                         cpod.setUserId(String.valueOf(userId));
-                        cpod.setCreateTime(DateTime.now().toTimestamp());
-                        cpod.setUpdateTime(DateTime.now().toTimestamp());
+                        cpod.setCreateTime(DateUtil.getUTCTimeStamp());
+                        cpod.setUpdateTime(DateUtil.getUTCTimeStamp());
                         cpodMainService.create(cpod);
                     }
                 }

@@ -27,10 +27,11 @@
         <result column="dataset_name" property="datasetName"/>
         <result column="pretrained_model_name" property="pretrainedModelName"/>
         <result column="pretrained_model_path" property="pretrainedModelPath"/>
+        <result column="json_all" property="jsonAll"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        job_id, job_name, gpu_number, gpu_type, ckpt_path, ckpt_vol, model_path, model_vol, image_path, hf_url, dataset_path, job_type, stop_type, stop_time, work_status, obtain_status, create_time, update_time, user_id, cpod_id,run_command, callback_url, dataset_name,pretrained_model_name, pretrained_model_path
+        job_id, job_name, gpu_number, gpu_type, ckpt_path, ckpt_vol, model_path, model_vol, image_path, hf_url, dataset_path, job_type, stop_type, stop_time, work_status, obtain_status, create_time, update_time, user_id, cpod_id,run_command, callback_url, dataset_name,pretrained_model_name, pretrained_model_path,json_all
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">
