@@ -22,7 +22,8 @@ type GeneralJob struct {
 	GPUType              string
 	GPURequiredPerWorker int //
 	Command              []string
-	Deadline             string // 运行截止时间
+	Envs                 map[string]string //环境变量列表
+	Deadline             string            // 运行截止时间
 }
 
 func (gj GeneralJob) genJsonData() map[string]interface{} {
@@ -44,7 +45,7 @@ func (gj GeneralJob) genJsonData() map[string]interface{} {
 			"parallelism":    1,
 			"suspend":        false,
 			"template": utils.GenPodTemplate(gj.Name, gj.Image, "IfNotPresent", gj.GPURequiredPerWorker, gj.GPUType,
-				gj.Command, gj.DataPVC, gj.DataPath, gj.PretrainModelPVC, gj.PretrainModelPath, gj.CKPTPath, gj.ModelSavePath, false),
+				gj.Command, gj.Envs, gj.DataPVC, gj.DataPath, gj.PretrainModelPVC, gj.PretrainModelPath, gj.CKPTPath, gj.ModelSavePath, false),
 		},
 	}
 }

@@ -38,8 +38,11 @@ func GetJobStatesWithUploaderInfo() ([]state.State, error) {
 	jobAdded := map[string]struct{}{}
 	for _, uploaderJob := range uploaderJobs {
 		jobName := utils.ParseJobNameFromModelUploader(uploaderJob.Name)
+		log.SLogger.Debugw("uploader ", "jobname", jobName)
 		if jobState, ok := jobStateMap[jobName]; ok {
+			log.SLogger.Debugw("found related job", "jobname", jobName)
 			if jobState.JobStatus == state.JobStatusSucceed {
+				log.SLogger.Debugw("job is succeeded", "jobname", jobName)
 				s := jobState
 				if isJobComplete(uploaderJob) {
 					s.JobStatus = state.JobStatusModelUploaded
@@ -49,15 +52,16 @@ func GetJobStatesWithUploaderInfo() ([]state.State, error) {
 			}
 		} else {
 			//job is deleted
+			log.SLogger.Debugw("job is deleted", "jobname", jobName)
 			s := state.State{
 				Name:      jobName,
 				Namespace: config.CPOD_NAMESPACE,
 			}
 			if isJobComplete(uploaderJob) {
-				log.SLogger.Infow("uploader is completed", "jobName", jobName)
+				log.SLogger.Debugw("uploader is completed", "jobName", jobName)
 				s.JobStatus = state.JobStatusModelUploaded
 			} else {
-				log.SLogger.Infow("uploader is running", "jobName", jobName)
+				log.SLogger.Debugw("uploader is running", "jobName", jobName)
 				s.JobStatus = state.JobStatusModelUploading
 			}
 			res = append(res, s)
@@ -89,12 +93,12 @@ func GetUploaderJobs(namespace string) ([]*v1.Job, error) {
 	}
 	//从Data中提取State信息
 	res := []*v1.Job{}
-	for _, item := range data.Items {
+	for idx := range data.Items {
 		// filter with name
-		if utils.ParseJobNameFromModelUploader(item.Name) == "" {
+		if utils.ParseJobNameFromModelUploader(data.Items[idx].Name) == "" {
 			continue
 		}
-		res = append(res, &item)
+		res = append(res, &(data.Items[idx]))
 	}
 	return res, nil
 }
