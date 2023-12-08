@@ -5,7 +5,7 @@
 
 ## 3kctl download
 ### 测试用例
-在魔搭上找到自己需要的模型，例如https://modelscope.cn/models/qwen/Qwen-Audio-Chat
+在魔搭上找到自己需要的模型，例如 [https://modelscope.cn/models/qwen/Qwen-Audio-Chat](https://modelscope.cn/models/qwen/Qwen-Audio-Chat)
 
 点击复制model-id按钮
 
