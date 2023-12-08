@@ -31,24 +31,25 @@ type JobPayload struct {
 }
 
 type RawJobDataItem struct {
-	CkptPath          string `json:"ckptPath"`
-	CkptVol           int    `json:"ckptVol"`
-	Command           string `json:"runCommand"`
-	DatasetPath       string `json:"datasetPath"`
-	DatasetName       string `json:"DatasetName"`
-	GpuNumber         int    `json:"gpuNumber"`
-	GpuType           string `json:"gpuType"`
-	HfURL             string `json:"hfUrl"`
-	ImagePath         string `json:"imagePath"`
-	JobID             int    `json:"jobId"`
-	JobName           string `json:"jobName"`
-	JobType           string `json:"jobType"`
-	ModelPath         string `json:"modelPath"`
-	ModelVol          int    `json:"modelVol"`
-	PretrainModelName string `json:"pretrainedModelName"`
-	PretrainModelPath string `json:"pretrainedModelPath"`
-	StopTime          int    `json:"stopTime"`
-	StopType          int    `json:"stopType"`
+	CkptPath          string            `json:"ckptPath"`
+	CkptVol           int               `json:"ckptVol"`
+	Command           string            `json:"runCommand"`
+	Envs              map[string]string `json:"env"`
+	DatasetPath       string            `json:"datasetPath"`
+	DatasetName       string            `json:"DatasetName"`
+	GpuNumber         int               `json:"gpuNumber"`
+	GpuType           string            `json:"gpuType"`
+	HfURL             string            `json:"hfUrl"`
+	ImagePath         string            `json:"imagePath"`
+	JobID             int               `json:"jobId"`
+	JobName           string            `json:"jobName"`
+	JobType           string            `json:"jobType"`
+	ModelPath         string            `json:"modelPath"`
+	ModelVol          int               `json:"modelVol"`
+	PretrainModelName string            `json:"pretrainedModelName"`
+	PretrainModelPath string            `json:"pretrainedModelPath"`
+	StopTime          int               `json:"stopTime"`
+	StopType          int               `json:"stopType"`
 }
 
 type RawJobsData []RawJobDataItem
@@ -87,6 +88,7 @@ func GetJobs(cpodid string) ([]job.Job, error) {
 	var parsedData RawJobsData
 	err = json.Unmarshal(respData, &parsedData)
 	if err != nil {
+		log.SLogger.Debugw("parse error", "error", err, "respData", string(respData))
 		return jobs, err
 	}
 	for _, rawJob := range parsedData {
@@ -124,6 +126,7 @@ func rawJobToJob(rawJob RawJobDataItem) job.Job {
 		GPURequiredPerWorker: gpuPerWorker,
 		Replicas:             replicas,
 		Command:              cmd,
+		Envs:                 rawJob.Envs,
 		Duration:             rawJob.StopTime,
 		StopType:             job.StopType(rawJob.StopType),
 	}

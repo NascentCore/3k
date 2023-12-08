@@ -2,6 +2,8 @@ package nascentcore.ai.modules.system.domain;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import nascentcore.ai.modules.system.domain.dto.job.EnvDTO;
+
 import java.io.Serializable;
 @Data
 public class UserJobRes implements Serializable {
@@ -59,5 +61,7 @@ public class UserJobRes implements Serializable {
 
     @ApiModelProperty(value = "模型基座对应路径")
     private String pretrainedModelPath;
+    @ApiModelProperty(value = "环境变量参数")
+    private EnvDTO env;
 }
 

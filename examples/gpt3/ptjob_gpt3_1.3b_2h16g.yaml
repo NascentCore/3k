@@ -18,14 +18,19 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_2h16g4tp:latest
+              image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_2h16g4tp:v1
               imagePullPolicy: Always
               env:
               - name: NCCL_DEBUG
                 value: "INFO"
               - name: NCCL_NET
                 value: "IB"
+              - name: NCCL_IB_DISABLE
+                value: "0"
               resources:
+                requests:
+                  nvidia.com/gpu: 8
+                  rdma/rdma_shared_device_a: 1
                 limits:
                   nvidia.com/gpu: 8
                   rdma/rdma_shared_device_a: 1

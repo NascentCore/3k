@@ -43,6 +43,7 @@ type Job struct {
 	GPURequiredPerWorker int
 	Replicas             int
 	Command              []string
+	Envs                 map[string]string
 	Duration             int      //单位 分钟
 	StopType             StopType //0 自然终止  1 设定时长
 }
@@ -136,6 +137,7 @@ func (j Job) toActualJob() (Interface, error) {
 			GPUType:              j.GPUType,
 			GPURequiredPerWorker: j.GPURequiredPerWorker,
 			Command:              j.Command,
+			Envs:                 j.Envs,
 			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
 		}, nil
 	} else {

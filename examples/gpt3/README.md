@@ -57,13 +57,13 @@ root@a2bd9b4ad983:/workspace# torchrun --nproc_per_node=1 finetune_poetry.py
 运行`ptjob_gpt3_1.3b_1h1g.yaml`单机单卡训练任务，此任务最小需要 32G 显存。
 如果单卡内存小于 32G 显存如 3090，则可以运行单机多卡的 pytorch job `ptjob_gpt3_1.3b_1h8g.yaml`。
 
-```
+```bash
 kubectl create -f ptjob_gpt3_1.3b_1h1g.yaml
 ```
 
 观察对应 pytorch job 和 worker 对应的 pod 是否运行成功
 
-```
+```bash
 $ kubectl -n training-operator get pytorchjob
 NAME               STATE     AGE
 pytorch-torchrun   Created   47s
@@ -75,7 +75,7 @@ pytorch-torchrun-worker-0            1/1     Running   0          21s   10.233.1
 
 pod 运行在 worker2，进入 对应 nvidia-driver 容器中，调用 nvidia-smi,观察 gpu 是否运行,
 
-```
+```bash
 
 $ kubectl exec -it nvidia-driver-daemonset-9l95r  -n gpu-operator  -- bash
 
@@ -116,10 +116,6 @@ pip install -i  https://pypi.tuna.tsinghua.edu.cn/simple tensorboard transformer
 pip install -U datasets
 
 # Step3: 准备代码、数据集和模型
-export http_proxy=http://squid:squid@214.2.5.239:13128
-export https_proxy=http://squid:squid@214.2.5.239:13128
-export no_proxy=localhost,127.0.0.1
-git clone https://github.com/NascentCore/3k.git
 cd 3k/examples/gpt3/
 
 git clone https://modelscope.cn/damo/nlp_gpt3_text-generation_1.3B.git
@@ -163,7 +159,7 @@ python -m torch.distributed.run  --nnodes=2  --nproc_per_node=8 --node-rank=1 --
 
 ```
 
-### 通过 pytorchjob 运行
+### 通过 pytorchjob 运行多机多卡
 
 ```bash
 kubectl create -f ptjob_gpt3_1.3b_2h16g.yaml

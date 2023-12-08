@@ -94,6 +94,8 @@ public class UserJob implements Serializable {
 
     @ApiModelProperty(value = "模型基座对应路径")
     private String pretrainedModelPath;
+    @ApiModelProperty(value = "json整个数据包")
+    private String jsonAll;
     public void copy(UserJob source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
