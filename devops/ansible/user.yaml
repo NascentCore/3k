@@ -1,0 +1,66 @@
+---
+- name: Configure Managed Nodes
+  hosts: managed_nodes
+  become: yes
+  vars:
+    user_name: "{{ lookup('env','USER_NAME') }}"
+    user_password: "{{ lookup('env','USER_PASSWORD') }}"
+    ssh_keygen_path: "/home/{{ user_name }}/.ssh/id_rsa"
+
+  tasks:
+    - name: Ensure user exists
+      user:
+        name: "{{ user_name }}"
+        password: "{{ user_password | password_hash('sha512') }}"
+        create_home: yes
+        shell: /bin/bash
+
+    - name: Ensure user is in the sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: "^{{ user_name }}"
+        line: "{{ user_name }} ALL=(ALL) NOPASSWD: ALL"
+        validate: 'visudo -cf %s'
+
+    - name: Check if docker group exists
+      shell: "getent group docker"
+      register: docker_group
+      ignore_errors: yes
+
+    - name: Add user to docker group if it exists
+      user:
+        name: "{{ user_name }}"
+        groups: docker
+        append: yes
+      when: docker_group.rc == 0
+
+    - name: Ensure the .ssh directory exists
+      file:
+        path: "/home/{{ user_name }}/.ssh"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: 0700
+
+    - name: Generate SSH key for the user
+      ansible.builtin.openssh_keypair:
+        path: "{{ ssh_keygen_path }}"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        force: no
+
+    - name: Fetch public key from each node
+      slurp:
+        path: "{{ ssh_keygen_path }}.pub"
+      register: ssh_public_key
+      delegate_to: "{{ item }}"
+      with_items: "{{ ansible_play_batch }}"
+      when: inventory_hostname != item
+
+    - name: Add public keys to authorized_keys
+      authorized_key:
+        user: "{{ user_name }}"
+        key: "{{ item['content'] | b64decode }}"
+      loop: "{{ ssh_public_key.results }}"
+      when: "'content' in item"
