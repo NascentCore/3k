@@ -31,7 +31,7 @@ var gitCmd = &cobra.Command{
 
 		if gitUrl == "" {
 			fmt.Println("please input the git url for downloading")
-			return
+			os.Exit(1)
 		}
 
 		// empty dir /data

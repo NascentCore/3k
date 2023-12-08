@@ -23,12 +23,17 @@ class Model(cli.Application):
     """download model"""
 
     def main(self, hub_name, model_id, namespace="cpod"):
-        # get the model size
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub {0} is not supported".format(hub_name))
             return
 
+        # check the model id exists
+        if not hub.have_model(model_id):
+            print("model %s dose not exist" % model_id)
+            return
+
+        # get the model size
         model_size = math.ceil(hub.size(model_id))  # in GB
         print("model {0} size {1} GB".format(hub_name, model_size))
 
