@@ -11,12 +11,9 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cmd",
+	Use:   "downloader",
 	Short: "downloader for model or dataset",
 	Long:  `downloader for model or dataset`,
-	//Run: func(cmd *cobra.Command, args []string) {
-	//
-	//},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

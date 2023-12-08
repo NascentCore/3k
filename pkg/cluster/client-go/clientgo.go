@@ -133,7 +133,7 @@ func DeletePVC(namespace, name string) error {
 }
 
 func UpdateCRDStatus(gvr schema.GroupVersionResource, namespace, name, field, value string) error {
-	crdInstance, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	crdInstance, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

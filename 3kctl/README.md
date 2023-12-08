@@ -4,12 +4,26 @@
 ## 3kctl deploy
 
 ## 3kctl download
-### 测试用例
+download子命令用于
+### 查看下载任务状态
+```bash
+python3 3kctl.py download status
+```
+输出:
+
+<img width="800" alt="image" src="https://github.com/NascentCore/3k/assets/152252984/0b10010c-93f9-40c9-8f48-666f14f163c8">
+
+- HUB: 模型市场
+- MODEL_ID: 模型ID
+- HASH: 模型的唯一标识
+- PHASE: 当前下载状态
+
+### 下载模型
 在魔搭上找到自己需要的模型，例如 [https://modelscope.cn/models/qwen/Qwen-Audio-Chat](https://modelscope.cn/models/qwen/Qwen-Audio-Chat)
 
 点击复制model-id按钮
 
-<img src="https://github.com/NascentCore/3k/assets/152252984/57d9aeae-45ee-41d1-bb5b-bca1e4550147" width="200">
+<img width="300" src="https://github.com/NascentCore/3k/assets/152252984/57d9aeae-45ee-41d1-bb5b-bca1e4550147">
 
 model-id为`qwen/Qwen-Audio-Chat`
 
