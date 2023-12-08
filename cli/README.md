@@ -8,7 +8,8 @@
 在魔搭上找到自己需要的模型，例如https://modelscope.cn/models/qwen/Qwen-Audio-Chat
 
 点击复制model-id按钮
-![image](https://github.com/NascentCore/3k/assets/152252984/57d9aeae-45ee-41d1-bb5b-bca1e4550147)
+
+<img src="https://github.com/NascentCore/3k/assets/152252984/57d9aeae-45ee-41d1-bb5b-bca1e4550147" width="200">
 
 model-id为`qwen/Qwen-Audio-Chat`
 
