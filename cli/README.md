@@ -7,6 +7,9 @@
 ### 测试用例
 在魔搭上找到自己需要的模型，例如https://modelscope.cn/models/qwen/Qwen-Audio-Chat
 
+点击复制model-id按钮
+![image](https://github.com/NascentCore/3k/assets/152252984/57d9aeae-45ee-41d1-bb5b-bca1e4550147)
+
 model-id为`qwen/Qwen-Audio-Chat`
 
 下载模型 `python3 3kctl.py download model modelscope qwen/Qwen-Audio-Chat`
@@ -68,4 +71,9 @@ kubectl exec -it alpine -n cpod -- /bin/sh
 进入到容器后
 ```yaml
 ls -l /data
+```
+
+查看CRD状态
+```bash
+kubectl get ModelStorage model-storage-7b4ff4e80a400408 -n cpod -o yaml
 ```
