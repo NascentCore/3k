@@ -9,6 +9,10 @@ from plumbum import cli
 
 from .model_scope import ModelScopeHub
 
+GROUP = "cpod.sxwl.ai"
+VERSION = "v1"
+PLURAL = "modelstorages"
+
 
 class Download(cli.Application):
     """Download model or dataset"""
@@ -19,25 +23,30 @@ class Model(cli.Application):
     """download model"""
 
     def main(self, hub_name, model_id, namespace="cpod"):
-        # get the model size
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub {0} is not supported".format(hub_name))
             return
 
+        # check the model id exists
+        if not hub.have_model(model_id):
+            print("model %s dose not exist" % model_id)
+            return
+
+        # get the model size
         model_size = math.ceil(hub.size(model_id))  # in GB
         print("model {0} size {1} GB".format(hub_name, model_size))
 
-        crd_name = create_crd_name(hub, model_id)
-        pvc = create_pvc_name(hub, model_id)
+        crd_name = create_crd_name(hub_name, model_id)
+        pvc = create_pvc_name(hub_name, model_id)
+        job_name = create_job_name(hub_name, model_id)
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
-        extensions_v1_api = client.ApiextensionsV1Api()
-        custome_objects_api = client.CustomObjectsApi()
+        custom_objects_api = client.CustomObjectsApi()
 
         # 创建PVC
-        storage = model_size * 1.25
+        storage = model_size * 2
         storage = "%dGi" % math.ceil(storage)
         try:
             create_pvc(core_v1_api, namespace, pvc, storage)
@@ -48,47 +57,53 @@ class Model(cli.Application):
         # 创建下载Job
         try:
             create_download_job(batch_v1_api,
-                                "download-%s" % pvc,
+                                job_name,
                                 "model-downloader",
-                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0",
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v3.0.0",
                                 pvc,
-                                ["git", "-s", hub.git_url(model_id)],
+                                ["git",
+                                 "-s", hub.git_url(model_id),
+                                 "-g", GROUP,
+                                 "-v", VERSION,
+                                 "-p", PLURAL,
+                                 "-n", crd_name,
+                                 "--namespace", namespace],
                                 namespace,
                                 "aliyun-enterprise-registry")
         except ApiException as e:
             print("create_download_job exception: %s" % e)
             return
 
-        # 写CRD
+        # 创建CRD对象
         try:
-            # create_crd_record(
-            #     api_instance=extensions_v1_api,
-            #     crd_group="cpod.sxwl.ai",
-            #     crd_version="v1",
-            #     crd_kind="ModelStorageV2",
-            #     crd_name=crd_name,
-            #     crd_data={
-            #         "modelHub": hub_name,
-            #         "modelId": model_id,
-            #         "pvc": pvc,
-            #     },
-            #     namespace=namespace
-            # )
-
-            # Call create_custom_resource function
             create_custom_resource(
-                api_instance=custome_objects_api,
-                group="cpod.sxwl.ai",
-                version="v1",
-                kind="ModelStorageV2",
-                plural="modelstoragesv2",
+                api_instance=custom_objects_api,
+                group=GROUP,
+                version=VERSION,
+                kind="ModelStorage",
+                plural=PLURAL,
                 name=crd_name,
                 spec={
-                    "modelHub": hub_name,
-                    "modelId": model_id,
+                    "modeltype": hub_name,
+                    "modelname": model_id,
                     "pvc": pvc,
                 },
                 namespace=namespace
+            )
+        except ApiException as e:
+            print("create_crd_record exception: %s" % e)
+            return
+
+        # 更新CRD状态为downloading
+        try:
+            update_custom_resource_status(
+                api_instance=custom_objects_api,
+                group=GROUP,
+                version=VERSION,
+                plural=PLURAL,
+                name=crd_name,
+                namespace=namespace,
+                new_phase="downloading"
             )
         except ApiException as e:
             print("create_crd_record exception: %s" % e)
@@ -134,7 +149,7 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         api_response = api_instance.create_namespaced_persistent_volume_claim(
             namespace=namespace, body=body
         )
-        print("PVC %s in namespace %s created. Status: %s" % (pvc_name, namespace, str(api_response.status)))
+        print("PVC %s in namespace %s created" % (pvc_name, namespace))
         return api_response
     except ApiException as e:
         print("Error creating PVC: %s" % e)
@@ -169,32 +184,9 @@ def create_download_job(api_instance, job_name, container_name, image, pvc_name,
     try:
         # 创建 Job
         api_response = api_instance.create_namespaced_job(namespace=namespace, body=job)
-        print(f"Job '{job_name}' created. status='{str(api_response.status)}'")
+        print(f"Job '{job_name}' created.")
     except ApiException as e:
         print(f"Exception when creating Job '{job_name}': {e}\n")
-        raise e
-
-
-def create_crd_record(api_instance, crd_group, crd_version, crd_kind, crd_name, crd_data, namespace="default"):
-    crd_body = {
-        "apiVersion": f"{crd_group}/{crd_version}",
-        "kind": crd_kind,
-        "metadata": {
-            "name": crd_name,
-            "namespace": namespace
-        },
-        "spec": crd_data
-    }
-
-    try:
-        api_response = api_instance.create_custom_resource_definition(
-            group=crd_group,
-            version=crd_version,
-            namespace=namespace,
-            body=crd_body
-        )
-        print(f"CRD record '{crd_name}' created in namespace '{namespace}'. status='{str(api_response)}'")
-    except ApiException as e:
         raise e
 
 
@@ -220,4 +212,37 @@ def create_custom_resource(api_instance, group, version, kind, plural, name, nam
         print(f"Custom Resource '{name}' created.")
     except ApiException as e:
         print(f"Exception when creating Custom Resource: {e}")
+        raise e
+
+
+def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_phase):
+    try:
+        # 获取当前对象
+        current_object = api_instance.get_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=name
+        )
+
+        # 检查是否存在 status 字段，如果不存在，则创建
+        if "status" not in current_object:
+            current_object["status"] = {}
+
+        # 设置 status.phase 字段
+        current_object["status"]["phase"] = new_phase
+
+        # 替换对象的状态
+        api_response = api_instance.patch_namespaced_custom_object_status(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            name=name,
+            body=current_object
+        )
+        print(f"Custom Resource '{name}' status updated.")
+    except ApiException as e:
+        print(f"Exception when updating Custom Resource status: {e}")
         raise e

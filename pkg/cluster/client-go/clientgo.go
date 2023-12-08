@@ -131,3 +131,21 @@ func DeleteK8SJob(namespace, name string) error {
 func DeletePVC(namespace, name string) error {
 	return k8sClient.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
+
+func UpdateCRDStatus(gvr schema.GroupVersionResource, namespace, name, field, value string) error {
+	crdInstance, err := dynamicClient.Resource(gvr).Namespace(namespace).Get(context.Background(), name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if err := unstructured.SetNestedField(crdInstance.Object, value, "status", field); err != nil {
+		return err
+	}
+
+	_, err = dynamicClient.Resource(gvr).Namespace(namespace).UpdateStatus(context.TODO(), crdInstance, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

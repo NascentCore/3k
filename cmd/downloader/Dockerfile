@@ -5,6 +5,7 @@ WORKDIR /build
 ADD go.mod .
 ADD go.sum .
 ADD ./cmd/downloader ./cmd/downloader
+ADD ./pkg ./pkg
 
 WORKDIR /build/cmd/downloader
 RUN go build -o app main.go

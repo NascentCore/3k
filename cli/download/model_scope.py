@@ -1,11 +1,16 @@
 from modelscope.hub.api import HubApi
+from modelscope.hub.errors import HTTPError, NotExistError
 
 
 class ModelScopeHub(object):
     """Simple encapsulation of modelscope"""
 
-    def download(self, model_id):
-        pass
+    def have_model(self, model_id):
+        try:
+            model = HubApi().get_model(model_id)
+            return True
+        except (HTTPError, NotExistError) as e:
+            return False
 
     def size(self, model_id):
         """return the size of model in GB"""
