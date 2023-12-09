@@ -56,7 +56,6 @@ func TestPostUserJob(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	print("body", body)
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		t.Fail()
