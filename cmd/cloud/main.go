@@ -11,12 +11,15 @@ import (
 )
 
 func main() {
+	// TODO: 使用 Cobra 来编写完整的命令行功能 以后应该使用专门的命令行工具框架库
+	// https://github.com/spf13/cobra
 	if len(os.Args) != 3 {
 		fmt.Println("Usage : sxwlapitest  [ need createjob url ] [token]")
 		os.Exit(1)
 	}
 	url := os.Args[1]
 	token := os.Args[2]
+	// TODO: 添加 --json 选项，让用户输入 Json 字符串
 	data := map[string]interface{}{
 		"gpuNumber":           1,
 		"gpuType":             "NVIDIA-GeForce-RTX-3090",
