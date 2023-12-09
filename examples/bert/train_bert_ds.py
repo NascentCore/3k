@@ -459,7 +459,8 @@ def get_unique_identifier(length: int = 8) -> str:
     return uuid
 
 
-def create_experiment_dir(checkpoint_dir: pathlib.Path,
+def create_experiment_dir(ckpt_dir: pathlib.Path,
+                          checkpoint_dir: pathlib.Path,
                           all_arguments: Dict[str, Any]) -> pathlib.Path:
     """Create an experiment directory and save all arguments in it.
     Additionally, also store the githash and gitdiff. Finally create
@@ -473,6 +474,8 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
                 `- tb_dir/
 
     Args:
+        ckpt_dir (pathlib.Path):
+            The base checkpoint directory
         checkpoint_dir (pathlib.Path):
             The base checkpoint directory
         all_arguments (Dict[str, Any]):
@@ -503,6 +506,13 @@ def create_experiment_dir(checkpoint_dir: pathlib.Path,
     hparams_file = exp_dir / "hparams.json"
     with hparams_file.open("w") as handle:
         json.dump(obj=all_arguments, fp=handle, indent=2)
+
+    print("writing into {}/hparams.json".format(ckpt_dir))
+    ckpt_dir.mkdir(exist_ok=True)
+    hparams_file = ckpt_dir / "hparams.json"
+    with hparams_file.open("w") as handle:
+        json.dump(obj=all_arguments, fp=handle, indent=2)
+
     # Save the git hash
     try:
         gitlog = sh.git.log("-1", format="%H", _tty_out=False, _fg=False)
@@ -606,8 +616,9 @@ def load_model_checkpoint(
 
 def train(
         dataset_dir: str = None,
-        checkpoint_dir: str = None,
         saved_model_dir: str = None,
+        ckpt_dir: str = None,
+        checkpoint_dir: str = None,
         load_checkpoint_dir: str = None,
         # Dataset Parameters
         mask_prob: float = 0.15,
@@ -635,10 +646,12 @@ def train(
     Args:
         dataset_dir (str):
             The directory storing training datasets.
-        checkpoint_dir (str):
-            The base experiment directory to save experiments to.
         saved_model_dir (str):
             The directory storing the output model.
+        ckpt_dir (str):
+            The directory storing the ckpt.
+        checkpoint_dir (str):
+            The base experiment directory to save experiments to.
         mask_prob (float, optional):
             The fraction of tokens to mask. Defaults to 0.15.
         random_replace_prob (float, optional):
@@ -701,6 +714,19 @@ def train(
             ranks=[0],
             level=logging.ERROR)
         dataset_dir = "dataset/wikitext"
+    if saved_model_dir is None:
+        log_dist(
+            "--saved_model_dir is not specified, use default " +
+            "--saved_model_dir=saved-model",
+            ranks=[0],
+            level=logging.ERROR)
+        saved_model_dir = "saved-model"
+    if ckpt_dir is None:
+        log_dist(
+            "--ckpt_dir is not specified, use default `--ckpt_dir=/workspace/ckpt`",
+            ranks=[0],
+            level=logging.ERROR)
+        ckpt_dir = "/workspace/ckpt"
     if checkpoint_dir is None and load_checkpoint_dir is None:
         log_dist(
             "--checkpoint_dir --load_checkpoint_dir are not specified, " +
@@ -715,17 +741,14 @@ def train(
             ranks=[0],
             level=logging.ERROR)
         return
-    if saved_model_dir is None:
-        log_dist(
-            "--saved_model_dir is not specified, use default " +
-            "--saved_model_dir=saved-model",
-            ranks=[0],
-            level=logging.ERROR)
-        saved_model_dir = "saved-model"
-    if checkpoint_dir:
+    
+    # if checkpoint_dir:
+    print("ckpt_dir=", ckpt_dir)
+    if not os.path.isdir(ckpt_dir) or not os.listdir(ckpt_dir):
         log_dist("Creating Experiment Directory",
                  ranks=[0],
                  level=logging.INFO)
+        ckpt_dir = pathlib.Path(ckpt_dir)
         checkpoint_dir = pathlib.Path(checkpoint_dir)
         checkpoint_dir.mkdir(exist_ok=True)
         all_arguments = {
@@ -746,17 +769,20 @@ def train(
             "num_iterations": num_iterations,
             "checkpoint_every": checkpoint_every,
         }
-        exp_dir = create_experiment_dir(checkpoint_dir, all_arguments)
+        exp_dir = create_experiment_dir(ckpt_dir, checkpoint_dir, all_arguments)
         log_dist(f"Experiment Directory created at {exp_dir}",
                  ranks=[0],
                  level=logging.INFO)
     else:
-        log_dist("Loading from Experiment Directory",
+        log_dist("Loading from ckeckpoint_dir directory and resume from ckpt directory",
                  ranks=[0],
                  level=logging.INFO)
-        load_checkpoint_dir = pathlib.Path(load_checkpoint_dir)
-        assert load_checkpoint_dir.exists()
-        with (load_checkpoint_dir / "hparams.json").open("r") as handle:
+        print("load_checkpoint_dir=", checkpoint_dir)
+        checkpoint_dir = pathlib.Path(checkpoint_dir)
+        ckpt_dir = pathlib.Path(ckpt_dir)
+        #assert checkpoint_dir.exists()
+        print("load_checkpoint_dir=", checkpoint_dir)
+        with (ckpt_dir / "hparams.json").open("r") as handle:
             hparams = json.load(handle)
         # Set the hparams
         # Dataset Params
@@ -778,10 +804,11 @@ def train(
         _num_iterations = hparams.get("num_iterations", num_iterations)
         num_iterations = max(num_iterations, _num_iterations)
         checkpoint_every = hparams.get("checkpoint_every", checkpoint_every)
-        exp_dir = load_checkpoint_dir
+        exp_dir = checkpoint_dir
     # Tensorboard writer
     if is_rank_0():
-        tb_dir = exp_dir / "tb_dir"
+        tb_dir = ckpt_dir / "tb_dir"
+        tb_dir.mkdir(exist_ok=True)
         assert tb_dir.exists()
         summary_writer = SummaryWriter(log_dir=tb_dir)
     ################################
@@ -841,8 +868,8 @@ def train(
     #### Load Model checkpoint #####
     ################################
     start_step = 1
-    if load_checkpoint_dir is not None:
-        _, client_state = model.load_checkpoint(load_dir=load_checkpoint_dir)
+    if ckpt_dir is not None and os.path.exists(ckpt_dir / "latest"):
+        _, client_state = model.load_checkpoint(load_dir=ckpt_dir)
         checkpoint_step = client_state['checkpoint_step']
         start_step = checkpoint_step + 1
 
@@ -875,7 +902,7 @@ def train(
             if is_rank_0():
                 summary_writer.add_scalar(f"Train/loss", np.mean(losses), step)
         if step % checkpoint_every == 0:
-            model.save_checkpoint(save_dir=exp_dir,
+            model.save_checkpoint(save_dir=ckpt_dir,
                                   client_state={'checkpoint_step': step})
             log_dist("Saved model to {0}".format(exp_dir),
                      ranks=[0],
