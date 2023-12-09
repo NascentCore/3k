@@ -77,6 +77,14 @@ class Operators(cli.Application):
         install_operators()
 
 
+@Install.subcommand("ceph-csi-cephfs")
+class Operators(cli.Application):
+    """install ceph csi cephfs"""
+
+    def main(self):
+        install_ceph_csi_cephfs()
+
+
 @Install.subcommand("ceph")
 class Ceph(cli.Application):
     """install rook ceph cluster"""
