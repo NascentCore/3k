@@ -1,8 +1,9 @@
 package api
 
 import (
+    "bytes"
     "testing"
-    //"net/http"
+    "net/http"
     "encoding/json"
 )
 
@@ -27,8 +28,14 @@ func TestPostUserJob(t *testing.T) {
             "callbackUrl": "https://aiapi.yangapi.cn/api/test/callback",
             "env": "\"MODIHAND_OPEN_NODE_TOKEN\": \"9999\"",
     }
-    _, err := json.Marshal(data)
+    jsonData, err := json.Marshal(data)
     if err != nil {
         t.Fail()
     }
+
+    req, err := http.NewRequest("POST", URL, bytes.NewBuffer(jsonData))
+    if err != nil {
+        t.Fail()
+    }
+    req.Header.Set("Content-Type", "application/json")
 }
