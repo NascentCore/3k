@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	// TODO: with cli tools
 	if len(os.Args) != 3 {
 		fmt.Println("Usage : sxwlapitest  [ need createjob url ] [token]")
 		os.Exit(1)
@@ -40,11 +39,13 @@ func main() {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -52,19 +53,23 @@ func main() {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 	var result map[string]interface{}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		log.Logger.Error(err.Error())
+		os.Exit(1)
 	}
 	for k, v := range result {
 		fmt.Println(k, v)
