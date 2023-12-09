@@ -6,11 +6,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"sxwl/3k/pkg/log"
 )
 
 func main() {
-	const URL = "http://localhost:8012/api/userJob"
+	// TODO: with cli tools
+	if len(os.Args) != 3 {
+		fmt.Println("Usage : sxwlapitest  [ need createjob url ] [token]")
+		os.Exit(1)
+	}
+	url := os.Args[1]
+	token := os.Args[2]
 	data := map[string]interface{}{
 		"gpuNumber":           1,
 		"gpuType":             "NVIDIA-GeForce-RTX-3090",
@@ -35,12 +42,12 @@ func main() {
 		log.Logger.Error(err.Error())
 	}
 
-	req, err := http.NewRequest("POST", URL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Logger.Error(err.Error())
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI4NGE2NzQ3ZTU0NzI0NDk3ODk0MmIxNGYzOTZiNWNmZCIsInVzZXIiOiJqaW0xIiwic3ViIjoiamltMSJ9.RUwuHUDbL9-Xw9zsXk_dYNrche-LCsluw8FsVdd9exxOsXMwP5lRtFpYOCvn6tovjVWVkiFZ_oru_9CGmWnEsA")
+	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
