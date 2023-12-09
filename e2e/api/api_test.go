@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-const URL = "https://llm.nascentcore.cn/api/userJob"
+const URL = "http://localhost:8012/api/userJob"
 
 func TestPostUserJob(t *testing.T) {
 	data := map[string]interface{}{
@@ -41,13 +41,12 @@ func TestPostUserJob(t *testing.T) {
 		t.Fail()
 	}
 	req.Header.Set("Content-Type", "application/json")
-	//不能checkin 内部测试token不能暴露到互联网上，容易泄露内部测试环境
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJiNjdhMjAwNzljZDY0NmE4YThlNWM3ZDY1ZDJhOTcxNSIsInVzZXIiOiJqaW0xIiwic3ViIjoiamltMSJ9.K_8kcdXOUhoDIp5pZX48MC1g6Q_Ut0zXVO5V2heh3AgJpO9BJqjix61lM3Z_gEK4L133MFkQbtE9EiY0HyfM1A")
+	req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI4NGE2NzQ3ZTU0NzI0NDk3ODk0MmIxNGYzOTZiNWNmZCIsInVzZXIiOiJqaW0xIiwic3ViIjoiamltMSJ9.RUwuHUDbL9-Xw9zsXk_dYNrche-LCsluw8FsVdd9exxOsXMwP5lRtFpYOCvn6tovjVWVkiFZ_oru_9CGmWnEsA")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-        t.Fail()
-    }
+		t.Fail()
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		t.Fail()
@@ -65,5 +64,4 @@ func TestPostUserJob(t *testing.T) {
 	for k, v := range result {
 		fmt.Println(k, v)
 	}
-
 }
