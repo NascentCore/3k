@@ -10,20 +10,21 @@ import (
 // TODO: 根据实际情况增加或者删除一些字段
 // 表示创建一个KubeFLowMPIJob需要知道的信息.
 type MPIJob struct {
-	Name                 string // will be used as metadata.name
-	Namespace            string // k8s namespace
-	Image                string // docker image
-	DataPath             string // path to trainning data
-	DataPVC              string //训练数据所在的PVC
-	CKPTPath             string // path to checkpoint
-	PretrainModelPath    string //预训练模型的路径
-	PretrainModelPVC     string //预训练模型所在的PVC
-	ModelSavePath        string //最终模型的保存路径
-	GPUType              string
-	GPURequiredPerWorker int //
-	Command              []string
-	Replicas             int    // works
-	Deadline             string // 运行截止时间
+	Name                     string
+	Namespace                string
+	Image                    string
+	DataPath                 string // path to trainning data
+	DataPVC                  string //训练数据所在的PVC
+	CKPTPath                 string // path to checkpoint
+	PretrainModelPath        string //预训练模型的路径
+	PretrainModelPVC         string //预训练模型所在的PVC
+	ModelSavePath            string //最终模型的保存路径
+	GPUType                  string
+	GPURequiredPerWorker     int
+	Command                  []string
+	Replicas                 int
+	Deadline                 string
+	ExecutionDurationSeconds string
 }
 
 func (kfm MPIJob) genJsonData() map[string]interface{} {
@@ -34,7 +35,8 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 			"name":      kfm.Name,
 			"namespace": kfm.Namespace,
 			"labels": map[string]interface{}{
-				"deadline": kfm.Deadline,
+				"deadline":                 kfm.Deadline,
+				"executionDurationSeconds": kfm.ExecutionDurationSeconds,
 			},
 		},
 		"spec": map[string]interface{}{
