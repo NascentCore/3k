@@ -10,9 +10,9 @@ import (
 // TODO: 根据实际情况增加或者删除一些字段
 // 表示创建一个KubeFLowMPIJob需要知道的信息.
 type MPIJob struct {
-	Name                     string // will be used as metadata.name
-	Namespace                string // k8s namespace
-	Image                    string // docker image
+	Name                     string
+	Namespace                string
+	Image                    string
 	DataPath                 string // path to trainning data
 	DataPVC                  string //训练数据所在的PVC
 	CKPTPath                 string // path to checkpoint
@@ -20,10 +20,10 @@ type MPIJob struct {
 	PretrainModelPVC         string //预训练模型所在的PVC
 	ModelSavePath            string //最终模型的保存路径
 	GPUType                  string
-	GPURequiredPerWorker     int //
+	GPURequiredPerWorker     int
 	Command                  []string
-	Replicas                 int    // works
-	Deadline                 string // 运行截止时间
+	Replicas                 int
+	Deadline                 string
 	ExecutionDurationSeconds string
 }
 
