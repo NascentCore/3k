@@ -7,18 +7,18 @@ import (
 
 // NO_TEST_NEEDED
 
-// TODO: æ ¹æ®å®éæåµå¢å æèå é¤ä¸äºå­æ®µ
-// è¡¨ç¤ºåå»ºä¸ä¸ªKubeFLowMPIJobéè¦ç¥éçä¿¡æ¯.
+// TODO: 根据实际情况增加或者删除一些字段
+// 表示创建一个KubeFLowMPIJob需要知道的信息.
 type MPIJob struct {
 	Name                     string
 	Namespace                string
 	Image                    string
 	DataPath                 string // path to trainning data
-	DataPVC                  string //è®­ç»æ°æ®æå¨çPVC
+	DataPVC                  string //训练数据所在的PVC
 	CKPTPath                 string // path to checkpoint
-	PretrainModelPath        string //é¢è®­ç»æ¨¡åçè·¯å¾
-	PretrainModelPVC         string //é¢è®­ç»æ¨¡åæå¨çPVC
-	ModelSavePath            string //æç»æ¨¡åçä¿å­è·¯å¾
+	PretrainModelPath        string //预训练模型的路径
+	PretrainModelPVC         string //预训练模型所在的PVC
+	ModelSavePath            string //最终模型的保存路径
 	GPUType                  string
 	GPURequiredPerWorker     int
 	Command                  []string
