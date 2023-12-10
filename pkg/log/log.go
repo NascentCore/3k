@@ -14,7 +14,7 @@ var SLogger *zap.SugaredLogger = Logger.Sugar()
 func initLogger() *zap.Logger {
 	var logger *zap.Logger
 	var err error
-	// TODO: 根据环境变量生成不同的Logger
+	// TODO: æ ¹æ®ç¯å¢åéçæä¸åçLogger
 	deploy := config.DEPLOY
 	if deploy == "DEBUG" || deploy == "DEV" || deploy == "TEST" {
 		logger, err = zap.NewDevelopment()
