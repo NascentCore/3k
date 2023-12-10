@@ -30,6 +30,7 @@ examples/bert/experiments/
 # Jetbrain 
 .idea/
 
+# Binaries created during development
 cmd/cpodmanager/cpodmanager
 cmd/modeluploader/modeluploadjob
 cmd/cpodmanager/a.json
