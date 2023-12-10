@@ -44,8 +44,8 @@ type Job struct {
 	Replicas             int
 	Command              []string
 	Envs                 map[string]string
-	Duration             int      //单位 分钟
-	StopType             StopType //0 自然终止  1 设定时长
+	Duration             int      //Ã¥ÂÂÃ¤Â½Â Ã¥ÂÂÃ©ÂÂ
+	StopType             StopType //0 Ã¨ÂÂªÃ§ÂÂ¶Ã§Â»ÂÃ¦Â­Â¢  1 Ã¨Â®Â¾Ã¥Â®ÂÃ¦ÂÂ¶Ã©ÂÂ¿
 }
 
 type Interface interface {
@@ -158,7 +158,7 @@ func (j Job) Run() error {
 	if err != nil {
 		return err
 	}
-	//同时启动Upload Job
+	//Ã¥ÂÂÃ¦ÂÂ¶Ã¥ÂÂ¯Ã¥ÂÂ¨Upload Job
 	return clientgo.ApplyWithJsonData(config.CPOD_NAMESPACE, "batch", "v1", "jobs",
 		utils.GenK8SJobJsonData(j.JobID, config.MODELUPLOADER_IMAGE, utils.GetModelSavePVCName(j.JobID), config.MODELUPLOADER_PVC_MOUNT_PATH))
 
