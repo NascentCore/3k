@@ -54,6 +54,24 @@ def install_operators():
                     )
 
 
+def install_ceph_csi_cephfs():
+    print(colors.yellow | "===== [3kctl] install ceph-csi-cephfs =====")
+
+    retcode = grep["-E", "<cluserID>|<adminKey>", "{}/deploy/values/ceph-csi-cephfs.yaml".format(Conf.c.deploy.work_dir)] & RETCODE
+    if retcode != 0:
+        print(colors.red | "===== [3kctl] ceph clusterID or adminKey not configure, please check 'deploy/values/ceph-csi-cephfs.yaml' =====")
+        sys.exit(4)
+
+    helm_run("install", "ceph-csi-cephfs",
+                     "harbor/ceph-csi-cephfs",
+                     "-n",
+                     "ceph-csi-cephfs",
+                     "--create-namespace",
+                     "-f",
+                     "{}/deploy/values/ceph-csi-cephfs.yaml".format(Conf.c.deploy.work_dir)
+                     )
+
+
 def install_ceph():
     print(colors.yellow | "===== [3kctl] install rook-ceph & ceph-cluster =====")
 
