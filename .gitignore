@@ -29,3 +29,9 @@ examples/bert/experiments/
 
 # Jetbrain 
 .idea/
+
+cmd/cpodmanager/cpodmanager
+cmd/modeluploader/modeluploadjob
+cmd/cpodmanager/a.json
+cmd/testcmd/
+pkg/test/
