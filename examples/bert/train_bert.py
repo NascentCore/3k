@@ -1,3 +1,8 @@
+"""
+Based on
+https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert.py
+"""
+
 import datetime
 import json
 import pathlib
@@ -726,7 +731,7 @@ def train(
     params = list(model.parameters())
     # 网络层数
     print('网络层数 = ',params.__len__())
-    
+
     ################################
     ###### Create Optimizer #######
     ################################
