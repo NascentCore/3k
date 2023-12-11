@@ -13,8 +13,29 @@ spec:
         spec:
           containers:
             - name: pytorch
-              image: dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h1g1dp:latest
+              image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_1h1g1dp:latest
               imagePullPolicy: Always
               command:
                 - "torchrun"
+                - "--nproc_per_node=1"
                 - "finetune_poetry.py"
+              volumeMounts:
+                - name: pretrained-model
+                  mountPath: /workspace/nlp_gpt3_text-generation_1.3B
+                - name: dataset
+                  mountPath: /workspace/chinese-poetry-collection
+                - name: saved-model
+                  mountPath: /workspace/gpt3_poetry
+          volumes:
+            - name: pretrained-model
+              persistentVolumeClaim:
+                claimName: pretrained-model
+                readOnly: false
+            - name: dataset
+              persistentVolumeClaim:
+                claimName: dataset
+                readOnly: true
+            - name: saved-model
+              persistentVolumeClaim:
+                claimName: saved-model
+                readOnly: false

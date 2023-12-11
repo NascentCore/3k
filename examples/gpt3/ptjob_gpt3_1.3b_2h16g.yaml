@@ -10,7 +10,7 @@ spec:
     # 指定rdzv后端实现为c10d,rdzv负责协调分布式训练中的各个worker
     rdzvBackend: c10d
   pytorchReplicaSpecs:
-    worker:
+    Worker:
       # 节点数量，需要与启动命令--nnodes=2保持一致
       replicas: 2
       restartPolicy: OnFailure
@@ -19,14 +19,14 @@ spec:
           containers:
             - name: pytorch
               image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_2h16g4tp:v1
-              imagePullPolicy: Always
               env:
-              - name: NCCL_DEBUG
-                value: "INFO"
-              - name: NCCL_NET
-                value: "IB"
-              - name: NCCL_IB_DISABLE
-                value: "0"
+                - name: NCCL_DEBUG
+                  value: "INFO"
+                - name: NCCL_NET
+                  value: "IB"
+                - name: NCCL_IB_DISABLE
+                  value: "0"
+              imagePullPolicy: Always
               resources:
                 requests:
                   nvidia.com/gpu: 8
@@ -44,11 +44,28 @@ spec:
                 capabilities:
                   add: [ "IPC_LOCK" ]
               volumeMounts:
+                - name: dataset
+                  mountPath: /workspace/chinese-poetry-collection
+                - name: pretrained-model
+                  mountPath: /workspace/nlp_gpt3_text-generation_1.3B
+                - name: saved-model
+                  mountPath: /workspace/gpt3_poetry
                 - name: shm
                   mountPath: /dev/shm
           volumes:
-              # 设置共享内存大小，具体什么大小合适需要，怎么计算后续改进
-              - name: shm
-                emptyDir:
-                  medium: Memory
-                  sizeLimit: 5120Mi
+            - name: dataset
+              persistentVolumeClaim:
+                claimName: dataset
+                readOnly: false
+            - name: pretrained-model
+              persistentVolumeClaim:
+                claimName: pretrained-model
+                readOnly: false
+            - name: saved-model
+              persistentVolumeClaim:
+                claimName: saved-model
+                readOnly: false
+            - name: shm
+              emptyDir:
+                medium: Memory
+                sizeLimit: 5120Mi
