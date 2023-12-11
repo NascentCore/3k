@@ -1,0 +1,2 @@
+# A list of models to be preloaded
+https://www.modelscope.cn/models/01ai/Yi-34B
