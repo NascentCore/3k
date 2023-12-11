@@ -1,5 +1,6 @@
 """
 Modified version of train_bert.py that adds DeepSpeed
+https://github.com/microsoft/DeepSpeedExamples/blob/master/training/HelloDeepSpeed/train_bert_ds.py
 """
 
 import os
