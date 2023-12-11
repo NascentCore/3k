@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-import hashlib
 import math
 
-from kubernetes import client, config
-from kubernetes.client import ApiException
+from colorama import Fore, Style
+from kubernetes import config
 from plumbum import cli
 
+from .k8s import *
 from .model_scope import ModelScopeHub
 
 GROUP = "cpod.sxwl.ai"
@@ -22,7 +22,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, namespace="cpod"):
+    def main(self, hub_name, model_id, downloader_version="v0.0.1", namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub {0} is not supported".format(hub_name))
@@ -33,23 +33,56 @@ class Model(cli.Application):
             print("model %s dose not exist" % model_id)
             return
 
-        # get the model size
-        model_size = math.ceil(hub.size(model_id))  # in GB
-        print("model {0} size {1} GB".format(hub_name, model_size))
-
+        model_size = math.ceil(hub.size(model_id))  # get the model size in GB
         crd_name = create_crd_name(hub_name, model_id)
-        pvc = create_pvc_name(hub_name, model_id)
+        pvc_name = create_pvc_name(hub_name, model_id)
         job_name = create_job_name(hub_name, model_id)
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
         custom_objects_api = client.CustomObjectsApi()
 
-        # 创建PVC
-        storage = model_size * 2
-        storage = "%dGi" % math.ceil(storage)
+        # check if crd already exists
         try:
-            create_pvc(core_v1_api, namespace, pvc, storage)
+            crd_obj = get_crd_object(custom_objects_api, GROUP, VERSION, PLURAL, namespace, crd_name)
+            if 'status' in crd_obj:
+                phase_value = crd_obj['status'].get('phase', None)
+                if phase_value is not None:
+                    if phase_value == "downloading":
+                        print("hub:%s model_id:%s is downloading" % (hub_name, model_id))
+                    elif phase_value == "done":
+                        print("hub:%s model_id:%s already downloaded" % (hub_name, model_id))
+                    else:
+                        print("hub:%s model_id:%s phase:%s please check the phase" % (hub_name, model_id, phase_value))
+                else:
+                    print('''hub:%s model_id:%s please try again later, if this continue occurs, please delete the crd:
+    kubectl delete ModelStorage %s -n %s''' % (hub_name, model_id, crd_name, namespace))
+            else:
+                print('''crd %s exists and without status. You can delete it by:
+    kubectl delete ModelStorage %s -n %s''' % (crd_name, crd_name, namespace))
+            return
+        except ApiException as e:
+            if e.status == 404:
+                # crd 不存在，那么如果有job或pvc，都应该清理掉
+                try:
+                    delete_job(batch_v1_api, namespace, job_name)
+                except ApiException as e:
+                    pass
+                try:
+                    delete_pvc(core_v1_api, namespace, pvc_name)
+                except ApiException as e:
+                    pass
+            else:
+                print("get_crd_object exception %s" % e)
+                return
+
+        # 创建PVC
+        storage = model_size * 3  # 申请3倍model_size的空间
+        storage = "%dGi" % math.ceil(storage)
+        print("model {0} size {1} GB pvc {2} GB".format(hub_name, model_size, storage))
+
+        try:
+            create_pvc(core_v1_api, namespace, pvc_name, storage)
         except ApiException as e:
             print("create_pvc exception: %s" % e)
             return
@@ -59,17 +92,17 @@ class Model(cli.Application):
             create_download_job(batch_v1_api,
                                 job_name,
                                 "model-downloader",
-                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v3.0.0",
-                                pvc,
-                                ["git",
-                                 "-s", hub.git_url(model_id),
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
+                                pvc_name,
+                                ["git", hub.git_url(model_id),
                                  "-g", GROUP,
                                  "-v", VERSION,
                                  "-p", PLURAL,
-                                 "-n", crd_name,
-                                 "--namespace", namespace],
+                                 "-n", namespace,
+                                 "--name", crd_name],
                                 namespace,
-                                "aliyun-enterprise-registry")
+                                "aliyun-enterprise-registry",
+                                "sa-downloader")
         except ApiException as e:
             print("create_download_job exception: %s" % e)
             return
@@ -86,7 +119,7 @@ class Model(cli.Application):
                 spec={
                     "modeltype": hub_name,
                     "modelname": model_id,
-                    "pvc": pvc,
+                    "pvc": pvc_name,
                 },
                 namespace=namespace
             )
@@ -94,20 +127,30 @@ class Model(cli.Application):
             print("create_crd_record exception: %s" % e)
             return
 
-        # 更新CRD状态为downloading
+
+@Download.subcommand("status")
+class Status(cli.Application):
+    """download status check all download jobs status"""
+
+    def main(self, namespace="cpod"):
+        config.load_kube_config()
+        custom_objects_api = client.CustomObjectsApi()
         try:
-            update_custom_resource_status(
-                api_instance=custom_objects_api,
-                group=GROUP,
-                version=VERSION,
-                plural=PLURAL,
-                name=crd_name,
-                namespace=namespace,
-                new_phase="downloading"
-            )
+            model_storage_objs = get_crd_objects(custom_objects_api, GROUP, VERSION, PLURAL, namespace)
         except ApiException as e:
-            print("create_crd_record exception: %s" % e)
+            print("get_crd_objects exception: %s", e)
             return
+
+        data_list = [["HUB", "MODEL_ID", "HASH", "PHASE"]]
+        for model_storage_obj in model_storage_objs:
+            spec = model_storage_obj.get('spec', {})
+            status = model_storage_obj.get('status', {})
+            data_list.append([spec.get('modeltype'),
+                              spec.get('modelname'),
+                              model_hash(spec.get('modeltype'), spec.get('modelname')),
+                              status.get("phase", "nil")])
+        print('\n')
+        print_list(data_list)
 
 
 def hub_factory(hub_name):
@@ -117,132 +160,29 @@ def hub_factory(hub_name):
         return None
 
 
-def create_crd_name(hub, model_id):
-    hash_sha1 = hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8"))
-    return "model-storage-{0}".format(hash_sha1.hexdigest()[:16])
+def print_list(data_list):
+    # 计算每一列的最大宽度
+    column_widths = [max(len(str(item)) for item in column) for column in zip(*data_list)]
 
+    # 打印表头
+    header = "|".join(" {:<{}} ".format(header, width) for header, width in zip(data_list[0], column_widths))
+    print(header)
+    print("-" * len(header))
 
-def create_pvc_name(hub, model_id):
-    hash_sha1 = hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8"))
-    return "pvc-model-{0}".format(hash_sha1.hexdigest()[:16])
+    # 打印数据行
+    for row in data_list[1:]:
+        # 根据第四列的值设置颜色
+        phase_value = row[3]
+        if phase_value == "fail":
+            colored_phase = f"{Fore.RED}{phase_value}{Style.RESET_ALL}"
+        elif phase_value == "done":
+            colored_phase = f"{Fore.GREEN}{phase_value}{Style.RESET_ALL}"
+        elif phase_value == "downloading":
+            colored_phase = f"{Fore.YELLOW}{phase_value}{Style.RESET_ALL}"
+        else:
+            colored_phase = phase_value
 
-
-def create_job_name(hub, model_id):
-    hash_sha1 = hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8"))
-    return "download-model-{0}".format(hash_sha1.hexdigest()[:16])
-
-
-def create_pvc(api_instance, namespace, pvc_name, storage_size):
-    body = {
-        "apiVersion": "v1",
-        "kind": "PersistentVolumeClaim",
-        "metadata": {"name": pvc_name, "namespace": namespace},
-        "spec": {
-            "accessModes": ["ReadWriteOnce"],
-            "resources": {"requests": {"storage": storage_size}},
-            "storageClassName": "ceph-filesystem",
-            "volumeMode:": "Filesystem"
-        },
-    }
-
-    try:
-        api_response = api_instance.create_namespaced_persistent_volume_claim(
-            namespace=namespace, body=body
-        )
-        print("PVC %s in namespace %s created" % (pvc_name, namespace))
-        return api_response
-    except ApiException as e:
-        print("Error creating PVC: %s" % e)
-        raise e
-
-
-def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, namespace="default",
-                        secret="aliyun-enterprise-registry"):
-    # 创建 Job 的配置
-    job = client.V1Job(api_version="batch/v1", kind="Job",
-                       metadata=client.V1ObjectMeta(name=job_name, namespace=namespace))
-    container = client.V1Container(name=container_name, image=image, args=args)
-
-    # 定义卷挂载
-    volume_mount = client.V1VolumeMount(name="data-volume", mount_path="/data")
-    container.volume_mounts = [volume_mount]
-
-    # 定义 Volume
-    volume = client.V1Volume(name="data-volume",
-                             persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=pvc_name))
-    pod_spec = client.V1PodSpec(restart_policy="Never", containers=[container], volumes=[volume])
-
-    # 引用 Secret
-    image_pull_secret = client.V1LocalObjectReference(name=secret)
-    pod_spec.image_pull_secrets = [image_pull_secret]
-
-    # 定义 Job 规范
-    job.spec = client.V1JobSpec(template=client.V1PodTemplateSpec(spec=pod_spec))
-    job.spec.completions = 1
-    job.spec.parallelism = 1
-
-    try:
-        # 创建 Job
-        api_response = api_instance.create_namespaced_job(namespace=namespace, body=job)
-        print(f"Job '{job_name}' created.")
-    except ApiException as e:
-        print(f"Exception when creating Job '{job_name}': {e}\n")
-        raise e
-
-
-def create_custom_resource(api_instance, group, version, kind, plural, name, namespace, spec):
-    crd_instance = {
-        "apiVersion": f"{group}/{version}",
-        "kind": kind,
-        "metadata": {
-            "name": name,
-            "namespace": namespace
-        },
-        "spec": spec
-    }
-
-    try:
-        api_instance.create_namespaced_custom_object(
-            group=group,
-            version=version,
-            namespace=namespace,  # 根据需要指定命名空间
-            plural=plural,
-            body=crd_instance
-        )
-        print(f"Custom Resource '{name}' created.")
-    except ApiException as e:
-        print(f"Exception when creating Custom Resource: {e}")
-        raise e
-
-
-def update_custom_resource_status(api_instance, group, version, plural, name, namespace, new_phase):
-    try:
-        # 获取当前对象
-        current_object = api_instance.get_namespaced_custom_object(
-            group=group,
-            version=version,
-            namespace=namespace,
-            plural=plural,
-            name=name
-        )
-
-        # 检查是否存在 status 字段，如果不存在，则创建
-        if "status" not in current_object:
-            current_object["status"] = {}
-
-        # 设置 status.phase 字段
-        current_object["status"]["phase"] = new_phase
-
-        # 替换对象的状态
-        api_response = api_instance.patch_namespaced_custom_object_status(
-            group=group,
-            version=version,
-            namespace=namespace,
-            plural=plural,
-            name=name,
-            body=current_object
-        )
-        print(f"Custom Resource '{name}' status updated.")
-    except ApiException as e:
-        print(f"Exception when updating Custom Resource status: {e}")
-        raise e
+        # 格式化并打印数据行
+        row_str = "|".join(" {:<{}} ".format(cell, width) for cell, width in
+                           zip([row[0], row[1], row[2], colored_phase], column_widths))
+        print(row_str)

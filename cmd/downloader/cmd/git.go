@@ -4,96 +4,72 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"os/exec"
-	"sxwl/3k/pkg/fs"
+	"sxwl/3k/cmd/downloader/internal/consts"
+	"sxwl/3k/cmd/downloader/internal/download"
+	e "sxwl/3k/cmd/downloader/internal/errors"
+	"sxwl/3k/pkg/log"
 )
 
 var (
-	gitUrl    string
-	outDir    string
-	group     string // "cpod.sxwl.ai"
-	version   string // "v1"
-	plural    string // "modelstorages"
-	name      string // "example-modelstorage"
-	namespace string // "cpod"
+	c download.Config
 )
 
 // gitCmd represents the git command
 var gitCmd = &cobra.Command{
-	Use:   "git",
+	Use:   "git url",
 	Short: "download data from git url",
-	Long:  `download data from git url`,
+	Long: `download data from git url. Example:
+    downloader git https://www.modelscope.cn/Cherrytest/rot_bgr.git -o /data \
+        -r crd \
+        -g "cpod.sxwl.ai" \
+        -v v1 \
+        -p modelstorages \
+        -n cpod \
+        --name model-storage-b93697a593f9bc93
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//clientgo.InitClient()
-
-		if gitUrl == "" {
+		if len(args) != 1 {
 			fmt.Println("please input the git url for downloading")
 			os.Exit(1)
 		}
-
-		// empty dir /data
-		if fs.IsDirExist(outDir) {
-			err := fs.RemoveAllFilesInDir(outDir)
-			if err != nil {
-				fmt.Printf("Error RemoveAllFilesInDir %s err: %v\n", outDir, err)
-				os.Exit(1)
-			}
+		c.GitUrl = args[0]
+		if c.Record == consts.CRD {
+			c.IsCRD = true
+		} else {
+			c.IsCRD = false
 		}
 
-		// download repo
-		err := downloadGitRepo(gitUrl, outDir)
+		log.SLogger.Infof("downloader args : %+v", c)
+
+		err := download.GitDownload(c)
 		if err != nil {
-			fmt.Printf("Error downloading Git repository err: %v\n", err)
+			if errors.Is(err, e.ErrJobComplete) {
+				log.SLogger.Infof("download %s has completed", c.GitUrl)
+				os.Exit(0)
+			}
+			if errors.Is(err, e.ErrJobDownloading) {
+				log.SLogger.Infof("download %s is downloading", c.GitUrl)
+				os.Exit(0)
+			}
+
+			log.SLogger.Errorf("download err:%s", err)
 			os.Exit(1)
 		}
-
-		//// update status phase
-		//var gvr = schema.GroupVersionResource{
-		//	Group:    group,
-		//	Version:  version,
-		//	Resource: plural,
-		//}
-		//err = clientgo.UpdateCRDStatus(gvr, namespace, name, "phase", "done")
-		//if err != nil {
-		//	fmt.Printf("Error UpdateCRDStatus err : %v\n", err)
-		//	os.Exit(1)
-		//}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(gitCmd)
 	gitCmd.Flags().SortFlags = false
-	gitCmd.Flags().StringVarP(&gitUrl, "source_url", "s", "", "git url of the resource")
-	gitCmd.Flags().StringVarP(&outDir, "output_dir", "o", "/data", "output dir")
-	gitCmd.Flags().StringVarP(&group, "group", "g", "cpod.sxwl.ai", "k8s group")
-	gitCmd.Flags().StringVarP(&version, "version", "v", "v1", "k8s version")
-	gitCmd.Flags().StringVarP(&plural, "plural", "p", "", "k8s plural")
-	gitCmd.Flags().StringVarP(&name, "name", "n", "", "k8s name")
-	gitCmd.Flags().StringVar(&namespace, "namespace", "cpod", "k8s namespace")
-}
-
-func downloadGitRepo(repoURL, outputPath string) error {
-	// 检查 git 是否安装
-	_, err := exec.LookPath("git")
-	if err != nil {
-		return fmt.Errorf("git is not installed")
-	}
-
-	// 使用 git clone 命令下载仓库
-	cmd := exec.Command("git", "clone", repoURL, outputPath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Run()
-	if err != nil {
-		return fmt.Errorf("error running git clone: %v", err)
-	}
-
-	fmt.Printf("Downloaded Git repository from %s and saved to %s\n", repoURL, outputPath)
-
-	return nil
+	gitCmd.Flags().StringVarP(&c.OutDir, "output_dir", "o", "/data", "output dir")
+	gitCmd.Flags().StringVarP(&c.Record, "record", "r", "crd", "record type (crd)")
+	gitCmd.Flags().StringVarP(&c.Group, "group", "g", "cpod.sxwl.ai", "CRD group")
+	gitCmd.Flags().StringVarP(&c.Version, "version", "v", "v1", "CRD version")
+	gitCmd.Flags().StringVarP(&c.Plural, "plural", "p", "modelstorages", "CRD resource")
+	gitCmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "cpod", "CRD namespace")
+	gitCmd.Flags().StringVar(&c.Name, "name", "", "CRD name")
 }
