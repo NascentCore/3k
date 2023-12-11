@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pretrained-model
+  namespace: training-operator
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ceph-filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dataset
+  namespace: training-operator
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ceph-filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: saved-model
+  namespace: training-operator
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: ceph-filesystem
