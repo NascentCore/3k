@@ -6,6 +6,7 @@ from colorama import Fore, Style
 from kubernetes import config
 from plumbum import cli
 
+from .hugging_face import HuggingFaceHub
 from .k8s import *
 from .model_scope import ModelScopeHub
 
@@ -25,12 +26,12 @@ class Model(cli.Application):
     def main(self, hub_name, model_id, downloader_version="v0.0.1", namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
-            print("hub {0} is not supported".format(hub_name))
+            print("hub:{0} is not supported".format(hub_name))
             return
 
         # check the model id exists
         if not hub.have_model(model_id):
-            print("model %s dose not exist" % model_id)
+            print("hub:%s model:%s dose not exist" % (hub_name, model_id))
             return
 
         model_size = math.ceil(hub.size(model_id))  # get the model size in GB
@@ -156,6 +157,8 @@ class Status(cli.Application):
 def hub_factory(hub_name):
     if hub_name == "modelscope":
         return ModelScopeHub()
+    if hub_name == "huggingface":
+        return HuggingFaceHub()
     else:
         return None
 
