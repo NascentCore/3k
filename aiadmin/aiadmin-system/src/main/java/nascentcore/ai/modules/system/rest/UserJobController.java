@@ -77,7 +77,9 @@ public class UserJobController {
                 FileurlQueryCriteria fileurlQueryCriteria = new FileurlQueryCriteria();
                 fileurlQueryCriteria.setJobName(jobId);
                 List<Fileurl> fileurlList = fileurlService.queryAll(fileurlQueryCriteria);
-                objmap.put("url",fileurlList.get(0).getFileUrl());
+                if (null != fileurlList && !fileurlList.isEmpty()) {
+                    objmap.put("url", fileurlList.get(0).getFileUrl());
+                }
             }else if(Constants.WORKER_STATUS_FIAL == workstatus){
                 objmap.put("status","fail");
             }else {
