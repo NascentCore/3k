@@ -4,11 +4,16 @@ import (
 	"flag"
 	"fmt"
 
-	{{.importPackages}}
+	"sxwl/3k/gomicro/scheduler/internal/config"
+	"sxwl/3k/gomicro/scheduler/internal/handler"
+	"sxwl/3k/gomicro/scheduler/internal/svc"
+
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 	_ "sxwl/3k/gomicro/pkg/sxwlzero"
 )
 
-var configFile = flag.String("f", "etc/{{.serviceName}}.yaml", "the config file")
+var configFile = flag.String("f", "etc/scheduler-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
