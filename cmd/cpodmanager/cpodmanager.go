@@ -7,6 +7,7 @@ import (
 	"sxwl/3k/pkg/communication"
 	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/job"
+	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/log"
 	portalsync "sxwl/3k/pkg/portal-sync"
@@ -35,6 +36,16 @@ func startUploadInfo(done chan struct{}) {
 	go func() {
 		for {
 			js, err := job.GetJobStatesWithUploaderInfo()
+			// combine with createdfailed jobs
+			for _, j := range portalsync.GetCreateFailedJobs() {
+				js = append(js, state.State{
+					Name:      j.JobID,
+					Namespace: config.CPOD_NAMESPACE,
+					JobType:   j.JobType,
+					JobStatus: state.JobStatusCreateFailed,
+				})
+			}
+
 			log.SLogger.Debugw("jobstates to upload", "js", js)
 			if err != nil {
 				log.SLogger.Errorw("get job state error", "error", err)

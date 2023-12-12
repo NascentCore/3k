@@ -6,6 +6,7 @@ import (
 	"sxwl/3k/pkg/job"
 	"sxwl/3k/pkg/job/state"
 	"sxwl/3k/pkg/log"
+	"sync"
 	"time"
 )
 
@@ -13,6 +14,43 @@ type itemToDelete struct {
 	jobName    string
 	JobType    state.JobType
 	deleteTime time.Time
+}
+
+type jobBuffer struct {
+	m  map[string]job.Job
+	mu *sync.RWMutex
+}
+
+// 记录创建失败的任务，方便将信息上报
+var createFailedJobs jobBuffer = jobBuffer{map[string]job.Job{}, new(sync.RWMutex)}
+
+func GetCreateFailedJobs() []job.Job {
+	res := []job.Job{}
+	createFailedJobs.mu.RLock()
+	defer createFailedJobs.mu.RUnlock()
+	for _, v := range createFailedJobs.m {
+		res = append(res, v)
+	}
+	return res
+}
+
+func addCreateFailedJob(j job.Job) {
+	if _, ok := createFailedJobs.m[j.JobID]; ok {
+		return
+	}
+	createFailedJobs.mu.Lock()
+	defer createFailedJobs.mu.Unlock()
+	createFailedJobs.m[j.JobID] = j
+}
+
+// 如果任务创建成功了，将其从失败任务列表中删除
+func deleteCreateFailedJob(j string) {
+	if _, ok := createFailedJobs.m[j]; !ok {
+		return
+	}
+	createFailedJobs.mu.Lock()
+	defer createFailedJobs.mu.Unlock()
+	delete(createFailedJobs.m, j)
 }
 
 func StartPortalSync() {
@@ -73,10 +111,12 @@ func StartPortalSync() {
 				//if create failed , just skip , try nexttime
 				err := job.Run()
 				if err != nil {
+					addCreateFailedJob(job)
 					log.SLogger.Errorw("Job run failed",
 						"job", job,
 						"error", err)
 				} else {
+					deleteCreateFailedJob(job.JobID)
 					log.SLogger.Infow("Job created",
 						"job", job)
 				}
