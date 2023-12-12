@@ -30,6 +30,7 @@ var gitCmd = &cobra.Command{
         -p modelstorages \
         -n cpod \
         --name model-storage-b93697a593f9bc93
+		--depth 1
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
@@ -72,4 +73,6 @@ func init() {
 	gitCmd.Flags().StringVarP(&c.Plural, "plural", "p", "modelstorages", "CRD resource")
 	gitCmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "cpod", "CRD namespace")
 	gitCmd.Flags().StringVar(&c.Name, "name", "", "CRD name")
+	gitCmd.Flags().UintVarP(&c.Depth, "depth", "d", 0,
+		"--depth likes git, default is full history")
 }

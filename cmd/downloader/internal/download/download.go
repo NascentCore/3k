@@ -46,7 +46,7 @@ func GitDownload(c Config) error {
 	log.SLogger.Infof("record crd begin")
 
 	// download repo
-	err = downloadGitRepo(c.GitUrl, c.OutDir)
+	err = downloadGitRepo(c.GitUrl, c.OutDir, c.Depth)
 	if err != nil {
 		log.SLogger.Errorf("Error downloading Git repository err: %v", err)
 		_ = recorder.Fail()
@@ -64,7 +64,7 @@ func GitDownload(c Config) error {
 	return nil
 }
 
-func downloadGitRepo(repoURL, outputPath string) error {
+func downloadGitRepo(repoURL, outputPath string, depth uint) error {
 	// 检查 git 是否安装
 	_, err := exec.LookPath("git")
 	if err != nil {
@@ -72,7 +72,12 @@ func downloadGitRepo(repoURL, outputPath string) error {
 	}
 
 	// 使用 git clone 命令下载仓库
-	cmd := exec.Command("git", "clone", repoURL, outputPath)
+	var cmd *exec.Cmd
+	if depth == 0 {
+		cmd = exec.Command("git", "clone", repoURL, outputPath)
+	} else {
+		cmd = exec.Command("git", "clone", fmt.Sprintf("--depth=%d", depth), repoURL, outputPath)
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
