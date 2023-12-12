@@ -1,5 +1,6 @@
 package nascentcore.ai.modules.system.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.ApiModelProperty;
@@ -49,6 +50,10 @@ public class CpodMain implements Serializable {
 
     @ApiModelProperty(value = "算力源注册ID")
     private String userId;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "基础价格/hour/个")
+    private Double amount;
 
     public void copy(CpodMain source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
