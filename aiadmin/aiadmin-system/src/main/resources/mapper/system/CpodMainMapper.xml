@@ -47,7 +47,7 @@
     </select>
 
     <select id="queryAllGpuType" resultMap="BaseResultMap">
-        select distinct gpu_prod
-        from sys_cpod_main where `gpu_prod` != ""
+        select distinct c.gpu_prod, p.amount
+        from sys_cpod_main c, sys_price p where c.gpu_prod != "" AND c.gpu_prod = p.gpu_prod
     </select>
 </mapper>

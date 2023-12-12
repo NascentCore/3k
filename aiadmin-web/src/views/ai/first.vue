@@ -37,7 +37,10 @@
       <el-form-item label="GPU：" prop="gpuType">
         <el-input v-model="form.gpuNumber" :disabled="true" style="width: 60px" placeholder="1" />
         <el-select v-model="form.gpuType" style="width: 23%" :placeholder="$t('ai.gpumodel')" @change="changeGpuType">
-          <el-option v-for="item in gpus" :key="item.gpuProd" :label="item.gpuProd" :value="item.gpuProd" />
+          <el-option v-for="item in gpus" :key="item.gpuProd" :label="item.gpuProd " :value="item.gpuProd" style="width: 380px">
+            <span style="float: left">{{ item.gpuProd }}</span>
+            <span style="float: right">{{ item.amount }}{{ $t("ai.priceper") }}</span>
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item prop="imagePath">

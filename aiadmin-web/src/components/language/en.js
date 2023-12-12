@@ -36,7 +36,8 @@ module.exports = {
     hour: 'Minutes',
     submit: 'Submit',
     submiting: 'Job is being submitting',
-    valuenotnull: 'value not null'
+    valuenotnull: 'value not null',
+    priceper: 'yuan/hour/single'
   },
   login: {
     title: 'NascentCore Cloud',

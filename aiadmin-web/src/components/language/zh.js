@@ -44,7 +44,8 @@ module.exports = {
     gpu_explain: '训练所需的 gpu 资源数量以及类型',
     container_explain: '用户需要将训练程序、训练数据以及所需环境打包成镜像，并将镜像上传到公网可访问的镜像仓库，镜像打包过程可参考附录一',
     jobtype_explain: '目前支持的任务类型为MPI',
-    stop_explain: '可选择自然终止或手动设定运行时长，在设置运行时长到期后如任务未完成，该训练任务将被终止'
+    stop_explain: '可选择自然终止或手动设定运行时长，在设置运行时长到期后如任务未完成，该训练任务将被终止',
+    priceper: '元/时/个'
   },
   login: {
     title: '算想云',
