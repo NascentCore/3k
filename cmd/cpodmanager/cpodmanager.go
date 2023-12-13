@@ -35,7 +35,12 @@ func startUploadInfo(done chan struct{}) {
 	// collect data
 	go func() {
 		for {
+			time.Sleep(time.Second * 10)
 			js, err := job.GetJobStatesWithUploaderInfo()
+			if err != nil {
+				log.SLogger.Errorw("get job state error", "error", err)
+				continue
+			}
 			// combine with createdfailed jobs
 			for _, j := range portalsync.GetCreateFailedJobs() {
 				js = append(js, state.State{
@@ -45,16 +50,16 @@ func startUploadInfo(done chan struct{}) {
 					JobStatus: state.JobStatusCreateFailed,
 				})
 			}
-
 			log.SLogger.Debugw("jobstates to upload", "js", js)
+			resourceInfo, err := resource.GetResourceInfo(config.CPOD_ID, "v0.1")
 			if err != nil {
-				log.SLogger.Errorw("get job state error", "error", err)
+				log.SLogger.Errorw("get resource error", "error", err)
+				continue
 			}
-
 			select {
 			case ch <- communication.UploadPayload{
 				CPodID:       config.CPOD_ID,
-				ResourceInfo: resource.GetResourceInfo(config.CPOD_ID, "v0.1"), // TODO: 获取版本信息
+				ResourceInfo: resourceInfo,
 				JobStatus:    js,
 				UpdateTime:   time.Now(),
 			}:
@@ -62,7 +67,6 @@ func startUploadInfo(done chan struct{}) {
 			case <-done:
 				break
 			}
-			time.Sleep(time.Second * 10)
 		}
 	}()
 
