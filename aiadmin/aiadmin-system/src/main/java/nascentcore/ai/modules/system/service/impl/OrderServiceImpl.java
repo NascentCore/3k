@@ -104,9 +104,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         } else {
             //获取额度，创建支付订单，返回新订单信息
             TradeVo trade = getPriceInfo(jobName);
-            if (Double.parseDouble(trade.getTotalAmount()) < 2){
+            if (Double.parseDouble(trade.getTotalAmount()) < 2) {
                 aliPayRes.setState(String.valueOf(AlipayUtils.STATUS_PAY));
-            }else {
+            } else {
                 //插入支付订单
                 Order orders = new Order();
                 orders.setSubject(trade.getSubject());

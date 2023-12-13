@@ -48,7 +48,7 @@ public class Order implements Serializable {
     @ApiModelProperty(value = "商户订单号")
     private String outTradeNo;
 
-    public void copy(Order source){
-        BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
+    public void copy(Order source) {
+        BeanUtil.copyProperties(source, this, CopyOptions.create().setIgnoreNullValue(true));
     }
 }

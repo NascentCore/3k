@@ -34,7 +34,7 @@ public class AliPayServiceImpl extends ServiceImpl<AliPayConfigMapper, AlipayCon
     @Override
     @CachePut(key = "'config'")
     @Transactional(rollbackFor = Exception.class)
-    public AlipayConfig config(AlipayConfig alipayConfig) throws Exception{
+    public AlipayConfig config(AlipayConfig alipayConfig) throws Exception {
         alipayConfig.setId(1L);
         alipayConfig.setPrivateKey(EncryptUtils.desEncrypt(alipayConfig.getPrivateKey()));
         alipayConfig.setPublicKey(EncryptUtils.desEncrypt(alipayConfig.getPublicKey()));
@@ -43,8 +43,8 @@ public class AliPayServiceImpl extends ServiceImpl<AliPayConfigMapper, AlipayCon
     }
 
     @Override
-    public String toPayAsPrecreate(AlipayConfig alipay, TradeVo trade){
-        if(alipay.getId() == null){
+    public String toPayAsPrecreate(AlipayConfig alipay, TradeVo trade) {
+        if (alipay.getId() == null) {
             throw new BadRequestException("请先添加相应配置，再操作");
         }
         try {
@@ -58,7 +58,7 @@ public class AliPayServiceImpl extends ServiceImpl<AliPayConfigMapper, AlipayCon
 
         double money = Double.parseDouble(trade.getTotalAmount());
         double maxMoney = 5000;
-        if(money <= 0 || money >= maxMoney){
+        if (money <= 0 || money >= maxMoney) {
             throw new BadRequestException("支付金额过大");
         }
         // 创建API对应的request
@@ -74,7 +74,7 @@ public class AliPayServiceImpl extends ServiceImpl<AliPayConfigMapper, AlipayCon
             AlipayTradePrecreateResponse response = alipayClient.execute(request);
             System.out.println(response.getBody());
             //4.验证是否成功
-            if(response.isSuccess()){
+            if (response.isSuccess()) {
                 //5.返回支付的二维码的串码
                 return response.getQrCode();
             }

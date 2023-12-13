@@ -31,7 +31,7 @@ public class AliPayController {
 
     @ApiOperation("配置支付宝")
     @PutMapping
-    public ResponseEntity<Object> updateAliPayConfig(@Validated @RequestBody AlipayConfig alipayConfig) throws Exception{
+    public ResponseEntity<Object> updateAliPayConfig(@Validated @RequestBody AlipayConfig alipayConfig) throws Exception {
         alipayService.config(alipayConfig);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -14,13 +14,15 @@ import java.util.Map;
 public class AlipayUtils {
     public static final int STATUS_NOTPAY = 0;
     public static final int STATUS_PAY = 1;
+
     /**
      * 生成订单号
+     *
      * @return String
      */
     public String getOrderCode() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        int a = (int)(Math.random() * 9000.0D) + 1000;
+        int a = (int) (Math.random() * 9000.0D) + 1000;
         System.out.println(a);
         Date date = new Date();
         String str = sdf.format(date);
@@ -34,13 +36,14 @@ public class AlipayUtils {
 
     /**
      * 校验签名
+     *
      * @param request HttpServletRequest
-     * @param alipay 阿里云配置
+     * @param alipay  阿里云配置
      * @return boolean
      */
-    public boolean rsaCheck(HttpServletRequest request, AlipayConfig alipay){
+    public boolean rsaCheck(HttpServletRequest request, AlipayConfig alipay) {
         // 获取支付宝POST过来反馈信息
-        Map<String,String> params = new HashMap<>(1);
+        Map<String, String> params = new HashMap<>(1);
         Map<String, String[]> requestParams = request.getParameterMap();
         for (Object o : requestParams.keySet()) {
             String name = (String) o;
