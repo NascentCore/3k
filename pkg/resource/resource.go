@@ -5,6 +5,7 @@ package resource
 import (
 	"strconv"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
+	"sxwl/3k/pkg/job/utils"
 	"sxwl/3k/pkg/log"
 	"sxwl/3k/pkg/utils/consts"
 )
@@ -80,13 +81,16 @@ type GPUSummary struct {
 
 // 对于CPod的资源描述：包含资源总量，使用情况，分配情况
 type CPodResourceInfo struct {
-	CPodID       string       `json:"cpod_id"`       //CPOD_ID , 对于CPod的唯一标识
-	CPodVersion  string       `json:"cpod_version"`  //CPod的版本， 这里会隐含K8S的版本信息
-	GPUSummaries []GPUSummary `json:"gpu_summaries"` //GPU汇总信息，每一条代表一类GPU（如3090）
-	Nodes        []NodeInfo   `json:"nodes"`         //节点信息
+	CPodID         string       `json:"cpod_id"`       //CPOD_ID , 对于CPod的唯一标识
+	CPodVersion    string       `json:"cpod_version"`  //CPod的版本， 这里会隐含K8S的版本信息
+	GPUSummaries   []GPUSummary `json:"gpu_summaries"` //GPU汇总信息，每一条代表一类GPU（如3090）
+	CachedModels   []string     `json:"cached_models"` //在CPod中预存的Model信息（来自ModelStorage CRD）
+	CachedDatasets []string     `json:"cached_datasets"`
+	CachedImages   []string     `json:"cached_images"`
+	Nodes          []NodeInfo   `json:"nodes"` //节点信息
 }
 
-func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
+func GetResourceInfo(CPodID string, CPodVersion string) (CPodResourceInfo, error) {
 	var info CPodResourceInfo
 	info.CPodID = CPodID
 	info.CPodVersion = CPodVersion
@@ -131,6 +135,7 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 		}
 	} else {
 		log.SLogger.Errorw("get node info err", "error", err)
+		return CPodResourceInfo{}, err
 	}
 	//stat gpus in cpod
 	statTotal := map[[2]string]int{}
@@ -148,5 +153,26 @@ func GetResourceInfo(CPodID string, CPodVersion string) CPodResourceInfo {
 		})
 	}
 	// TODO: 从监控系统获取信息并补充到info，从APIServer获取的信息中没有网络以及磁盘的信息，需要从监控系统中获取
-	return info
+	modelsMap, err := utils.GetModelStorageMap()
+	if err != nil {
+		return CPodResourceInfo{}, err
+	}
+	ms := make([]string, 0, len(modelsMap))
+	for m := range modelsMap {
+		ms = append(ms, m)
+	}
+	info.CachedModels = ms
+
+	datasetsMap, err := utils.GetDatasetStorageMap()
+	if err != nil {
+		return CPodResourceInfo{}, err
+	}
+	ds := make([]string, 0, len(datasetsMap))
+	for d := range datasetsMap {
+		ds = append(ds, d)
+	}
+	info.CachedDatasets = ds
+	// TODO: get image info from harbor
+	info.CachedImages = []string{}
+	return info, nil
 }
