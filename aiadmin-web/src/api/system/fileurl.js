@@ -6,3 +6,15 @@ export function getUrls(params) {
     method: 'get'
   })
 }
+export function getPayStatus(params) {
+  return request({
+    url: 'api/order/order_status/' + '?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
+export function getPayInfo(params) {
+  return request({
+    url: 'api/order/order_info/' + '?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
