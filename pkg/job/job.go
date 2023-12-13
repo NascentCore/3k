@@ -86,8 +86,10 @@ func (j Job) toActualJob() (Interface, error) {
 		}
 	}
 	dl := time.Now().Add(time.Duration(time.Hour * 24 * 365 * 50)) // super long time
+	eds := fmt.Sprintf("%d", 3600*24*365*50)
 	if j.StopType == StopTypeWithLimit {
 		dl = time.Now().Add(time.Minute * time.Duration(j.Duration))
+		eds = fmt.Sprintf("%d", j.Duration*60)
 	}
 	if j.JobType == state.JobTypePytorch {
 		return kubeflowpytorchjob.PytorchJob{
@@ -108,20 +110,21 @@ func (j Job) toActualJob() (Interface, error) {
 		}, nil
 	} else if j.JobType == state.JobTypeMPI {
 		return kubeflowmpijob.MPIJob{
-			Name:                 j.JobID,
-			Namespace:            config.CPOD_NAMESPACE,
-			Image:                j.Image,
-			DataPath:             j.DataPath,
-			DataPVC:              dataPVC,
-			CKPTPath:             j.CKPTPath,
-			PretrainModelPath:    j.PretrainModelPath,
-			PretrainModelPVC:     modelPVC,
-			ModelSavePath:        j.ModelPath,
-			GPUType:              j.GPUType,
-			GPURequiredPerWorker: j.GPURequiredPerWorker,
-			Command:              j.Command,
-			Replicas:             j.Replicas,
-			Deadline:             dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+			Name:                     j.JobID,
+			Namespace:                config.CPOD_NAMESPACE,
+			Image:                    j.Image,
+			DataPath:                 j.DataPath,
+			DataPVC:                  dataPVC,
+			CKPTPath:                 j.CKPTPath,
+			PretrainModelPath:        j.PretrainModelPath,
+			PretrainModelPVC:         modelPVC,
+			ModelSavePath:            j.ModelPath,
+			GPUType:                  j.GPUType,
+			GPURequiredPerWorker:     j.GPURequiredPerWorker,
+			Command:                  j.Command,
+			Replicas:                 j.Replicas,
+			Deadline:                 dl.Format(config.TIME_FORMAT_FOR_K8S_LABEL),
+			ExecutionDurationSeconds: eds,
 		}, nil
 	} else if j.JobType == state.JobTypeGeneral {
 		return generaljob.GeneralJob{

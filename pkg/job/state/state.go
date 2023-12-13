@@ -36,7 +36,8 @@ type State struct {
 	Namespace string              `json:"namespace"` //K8S NameSpace
 	JobType   JobType             `json:"jobtype"`
 	JobStatus `json:"job_status"` //所处状态，
-	Extension interface{}         `json:"extension"` //不同类型的任务有自己的扩展
+	Info      string              `json:"info,omitempty"` // more info about jobstatus , especially when error occured
+	Extension interface{}         `json:"extension"`      //不同类型的任务有自己的扩展
 }
 
 // 判断一个状态是否不会再有任何变化
