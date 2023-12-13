@@ -71,9 +71,11 @@ public class HttpSenddateThread implements Runnable {
                 fileurlQueryCriteria.setJobName(userJob.getJobName());
                 List<Fileurl> fileurlList = fileurlService.queryAll(fileurlQueryCriteria);
                 Map<String, Object> obj = new HashMap<String, Object>();
-                obj.put("status","success");
-                obj.put("url",fileurlList.get(0).getFileUrl());
-                obj.put("jobId",fileurlList.get(0).getJobName());
+                obj.put("status", "success");
+                if (null != fileurlList && !fileurlList.isEmpty()) {
+                    obj.put("url", fileurlList.get(0).getFileUrl());
+                    obj.put("jobId", fileurlList.get(0).getJobName());
+                }
                 postApi(userJob.getCallbackUrl(), JSON.toJSONString(obj));
             }
         }
