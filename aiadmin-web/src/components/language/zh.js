@@ -92,7 +92,9 @@ module.exports = {
     guide: '使用指南',
     resultdownload: '下载模型',
     title: '',
-    userguide: '使用导读'
+    userguide: '使用导读',
+    costcenter: '费用中心',
+    orderinfo: '订单详情'
   },
   jobinfo: {
     jobName: '任务名称',
@@ -121,7 +123,12 @@ module.exports = {
     trainingsource: '训练数据源',
     mountpath: '挂载路径',
     jobtype: '任务类型',
-    createtime: '创建时间'
+    createtime: '创建时间',
+    payinfo: '支付宝扫码支付',
+    goodname: '商品名称：',
+    paytotal: '消费总计：',
+    usedetail: '使用明细：',
+    modelload: '模型加载中'
   },
   componyuser: {
     user: '算力源用户',
@@ -140,5 +147,17 @@ module.exports = {
     gpuAllocatable: 'GPU 可分配数量',
     createtime: '创建日期',
     updateTime: '更新时间'
+  },
+  order: {
+    ordernum: '商户订单号',
+    jobname: 'job名称',
+    goodname: '商品名称',
+    payamount: '支付金额',
+    paystatus: '支付状态',
+    nopay: '未支付',
+    paid: '已支付',
+    gooddetail: '商品明细',
+    createtime: '创建日期',
+    updatetime: '更新时间'
   }
 }

@@ -84,7 +84,9 @@ module.exports = {
     info: 'Job details',
     resultdownload: 'Model download',
     title: '',
-    userguide: 'User Guidance'
+    userguide: 'User Guidance',
+    costcenter: 'Cost center',
+    orderinfo: 'Order details'
   },
   jobinfo: {
     jobName: 'job name',
@@ -113,7 +115,12 @@ module.exports = {
     trainingsource: 'Training dataset',
     mountpath: 'Mount path',
     jobtype: 'Job type',
-    createtime: 'Creation time'
+    createtime: 'Creation time',
+    payinfo: 'Scan to pay by Alipay',
+    goodname: 'Good name：',
+    paytotal: 'Consumer total：',
+    usedetail: 'Use details：',
+    modelload: 'Model loading'
   },
   componyuser: {
     user: 'Computing power info',
@@ -132,5 +139,17 @@ module.exports = {
     gpuAllocatable: 'GPU allocable quantity',
     createtime: 'Creation date',
     updateTime: 'Update time'
+  },
+  order: {
+    ordernum: 'Order number',
+    jobname: 'Job name',
+    goodname: 'Product name',
+    payamount: 'Pay amount',
+    paystatus: 'Pay status',
+    nopay: 'Unpaid',
+    paid: 'Paid',
+    gooddetail: 'Expense detail',
+    createtime: 'Ctreation date',
+    updatetime: 'Update date'
   }
 }
