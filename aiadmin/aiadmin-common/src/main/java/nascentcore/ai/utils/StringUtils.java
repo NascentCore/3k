@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -236,5 +237,16 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             getAllFields(clazz.getSuperclass(), fields);
         }
         return fields;
+    }
+    public static String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        StringBuilder randomStringBuilder = new StringBuilder(length);
+        SecureRandom secureRandom = new SecureRandom();
+        for (int i = 0; i < length; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            char randomChar = characters.charAt(randomIndex);
+            randomStringBuilder.append(randomChar);
+        }
+        return randomStringBuilder.toString();
     }
 }

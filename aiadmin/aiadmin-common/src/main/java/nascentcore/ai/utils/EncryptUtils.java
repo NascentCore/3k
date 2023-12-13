@@ -15,6 +15,7 @@
  */
 package nascentcore.ai.utils;
 
+import nascentcore.ai.config.SystemConfig;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -41,7 +42,7 @@ public class EncryptUtils {
             return null;
         }
         cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
-        String strKey = "Passw0rd";
+        String strKey = SystemConfig.getConfig("password");
         return new DESKeySpec(strKey.getBytes(StandardCharsets.UTF_8));
     }
 
