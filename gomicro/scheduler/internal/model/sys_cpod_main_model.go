@@ -2,8 +2,19 @@ package model
 
 import (
 	"context"
+	"database/sql"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
+
+const (
+	JobStatusObtainNeedSend    = 0
+	JobStatusObtainNotNeedSend = 1
+	JobStatusWorkerRunning     = 0
+	JobStatusWorkerFail        = 1
+	JobStatusWorkerSuccess     = 2
+	JobStatusWorkerUrlSuccess  = 3
 )
 
 var _ SysCpodMainModel = (*customSysCpodMainModel)(nil)
@@ -14,11 +25,13 @@ type (
 	SysCpodMainModel interface {
 		sysCpodMainModel
 		AllFieldsBuilder() squirrel.SelectBuilder
+		UpdateBuilder() squirrel.UpdateBuilder
 
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysCpodMain, error)
 		FindOneById(ctx context.Context, data *SysCpodMain) (*SysCpodMain, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysCpodMain, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodMain, error)
+		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 	}
 
 	customSysCpodMainModel struct {
@@ -36,6 +49,11 @@ func NewSysCpodMainModel(conn sqlx.SqlConn) SysCpodMainModel {
 // AllFieldsBuilder return a SelectBuilder with select("*")
 func (m *defaultSysCpodMainModel) AllFieldsBuilder() squirrel.SelectBuilder {
 	return squirrel.Select("*").From(m.table)
+}
+
+// UpdateBuilder return a empty UpdateBuilder
+func (m *defaultSysCpodMainModel) UpdateBuilder() squirrel.UpdateBuilder {
+	return squirrel.Update(m.table)
 }
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
@@ -111,4 +129,14 @@ func (m *defaultSysCpodMainModel) FindPageListByPage(ctx context.Context, select
 	default:
 		return nil, err
 	}
+}
+
+// UpdateColsByCond -
+func (m *defaultSysCpodMainModel) UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error) {
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	return m.conn.ExecCtx(ctx, query, args...)
 }

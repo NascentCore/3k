@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"sxwl/3k/gomicro/pkg/sxwlzero"
 	"sxwl/3k/gomicro/scheduler/internal/logic"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 	"sxwl/3k/gomicro/scheduler/internal/types"
@@ -23,7 +22,7 @@ func CpodStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			sxwlzero.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, resp)
 		}
 	}
 }

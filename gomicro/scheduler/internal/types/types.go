@@ -81,7 +81,15 @@ type CPODStatusReq struct {
 	ResourceInfo ResourceInfo `json:"resource_info"`
 	UpdateTime   string       `json:"update_time"`
 	CPODID       string       `json:"cpod_id"`
+	UserID       int64        `header:"Sx-User"`
 }
 
 type CPODStatusResp struct {
+	Message string `json:"message"`
+}
+
+type JobCallBackReq struct {
+	Status string `json:"status"`
+	URL    string `json:"url"`
+	JobID  string `json:"jobId"`
 }

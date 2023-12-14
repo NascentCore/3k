@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"sxwl/3k/gomicro/pkg/sxwlzero"
 	{{.ImportPackages}}
 )
 
@@ -21,7 +20,7 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			{{if .HasResp}}sxwlzero.OkJsonCtx(r.Context(), w, resp){{else}}httpx.Ok(w){{end}}
+			{{if .HasResp}}httpx.OkJsonCtx(r.Context(), w, resp){{else}}httpx.Ok(w){{end}}
 		}
 	}
 }

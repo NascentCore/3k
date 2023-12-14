@@ -17,8 +17,8 @@ import (
 var (
 	sysCpodMainFieldNames          = builder.RawFieldNames(&SysCpodMain{})
 	sysCpodMainRows                = strings.Join(sysCpodMainFieldNames, ",")
-	sysCpodMainRowsExpectAutoSet   = strings.Join(stringx.Remove(sysCpodMainFieldNames, "`main_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	sysCpodMainRowsWithPlaceHolder = strings.Join(stringx.Remove(sysCpodMainFieldNames, "`main_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	sysCpodMainRowsExpectAutoSet   = strings.Join(stringx.Remove(sysCpodMainFieldNames, "`main_id`", "`create_at`", "`created_at`", "`update_at`", "`updated_at`"), ",")
+	sysCpodMainRowsWithPlaceHolder = strings.Join(stringx.Remove(sysCpodMainFieldNames, "`main_id`", "`create_at`", "`created_at`", "`update_at`", "`updated_at`"), "=?,") + "=?"
 )
 
 type (
@@ -76,14 +76,14 @@ func (m *defaultSysCpodMainModel) FindOne(ctx context.Context, mainId int64) (*S
 }
 
 func (m *defaultSysCpodMainModel) Insert(ctx context.Context, data *SysCpodMain) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodMainRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.UserId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodMainRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId)
 	return ret, err
 }
 
 func (m *defaultSysCpodMainModel) Update(ctx context.Context, data *SysCpodMain) error {
 	query := fmt.Sprintf("update %s set %s where `main_id` = ?", m.table, sysCpodMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.UserId, data.MainId)
+	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId, data.MainId)
 	return err
 }
 
