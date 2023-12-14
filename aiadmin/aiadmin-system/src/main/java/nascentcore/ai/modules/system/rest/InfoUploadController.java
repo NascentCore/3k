@@ -51,15 +51,6 @@ public class InfoUploadController {
                 fileurlList.add(fileurl);
             }
             fileurlService.save(fileurlList);
-            UserJobQueryCriteria criteria = new UserJobQueryCriteria();
-            criteria.setJobName(modelUrl.getJobName());
-            List<UserJob> userJobList = userJobService.queryAll(criteria);
-            if(null != userJobList && !userJobList.isEmpty()){
-                UserJob userJob = userJobList.get(0);
-                if(!StringUtils.isEmpty(userJob.getCallbackUrl())){
-                    HttpSenddateThread.add(userJob);
-                }
-            }
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

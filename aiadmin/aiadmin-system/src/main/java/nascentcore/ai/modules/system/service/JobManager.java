@@ -51,6 +51,9 @@ public class JobManager {
                             UserJob job = new UserJob();
                             BeanUtil.copyProperties(userJob, job);
                             userJobListtmp.add(job);
+                            if(!StringUtils.isEmpty(userJob.getCallbackUrl())){
+                                HttpSenddateThread.add(job);
+                            }
                         }
                     }
                 }
