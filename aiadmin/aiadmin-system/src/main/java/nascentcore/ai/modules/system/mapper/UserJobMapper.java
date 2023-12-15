@@ -21,4 +21,5 @@ public interface UserJobMapper extends BaseMapper<UserJob> {
     List<UserJob> findAll(@Param("criteria") UserJobQueryCriteria criteria);
 
     void deletebyName(@Param("name") String name);
+    void deletebyId(@Param("id") Long id);
 }

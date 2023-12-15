@@ -53,10 +53,12 @@ public class UserJobController {
         Long userId = SecurityUtils.getCurrentUserId();
         if (null != criteria) {
             criteria.setUserId(userId);
+            criteria.setDeleted(Constants.USER_JOB_NOT_DEL);
             return new ResponseEntity<>(userJobService.queryAll(criteria, page), HttpStatus.OK);
         } else {
             UserJobQueryCriteria criteria1 = new UserJobQueryCriteria();
             criteria1.setUserId(userId);
+            criteria1.setDeleted(Constants.USER_JOB_NOT_DEL);
             return new ResponseEntity<>(userJobService.queryAll(criteria1, page), HttpStatus.OK);
         }
     }
@@ -119,6 +121,7 @@ public class UserJobController {
         List<CpodMain> cpodMains = cpodMainService.findByCpodId(cpodid);
         UserJobQueryCriteria criteria = new UserJobQueryCriteria();
         criteria.setObtainStatus(Constants.NEEDSEND);
+        criteria.setDeleted(Constants.USER_JOB_NOT_DEL);
         List<UserJob> userJobList = userJobService.queryAll(criteria);
         List<JSONObject> userJobResList = new ArrayList<>();
         if (!cpodMains.isEmpty()) {

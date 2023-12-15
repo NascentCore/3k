@@ -54,7 +54,7 @@ public class UserJobServiceImpl extends ServiceImpl<UserJobMapper, UserJob> impl
     @Transactional(rollbackFor = Exception.class)
     public void delete(Set<Long> ids) {
         for (Long id : ids) {
-            removeById(id);
+            userJobMapper.deletebyId(id);
         }
     }
 

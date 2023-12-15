@@ -28,10 +28,11 @@
         <result column="pretrained_model_name" property="pretrainedModelName"/>
         <result column="pretrained_model_path" property="pretrainedModelPath"/>
         <result column="json_all" property="jsonAll"/>
+        <result column="deleted" property="deleted"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        job_id, job_name, gpu_number, gpu_type, ckpt_path, ckpt_vol, model_path, model_vol, image_path, hf_url, dataset_path, job_type, stop_type, stop_time, work_status, obtain_status, create_time, update_time, user_id, cpod_id,run_command, callback_url, dataset_name,pretrained_model_name, pretrained_model_path,json_all
+        job_id, job_name, gpu_number, gpu_type, ckpt_path, ckpt_vol, model_path, model_vol, image_path, hf_url, dataset_path, job_type, stop_type, stop_time, work_status, obtain_status, create_time, update_time, user_id, cpod_id,run_command, callback_url, dataset_name,pretrained_model_name, pretrained_model_path,json_all, deleted
     </sql>
 
     <select id="findAll" resultMap="BaseResultMap">
@@ -54,11 +55,18 @@
             <if test="criteria.cpodId != null">
                 and cpod_id = #{criteria.cpodId}
             </if>
+            <if test="criteria.deleted != null">
+                and deleted = #{criteria.deleted}
+            </if>
         </where>
         order by job_id desc
     </select>
     <delete id="deletebyName">
-        delete from sys_user_job
+        update sys_user_job set deleted = 1, update_time = now()
         where job_name = #{name}
+    </delete>
+    <delete id="deletebyId">
+        update sys_user_job set deleted = 1, update_time = now()
+        where job_id = #{id}
     </delete>
 </mapper>
