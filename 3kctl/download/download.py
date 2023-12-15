@@ -23,7 +23,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, downloader_version="v0.0.1", namespace="cpod"):
+    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.4", namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -34,6 +34,7 @@ class Model(cli.Application):
             print("hub:%s model:%s dose not exist" % (hub_name, model_id))
             return
 
+        depth = int(depth)
         model_size = math.ceil(hub.size(model_id))  # get the model size in GB
         crd_name = create_crd_name(hub_name, model_id)
         pvc_name = create_pvc_name(hub_name, model_id)
@@ -78,7 +79,9 @@ class Model(cli.Application):
                 return
 
         # 创建PVC
-        storage = model_size * 3  # 申请3倍model_size的空间
+        storage = model_size * 1.5  # 默认是depth=1 1.5倍空间
+        if depth > 1:
+            storage = model_size * 3  # 多层深度 3倍空间
         storage = "%dGi" % math.ceil(storage)
         print("model {0} size {1} GB pvc {2} GB".format(hub_name, model_size, storage))
 
@@ -100,7 +103,9 @@ class Model(cli.Application):
                                  "-v", VERSION,
                                  "-p", PLURAL,
                                  "-n", namespace,
-                                 "--name", crd_name],
+                                 "--name", crd_name,
+                                 "-d", str(depth)],
+                                proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
                                 "sa-downloader")

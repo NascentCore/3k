@@ -10,7 +10,7 @@ ADD ./pkg ./pkg
 WORKDIR /build/cmd/downloader
 RUN go build -o app main.go
 
-FROM sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/alpine-git-lfs:v1
+FROM sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/alpine-git-lfs:v1.0.2
 
 ENV TZ Asia/Shanghai
 

@@ -4,7 +4,7 @@
 ## 3kctl deploy
 
 ## 3kctl download
-download子命令用于
+download子命令用于下载模型、数据集。
 ### 查看下载任务状态
 ```bash
 python3 3kctl.py download status
@@ -19,6 +19,29 @@ python3 3kctl.py download status
 - PHASE: 当前下载状态
 
 ### 下载模型
+查看命令download model的参数
+```bash
+python3 3kctl.py download model -h
+```
+```bash
+3kctl download model 0.1
+
+download model
+
+Usage:
+    3kctl download model [SWITCHES] hub_name model_id [proxy=] [depth=1] [downloader_version=v0.0.4] [namespace=cpod]
+
+Meta-switches:
+    -h, --help         Prints this help message and quits
+    --help-all         Prints help messages of all sub-commands and quits
+    -v, --version      Prints the program's version and quits
+
+```
+- proxy 设置vpn，格式`http://server-ip:port/`。默认不走代理
+- depth 设置git clone --depth，默认1，也就是最近一次提交的内容，没有历史记录，这样可以节省空间
+- downloader_version 下载器版本，默认为最新版
+
+#### 魔搭下载示例
 在魔搭上找到自己需要的模型，例如 [https://modelscope.cn/models/qwen/Qwen-Audio-Chat](https://modelscope.cn/models/qwen/Qwen-Audio-Chat)
 
 点击复制model-id按钮
@@ -29,6 +52,17 @@ model-id为`qwen/Qwen-Audio-Chat`
 
 下载模型 `python3 3kctl.py download model modelscope qwen/Qwen-Audio-Chat`
 
+#### HuggingFace下载示例
+在HuggingFace上找到自己需要的模型，例如 [https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1](https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1)
+
+点击复制model-id按钮
+
+model-id为`IDEA-CCNL/Ziya-LLaMA-13B-v1`
+
+下载模型 `python3 3kctl.py download model huggingface IDEA-CCNL/Ziya-LLaMA-13B-v1 http://127.0.0.1:6789`
+
+
+#### 下载命令输出
 正常情况输出：
 ```bash
 model modelscope size 16 GB
@@ -65,18 +99,18 @@ metadata:
     app: alpine
 spec:
   volumes:
-  - name: modelsave-pv
-    persistentVolumeClaim:
-      claimName: pvc-model-2e5ac6b350e54f96 # 替换成对应的pvc name
-      readOnly: false
+    - name: modelsave-pv
+      persistentVolumeClaim:
+        claimName: pvc-model-2e5ac6b350e54f96 # 替换成对应的pvc name
+        readOnly: false
   containers:
-  - name: alpine
-    image: alpine
-    stdin: true
-    tty: true
-    volumeMounts:
-    - mountPath: "/data"
-      name: modelsave-pv
+    - name: alpine
+      image: alpine
+      stdin: true
+      tty: true
+      volumeMounts:
+        - mountPath: "/data"
+          name: modelsave-pv
 ```
 
 ```bash

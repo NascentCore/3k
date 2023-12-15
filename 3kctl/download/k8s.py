@@ -61,12 +61,20 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         raise e
 
 
-def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, namespace="cpod",
+def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, proxy_env="", namespace="cpod",
                         secret="aliyun-enterprise-registry", service_account_name="sa-downloader"):
     # 创建 Job 的配置
     job = client.V1Job(api_version="batch/v1", kind="Job",
                        metadata=client.V1ObjectMeta(name=job_name, namespace=namespace))
     container = client.V1Container(name=container_name, image=image, args=args)
+
+    # 设置代理
+    if proxy_env != "":
+        container.env = [
+            client.V1EnvVar(name="http_proxy", value=proxy_env),
+            client.V1EnvVar(name="https_proxy", value=proxy_env),
+            client.V1EnvVar(name="no_proxy", value="localhost,127.0.0.1,$(KUBERNETES_SERVICE_HOST)")
+        ]
 
     # 定义卷挂载
     volume_mount = client.V1VolumeMount(name="data-volume", mount_path="/data")

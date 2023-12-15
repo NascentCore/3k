@@ -20,6 +20,7 @@ type Config struct {
 	Plural    string // "modelstorages"
 	Name      string // "example-modelstorage"
 	Namespace string // "cpod"
+	Depth     uint   // 1
 }
 
 func NewRecorder(recorderType string, c Config) Recorder {
