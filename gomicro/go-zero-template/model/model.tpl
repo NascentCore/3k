@@ -27,6 +27,7 @@ type (
 	{{.upperStartCamelObject}}Model interface {
 		{{.lowerStartCamelObject}}Model
 		AllFieldsBuilder() squirrel.SelectBuilder
+		UpdateBuilder() squirrel.UpdateBuilder
 		{{if .withCache}}
 
         {{else}}
@@ -35,6 +36,8 @@ type (
 		FindOneById(ctx context.Context, data *{{.upperStartCamelObject}}) (*{{.upperStartCamelObject}}, error)
 		FindAll(ctx context.Context, orderBy string) ([]*{{.upperStartCamelObject}}, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*{{.upperStartCamelObject}}, error)
+        UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
+
         {{end}}
 		// Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
 		// RowBuilder() squirrel.SelectBuilder
@@ -64,6 +67,11 @@ func New{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, c ca
 // AllFieldsBuilder return a SelectBuilder with select("*")
 func (m *default{{.upperStartCamelObject}}Model) AllFieldsBuilder() squirrel.SelectBuilder {
     return squirrel.Select("*").From(m.table)
+}
+
+// UpdateBuilder return a empty UpdateBuilder
+func (m *default{{.upperStartCamelObject}}Model) UpdateBuilder() squirrel.UpdateBuilder {
+	return squirrel.Update(m.table)
 }
 
 // DeleteSoft set deleted_at with CURRENT_TIMESTAMP
@@ -158,4 +166,14 @@ func (m *default{{.upperStartCamelObject}}Model) FindPageListByPage(ctx context.
     default:
         return nil, err
     }
+}
+
+// UpdateColsByCond -
+func (m *default{{.upperStartCamelObject}}Model) UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error) {
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	return m.conn.ExecCtx(ctx, query, args...)
 }

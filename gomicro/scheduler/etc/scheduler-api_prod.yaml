@@ -1,0 +1,7 @@
+Name: scheduler-api
+Host: 0.0.0.0
+Port: 80
+Timeout: 10000
+
+DB:
+  DataSource: nascent:yang@123@tcp(nascentcore.mysql.polardb.rds.aliyuncs.com:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai

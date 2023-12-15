@@ -17,8 +17,8 @@ import (
 var (
 	sysUserJobFieldNames          = builder.RawFieldNames(&SysUserJob{})
 	sysUserJobRows                = strings.Join(sysUserJobFieldNames, ",")
-	sysUserJobRowsExpectAutoSet   = strings.Join(stringx.Remove(sysUserJobFieldNames, "`job_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	sysUserJobRowsWithPlaceHolder = strings.Join(stringx.Remove(sysUserJobFieldNames, "`job_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	sysUserJobRowsExpectAutoSet   = strings.Join(stringx.Remove(sysUserJobFieldNames, "`job_id`", "`[create_at]`"), ",")
+	sysUserJobRowsWithPlaceHolder = strings.Join(stringx.Remove(sysUserJobFieldNames, "`job_id`", "`[create_at]`"), "=?,") + "=?"
 )
 
 type (
@@ -61,6 +61,7 @@ type (
 		PretrainedModelPath sql.NullString `db:"pretrained_model_path"` // 模型基座路径
 		DatasetName         sql.NullString `db:"dataset_name"`          // 挂载路径名称
 		JsonAll             sql.NullString `db:"json_all"`              // json数据全包
+		Deleted             int64          `db:"deleted"`               // 逻辑删除 0 未删除 1逻辑删除
 	}
 )
 
@@ -92,14 +93,14 @@ func (m *defaultSysUserJobModel) FindOne(ctx context.Context, jobId int64) (*Sys
 }
 
 func (m *defaultSysUserJobModel) Insert(ctx context.Context, data *SysUserJob) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserJobRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.CpodId, data.WorkStatus, data.ObtainStatus, data.JobName, data.GpuNumber, data.GpuType, data.CkptPath, data.CkptVol, data.ModelPath, data.ModelVol, data.ImagePath, data.HfUrl, data.DatasetPath, data.JobType, data.StopType, data.StopTime, data.PretrainedModelName, data.RunCommand, data.CallbackUrl, data.PretrainedModelPath, data.DatasetName, data.JsonAll)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserJobRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.CpodId, data.WorkStatus, data.ObtainStatus, data.JobName, data.GpuNumber, data.GpuType, data.CkptPath, data.CkptVol, data.ModelPath, data.ModelVol, data.ImagePath, data.HfUrl, data.DatasetPath, data.JobType, data.StopType, data.StopTime, data.CreateTime, data.UpdateTime, data.PretrainedModelName, data.RunCommand, data.CallbackUrl, data.PretrainedModelPath, data.DatasetName, data.JsonAll, data.Deleted)
 	return ret, err
 }
 
 func (m *defaultSysUserJobModel) Update(ctx context.Context, data *SysUserJob) error {
 	query := fmt.Sprintf("update %s set %s where `job_id` = ?", m.table, sysUserJobRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.CpodId, data.WorkStatus, data.ObtainStatus, data.JobName, data.GpuNumber, data.GpuType, data.CkptPath, data.CkptVol, data.ModelPath, data.ModelVol, data.ImagePath, data.HfUrl, data.DatasetPath, data.JobType, data.StopType, data.StopTime, data.PretrainedModelName, data.RunCommand, data.CallbackUrl, data.PretrainedModelPath, data.DatasetName, data.JsonAll, data.JobId)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.CpodId, data.WorkStatus, data.ObtainStatus, data.JobName, data.GpuNumber, data.GpuType, data.CkptPath, data.CkptVol, data.ModelPath, data.ModelVol, data.ImagePath, data.HfUrl, data.DatasetPath, data.JobType, data.StopType, data.StopTime, data.CreateTime, data.UpdateTime, data.PretrainedModelName, data.RunCommand, data.CallbackUrl, data.PretrainedModelPath, data.DatasetName, data.JsonAll, data.Deleted, data.JobId)
 	return err
 }
 

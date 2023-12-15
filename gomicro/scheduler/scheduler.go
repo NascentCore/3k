@@ -1,8 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
+	"os"
 
 	"sxwl/3k/gomicro/scheduler/internal/config"
 	"sxwl/3k/gomicro/scheduler/internal/handler"
@@ -13,13 +14,20 @@ import (
 	_ "sxwl/3k/gomicro/pkg/sxwlzero"
 )
 
-var configFile = flag.String("f", "etc/scheduler-api.yaml", "the config file")
-
 func main() {
-	flag.Parse()
+	var configFile string
+	env := os.Getenv("SCHEDULER_ENV")
+	switch env {
+	case "prod":
+		configFile = "etc/scheduler-api_prod.yaml"
+	case "test":
+		configFile = "etc/scheduler-api_test.yaml"
+	default:
+		log.Fatalf("env SCHEDULER_ENV not defined")
+	}
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	conf.MustLoad(configFile, &c)
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

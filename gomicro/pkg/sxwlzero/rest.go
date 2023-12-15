@@ -24,7 +24,7 @@ func OkJsonCtx(ctx context.Context, w http.ResponseWriter, v any) {
 	})
 }
 
-func init() {
+func SetErrorHandlerCtx() {
 	httpx.SetErrorHandlerCtx(func(ctx context.Context, err error) (int, any) {
 		errCode := ErrDefaultCode
 		errMsg := err.Error()

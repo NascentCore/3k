@@ -8,6 +8,8 @@ info(
 	version: "v1"
 )
 
+import "client.api"
+
 type GPUStateInfo {
 	Temp      int    `json:"temp"`
 	MemUsage  int    `json:"mem_usage"`
@@ -88,6 +90,7 @@ type CPODStatusReq {
 	ResourceInfo ResourceInfo `json:"resource_info"`
 	UpdateTime   string       `json:"update_time"`
 	CPODID       string       `json:"cpod_id"`
+	UserID       int64        `header:"Sx-User"`
 }
 
 type CPODStatusResp {

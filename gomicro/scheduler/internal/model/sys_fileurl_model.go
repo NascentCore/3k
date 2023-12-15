@@ -2,6 +2,8 @@ package model
 
 import (
 	"context"
+	"database/sql"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -14,11 +16,13 @@ type (
 	SysFileurlModel interface {
 		sysFileurlModel
 		AllFieldsBuilder() squirrel.SelectBuilder
+		UpdateBuilder() squirrel.UpdateBuilder
 
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysFileurl, error)
 		FindOneById(ctx context.Context, data *SysFileurl) (*SysFileurl, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysFileurl, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysFileurl, error)
+		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 	}
 
 	customSysFileurlModel struct {
@@ -36,6 +40,11 @@ func NewSysFileurlModel(conn sqlx.SqlConn) SysFileurlModel {
 // AllFieldsBuilder return a SelectBuilder with select("*")
 func (m *defaultSysFileurlModel) AllFieldsBuilder() squirrel.SelectBuilder {
 	return squirrel.Select("*").From(m.table)
+}
+
+// UpdateBuilder return a empty UpdateBuilder
+func (m *defaultSysFileurlModel) UpdateBuilder() squirrel.UpdateBuilder {
+	return squirrel.Update(m.table)
 }
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
@@ -111,4 +120,14 @@ func (m *defaultSysFileurlModel) FindPageListByPage(ctx context.Context, selectB
 	default:
 		return nil, err
 	}
+}
+
+// UpdateColsByCond -
+func (m *defaultSysFileurlModel) UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error) {
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	return m.conn.ExecCtx(ctx, query, args...)
 }

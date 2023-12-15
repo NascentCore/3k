@@ -1,0 +1,7 @@
+Name: scheduler-api
+Host: 0.0.0.0
+Port: 80
+Timeout: 10000
+
+DB:
+  DataSource: nascentcore:Sxwl@666@tcp(8.140.22.241:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
