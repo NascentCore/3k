@@ -2,10 +2,14 @@ package communication
 
 import (
 	"fmt"
+	"path/filepath"
 	"sxwl/3k/pkg/config"
 )
 
 func validatePath(p string) error {
+	if !filepath.IsAbs(p) {
+		return fmt.Errorf("invalid path(%s)", p)
+	}
 	return nil
 }
 
