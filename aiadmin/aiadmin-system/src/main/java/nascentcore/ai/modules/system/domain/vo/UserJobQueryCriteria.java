@@ -13,4 +13,5 @@ public class UserJobQueryCriteria{
     private Integer obtainStatus;
     private Long userId;
     private String cpodId;
+    private Integer deleted;
 }

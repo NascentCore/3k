@@ -21,6 +21,7 @@ public class JobManager {
     public void updateJobStatus(String cpodid, List<JobStatusDTO> jobStatusDTOSList) {
         UserJobQueryCriteria criteria = new UserJobQueryCriteria();
         criteria.setCpodId(cpodid);
+        criteria.setDeleted(Constants.USER_JOB_NOT_DEL);
         List<UserJob> userJobList = userJobService.queryAll(criteria);
         List<UserJob> userJobListtmp = new ArrayList<>();
         if (null != jobStatusDTOSList && !jobStatusDTOSList.isEmpty()) {

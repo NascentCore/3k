@@ -8,4 +8,6 @@ public class Constants {
     public static final int WORKER_STATUS_RUNNING = 0;
 
     public static final int WORKER_STATUS_URL_SUCCESS = 3;
+
+    public static final int USER_JOB_NOT_DEL = 0;
 }

@@ -96,6 +96,8 @@ public class UserJob implements Serializable {
     private String pretrainedModelPath;
     @ApiModelProperty(value = "json整个数据包")
     private String jsonAll;
+    @ApiModelProperty(value = "逻辑删除")
+    private Integer deleted;
     public void copy(UserJob source){
         BeanUtil.copyProperties(source,this, CopyOptions.create().setIgnoreNullValue(true));
     }
