@@ -31,3 +31,10 @@ docker remove -f go-scheduler-$OLD_VERSION
 # 启动新服务
 docker run -d -e SCHEDULER_ENV=test -p 8090:80 --name go-scheduler-$NEW_VERSION sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:$NEW_VERSION
 ```
+
+## Notes
+### api 生成
+在gomicro目录执行
+```bash
+goctl api go --style go_zero --home ./go-zero-template --dir ./scheduler --api ./scheduler.api
+```
