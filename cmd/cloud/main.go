@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sxwl/3k/pkg/communication"
 	"sxwl/3k/pkg/log"
 )
 
@@ -19,33 +20,38 @@ func main() {
 	}
 	url := os.Args[1]
 	token := os.Args[2]
-	// TODO: 添加 --json 选项，让用户输入 Json 字符串
-	data := map[string]interface{}{
-		"gpuNumber":           1,
-		"gpuType":             "NVIDIA-GeForce-RTX-3090",
-		"ckptPath":            "/data",
-		"ckptVol":             "10000",
-		"modelPath":           "/data2",
-		"modelVol":            "10000",
-		"imagePath":           "dockerhub.kubekey.local/kubesphereio/modihand:test",
-		"jobType":             "GeneralJob",
-		"stopType":            "1",
-		"stopTime":            5,
-		"pretrainedModelName": "chatglm3-6b",
-		"pretrainedModelPath": "/sixpen_models/chatlm3",
-		"datasetName":         "modihand-dataset",
-		"datasetPath":         "/sixpen_models/modihand_outputs/test_10059997",
-		"runCommand":          "sleep 600",
-		"callbackUrl":         "https://aiapi.yangapi.cn/api/test/callback",
-		"env":                 "\"MODIHAND_OPEN_NODE_TOKEN\": \"9999\"",
-	}
-	jsonData, err := json.Marshal(data)
+	jobStr := `
+      {
+        "jobName": "ai1b4f3a3f-17f2-4257-a1e8-f49e1641176a",
+        "pretrainedModelName": "chatglm3-6b",
+        "imagePath": "dockerhub.kubekey.local/kubesphereio/sxwl-ai/bert:withcmd",
+        "ckptPath": "/data",
+        "datasetName": "",
+        "modelPath": "/model",
+        "stopType": 0,
+        "env": {
+            "TESTENV": "1111"
+        },
+        "modelVol": 100,
+        "datasetPath": "",
+        "gpuNumber": 1,
+        "pretrainedModelPath": "/pretrainedModel",
+        "ckptVol": 100,
+        "runCommand": "sleep 300",
+        "callbackUrl": "https://cloud.nascentcore.cn/api/test/callback",
+        "jobType": "GeneralJob",
+        "gpuType": "NVIDIA-GeForce-RTX-3090"
+      }`
+	job := communication.RawJobDataItem{}
+	json.Unmarshal([]byte(jobStr), &job)
+
+	jsonD, err := json.Marshal(job)
 	if err != nil {
 		log.Logger.Error(err.Error())
 		os.Exit(1)
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonD))
 	if err != nil {
 		log.Logger.Error(err.Error())
 		os.Exit(1)
