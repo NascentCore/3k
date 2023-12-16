@@ -1,3 +1,7 @@
 # Cloud
 
 算想云 CLI
+执行如下命令实现创建新job的测试：
+go run main.go https://llm.nascentcore.cn/api/userJob 1 NVIDIA-GeForce-RTX-3090 eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiJiNjdhMjAwNzljZDY0NmE4YThlNWM3ZDY1ZDJhOTcxNSIsInVzZXIiOiJqaW0xIiwic3ViIjoiamltMSJ9.K_8kcdXOUhoDIp5pZX48MC1g6Q_Ut0zXVO5V2heh3AgJpO9BJqjix61lM3Z_gEK4L133MFkQbtE9EiY0HyfM1A
+
+
