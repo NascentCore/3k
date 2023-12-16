@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"sxwl/3k/pkg/communication"
 	"sxwl/3k/pkg/log"
 )
@@ -14,12 +15,14 @@ import (
 func main() {
 	// TODO: 使用 Cobra 来编写完整的命令行功能 以后应该使用专门的命令行工具框架库
 	// https://github.com/spf13/cobra
-	if len(os.Args) != 3 {
-		fmt.Println("Usage : sxwlapitest  [ need createjob url ] [token]")
+	if len(os.Args) != 5 {
+		fmt.Println("Usage : sxwlapitest  [ need createjob url ] [gpunumber] [gputype] [token]")
 		os.Exit(1)
 	}
 	url := os.Args[1]
-	token := os.Args[2]
+	token := os.Args[4]
+	gpuNum := os.Args[2]
+	gpuType := os.Args[3]
 	jobStr := `
       {
         "jobName": "ai1b4f3a3f-17f2-4257-a1e8-f49e1641176a",
@@ -44,7 +47,9 @@ func main() {
       }`
 	job := communication.RawJobDataItem{}
 	json.Unmarshal([]byte(jobStr), &job)
-
+	gpuCnt, _ := strconv.Atoi(gpuNum)
+	job.GpuNumber = gpuCnt
+	job.GpuType = gpuType
 	jsonD, err := json.Marshal(job)
 	if err != nil {
 		log.Logger.Error(err.Error())
