@@ -63,10 +63,13 @@ type GPUSummary struct {
 }
 
 type ResourceInfo struct {
-	GPUSummaries []GPUSummary `json:"gpu_summaries"`
-	CPODVersion  string       `json:"cpod_version"`
-	Nodes        []NodeInfo   `json:"nodes"`
-	CPODID       string       `json:"cpod_id"`
+	GPUSummaries   []GPUSummary `json:"gpu_summaries"`
+	CPODVersion    string       `json:"cpod_version"`
+	Nodes          []NodeInfo   `json:"nodes"`
+	CPODID         string       `json:"cpod_id"`
+	CachedModels   []string     `json:"cached_models,optional"`
+	CachedDatasets []string     `json:"cached_datasets,optional"`
+	CachedImages   []string     `json:"cached_images,optional"`
 }
 
 type JobStatus struct {
@@ -77,14 +80,11 @@ type JobStatus struct {
 }
 
 type CPODStatusReq struct {
-	JobStatus      []JobStatus  `json:"job_status"`
-	ResourceInfo   ResourceInfo `json:"resource_info"`
-	UpdateTime     string       `json:"update_time"`
-	CPODID         string       `json:"cpod_id"`
-	CachedModels   []string     `json:"cached_models,optional"`
-	CachedDatasets []string     `json:"cached_datasets,optional"`
-	CachedImages   []string     `json:"cached_images,optional"`
-	UserID         int64        `header:"Sx-User"`
+	JobStatus    []JobStatus  `json:"job_status"`
+	ResourceInfo ResourceInfo `json:"resource_info"`
+	UpdateTime   string       `json:"update_time"`
+	CPODID       string       `json:"cpod_id"`
+	UserID       int64        `header:"Sx-User"`
 }
 
 type CPODStatusResp struct {
