@@ -3,10 +3,15 @@ package model
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+)
+
+const (
+	CacheModel   = 1
+	CacheDataset = 2
+	CacheImage   = 3
 )
 
 var _ SysCpodCacheModel = (*customSysCpodCacheModel)(nil)
@@ -18,25 +23,15 @@ type (
 		sysCpodCacheModel
 		AllFieldsBuilder() squirrel.SelectBuilder
 		UpdateBuilder() squirrel.UpdateBuilder
+		DeleteBuilder() squirrel.DeleteBuilder
 
-		DeleteSoft(ctx context.Context, data *SysCpodCache) error
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysCpodCache, error)
 		FindOneById(ctx context.Context, data *SysCpodCache) (*SysCpodCache, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysCpodCache, error)
+		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodCache, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodCache, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
-
-		// Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
-		// RowBuilder() squirrel.SelectBuilder
-		// CountBuilder(field string) squirrel.SelectBuilder
-		// SumBuilder(field string) squirrel.SelectBuilder
-		// FindOneByQuery(ctx context.Context, rowBuilder squirrel.SelectBuilder) (*HomestayOrder, error)
-		// FindSum(ctx context.Context, sumBuilder squirrel.SelectBuilder) (float64, error)
-		// FindCount(ctx context.Context, countBuilder squirrel.SelectBuilder) (int64, error)
-		// FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByPage(ctx context.Context, rowBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByIdDESC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMinId, pageSize int64) ([]*HomestayOrder, error)
-		// FindPageListByIdASC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMaxId, pageSize int64) ([]*HomestayOrder, error)
+		DeleteByCond(ctx context.Context, deleteBuilder squirrel.DeleteBuilder) error
 	}
 
 	customSysCpodCacheModel struct {
@@ -61,28 +56,14 @@ func (m *defaultSysCpodCacheModel) UpdateBuilder() squirrel.UpdateBuilder {
 	return squirrel.Update(m.table)
 }
 
-// DeleteSoft set deleted_at with CURRENT_TIMESTAMP
-func (m *defaultSysCpodCacheModel) DeleteSoft(ctx context.Context, data *SysCpodCache) error {
-	builder := squirrel.Update(m.table)
-	builder = builder.Set("deleted_at", sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	})
-	builder = builder.Where("id = ?", data.Id)
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return err
-	}
-
-	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
-		return err
-	}
-	return nil
+// DeleteBuilder return a empty DeleteBuilder
+func (m *defaultSysCpodCacheModel) DeleteBuilder() squirrel.DeleteBuilder {
+	return squirrel.Delete(m.table)
 }
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultSysCpodCacheModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysCpodCache, error) {
-	selectBuilder = selectBuilder.Where("deleted_at is null").Limit(1)
+	selectBuilder = selectBuilder.Limit(1)
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
@@ -112,7 +93,23 @@ func (m *defaultSysCpodCacheModel) FindAll(ctx context.Context, orderBy string) 
 		selectBuilder = selectBuilder.OrderBy(orderBy)
 	}
 
-	query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*SysCpodCache
+	err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultSysCpodCacheModel) Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodCache, error) {
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +137,7 @@ func (m *defaultSysCpodCacheModel) FindPageListByPage(ctx context.Context, selec
 	}
 	offset := (page - 1) * pageSize
 
-	query, args, err := selectBuilder.Where("deleted_at is null").Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
+	query, args, err := selectBuilder.Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -163,4 +160,15 @@ func (m *defaultSysCpodCacheModel) UpdateColsByCond(ctx context.Context, updateB
 	}
 
 	return m.conn.ExecCtx(ctx, query, args...)
+}
+
+// DeleteByCond -
+func (m *defaultSysCpodCacheModel) DeleteByCond(ctx context.Context, deleteBuilder squirrel.DeleteBuilder) error {
+	query, args, err := deleteBuilder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = m.conn.ExecCtx(ctx, query, args...)
+	return err
 }
