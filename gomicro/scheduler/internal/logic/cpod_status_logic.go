@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"sxwl/3k/gomicro/pkg/consts"
+	"sxwl/3k/gomicro/scheduler/internal/cpod_cache"
 	"sxwl/3k/gomicro/scheduler/internal/model"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 	"sxwl/3k/gomicro/scheduler/internal/types"
@@ -36,6 +37,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
 	FileURLModel := l.svcCtx.FileURLModel
+	CpodCacheModel := l.svcCtx.CpodCacheModel
 
 	// update sys_main_job or insert
 	for _, gpu := range req.ResourceInfo.GPUSummaries {
@@ -121,10 +123,11 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue // no update
 		}
 
-		// fail then callback
+		// callback
 		if dbWorkStatus != model.JobStatusWorkerFail && dbWorkStatus != model.JobStatusWorkerUrlSuccess {
 			continue
 		}
+
 		callBackReq := types.JobCallBackReq{}
 		go func(cpodID, jobName string) {
 			logger := logx.WithContext(context.Background())
@@ -179,6 +182,73 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			logger.Infof("callback job_name=%s url=%s status=%s", jobName,
 				userJob.CallbackUrl.String, callBackResp.Status)
 		}(req.CPODID, job.Name)
+	}
+
+	// update cache
+	cacheList, err := CpodCacheModel.Find(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{"cpod_id": req.CPODID},
+	}))
+	if err != nil {
+		l.Logger.Errorf("cpod_cache find cpod_id=%s err=%s", req.CPODID, err)
+		return nil, err
+	}
+
+	currentCache := make(map[string]bool)
+	for _, cache := range cacheList {
+		currentCache[cpod_cache.Encode(cache.DataType, cache.DataId)] = true
+	}
+
+	reportCache := make(map[string]bool)
+	for _, cachedModel := range req.CachedModels {
+		reportCache[cpod_cache.Encode(model.CacheModel, cachedModel)] = true
+	}
+	for _, cachedDataset := range req.CachedDatasets {
+		reportCache[cpod_cache.Encode(model.CacheDataset, cachedDataset)] = true
+	}
+	for _, cachedImage := range req.CachedImages {
+		reportCache[cpod_cache.Encode(model.CacheImage, cachedImage)] = true
+	}
+
+	// update cache insert
+	for rc := range reportCache {
+		if _, exists := currentCache[rc]; !exists {
+			dataType, dataId, err := cpod_cache.Decode(rc)
+			if err != nil {
+				l.Logger.Errorf("cpod_cache decode encoded=%s err=%s", rc, err)
+				return nil, err
+			}
+			_, err = CpodCacheModel.Insert(l.ctx, &model.SysCpodCache{
+				CpodId:      req.CPODID,
+				CpodVersion: req.ResourceInfo.CPODVersion,
+				DataType:    dataType,
+				DataId:      dataId,
+			})
+			if err != nil {
+				l.Logger.Errorf("cpod_cache insert cpod_id=%s data_type=%d data_id=%s err=%s", req.CPODID,
+					dataType, dataId, err)
+				return nil, err
+			}
+		}
+		delete(currentCache, rc)
+	}
+
+	// update cache delete
+	for rc := range currentCache {
+		dataType, dataId, err := cpod_cache.Decode(rc)
+		if err != nil {
+			l.Logger.Errorf("cpod_cache decode encoded=%s err=%s", rc, err)
+			return nil, err
+		}
+		err = CpodCacheModel.DeleteByCond(l.ctx, CpodCacheModel.DeleteBuilder().Where(squirrel.Eq{
+			"cpod_id":   req.CPODID,
+			"data_type": dataType,
+			"data_id":   dataId,
+		}))
+		if err != nil {
+			l.Logger.Errorf("cpod_cache delete cpod_id=%s data_type=%d data_id=%s err=%s", req.CPODID,
+				dataType, dataId, err)
+			return nil, err
+		}
 	}
 
 	resp = &types.CPODStatusResp{Message: "cpod_status success"}
