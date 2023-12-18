@@ -3,10 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"sxwl/3k/gomicro/scheduler/internal/logic"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 	"sxwl/3k/gomicro/scheduler/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func CpodStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

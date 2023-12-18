@@ -57,7 +57,6 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
 			return nil, err
 		}
-		l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
 
 		rows, err := result.RowsAffected()
 		if err != nil {
@@ -82,7 +81,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				l.Logger.Errorf("cpod_main insert err=%s", err)
 				return nil, err
 			}
-			l.Logger.Infof("cpod_main insert cpod_main cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+			l.Logger.Infof("cpod_main insert cpod_main cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
+		} else {
+			l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
+				gpu.Total, gpu.Allocatable)
 		}
 	}
 
@@ -199,13 +201,13 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	}
 
 	reportCache := make(map[string]bool)
-	for _, cachedModel := range req.CachedModels {
+	for _, cachedModel := range req.ResourceInfo.CachedModels {
 		reportCache[cpod_cache.Encode(model.CacheModel, cachedModel)] = true
 	}
-	for _, cachedDataset := range req.CachedDatasets {
+	for _, cachedDataset := range req.ResourceInfo.CachedDatasets {
 		reportCache[cpod_cache.Encode(model.CacheDataset, cachedDataset)] = true
 	}
-	for _, cachedImage := range req.CachedImages {
+	for _, cachedImage := range req.ResourceInfo.CachedImages {
 		reportCache[cpod_cache.Encode(model.CacheImage, cachedImage)] = true
 	}
 
