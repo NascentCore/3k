@@ -3,9 +3,13 @@
 echo "Checking directory names include only lower case chars and '-'"
 found_breakage=false
 # shellcheck disable=SC2044
-for dirname in $(find home cli manager tools -type d); do
+for dirname in $(find . -type d); do
   fname=$(basename "${dirname}")
-  if ! [[ ${fname} =~ ^[a-z-]+$ ]]; then
+  if [[ ${fname} == "ISSUE_TEMPLATE" ]]; then
+    # Skip GitHub ISSUE_TEMPLATE
+    continue
+  fi
+  if ! [[ ${fname} =~ [.0-9a-z-]+ ]]; then
     found_breakage=true
     echo "${dirname}"
   fi
