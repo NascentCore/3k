@@ -61,7 +61,7 @@ func (kfm MPIJob) genJsonData() map[string]interface{} {
 				},
 				"Worker": map[string]interface{}{
 					"replicas": kfm.Replicas,
-					"template": utils.GenPodTemplate(kfm.Name, kfm.Image, "IfNotPresent", kfm.GPURequiredPerWorker, kfm.GPUType,
+					"template": utils.GenPodTemplate("mpi", kfm.Name, kfm.Image, "IfNotPresent", kfm.GPURequiredPerWorker, kfm.GPUType,
 						nil, nil, kfm.DataPVC, kfm.DataPath, kfm.PretrainModelPVC, kfm.PretrainModelPath, kfm.CKPTPath, kfm.ModelSavePath, false),
 				},
 			},
