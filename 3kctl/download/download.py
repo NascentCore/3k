@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import math
-
 from colorama import Fore, Style
 from kubernetes import config
 from plumbum import cli
@@ -12,7 +11,8 @@ from .model_scope import ModelScopeHub
 
 GROUP = "cpod.sxwl.ai"
 VERSION = "v1"
-PLURAL = "modelstorages"
+MODEL_PLURAL = "modelstorages"
+DATASET_PLURAL = "datasetstorages"
 
 
 class Download(cli.Application):
@@ -35,10 +35,10 @@ class Model(cli.Application):
             return
 
         depth = int(depth)
-        model_size = math.ceil(hub.size(model_id))  # get the model size in GB
-        crd_name = create_crd_name(hub_name, model_id)
-        pvc_name = create_pvc_name(hub_name, model_id)
-        job_name = create_job_name(hub_name, model_id)
+        model_size = math.ceil(hub.model_size(model_id))  # get the model size in GB
+        crd_name = create_crd_name(hub_name, model_id, "model")
+        pvc_name = create_pvc_name(hub_name, model_id, "model")
+        job_name = create_job_name(hub_name, model_id, "model")
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -46,7 +46,7 @@ class Model(cli.Application):
 
         # check if crd already exists
         try:
-            crd_obj = get_crd_object(custom_objects_api, GROUP, VERSION, PLURAL, namespace, crd_name)
+            crd_obj = get_crd_object(custom_objects_api, GROUP, VERSION, MODEL_PLURAL, namespace, crd_name)
             if 'status' in crd_obj:
                 phase_value = crd_obj['status'].get('phase', None)
                 if phase_value is not None:
@@ -98,10 +98,10 @@ class Model(cli.Application):
                                 "model-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
                                 pvc_name,
-                                ["git", hub.git_url(model_id),
+                                ["git", hub.git_model_url(model_id),
                                  "-g", GROUP,
                                  "-v", VERSION,
-                                 "-p", PLURAL,
+                                 "-p", MODEL_PLURAL,
                                  "-n", namespace,
                                  "--name", crd_name,
                                  "-d", str(depth)],
@@ -120,11 +120,126 @@ class Model(cli.Application):
                 group=GROUP,
                 version=VERSION,
                 kind="ModelStorage",
-                plural=PLURAL,
+                plural=MODEL_PLURAL,
                 name=crd_name,
                 spec={
                     "modeltype": hub_name,
                     "modelname": model_id,
+                    "pvc": pvc_name,
+                },
+                namespace=namespace
+            )
+        except ApiException as e:
+            print("create_crd_record exception: %s" % e)
+            return
+
+
+@Download.subcommand("dataset")
+class Dataset(cli.Application):
+    """download dataset"""
+
+    def main(self, hub_name, dataset_id, proxy="", depth=1, downloader_version="v0.0.4", namespace="cpod"):
+        hub = hub_factory(hub_name)
+        if hub is None:
+            print("hub:{0} is not supported".format(hub_name))
+            return
+
+        # check the dataset id exists
+        if not hub.have_dataset(dataset_id):
+            print("hub:%s dataset:%s dose not exist" % (hub_name, dataset_id))
+            return
+
+        depth = int(depth)
+        dataset_size = math.ceil(hub.dataset_size(dataset_id))  # get the dataset size in GB
+        crd_name = create_crd_name(hub_name, dataset_id, "dataset")
+        pvc_name = create_pvc_name(hub_name, dataset_id, "dataset")
+        job_name = create_job_name(hub_name, dataset_id, "dataset")
+        config.load_kube_config()
+        core_v1_api = client.CoreV1Api()
+        batch_v1_api = client.BatchV1Api()
+        custom_objects_api = client.CustomObjectsApi()
+
+        # check if crd already exists
+        try:
+            crd_obj = get_crd_object(custom_objects_api, GROUP, VERSION, DATASET_PLURAL, namespace, crd_name)
+            if 'status' in crd_obj:
+                phase_value = crd_obj['status'].get('phase', None)
+                if phase_value is not None:
+                    if phase_value == "downloading":
+                        print("hub:%s dataset_id:%s is downloading" % (hub_name, dataset_id))
+                    elif phase_value == "done":
+                        print("hub:%s dataset_id:%s already downloaded" % (hub_name, dataset_id))
+                    else:
+                        print("hub:%s dataset_id:%s phase:%s please check the phase" % (hub_name, dataset_id, phase_value))
+                else:
+                    print('''hub:%s dataset_id:%s please try again later, if this continue occurs, please delete the crd:
+    kubectl delete DataSetStorage %s -n %s''' % (hub_name, dataset_id, crd_name, namespace))
+            else:
+                print('''crd %s exists and without status. You can delete it by:
+    kubectl delete DataSetStorage %s -n %s''' % (crd_name, crd_name, namespace))
+            return
+        except ApiException as e:
+            if e.status == 404:
+                # crd 不存在，那么如果有job或pvc，都应该清理掉
+                try:
+                    delete_job(batch_v1_api, namespace, job_name)
+                except ApiException as e:
+                    pass
+                try:
+                    delete_pvc(core_v1_api, namespace, pvc_name)
+                except ApiException as e:
+                    pass
+            else:
+                print("get_crd_object exception %s" % e)
+                return
+
+        # 创建PVC
+        storage = dataset_size * 1.5  # 默认是depth=1 1.5倍空间
+        if depth > 1:
+            storage = dataset_size * 3  # 多层深度 3倍空间
+        storage = "%dGi" % math.ceil(storage)
+        print("dataset {0} size {1} GB pvc {2} GB".format(hub_name, dataset_size, storage))
+
+        try:
+            create_pvc(core_v1_api, namespace, pvc_name, storage)
+        except ApiException as e:
+            print("create_pvc exception: %s" % e)
+            return
+
+        # 创建下载Job
+        try:
+            create_download_job(batch_v1_api,
+                                job_name,
+                                "dataset-downloader",
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
+                                pvc_name,
+                                ["git", hub.git_dataset_url(dataset_id),
+                                 "-g", GROUP,
+                                 "-v", VERSION,
+                                 "-p", DATASET_PLURAL,
+                                 "-n", namespace,
+                                 "--name", crd_name,
+                                 "-d", str(depth)],
+                                proxy,
+                                namespace,
+                                "aliyun-enterprise-registry",
+                                "sa-downloader")
+        except ApiException as e:
+            print("create_download_job exception: %s" % e)
+            return
+
+        # 创建CRD对象
+        try:
+            create_custom_resource(
+                api_instance=custom_objects_api,
+                group=GROUP,
+                version=VERSION,
+                kind="DataSetStorage",
+                plural=DATASET_PLURAL,
+                name=crd_name,
+                spec={
+                    "datasettype": hub_name,
+                    "datasetname": dataset_id,
                     "pvc": pvc_name,
                 },
                 namespace=namespace
@@ -142,7 +257,8 @@ class Status(cli.Application):
         config.load_kube_config()
         custom_objects_api = client.CustomObjectsApi()
         try:
-            model_storage_objs = get_crd_objects(custom_objects_api, GROUP, VERSION, PLURAL, namespace)
+            model_storage_objs = get_crd_objects(custom_objects_api, GROUP, VERSION, MODEL_PLURAL, namespace)
+            dataset_storage_objs = get_crd_objects(custom_objects_api, GROUP, VERSION, DATASET_PLURAL, namespace)
         except ApiException as e:
             print("get_crd_objects exception: %s", e)
             return
@@ -153,7 +269,18 @@ class Status(cli.Application):
             status = model_storage_obj.get('status', {})
             data_list.append([spec.get('modeltype'),
                               spec.get('modelname'),
-                              model_hash(spec.get('modeltype'), spec.get('modelname')),
+                              resource_hash(spec.get('modeltype'), spec.get('modelname')),
+                              status.get("phase", "nil")])
+        print('\n')
+        print_list(data_list)
+
+        data_list = [["HUB", "DATASET_ID", "HASH", "PHASE"]]
+        for dataset_storage_obj in dataset_storage_objs:
+            spec = dataset_storage_obj.get('spec', {})
+            status = dataset_storage_obj.get('status', {})
+            data_list.append([spec.get('datasettype'),
+                              spec.get('datasetname'),
+                              resource_hash(spec.get('datasettype'), spec.get('datasetname')),
                               status.get("phase", "nil")])
         print('\n')
         print_list(data_list)

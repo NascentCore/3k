@@ -5,20 +5,29 @@ from kubernetes import client
 from kubernetes.client import ApiException
 
 
-def model_hash(hub, model_id):
-    return hashlib.sha1(("%s/%s" % (hub, model_id)).encode("utf-8")).hexdigest()[:16]
+def resource_hash(hub, resource_id):
+    return hashlib.sha1(("%s/%s" % (hub, resource_id)).encode("utf-8")).hexdigest()[:16]
 
 
-def create_crd_name(hub, model_id):
-    return "model-storage-{0}".format(model_hash(hub, model_id))
+def create_crd_name(hub, resource_id, resource_type):
+    if resource_type == "model":
+        return "model-storage-{0}".format(resource_hash(hub, resource_id))
+    elif resource_type == "dataset":
+        return "dataset-storage-{0}".format(resource_hash(hub, resource_id))
 
 
-def create_pvc_name(hub, model_id):
-    return "pvc-model-{0}".format(model_hash(hub, model_id))
+def create_pvc_name(hub, resource_id, resource_type):
+    if resource_type == "model":
+        return "pvc-model-{0}".format(resource_hash(hub, resource_id))
+    elif resource_type == "dataset":
+        return "pvc-dataset-{0}".format(resource_hash(hub, resource_id))
 
 
-def create_job_name(hub, model_id):
-    return "download-model-{0}".format(model_hash(hub, model_id))
+def create_job_name(hub, resource_id, resource_type):
+    if resource_type == "model":
+        return "download-model-{0}".format(resource_hash(hub, resource_id))
+    elif resource_type == "dataset":
+        return "download-dataset-{0}".format(resource_hash(hub, resource_id))
 
 
 def get_crd_object(api_instance, group, version, resource, namespace, name):
