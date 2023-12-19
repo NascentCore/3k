@@ -7,7 +7,12 @@
 * 千亿参数：支持千亿参数大模型训练、推理
 * 千小时：支持千小时以上无人干预大模型训练
 
-## Terminology
+Named after 3 major performance metrics of the system:
+* 1000+ GPUs
+* 100B+ Transformer model
+* 1000+ hours uninterrupted training
+
+## 名次解释
 
 | Acronym  |      Meaning  |  涵义 |
 |----------|:-------------:|:------|
@@ -16,9 +21,8 @@
 | 1h8g | 1 node 8 GPU    | 1机8卡  |
 | 2h8g | 2 nodes 16 GPUs | 2机16卡 |
 
-## Introduction
+## SuperLinter
 
-Named after 3 major performance metrics of the system:
-* 1000+ GPUs
-* 100B+ Transformer model
-* 1000+ hours uninterrupted training
+```shell
+tools/super_linter.sh <file-or-directory-to-be-linted>
+```

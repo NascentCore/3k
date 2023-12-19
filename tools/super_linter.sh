@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -lt 1 ]]; then
-  echo "$0 <target-to-lint/file-or-directory>"
+  echo "$0 <file-or-directory-to-be-linted>"
   exit 1
 fi
 
