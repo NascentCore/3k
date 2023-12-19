@@ -2,7 +2,7 @@ package utils
 
 import "sxwl/3k/pkg/utils/consts"
 
-func GenPodTemplate(jobName, image, imagePolicy string, gpus int, gpuType string, command []string, envs map[string]string,
+func GenPodTemplate(containerName, jobName, image, imagePolicy string, gpus int, gpuType string, command []string, envs map[string]string,
 	datasetPVC, datasetPath, pretrainModelPVC, pretrainModelPath,
 	ckptPath, modelSavePath string, withSHM bool) map[string]interface{} {
 
@@ -83,7 +83,7 @@ func GenPodTemplate(jobName, image, imagePolicy string, gpus int, gpuType string
 	}
 
 	container := map[string]interface{}{
-		"name":            "container1",
+		"name":            containerName,
 		"image":           image,
 		"imagePullPolicy": imagePolicy,
 		"resources": map[string]interface{}{
