@@ -1,8 +1,15 @@
 package nascentcore.ai.modules.system.rest;
 
+import cn.hutool.core.text.UnicodeUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import nascentcore.ai.config.ServiceProperties;
+import nascentcore.ai.exception.BadRequestException;
 import nascentcore.ai.modules.system.domain.CpodMain;
 import nascentcore.ai.modules.system.domain.Fileurl;
 import nascentcore.ai.modules.system.domain.UserJob;
@@ -45,8 +52,9 @@ public class UserJobController {
 
     private final UserJobService userJobService;
     private final CpodMainService cpodMainService;
-    private final JobManager jobManager;
     private final FileurlService fileurlService;
+    private final ServiceProperties serviceProperties;
+
     @GetMapping
     @ApiOperation("查询用户任务")
     public ResponseEntity<PageResult<UserJob>> queryUserJob(UserJobQueryCriteria criteria, Page<Object> page) {
@@ -155,43 +163,18 @@ public class UserJobController {
     @ApiOperation("上传三千平台信息")
     public ResponseEntity<Object> putPodStatus(@Validated @RequestBody String resources) {
         Long userId = SecurityUtils.getCurrentUserId();
-        CpodStatusReq cpodStatusReq = JSON.parseObject(resources, CpodStatusReq.class);
-        String cpodid = cpodStatusReq.getCpodId();
-        List<JobStatusDTO> jobStatusDTOSList = cpodStatusReq.getJobStatus();
-        jobManager.updateJobStatus(cpodid,jobStatusDTOSList);
-        if (null != cpodid) {
-            if (null != cpodStatusReq.getResourceInfo()) {
-                for (GpuSummariesDTO gpuSummariesDTO : cpodStatusReq.getResourceInfo().getGpuSummaries()) {
-                    CpodMainQueryCriteria criteria = new CpodMainQueryCriteria();
-                    criteria.setCpodId(cpodid);
-                    criteria.setGpuProd(gpuSummariesDTO.getProd());
-                    List<CpodMain> cpodMainlist = cpodMainService.queryAll(criteria);
-                    if (null != cpodMainlist && !cpodMainlist.isEmpty()) {
-                        CpodMain cpodMain = cpodMainlist.get(0);
-                        if (cpodMain.getGpuTotal() != gpuSummariesDTO.getTotal()) {
-                            cpodMain.setGpuTotal(gpuSummariesDTO.getTotal());
-                        }
-                        if (cpodMain.getGpuAllocatable() != gpuSummariesDTO.getAllocatable()) {
-                            cpodMain.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
-                        }
-                        cpodMain.setUserId(String.valueOf(userId));
-                        cpodMain.setUpdateTime(DateUtil.getUTCTimeStamp());
-                        cpodMainService.update(cpodMain);
-                    } else {
-                        CpodMain cpod = new CpodMain();
-                        cpod.setCpodId(cpodid);
-                        cpod.setCpodVersion(cpodStatusReq.getResourceInfo().getCpodVersion());
-                        cpod.setGpuVendor(gpuSummariesDTO.getVendor());
-                        cpod.setGpuProd(gpuSummariesDTO.getProd());
-                        cpod.setGpuTotal(gpuSummariesDTO.getTotal());
-                        cpod.setGpuAllocatable(gpuSummariesDTO.getAllocatable());
-                        cpod.setUserId(String.valueOf(userId));
-                        cpod.setCreateTime(DateUtil.getUTCTimeStamp());
-                        cpod.setUpdateTime(DateUtil.getUTCTimeStamp());
-                        cpodMainService.create(cpod);
-                    }
-                }
+        try {
+            String url = serviceProperties.getServices().getScheduleService() + "cpod/status";
+            HttpRequest request = HttpUtil.createPost(url);
+            request.header("Sx-User", String.valueOf(userId));
+            request.body(resources);
+
+            HttpResponse execute = request.execute();
+            if (!execute.isOk()) {
+                throw new BadRequestException("服务异常，调用调度接口cpod_status异常");
             }
+        } catch (Exception e) {
+            throw new BadRequestException("服务异常，调用调度接口cpod_status异常");
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
