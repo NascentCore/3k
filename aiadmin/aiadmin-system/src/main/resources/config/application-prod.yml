@@ -123,3 +123,6 @@ file:
   # 文件大小 /M
   maxSize: 100
   avatarMaxSize: 5
+api:
+  services:
+    schedule-service: http://127.0.0.1:8090/
