@@ -91,6 +91,15 @@ type CPODStatusResp struct {
 	Message string `json:"message"`
 }
 
+type ModelUrlReq struct {
+	DownloadUrls []string `json:"download_urls"`
+	JobName      string   `json:"job_name"`
+}
+
+type ModelUrlResp struct {
+	Message string `json:"message"`
+}
+
 type JobCallBackReq struct {
 	Status string `json:"status"`
 	URL    string `json:"url"`
