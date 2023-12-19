@@ -17,6 +17,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/cpod/status",
 				Handler: CpodStatusHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/info/upload_status",
+				Handler: UploadStatusHandler(serverCtx),
+			},
 		},
 	)
 }
