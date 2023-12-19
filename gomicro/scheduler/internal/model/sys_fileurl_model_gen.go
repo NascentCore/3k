@@ -17,8 +17,8 @@ import (
 var (
 	sysFileurlFieldNames          = builder.RawFieldNames(&SysFileurl{})
 	sysFileurlRows                = strings.Join(sysFileurlFieldNames, ",")
-	sysFileurlRowsExpectAutoSet   = strings.Join(stringx.Remove(sysFileurlFieldNames, "`file_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
-	sysFileurlRowsWithPlaceHolder = strings.Join(stringx.Remove(sysFileurlFieldNames, "`file_id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+	sysFileurlRowsExpectAutoSet   = strings.Join(stringx.Remove(sysFileurlFieldNames, "`file_id`", "`[create_at]`"), ",")
+	sysFileurlRowsWithPlaceHolder = strings.Join(stringx.Remove(sysFileurlFieldNames, "`file_id`", "`[create_at]`"), "=?,") + "=?"
 )
 
 type (
@@ -71,14 +71,14 @@ func (m *defaultSysFileurlModel) FindOne(ctx context.Context, fileId int64) (*Sy
 }
 
 func (m *defaultSysFileurlModel) Insert(ctx context.Context, data *SysFileurl) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.table, sysFileurlRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.FileUrl)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, sysFileurlRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.FileUrl, data.CreateTime, data.UpdateTime)
 	return ret, err
 }
 
 func (m *defaultSysFileurlModel) Update(ctx context.Context, data *SysFileurl) error {
 	query := fmt.Sprintf("update %s set %s where `file_id` = ?", m.table, sysFileurlRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.JobName, data.FileUrl, data.FileId)
+	_, err := m.conn.ExecCtx(ctx, query, data.JobName, data.FileUrl, data.CreateTime, data.UpdateTime, data.FileId)
 	return err
 }
 
