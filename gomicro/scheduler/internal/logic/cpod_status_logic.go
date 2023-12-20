@@ -41,30 +41,16 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 
 	// update sys_main_job or insert
 	for _, gpu := range req.ResourceInfo.GPUSummaries {
-		result, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
-			"gpu_total":       gpu.Total,
-			"gpu_allocatable": gpu.Allocatable,
-			"update_time": sql.NullTime{
-				Time:  time.Now(),
-				Valid: true,
-			},
-		}).Where(squirrel.Eq{
+		cpodMains, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.Eq{
 			"cpod_id":  req.CPODID,
 			"gpu_prod": gpu.Prod,
 		}))
-
 		if err != nil {
-			l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+			l.Logger.Errorf("cpod_main find cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
 			return nil, err
 		}
 
-		rows, err := result.RowsAffected()
-		if err != nil {
-			l.Logger.Errorf("cpod_main UpdateColsByCond rows cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
-			return nil, err
-		}
-
-		if rows == 0 { // 没有更新，就插入新记录
+		if len(cpodMains) == 0 { // new record insert
 			cpodMain := model.SysCpodMain{
 				CpodId:         sql.NullString{String: req.CPODID, Valid: true},
 				CpodVersion:    sql.NullString{String: req.ResourceInfo.CPODVersion, Valid: true},
@@ -82,9 +68,30 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				return nil, err
 			}
 			l.Logger.Infof("cpod_main insert cpod_main cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
-		} else {
-			l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
-				gpu.Total, gpu.Allocatable)
+		} else if len(cpodMains) == 1 { // already exists update
+			if cpodMains[0].GpuAllocatable.Int64 != int64(gpu.Allocatable) ||
+				cpodMains[0].GpuTotal.Int64 != int64(gpu.Total) {
+				_, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
+					"gpu_total":       gpu.Total,
+					"gpu_allocatable": gpu.Allocatable,
+					"update_time": sql.NullTime{
+						Time:  time.Now(),
+						Valid: true,
+					},
+				}).Where(squirrel.Eq{
+					"cpod_id":  req.CPODID,
+					"gpu_prod": gpu.Prod,
+				}))
+				if err != nil {
+					l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+					return nil, err
+				}
+
+				l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
+					gpu.Total, gpu.Allocatable)
+			}
+		} else { // multi duplicate records log
+			l.Logger.Infof("cpod_main duplicate rows cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
 		}
 	}
 
