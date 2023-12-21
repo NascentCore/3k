@@ -6,14 +6,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nascentcore.ai.annotation.rest.AnonymousPostMapping;
 import nascentcore.ai.config.RsaProperties;
+import nascentcore.ai.domain.vo.EmailVo;
 import nascentcore.ai.modules.security.config.bean.SecurityProperties;
 import nascentcore.ai.modules.security.security.TokenProvider;
 import nascentcore.ai.modules.security.service.dto.AuthUserDto;
 import nascentcore.ai.modules.security.service.OnlineUserService;
 import nascentcore.ai.modules.security.service.dto.JwtUserDto;
+import nascentcore.ai.modules.system.service.VerifyService;
+import nascentcore.ai.service.EmailService;
 import nascentcore.ai.utils.RedisUtils;
 import nascentcore.ai.utils.RsaUtils;
 import nascentcore.ai.utils.SecurityUtils;
+import nascentcore.ai.utils.enums.CodeEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +47,8 @@ public class AuthorizationController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisUtils redisUtils;
+    private final VerifyService verificationCodeService;
+    private final EmailService emailService;
 
     @ApiOperation("登录授权")
     @AnonymousPostMapping(value = "/login")
@@ -74,6 +80,8 @@ public class AuthorizationController {
             redisUtils.set(authUser.getUsername(), token);
             // 保存在线信息
             onlineUserService.save(jwtUserDto, token, request);
+            EmailVo emailVo = verificationCodeService.sendTokenEmail(authUser.getUsername());
+            emailService.send(emailVo, emailService.find());
             // 返回登录信息
             return ResponseEntity.ok(authInfo);
         }

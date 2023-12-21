@@ -11,6 +11,7 @@ import nascentcore.ai.domain.vo.EmailVo;
 import nascentcore.ai.exception.BadRequestException;
 import nascentcore.ai.modules.system.service.VerifyService;
 import nascentcore.ai.utils.RedisUtils;
+import nascentcore.ai.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,12 +46,26 @@ public class VerifyServiceImpl implements VerifyService {
                 throw new BadRequestException("服务异常，请联系网站负责人");
             }
             content = template.render(Dict.create().set("code",code));
-            emailVo = new EmailVo(Collections.singletonList(email),"算想未来大模型算力云市场",content);
+            emailVo = new EmailVo(Collections.singletonList(email),"算想未来大模型算想云",content);
         // 存在就再次发送原来的验证码
         } else {
             content = template.render(Dict.create().set("code",oldCode));
-            emailVo = new EmailVo(Collections.singletonList(email),"算想未来大模型算力云市场",content);
+            emailVo = new EmailVo(Collections.singletonList(email),"算想未来大模型算想云",content);
         }
+        return emailVo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public EmailVo sendTokenEmail(String email) {
+        EmailVo emailVo;
+        String content;
+        TemplateEngine engine = TemplateUtil.createEngine(new TemplateConfig("template", TemplateConfig.ResourceMode.CLASSPATH));
+        Template template = engine.getTemplate("token.ftl");
+        String username = SecurityUtils.getCurrentUsername();
+        Object token = redisUtils.get(username);
+        content = template.render(Dict.create().set("token", token));
+        emailVo = new EmailVo(Collections.singletonList(email), "算想未来大模型算想云", content);
         return emailVo;
     }
 
