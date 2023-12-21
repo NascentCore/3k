@@ -91,7 +91,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 					gpu.Total, gpu.Allocatable)
 			}
 		} else { // multi duplicate records log
-			l.Logger.Infof("cpod_main duplicate rows cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
+			l.Logger.Infof("cpod_main multi duplicate rows cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
 		}
 	}
 
