@@ -16,6 +16,12 @@ public interface VerifyService {
      */
     EmailVo sendEmail(String email, String key);
 
+    /**
+     * 发送access key 邮件
+     * @param email /
+     * @return /
+     */
+    EmailVo sendTokenEmail(String email);
 
     /**
      * 验证
