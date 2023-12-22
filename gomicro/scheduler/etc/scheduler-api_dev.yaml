@@ -8,7 +8,5 @@ DB:
 
 Log:
   ServiceName: scheduler
-  Mode: file
-  Path: /var/log
+  Mode: console
   Level: info
-  KeepDays: 30
