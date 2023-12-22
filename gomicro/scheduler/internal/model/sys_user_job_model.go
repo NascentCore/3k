@@ -23,6 +23,7 @@ type (
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysUserJob, error)
 		FindOneById(ctx context.Context, data *SysUserJob) (*SysUserJob, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysUserJob, error)
+		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysUserJob, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysUserJob, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 	}
@@ -101,6 +102,22 @@ func (m *defaultSysUserJobModel) FindAll(ctx context.Context, orderBy string) ([
 	}
 
 	query, args, err := selectBuilder.Where("deleted = 0").ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []*SysUserJob
+	err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultSysUserJobModel) Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysUserJob, error) {
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}

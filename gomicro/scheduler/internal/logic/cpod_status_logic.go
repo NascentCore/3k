@@ -99,16 +99,32 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	for _, job := range req.JobStatus {
 		dbWorkStatus, ok := statusToDBMap[job.JobStatus]
 		if !ok {
+			l.Logger.Errorf("statusToDBMap not exists status=%s", job.JobStatus)
 			continue
 		}
+		userJobs, err := UserJobModel.Find(l.ctx, UserJobModel.AllFieldsBuilder().Where(squirrel.Eq{
+			"cpod_id":  req.CPODID,
+			"job_name": job.Name,
+		}))
+		if err != nil {
+			l.Logger.Errorf("user_job find cpod_id=%s job_name=%s err=%s", req.CPODID, job.Name, err)
+			return nil, err
+		}
+		if len(userJobs) != 1 {
+			l.Logger.Errorf("user_job find cpod_id=%s job_name=%s len=%d", req.CPODID, job.Name, len(userJobs))
+			// 这条任务数据记录异常
+			continue
+		}
+
+		if userJobs[0].WorkStatus == int64(dbWorkStatus) {
+			l.Logger.Infof("user_job status same cpod_id=%s job_name=%s status=%d", req.CPODID, job.Name, dbWorkStatus)
+			continue
+		}
+
 		updateBuilder := UserJobModel.UpdateBuilder().Where(
-			squirrel.And{
-				squirrel.Eq{
-					"cpod_id":  req.CPODID,
-					"job_name": job.Name,
-				}, squirrel.NotEq{
-					"work_status": dbWorkStatus,
-				},
+			squirrel.Eq{
+				"cpod_id":  req.CPODID,
+				"job_name": job.Name,
 			},
 		)
 		setMap := map[string]interface{}{
@@ -122,13 +138,17 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 
 		result, err := UserJobModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
 		if err != nil {
-			l.Logger.Errorf("user_job update job_name=%s err=%s", job.Name, err)
+			l.Logger.Errorf("user_job update cpod_id=%s job_name=%s err=%s", req.CPODID, job.Name, err)
 			return nil, err
 		}
-		if rows, err := result.RowsAffected(); err != nil {
-			l.Logger.Errorf("user_job update job_name=%s RowsAffected err=%s", job.Name, err)
+
+		rows, err := result.RowsAffected()
+		if err != nil {
+			l.Logger.Errorf("user_job update cpod_id=%s job_name=%s RowsAffected err=%s", req.CPODID, job.Name, err)
 			return nil, err
-		} else if rows != 1 {
+		}
+		if rows != 1 {
+			l.Logger.Errorf("user_job update rows=%d cpod_id=%s job_name=%s err=%s", rows, req.CPODID, job.Name, err)
 			continue // no update
 		}
 

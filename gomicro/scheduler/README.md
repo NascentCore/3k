@@ -17,19 +17,20 @@ docker push sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:$VERSI
 ```
 
 ## docker run
-根据环境修改SCHEDULER_ENV，生产 prod 测试 test
+根据环境修改S_ENV，生产 prod 测试 test
 
 注意修改版本号
 ```bash
 # 设置版本号环境变量
 export OLD_VERSION=v0.0.1
 export NEW_VERSION=v0.0.2
+export S_ENV=test
 
 # 关闭老服务
-docker remove -f go-scheduler-$OLD_VERSION
+docker rm -f go-scheduler-$OLD_VERSION
 
 # 启动新服务
-docker run -d -e SCHEDULER_ENV=test -p 8090:80 --name go-scheduler-$NEW_VERSION sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:$NEW_VERSION
+docker run -d -e SCHEDULER_ENV=$S_ENV -p 8090:80 -v /var/docker/scheduler:/var/log --name go-scheduler-$NEW_VERSION sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:$NEW_VERSION
 ```
 
 ## Notes

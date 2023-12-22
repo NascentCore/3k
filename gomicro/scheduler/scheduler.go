@@ -9,9 +9,10 @@ import (
 	"sxwl/3k/gomicro/scheduler/internal/handler"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 
+	_ "sxwl/3k/gomicro/pkg/sxwlzero"
+
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
-	_ "sxwl/3k/gomicro/pkg/sxwlzero"
 )
 
 func main() {
@@ -22,6 +23,8 @@ func main() {
 		configFile = "etc/scheduler-api_prod.yaml"
 	case "test":
 		configFile = "etc/scheduler-api_test.yaml"
+	case "dev":
+		configFile = "etc/scheduler-api_dev.yaml"
 	default:
 		log.Fatalf("env SCHEDULER_ENV not defined")
 	}
