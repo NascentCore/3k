@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -53,10 +52,7 @@ func (m *defaultSysUserJobModel) UpdateBuilder() squirrel.UpdateBuilder {
 // DeleteSoft set deleted_at with CURRENT_TIMESTAMP
 func (m *defaultSysUserJobModel) DeleteSoft(ctx context.Context, data *SysUserJob) error {
 	builder := squirrel.Update(m.table)
-	builder = builder.Set("deleted", sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	})
+	builder = builder.Set("deleted", 1)
 	builder = builder.Where("job_id = ?", data.JobId)
 	query, args, err := builder.ToSql()
 	if err != nil {
