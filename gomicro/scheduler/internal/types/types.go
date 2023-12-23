@@ -100,29 +100,6 @@ type ModelUrlResp struct {
 	Message string `json:"message"`
 }
 
-type CPODJobReq struct {
-	CPODID string `form:"cpodid"`
-}
-
-type CPODJobResp struct {
-	JobName             string `json:"jobName"`
-	PretrainedModelName string `json:"pretrainedModelName"`
-	ImagePath           string `json:"imagePath"`
-	CkptPath            string `json:"ckptPath"`
-	ModelPath           string `json:"modelPath"`
-	DatasetName         string `json:"datasetName"`
-	StopType            int    `json:"stopType"`
-	ModelVol            int    `json:"modelVol"`
-	DatasetPath         string `json:"datasetPath"`
-	GpuNumber           int    `json:"gpuNumber"`
-	CkptVol             int    `json:"ckptVol"`
-	PretrainedModelPath string `json:"pretrainedModelPath"`
-	StopTime            int    `json:"stopTime"`
-	RunCommand          string `json:"runCommand"`
-	JobType             string `json:"jobType"`
-	GpuType             string `json:"gpuType"`
-}
-
 type JobCallBackReq struct {
 	Status string `json:"status"`
 	URL    string `json:"url"`

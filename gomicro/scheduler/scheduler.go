@@ -25,7 +25,7 @@ func main() {
 	case "test":
 		configFile = "etc/scheduler-api_test.yaml"
 	case "dev":
-		configFile = "etc/scheduler-api_dev.yaml"
+		configFile = "etc/scheduler-api.yaml"
 	default:
 		log.Fatalf("env SCHEDULER_ENV not defined")
 	}
@@ -41,6 +41,7 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+	handler.RegisterCustomHandlers(server, ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
