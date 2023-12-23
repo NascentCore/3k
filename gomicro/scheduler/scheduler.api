@@ -88,26 +88,55 @@ type JobStatus {
 	JobType   string `json:"jobtype"`
 }
 
-type CPODStatusReq {
-	JobStatus    []JobStatus  `json:"job_status"`
-	ResourceInfo ResourceInfo `json:"resource_info"`
-	UpdateTime   string       `json:"update_time"`
-	CPODID       string       `json:"cpod_id"`
-	UserID       int64        `header:"Sx-User"`
-}
+type (
+	CPODStatusReq {
+		JobStatus    []JobStatus  `json:"job_status"`
+		ResourceInfo ResourceInfo `json:"resource_info"`
+		UpdateTime   string       `json:"update_time"`
+		CPODID       string       `json:"cpod_id"`
+		UserID       int64        `header:"Sx-User"`
+	}
 
-type CPODStatusResp {
-	Message string `json:"message"`
-}
+	CPODStatusResp {
+		Message string `json:"message"`
+	}
+)
 
-type ModelUrlReq {
-	DownloadUrls []string `json:"download_urls"`
-	JobName      string   `json:"job_name"`
-}
+type (
+	ModelUrlReq {
+		DownloadUrls []string `json:"download_urls"`
+		JobName      string   `json:"job_name"`
+	}
 
-type ModelUrlResp {
-	Message string `json:"message"`
-}
+	ModelUrlResp {
+		Message string `json:"message"`
+	}
+)
+
+type (
+	CPODJobReq {
+		CPODID string `form:"cpodid"`
+	}
+
+	CPODJobResp {
+		JobName             string `json:"jobName"`
+		PretrainedModelName string `json:"pretrainedModelName"`
+		ImagePath           string `json:"imagePath"`
+		CkptPath            string `json:"ckptPath"`
+		ModelPath           string `json:"modelPath"`
+		DatasetName         string `json:"datasetName"`
+		StopType            int    `json:"stopType"`
+		ModelVol            int    `json:"modelVol"`
+		DatasetPath         string `json:"datasetPath"`
+		GpuNumber           int    `json:"gpuNumber"`
+		CkptVol             int    `json:"ckptVol"`
+		PretrainedModelPath string `json:"pretrainedModelPath"`
+		StopTime            int    `json:"stopTime"`
+		RunCommand          string `json:"runCommand"`
+		JobType             string `json:"jobType"`
+		GpuType             string `json:"gpuType"`
+	}
+)
 
 service scheduler-api {
 	@handler CpodStatusHandler
@@ -115,4 +144,7 @@ service scheduler-api {
 
 	@handler UploadStatusHandler
 	post /info/upload_status (ModelUrlReq) returns (ModelUrlResp)
+
+	@handler CpodJobHandler
+	get /cpod/job (CPODJobReq) returns ([]CPODJobResp)
 }
