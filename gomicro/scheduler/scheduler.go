@@ -18,6 +18,7 @@ import (
 func main() {
 	var configFile string
 	env := os.Getenv("SCHEDULER_ENV")
+	dsn := os.Getenv("SCHEDULER_DSN")
 	switch env {
 	case "prod":
 		configFile = "etc/scheduler-api_prod.yaml"
@@ -31,6 +32,9 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(configFile, &c)
+
+	// insert dsn
+	c.DB.DataSource = dsn
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
