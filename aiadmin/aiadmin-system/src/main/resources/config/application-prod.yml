@@ -6,7 +6,7 @@ spring:
       driverClassName: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
       url: jdbc:log4jdbc:mysql://${DB_HOST:nascentcore.mysql.polardb.rds.aliyuncs.com}:${DB_PORT:3306}/${DB_NAME:aiadmin}?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false
       username: ${DB_USER:nascent}
-      password: ${DB_PWD:yang@123}
+      password: ${DB_PWD:xxxxxx}
       # 初始连接数
       initial-size: 5
       # 最小连接数
