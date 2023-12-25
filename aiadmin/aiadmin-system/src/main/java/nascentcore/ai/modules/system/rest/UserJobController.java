@@ -40,10 +40,6 @@ import java.util.*;
 import static cn.hutool.core.util.IdUtil.randomUUID;
 
 
-/**
- * @author jim
- * @date 2023-10-12
- **/
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "任务：任务管理")
