@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 
-	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/log"
 	modeluploader "sxwl/3k/pkg/model-uploader"
@@ -28,19 +27,6 @@ func main() {
 		log.SLogger.Infow("checkupload started failed", "error", err)
 		os.Exit(1)
 	} else if !started { //尚末开始
-		clientgo.InitClient()
-		//等待MPI Job完成并取得其最终的状态
-		status, err := modeluploader.UntilMPIJobFinish(mpiJobName)
-		//如果发生错误，进程异常退出
-		if err != nil {
-			log.SLogger.Infow("error when wait mpijob finish", "error", err)
-			os.Exit(1)
-		}
-		//训练出现问题，没有模型可以上传，正常结束
-		if status != config.STATUS_NEEDS_UPLOAD_MODEL {
-			log.SLogger.Infow("nothing to upload , job finish")
-			return
-		}
 		//打包文件
 		err = storage.Pack(config.MODELUPLOADER_PVC_MOUNT_PATH, []string{})
 		if err != nil {
