@@ -164,7 +164,6 @@ public class UserJobController {
             HttpRequest request = HttpUtil.createPost(url);
             request.header("Sx-User", String.valueOf(userId));
             request.body(resources);
-
             HttpResponse execute = request.execute();
             if (!execute.isOk()) {
                 throw new BadRequestException("服务异常，调用调度接口cpod_status异常");
