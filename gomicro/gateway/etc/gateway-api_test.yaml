@@ -1,6 +1,14 @@
 Name: gateway-api
 Host: 0.0.0.0
 Port: 8080
+Timeout: 10000
+
+Log:
+  ServiceName: gateway
+  Mode: file
+  Path: /var/log
+  Level: info
+  KeepDays: 30
 
 Gateway:
   Servers:
