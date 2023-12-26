@@ -1,0 +1,52 @@
+name: Gateway Build and Push
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+    paths:
+      - 'gomicro/gateway/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: sxwl-registry.cn-beijing.cr.aliyuncs.com
+      NAMESPACE: sxwl-ai
+      IMAGE_NAME: go-gateway
+      PR_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Extract version from PR comment
+        id: extract_version
+        run: |
+          VERSION_TAG=$(echo "$PR_TITLE" | grep -oP 'build:\K.*' || echo "")
+          echo "Version tag: $VERSION_TAG"
+          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
+
+      - name: Check if version tag is set
+        if: env.VERSION_TAG != ''
+        run: echo "Version tag found, proceeding with build..."
+
+      - name: Set up Docker Buildx
+        if: env.VERSION_TAG != ''
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        if: env.VERSION_TAG != ''
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./gomicro/gateway/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}
