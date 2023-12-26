@@ -40,10 +40,6 @@ import java.util.*;
 import static cn.hutool.core.util.IdUtil.randomUUID;
 
 
-/**
- * @author jim
- * @date 2023-10-12
- **/
 @RestController
 @RequiredArgsConstructor
 @Api(tags = "任务：任务管理")
@@ -168,7 +164,6 @@ public class UserJobController {
             HttpRequest request = HttpUtil.createPost(url);
             request.header("Sx-User", String.valueOf(userId));
             request.body(resources);
-
             HttpResponse execute = request.execute();
             if (!execute.isOk()) {
                 throw new BadRequestException("服务异常，调用调度接口cpod_status异常");
