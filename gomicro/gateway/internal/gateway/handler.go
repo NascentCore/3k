@@ -52,6 +52,9 @@ func (h *Handler) pass(w http.ResponseWriter, r *http.Request, to string) {
 		http.Error(w, "Error parsing target URL", http.StatusInternalServerError)
 		return
 	}
+	if r.URL.RawQuery != "" {
+		toUrl.RawQuery = r.URL.RawQuery
+	}
 
 	// Read the body
 	bodyBytes, err := io.ReadAll(r.Body)
