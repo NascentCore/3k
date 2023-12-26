@@ -4,8 +4,8 @@ Port: 8080
 
 Gateway:
   Servers:
-    scheduler: "http://127.0.0.1:8090"
-    java: "http://127.0.0.1:8012"
+    scheduler: "http://172.17.0.1:8090"
+    java: "http://172.17.0.1:8012"
   Routers:
     - Path: "/api/userJob/cpod_jobs"
       ToPath: "/cpod/job"
