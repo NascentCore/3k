@@ -1,0 +1,25 @@
+Name: gateway-api
+Host: 0.0.0.0
+Port: 8888
+
+Gateway:
+  Servers:
+    scheduler: "http://127.0.0.1:80"
+    java: "http://127.0.0.1:8012"
+  Routers:
+    - Path: "/api/userJob/cpod_jobs"
+      ToPath: "/cpod/job"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/cpod_status"
+      ToPath: "/cpod/status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/info/upload_status"
+      ToPath: "/info/upload_status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api"
+      Server: java
+    - Path: "/auth"
+      Server: java
