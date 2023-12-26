@@ -1,6 +1,12 @@
 Name: gateway-api
 Host: 0.0.0.0
 Port: 8888
+Timeout: 10000
+
+Log:
+  ServiceName: gateway
+  Mode: console
+  Level: info
 
 Gateway:
   Servers:
