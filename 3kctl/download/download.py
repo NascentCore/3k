@@ -129,6 +129,7 @@ class Model(cli.Application):
                 },
                 namespace=namespace
             )
+            print(f"Custom Resource '{crd_name}' created.")
         except ApiException as e:
             print("create_crd_record exception: %s" % e)
             return
@@ -170,7 +171,8 @@ class Dataset(cli.Application):
                     elif phase_value == "done":
                         print("hub:%s dataset_id:%s already downloaded" % (hub_name, dataset_id))
                     else:
-                        print("hub:%s dataset_id:%s phase:%s please check the phase" % (hub_name, dataset_id, phase_value))
+                        print("hub:%s dataset_id:%s phase:%s please check the phase" % (
+                            hub_name, dataset_id, phase_value))
                 else:
                     print('''hub:%s dataset_id:%s please try again later, if this continue occurs, please delete the crd:
     kubectl delete DataSetStorage %s -n %s''' % (hub_name, dataset_id, crd_name, namespace))
@@ -244,6 +246,7 @@ class Dataset(cli.Application):
                 },
                 namespace=namespace
             )
+            print(f"Custom Resource '{crd_name}' created.")
         except ApiException as e:
             print("create_crd_record exception: %s" % e)
             return
@@ -284,6 +287,51 @@ class Status(cli.Application):
                               status.get("phase", "nil")])
         print('\n')
         print_list(data_list)
+
+
+@Download.subcommand("delete")
+class Delete(cli.Application):
+    """delete model or dataset and all related resource"""
+
+    def main(self, resource, hashid, namespace="cpod"):
+        if resource not in ["model", "dataset"]:
+            print("Error: Resource must be 'model' or 'dataset'.")
+            return 1  # Exit with an error code
+
+        if cli.terminal.ask(f"确认删除在namespace: {namespace} 中的 {resource}: {hashid} ?", default=False):
+            print(f"Deleting resources in namespace {namespace}...")
+
+            config.load_kube_config()
+            core_v1_api = client.CoreV1Api()
+            batch_v1_api = client.BatchV1Api()
+            custom_objects_api = client.CustomObjectsApi()
+
+            crd_name = create_crd_name_with_hash(resource, hashid)
+            pvc_name = create_pvc_name_with_hash(resource, hashid)
+            job_name = create_job_name_with_hash(resource, hashid)
+
+            try:
+                # Delete the job
+                delete_job(batch_v1_api, namespace, job_name)
+                print(f"Job '{job_name}' deleted successfully.")
+
+                # Delete the pods of job
+                delete_pods_for_job(core_v1_api, namespace, job_name)
+                print(f"Pods of Job '{job_name}' deleted successfully.")
+
+                # Delete the PVC
+                delete_pvc(core_v1_api, namespace, pvc_name)
+                print(f"PVC '{pvc_name}' deleted successfully.")
+
+                # Determine the plural form of the resource and delete the custom resource
+                plural = MODEL_PLURAL if resource == "model" else DATASET_PLURAL
+                delete_custom_resource(custom_objects_api, GROUP, VERSION, plural, crd_name, namespace)
+                print(f"CR '{crd_name}': '{crd_name}' deleted successfully.")
+
+            except ApiException as e:
+                print(f"Delete exception: {e}")
+        else:
+            print("Deletion canceled.")
 
 
 def hub_factory(hub_name):
