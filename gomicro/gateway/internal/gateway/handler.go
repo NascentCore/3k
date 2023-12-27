@@ -39,8 +39,11 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, r *http.Request) {
 		log.Printf("gateway error=%s", err)
 	}
 
-	ok := h.auth(writer, r)
-	if ok {
+	authOk := true
+	if route.Auth {
+		authOk = h.auth(writer, r)
+	}
+	if authOk {
 		h.pass(writer, r, route.URL)
 	}
 }
@@ -114,12 +117,18 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 
 	// Parse the token with the specified key function
 	token, err := jwt.Parse(tokenString, keyFunc)
+	if err != nil {
+		log.Printf("auth jwt parse host: %s path: %s err: %s", r.Host, r.URL.Path, err)
+		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+		return false
+	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		user, err := h.userModel.FindOneByUsername(context.Background(), sql.NullString{
 			String: claims["user"].(string),
 			Valid:  true,
 		})
 		if err != nil {
+			log.Printf("auth find user host: %s path: %s err: %s", r.Host, r.URL.Path, err)
 			http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
 			return false
 		}
@@ -128,7 +137,8 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 		r.Header.Set("Sx-User", strconv.FormatInt(user.UserId, 10))
 		return true
 	} else {
-		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+		log.Printf("auth jwt valid host: %s path: %s", r.Host, r.URL.Path)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return false
 	}
 }
