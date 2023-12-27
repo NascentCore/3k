@@ -30,6 +30,27 @@ def create_job_name(hub, resource_id, resource_type):
         return "download-dataset-{0}".format(resource_hash(hub, resource_id))
 
 
+def create_crd_name_with_hash(resource_type, hashid):
+    if resource_type == "model":
+        return "model-storage-{0}".format(hashid)
+    elif resource_type == "dataset":
+        return "dataset-storage-{0}".format(hashid)
+
+
+def create_pvc_name_with_hash(resource_type, hashid):
+    if resource_type == "model":
+        return "pvc-model-{0}".format(hashid)
+    elif resource_type == "dataset":
+        return "pvc-dataset-{0}".format(hashid)
+
+
+def create_job_name_with_hash(resource_type, hashid):
+    if resource_type == "model":
+        return "download-model-{0}".format(hashid)
+    elif resource_type == "dataset":
+        return "download-dataset-{0}".format(hashid)
+
+
 def get_crd_object(api_instance, group, version, resource, namespace, name):
     try:
         obj = api_instance.get_namespaced_custom_object(group, version, namespace, resource, name)
@@ -149,7 +170,31 @@ def create_custom_resource(api_instance, group, version, kind, plural, name, nam
             plural=plural,
             body=crd_instance
         )
-        print(f"Custom Resource '{name}' created.")
     except ApiException as e:
         print(f"Exception when creating Custom Resource: {e}")
         raise e
+
+
+def delete_custom_resource(api_instance, group, version, plural, name, namespace):
+    try:
+        api_instance.delete_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,  # Specify the namespace of the CR
+            plural=plural,
+            name=name
+        )
+    except ApiException as e:
+        print(f"Exception when deleting Custom Resource: {e}")
+        raise e
+
+
+def delete_pods_for_job(api_instance, namespace, job_name):
+    try:
+        # List all pods in the specified namespace
+        pods = api_instance.list_namespaced_pod(namespace, label_selector=f"job-name={job_name}")
+        for pod in pods.items:
+            api_instance.delete_namespaced_pod(pod.metadata.name, namespace)
+
+    except ApiException as e:
+        print(f"Exception when calling CoreV1Api->list_namespaced_pod or delete_namespaced_pod: {e}")
