@@ -69,27 +69,24 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			}
 			l.Logger.Infof("cpod_main insert cpod_main cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
 		} else if len(cpodMains) == 1 { // already exists update
-			if cpodMains[0].GpuAllocatable.Int64 != int64(gpu.Allocatable) ||
-				cpodMains[0].GpuTotal.Int64 != int64(gpu.Total) {
-				_, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
-					"gpu_total":       gpu.Total,
-					"gpu_allocatable": gpu.Allocatable,
-					"update_time": sql.NullTime{
-						Time:  time.Now(),
-						Valid: true,
-					},
-				}).Where(squirrel.Eq{
-					"cpod_id":  req.CPODID,
-					"gpu_prod": gpu.Prod,
-				}))
-				if err != nil {
-					l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
-					return nil, err
-				}
-
-				l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
-					gpu.Total, gpu.Allocatable)
+			_, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
+				"gpu_total":       gpu.Total,
+				"gpu_allocatable": gpu.Allocatable,
+				"update_time": sql.NullTime{
+					Time:  time.Now(),
+					Valid: true,
+				},
+			}).Where(squirrel.Eq{
+				"cpod_id":  req.CPODID,
+				"gpu_prod": gpu.Prod,
+			}))
+			if err != nil {
+				l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+				return nil, err
 			}
+
+			l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
+				gpu.Total, gpu.Allocatable)
 		} else { // multi duplicate records log
 			l.Logger.Infof("cpod_main multi duplicate rows cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
 		}

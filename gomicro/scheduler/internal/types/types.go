@@ -100,6 +100,14 @@ type ModelUrlResp struct {
 	Message string `json:"message"`
 }
 
+type GPUTypeReq struct {
+}
+
+type GPUTypeResp struct {
+	Amount  float64 `json:"amount"`
+	GPUProd string  `json:"gpuProd"`
+}
+
 type JobCallBackReq struct {
 	Status string `json:"status"`
 	URL    string `json:"url"`

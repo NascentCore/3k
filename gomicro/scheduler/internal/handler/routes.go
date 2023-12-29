@@ -22,6 +22,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/info/upload_status",
 				Handler: UploadStatusHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/cpod/gpu_type",
+				Handler: GpuTypeHandler(serverCtx),
+			},
 		},
 	)
 }
