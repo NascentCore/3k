@@ -57,7 +57,6 @@
           <el-option label="MPI" value="MPI" />
           <el-option label="Pytorch" value="Pytorch" />
           <el-option label="TensorFlow" value="TensorFlow" />
-          <el-option label="GeneralJob" value="GeneralJob" />
         </el-select>
       </el-form-item>
       <el-form-item prop="stopType">
