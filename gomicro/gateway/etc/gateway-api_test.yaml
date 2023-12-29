@@ -27,6 +27,10 @@ Gateway:
       ToPath: "/info/upload_status"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/userJob/getGpuType"
+      ToPath: "/cpod/gpu_type"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
