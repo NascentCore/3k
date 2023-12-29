@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+
+	"github.com/Masterminds/squirrel"
 )
 
 const (
@@ -33,10 +34,16 @@ type (
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodMain, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodMain, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
+		GpuTypeAndPrice(ctx context.Context) ([]*GPUTypePrice, error)
 	}
 
 	customSysCpodMainModel struct {
 		*defaultSysCpodMainModel
+	}
+
+	GPUTypePrice struct {
+		GPUProd string  `json:"gpu_prod" db:"gpu_prod"`
+		Amount  float64 `json:"amount" db:"amount"`
 	}
 )
 
@@ -156,4 +163,20 @@ func (m *defaultSysCpodMainModel) UpdateColsByCond(ctx context.Context, updateBu
 	}
 
 	return m.conn.ExecCtx(ctx, query, args...)
+}
+
+func (m *defaultSysCpodMainModel) GpuTypeAndPrice(ctx context.Context) ([]*GPUTypePrice, error) {
+	gpuPrices := make([]*GPUTypePrice, 0)
+	err := m.conn.QueryRowsCtx(ctx, &gpuPrices, `select distinct c.gpu_prod, p.amount
+		from sys_cpod_main c,
+		sys_price p
+		where c.gpu_prod != ''
+		AND c.gpu_prod = p.gpu_prod
+		AND c.update_time > NOW() - INTERVAL 30 MINUTE;
+	`)
+	if err != nil {
+		return nil, err
+	}
+
+	return gpuPrices, nil
 }

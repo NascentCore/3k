@@ -113,10 +113,23 @@ type (
 	}
 )
 
+type (
+	GPUTypeReq {
+	}
+
+	GPUTypeResp {
+		Amount  float64 `json:"amount"`
+		GPUProd string  `json:"gpuProd"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
 
 	@handler UploadStatusHandler
 	post /info/upload_status (ModelUrlReq) returns (ModelUrlResp)
+
+	@handler GpuTypeHandler
+	get /cpod/gpu_type (GPUTypeReq) returns ([]GPUTypeResp)
 }
