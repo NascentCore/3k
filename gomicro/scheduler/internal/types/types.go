@@ -125,6 +125,31 @@ type JobDeleteResp struct {
 	Message string `json:"message"`
 }
 
+type JobCreateReq struct {
+	GpuNumber           int64             `json:"gpuNumber"`
+	GpuType             string            `json:"gpuType"`
+	CkptPath            string            `json:"ckptPath"`
+	CkptVol             string            `json:"ckptVol"`
+	ModelPath           string            `json:"modelPath"`
+	ModelVol            string            `json:"modelVol"`
+	ImagePath           string            `json:"imagePath"`
+	JobType             string            `json:"jobType"`
+	StopType            string            `json:"stopType"`
+	StopTime            int64             `json:"stopTime"`
+	PretrainedModelName string            `json:"pretrainedModelName"`
+	PretrainedModelPath string            `json:"pretrainedModelPath"`
+	DatasetName         string            `json:"datasetName"`
+	DatasetPath         string            `json:"datasetPath"`
+	RunCommand          string            `json:"runCommand"`
+	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
+	Env                 map[string]string `json:"env,omitempty"`
+	UserID              int64             `header:"Sx-User" json:"-"`
+}
+
+type JobCreateResp struct {
+	JobId string `json:"job_id"`
+}
+
 type JobCallBackReq struct {
 	Status string `json:"status"`
 	URL    string `json:"url"`
