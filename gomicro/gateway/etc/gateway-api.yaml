@@ -37,6 +37,10 @@ Gateway:
       ToPath: "/job/delete"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/userJob"
+      ToPath: "/job/create"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
