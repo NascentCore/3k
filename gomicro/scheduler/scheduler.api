@@ -144,6 +144,33 @@ type (
 	}
 )
 
+type (
+	JobCreateReq {
+		GpuNumber           int64             `json:"gpuNumber"`
+		GpuType             string            `json:"gpuType"`
+		CkptPath            string            `json:"ckptPath"`
+		CkptVol             string            `json:"ckptVol"`
+		ModelPath           string            `json:"modelPath"`
+		ModelVol            string            `json:"modelVol"`
+		ImagePath           string            `json:"imagePath"`
+		JobType             string            `json:"jobType"`
+		StopType            string            `json:"stopType"`
+		StopTime            int64             `json:"stopTime"`
+		PretrainedModelName string            `json:"pretrainedModelName"`
+		PretrainedModelPath string            `json:"pretrainedModelPath"`
+		DatasetName         string            `json:"datasetName"`
+		DatasetPath         string            `json:"datasetPath"`
+		RunCommand          string            `json:"runCommand"`
+		CallbackUrl         string            `json:"callbackUrl,optional"`
+		Env                 map[string]string `json:"env"`
+		UserID              int64             `header:"Sx-User" json:"-"`
+	}
+
+	JobCreateResp {
+		JobId string `json:"job_id"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
@@ -159,4 +186,7 @@ service scheduler-api {
 
 	@handler JobDeleteHandler
 	post /job/delete (JobDeleteReq) returns (JobDeleteResp)
+
+	@handler JobCreateHandler
+	post /job/create (JobCreateReq) returns (JobCreateResp)
 }
