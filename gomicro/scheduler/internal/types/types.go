@@ -135,14 +135,14 @@ type JobCreateReq struct {
 	ImagePath           string            `json:"imagePath"`
 	JobType             string            `json:"jobType"`
 	StopType            string            `json:"stopType"`
-	StopTime            int64             `json:"stopTime"`
-	PretrainedModelName string            `json:"pretrainedModelName"`
-	PretrainedModelPath string            `json:"pretrainedModelPath"`
-	DatasetName         string            `json:"datasetName"`
-	DatasetPath         string            `json:"datasetPath"`
-	RunCommand          string            `json:"runCommand"`
+	StopTime            int64             `json:"stopTime,optional"`
+	PretrainedModelName string            `json:"pretrainedModelName,optional"`
+	PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
+	DatasetName         string            `json:"datasetName,optional"`
+	DatasetPath         string            `json:"datasetPath,optional"`
+	RunCommand          string            `json:"runCommand,optional"`
 	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
-	Env                 map[string]string `json:"env,omitempty"`
+	Env                 map[string]string `json:"env,optional,omitempty"`
 	UserID              int64             `header:"Sx-User" json:"-"`
 }
 
