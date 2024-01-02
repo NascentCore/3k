@@ -31,6 +31,14 @@ Gateway:
       ToPath: "/cpod/gpu_type"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/userJob/job_status"
+      ToPath: "/job/status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/job_del"
+      ToPath: "/job/delete"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
