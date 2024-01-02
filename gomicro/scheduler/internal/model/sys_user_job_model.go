@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -19,6 +20,7 @@ type (
 		UpdateBuilder() squirrel.UpdateBuilder
 
 		DeleteSoft(ctx context.Context, data *SysUserJob) error
+		DeleteSoftByName(ctx context.Context, jobName string) error
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysUserJob, error)
 		FindOneById(ctx context.Context, data *SysUserJob) (*SysUserJob, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysUserJob, error)
@@ -54,6 +56,25 @@ func (m *defaultSysUserJobModel) DeleteSoft(ctx context.Context, data *SysUserJo
 	builder := squirrel.Update(m.table)
 	builder = builder.Set("deleted", 1)
 	builder = builder.Where("job_id = ?", data.JobId)
+	query, args, err := builder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+// DeleteSoftByName -
+func (m *defaultSysUserJobModel) DeleteSoftByName(ctx context.Context, jobName string) error {
+	builder := squirrel.Update(m.table)
+	builder = builder.Set("deleted", 1).Set("update_time", sql.NullTime{
+		Time:  time.Now(),
+		Valid: true,
+	})
+	builder = builder.Where("job_name = ?", jobName)
 	query, args, err := builder.ToSql()
 	if err != nil {
 		return err

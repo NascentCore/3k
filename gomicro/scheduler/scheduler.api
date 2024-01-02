@@ -123,6 +123,27 @@ type (
 	}
 )
 
+type (
+	JobStatusReq {
+		JobId string `json:"job_id"`
+	}
+
+	JobStatusResp {
+		URL    string `json:"url"`
+		Status string `json:"status"`
+	}
+)
+
+type (
+	JobDeleteReq {
+		JobId string `json:"job_id"`
+	}
+
+	JobDeleteResp {
+		Message string `json:"message"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
@@ -132,4 +153,10 @@ service scheduler-api {
 
 	@handler GpuTypeHandler
 	get /cpod/gpu_type (GPUTypeReq) returns ([]GPUTypeResp)
+
+	@handler JobStatusHandler
+	post /job/status (JobStatusReq) returns (JobStatusResp)
+
+	@handler JobDeleteHandler
+	post /job/delete (JobDeleteReq) returns (JobDeleteResp)
 }

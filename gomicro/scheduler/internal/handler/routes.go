@@ -27,6 +27,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/cpod/gpu_type",
 				Handler: GpuTypeHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/job/status",
+				Handler: JobStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/job/delete",
+				Handler: JobDeleteHandler(serverCtx),
+			},
 		},
 	)
 }
