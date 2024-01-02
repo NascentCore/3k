@@ -193,9 +193,9 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 
 			switch dbWorkStatus {
 			case model.JobStatusWorkerFail:
-				callBackReq.Status = consts.CallBackJobFail
+				callBackReq.Status = consts.JobFail
 			case model.JobStatusWorkerUrlSuccess:
-				callBackReq.Status = consts.CallBackJobSuccess
+				callBackReq.Status = consts.JobSuccess
 				callBackReq.URL = url
 				callBackReq.JobID = jobName
 			}

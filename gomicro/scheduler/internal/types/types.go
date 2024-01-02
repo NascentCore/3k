@@ -108,6 +108,23 @@ type GPUTypeResp struct {
 	GPUProd string  `json:"gpuProd"`
 }
 
+type JobStatusReq struct {
+	JobId string `json:"job_id"`
+}
+
+type JobStatusResp struct {
+	URL    string `json:"url"`
+	Status string `json:"status"`
+}
+
+type JobDeleteReq struct {
+	JobId string `json:"job_id"`
+}
+
+type JobDeleteResp struct {
+	Message string `json:"message"`
+}
+
 type JobCallBackReq struct {
 	Status string `json:"status"`
 	URL    string `json:"url"`

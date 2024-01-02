@@ -1,6 +1,7 @@
 package consts
 
 const (
-	CallBackJobFail    = "fail"
-	CallBackJobSuccess = "success"
+	JobFail    = "fail"
+	JobSuccess = "success"
+	JobWorking = "working"
 )
