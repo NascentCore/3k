@@ -135,11 +135,11 @@ type (
 )
 
 type (
-	JobDeleteReq {
+	JobStopReq {
 		JobId string `json:"job_id"`
 	}
 
-	JobDeleteResp {
+	JobStopResp {
 		Message string `json:"message"`
 	}
 )
@@ -155,19 +155,60 @@ type (
 		ImagePath           string            `json:"imagePath"`
 		JobType             string            `json:"jobType"`
 		StopType            string            `json:"stopType"`
-		StopTime            int64             `json:"stopTime"`
-		PretrainedModelName string            `json:"pretrainedModelName"`
-		PretrainedModelPath string            `json:"pretrainedModelPath"`
-		DatasetName         string            `json:"datasetName"`
-		DatasetPath         string            `json:"datasetPath"`
-		RunCommand          string            `json:"runCommand"`
-		CallbackUrl         string            `json:"callbackUrl,optional"`
-		Env                 map[string]string `json:"env"`
+		StopTime            int64             `json:"stopTime,optional"`
+		PretrainedModelName string            `json:"pretrainedModelName,optional"`
+		PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
+		DatasetName         string            `json:"datasetName,optional"`
+		DatasetPath         string            `json:"datasetPath,optional"`
+		RunCommand          string            `json:"runCommand,optional"`
+		CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
+		Env                 map[string]string `json:"env,optional,omitempty"`
 		UserID              int64             `header:"Sx-User" json:"-"`
 	}
 
 	JobCreateResp {
 		JobId string `json:"job_id"`
+	}
+)
+
+type (
+	JobGetReq {
+		Current int   `form:"current"`
+		Size    int   `form:"size"`
+		UserID  int64 `header:"Sx-User"`
+	}
+
+	Job {
+		CkptPath            string `json:"ckptPath"`
+		CkptVol             string `json:"ckptVol"`
+		CpodId              string `json:"cpodId"`
+		CreateTime          string `json:"createTime"`
+		DatasetName         string `json:"datasetName,omitempty"`
+		DatasetPath         string `json:"datasetPath,omitempty"`
+		Deleted             int    `json:"deleted"`
+		GpuNumber           int    `json:"gpuNumber"`
+		GpuType             string `json:"gpuType"`
+		ImagePath           string `json:"imagePath"`
+		JobId               int    `json:"jobId"`
+		JobName             string `json:"jobName"`
+		JobType             string `json:"jobType"`
+		JsonAll             string `json:"jsonAll"`
+		ModelPath           string `json:"modelPath"`
+		ModelVol            string `json:"modelVol"`
+		ObtainStatus        int    `json:"obtainStatus"`
+		PretrainedModelName string `json:"pretrainedModelName,omitempty"`
+		PretrainedModelPath string `json:"pretrainedModelPath,omitempty"`
+		RunCommand          string `json:"runCommand,omitempty"`
+		StopTime            int    `json:"stopTime"`
+		StopType            int    `json:"stopType"`
+		UpdateTime          string `json:"updateTime"`
+		UserId              int    `json:"userId"`
+		WorkStatus          int    `json:"workStatus"`
+	}
+
+	JobGetResp {
+		Content       []Job `json:"content"`
+		TotalElements int64 `json:"totalElements"`
 	}
 )
 
@@ -184,9 +225,12 @@ service scheduler-api {
 	@handler JobStatusHandler
 	post /job/status (JobStatusReq) returns (JobStatusResp)
 
-	@handler JobDeleteHandler
-	post /job/delete (JobDeleteReq) returns (JobDeleteResp)
+	@handler JobStopHandler
+	post /job/stop (JobStopReq) returns (JobStopResp)
 
 	@handler JobCreateHandler
 	post /job/create (JobCreateReq) returns (JobCreateResp)
+
+	@handler JobGetHandler
+	get /job/get (JobGetReq) returns (JobGetResp)
 }

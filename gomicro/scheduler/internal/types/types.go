@@ -117,11 +117,11 @@ type JobStatusResp struct {
 	Status string `json:"status"`
 }
 
-type JobDeleteReq struct {
+type JobStopReq struct {
 	JobId string `json:"job_id"`
 }
 
-type JobDeleteResp struct {
+type JobStopResp struct {
 	Message string `json:"message"`
 }
 
@@ -148,6 +148,45 @@ type JobCreateReq struct {
 
 type JobCreateResp struct {
 	JobId string `json:"job_id"`
+}
+
+type JobGetReq struct {
+	Current int   `form:"current"`
+	Size    int   `form:"size"`
+	UserID  int64 `header:"Sx-User"`
+}
+
+type Job struct {
+	CkptPath            string `json:"ckptPath"`
+	CkptVol             string `json:"ckptVol"`
+	CpodId              string `json:"cpodId"`
+	CreateTime          string `json:"createTime"`
+	DatasetName         string `json:"datasetName,omitempty"`
+	DatasetPath         string `json:"datasetPath,omitempty"`
+	Deleted             int    `json:"deleted"`
+	GpuNumber           int    `json:"gpuNumber"`
+	GpuType             string `json:"gpuType"`
+	ImagePath           string `json:"imagePath"`
+	JobId               int    `json:"jobId"`
+	JobName             string `json:"jobName"`
+	JobType             string `json:"jobType"`
+	JsonAll             string `json:"jsonAll"`
+	ModelPath           string `json:"modelPath"`
+	ModelVol            string `json:"modelVol"`
+	ObtainStatus        int    `json:"obtainStatus"`
+	PretrainedModelName string `json:"pretrainedModelName,omitempty"`
+	PretrainedModelPath string `json:"pretrainedModelPath,omitempty"`
+	RunCommand          string `json:"runCommand,omitempty"`
+	StopTime            int    `json:"stopTime"`
+	StopType            int    `json:"stopType"`
+	UpdateTime          string `json:"updateTime"`
+	UserId              int    `json:"userId"`
+	WorkStatus          int    `json:"workStatus"`
+}
+
+type JobGetResp struct {
+	Content       []Job `json:"content"`
+	TotalElements int64 `json:"totalElements"`
 }
 
 type JobCallBackReq struct {

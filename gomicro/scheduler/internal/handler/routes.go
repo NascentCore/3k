@@ -34,13 +34,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/job/delete",
-				Handler: JobDeleteHandler(serverCtx),
+				Path:    "/job/stop",
+				Handler: JobStopHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
 				Path:    "/job/create",
 				Handler: JobCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/job/get",
+				Handler: JobGetHandler(serverCtx),
 			},
 		},
 	)
