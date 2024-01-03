@@ -229,8 +229,8 @@ service scheduler-api {
 	post /job/stop (JobStopReq) returns (JobStopResp)
 
 	@handler JobCreateHandler
-	post /job/create (JobCreateReq) returns (JobCreateResp)
+	post /job/job (JobCreateReq) returns (JobCreateResp)
 
 	@handler JobGetHandler
-	get /job/get (JobGetReq) returns (JobGetResp)
+	get /job/job (JobGetReq) returns (JobGetResp)
 }

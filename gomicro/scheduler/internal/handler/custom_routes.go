@@ -18,7 +18,7 @@ func RegisterCustomHandlers(server *rest.Server, serverCtx *svc.ServiceContext) 
 			},
 			{
 				Method:  http.MethodDelete,
-				Path:    "/job/delete",
+				Path:    "/job/job",
 				Handler: JobDeleteHandler(serverCtx),
 			},
 		},

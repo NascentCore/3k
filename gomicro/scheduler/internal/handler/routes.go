@@ -39,12 +39,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/job/create",
+				Path:    "/job/job",
 				Handler: JobCreateHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/job/get",
+				Path:    "/job/job",
 				Handler: JobGetHandler(serverCtx),
 			},
 		},
