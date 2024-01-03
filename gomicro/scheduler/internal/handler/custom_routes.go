@@ -16,6 +16,11 @@ func RegisterCustomHandlers(server *rest.Server, serverCtx *svc.ServiceContext) 
 				Path:    "/cpod/job",
 				Handler: CpodJobHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/job/delete",
+				Handler: JobDeleteHandler(serverCtx),
+			},
 		},
 	)
 }

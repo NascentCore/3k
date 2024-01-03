@@ -25,7 +25,7 @@ type (
 		FindOneById(ctx context.Context, data *SysUserJob) (*SysUserJob, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysUserJob, error)
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysUserJob, error)
-		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysUserJob, error)
+		FindPageListByPage(ctx context.Context, where any, page, pageSize int64, orderBy string) ([]*SysUserJob, int64, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 	}
 
@@ -150,7 +150,8 @@ func (m *defaultSysUserJobModel) Find(ctx context.Context, selectBuilder squirre
 }
 
 // FindPageListByPage -
-func (m *defaultSysUserJobModel) FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysUserJob, error) {
+func (m *defaultSysUserJobModel) FindPageListByPage(ctx context.Context, where any, page, pageSize int64, orderBy string) ([]*SysUserJob, int64, error) {
+	selectBuilder := squirrel.Select("*").From(m.table)
 	if orderBy == "" {
 		selectBuilder = selectBuilder.OrderBy("job_id DESC")
 	} else {
@@ -162,19 +163,29 @@ func (m *defaultSysUserJobModel) FindPageListByPage(ctx context.Context, selectB
 	}
 	offset := (page - 1) * pageSize
 
-	query, args, err := selectBuilder.Where("deleted = 0").Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
+	query, args, err := selectBuilder.Where("deleted = 0").Where(where).Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var resp []*SysUserJob
 	err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
-	switch err {
-	case nil:
-		return resp, nil
-	default:
-		return nil, err
+	if err != nil {
+		return nil, 0, err
 	}
+
+	var count int64
+	countBuilder := squirrel.Select("count(1)").From(m.table).Where(where)
+	query, args, err = countBuilder.ToSql()
+	if err != nil {
+		return nil, 0, err
+	}
+	err = m.conn.QueryRowCtx(ctx, &count, query, args...)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return resp, count, nil
 }
 
 // UpdateColsByCond -

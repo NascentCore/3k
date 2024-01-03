@@ -2,9 +2,9 @@ package logic
 
 import (
 	"context"
+	"sxwl/3k/gomicro/scheduler/internal/model"
 
 	"sxwl/3k/gomicro/scheduler/internal/svc"
-	"sxwl/3k/gomicro/scheduler/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,14 +23,17 @@ func NewJobDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JobDele
 	}
 }
 
-func (l *JobDeleteLogic) JobDelete(req *types.JobDeleteReq) (resp *types.JobDeleteResp, err error) {
-	UserJobModel := l.svcCtx.UserJobModel
-	err = UserJobModel.DeleteSoftByName(l.ctx, req.JobId)
-	if err != nil {
-		l.Errorf("soft delete job_name: %s err: %s", req.JobId, err)
-		return nil, err
+func (l *JobDeleteLogic) JobDelete(ids []int64) (err error) {
+	if len(ids) == 0 {
+		return nil
 	}
 
-	resp = &types.JobDeleteResp{Message: "delete job success"}
-	return resp, nil
+	for _, id := range ids {
+		err = l.svcCtx.UserJobModel.DeleteSoft(l.ctx, &model.SysUserJob{JobId: id})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
