@@ -36,11 +36,11 @@ Gateway:
       Auth: Yes
       Server: scheduler
     - Path: "/api/userJob/job_del"
-      ToPath: "/job/delete"
+      ToPath: "/job/stop"
       Auth: Yes
       Server: scheduler
     - Path: "/api/userJob"
-      ToPath: "/job/create"
+      ToPath: "/job/job"
       Auth: Yes
       Server: scheduler
     - Path: "/api"
