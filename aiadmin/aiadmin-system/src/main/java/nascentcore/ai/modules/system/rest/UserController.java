@@ -19,10 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import static cn.hutool.core.util.IdUtil.randomUUID;
 
-/**
- * @author jim
- * @date 2023-9-27
- */
 @Api(tags = "系统：用户管理")
 @RestController
 @RequestMapping("/api/users")
