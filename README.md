@@ -1,6 +1,6 @@
 # 3K
 
-[![Code Coverage](https://codecov.io/gh/NascentCore/3k/branch/master/graph/badge.svg)](https://codecov.io/gh/NascentCore/3k)
+[![codecov](https://codecov.io/gh/NascentCore/3k/graph/badge.svg?token=7L2HQJ3BSP)](https://codecov.io/gh/NascentCore/3k)
 
 ## 简介
 
