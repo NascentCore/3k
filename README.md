@@ -1,5 +1,7 @@
 # 3K
 
+[![Code Coverage](https://codecov.io/gh/NascentCore/3k/branch/master/graph/badge.svg)](https://codecov.io/gh/NascentCore/3k)
+
 ## 简介
 
 三千平台是云原生大模型训推平台，得名于其 3 个核心指标：
@@ -12,7 +14,7 @@ Named after 3 major performance metrics of the system:
 * 100B+ Transformer model
 * 1000+ hours uninterrupted training
 
-## 名次解释
+## 名词解释
 
 | Acronym  |      Meaning  |  涵义 |
 |----------|:-------------:|:------|
