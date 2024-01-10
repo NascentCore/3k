@@ -1,4 +1,6 @@
 import os
+import sys
+
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -18,8 +20,12 @@ from torch.utils.data.distributed import DistributedSampler
 def setup(rank, world_size):
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '29500'
-    os.environ['NCCL_DEBUG'] = 'WARN'
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    os.environ["RANK"] = str(rank)
+    os.environ["WORLD_SIZE"] = str(world_size)
+    os.environ['NCCL_DEBUG'] = 'INFO'
+    torch.cuda.set_device(rank)
+    torch.cuda.device(rank)
+    dist.init_process_group("nccl", init_method="env://")
 
 
 def train(rank, world_size, base_model, new_model, guanaco_dataset, training_args):
@@ -42,8 +48,15 @@ def train(rank, world_size, base_model, new_model, guanaco_dataset, training_arg
     )
     model.config.use_cache = False
     model.config.pretraining_tp = 1
-    torch.cuda.set_device(rank)
     model = DDP(model, device_ids=[rank], output_device=rank)
+
+    gpu_name = f"cuda:{rank}"
+    gpu_dev = torch.device(gpu_name)
+    model.to(gpu_dev)
+    curr_device = torch.cuda.current_device()
+    if curr_device != rank:
+        sys.exit(f"Process {os.getpid()} is running on a wrong GPU. "
+                 f"Expected: {rank}, current: {curr_device}.")
 
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
@@ -55,6 +68,15 @@ def train(rank, world_size, base_model, new_model, guanaco_dataset, training_arg
         r=64,
         bias="none",
         task_type="CAUSAL_LM",
+        target_modules=[
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj",
+        ],
     )
 
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=training_args.per_device_train_batch_size,
@@ -79,7 +101,7 @@ def train(rank, world_size, base_model, new_model, guanaco_dataset, training_arg
 def main():
     base_model = "/data/models/hf_models/llama-2-7b-chat"
     guanaco_dataset = "/data/dataset/guanaco-llama2-1k"
-    new_model = "llama-2-7b-chat-guanaco"
+    new_model = "llama-2-7b-chat-guanaco-multi-gpu"
 
     training_args = TrainingArguments(
         output_dir="./results",
