@@ -27,3 +27,8 @@ jobs:
         run: |
           # shellcheck disable=SC2046
           go test -v $(go list ./... | grep -v "/e2e")
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
