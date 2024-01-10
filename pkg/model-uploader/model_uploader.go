@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"sxwl/3k/pkg/config"
@@ -119,7 +120,7 @@ func PostUrlsToMarket(fileName, jobName, url string) error {
 		return err
 	}
 	if res.StatusCode != 200 {
-		return errors.New("post presigned url to market failed")
+		return fmt.Errorf("post presigned url to market failed , statuscode: %d", res.StatusCode)
 	}
 
 	return nil
