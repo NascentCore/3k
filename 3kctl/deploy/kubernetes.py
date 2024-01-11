@@ -40,11 +40,6 @@ def install_operators():
                  "{}/deploy/values/{}.yaml".format(Conf.c.deploy.work_dir, app)
                  )
 
-    for node in Conf.c.deploy.ib_nodes.split(","):
-        retcode = (local["kubectl"]["get", "node", node, "--show-labels=true"] | grep["infiniband=available"]) & RETCODE
-        if retcode != 0:
-            kubectl_run("label", "node", node, "infiniband=available")
-
     for app in Conf.c.deploy.yaml_apps.split(","):
         print(colors.yellow | "===== [3kctl] install {} =====".format(app))
 
@@ -193,20 +188,24 @@ def gen_cpod_id():
     return hashlib.md5(str.encode(ns_uid)).hexdigest()
 
 
-def init_cpod_info(access_key):
-    if not (local["kubectl"]["get", "ns"] | grep["^cpod"]) & TF(0):
-        kubectl_run("create", "ns", "cpod")
+def init_cpod_info(access_key, api_address, storage_class, oss_bucket, log_level):
+    if not (local["kubectl"]["get", "ns"] | grep["^cpod-system"]) & TF(0):
+        kubectl_run("create", "ns", "cpod-system")
 
-    local["kubectl"]["delete", "cm", "cpod-info", "-n", "cpod"] & TF(0)
+    local["kubectl"]["delete", "cm", "cpod-info", "-n", "cpod-system"] & TF(0)
 
     kubectl_run(
         "create",
         "cm",
         "cpod-info",
         "-n",
-        "cpod",
-        "--from-literal=access_key={}".format(access_key),
-        "--from-literal=cpod_id={}".format(gen_cpod_id())
+        "cpod-system",
+        f"--from-literal=access_key={access_key}",
+        f"--from-literal=cpod_id={gen_cpod_id()}",
+        f"--from-literal=api_address={api_address}",
+        f"--from-literal=storage_class={storage_class}",
+        f"--from-literal=oss_bucket={oss_bucket}",
+        f"--from-literal=log_level={log_level}",
     )
 
 
