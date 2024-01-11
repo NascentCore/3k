@@ -51,7 +51,7 @@ func TestMPIJob(t *testing.T) {
 				}
 			}
 			return false
-		}), wait.WithImmediate(), wait.WithInterval(10*time.Second), wait.WithTimeout(2*time.Minute))
+		}), wait.WithImmediate(), wait.WithInterval(10*time.Second), wait.WithTimeout(time.Duration(backOffLimitTime)*time.Minute))
 		if err != nil {
 			t.Errorf("MPIJob Check Failed")
 		}

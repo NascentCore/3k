@@ -47,7 +47,7 @@ func TestGPT3(t *testing.T) {
 					}
 				}
 				return false
-			}), wait.WithInterval(10*time.Second), wait.WithTimeout(2*time.Minute))
+			}), wait.WithInterval(10*time.Second), wait.WithTimeout(time.Duration(backOffLimitTime)*time.Minute))
 			return ctx
 		}).
 		Teardown(func(ctx context.Context, t *testing.T, c *envconf.Config) context.Context {

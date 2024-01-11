@@ -6,48 +6,44 @@ spec:
   slotsPerWorker: 1
   runPolicy:
     cleanPodPolicy: Running
+    ttlSecondsAfterFinished: 60
+  sshAuthMountPath: /home/mpiuser/.ssh
   mpiReplicaSpecs:
     Launcher:
       replicas: 1
       template:
         spec:
           containers:
-          - image: dockerhub.kubekey.local/kubesphereio/mpi-horovod-mnist:latest
+          - image: dockerhub.kubekey.local/kubesphereio/mpi-pi:openmpi
             name: mpi-launcher
+            securityContext:
+              runAsUser: 1000
             command:
             - mpirun
             args:
-            - -np
+            - -n
             - "2"
-            - --allow-run-as-root
-            - -bind-to
-            - none
-            - -map-by
-            - slot
-            - -x
-            - LD_LIBRARY_PATH
-            - -x
-            - PATH
-            - -mca
-            - pml
-            - ob1
-            - -mca
-            - btl
-            - ^openib
-            - python
-            - /examples/tensorflow_mnist.py
+            - /home/mpiuser/pi
             resources:
               limits:
                 cpu: 1
-                memory: 2Gi
+                memory: 1Gi
     Worker:
       replicas: 2
       template:
         spec:
           containers:
-          - image: docker.io/kubeflow/mpi-horovod-mnist
+          - image: mpioperator/mpi-pi:openmpi
             name: mpi-worker
+            securityContext:
+              runAsUser: 1000
+            command:
+            - /usr/sbin/sshd
+            args:
+            - -De
+            - -f
+            - /home/mpiuser/.sshd_config
             resources:
               limits:
-                cpu: 2
-                memory: 4Gi
+                cpu: 1
+                memory: 1Gi
