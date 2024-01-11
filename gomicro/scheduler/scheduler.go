@@ -9,8 +9,6 @@ import (
 	"sxwl/3k/gomicro/scheduler/internal/handler"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 
-	_ "sxwl/3k/gomicro/pkg/sxwlzero"
-
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
