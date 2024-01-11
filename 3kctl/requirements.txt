@@ -1,3 +1,4 @@
 plumbum==1.8.2
 kubernetes==28.1.0
 modelscope==1.9.5
+colorama==0.4.6

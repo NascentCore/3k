@@ -1,0 +1,25 @@
+loki:
+  enabled: true
+  image:
+    repository: dockerhub.kubekey.local/kubesphereio/loki
+    tag: 2.6.1
+  persistence:
+    enabled: true
+    storageClassName: ceph-filesystem
+    accessModes:
+    - ReadWriteOnce
+    size: 100Gi
+  config:
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 720h
+
+promtail:
+  enabled: true
+  image: 
+    registry: dockerhub.kubekey.local
+    repository: kubesphereio/promtail
+    tag: 2.8.3
+
+test_pod:
+  image: dockerhub.kubekey.local/kubesphereio/bats:1.8.2

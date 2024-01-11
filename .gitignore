@@ -6,6 +6,8 @@
 *.swm
 *.swn
 .vscode/
+__pycache__
+venv
 
 ### macOS ###
 # General

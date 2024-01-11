@@ -13,6 +13,15 @@ grafana:
       repository: dockerhub.kubekey.local/kubesphereio/busybox
   testFramework:
     image: dockerhub.kubekey.local/kubesphereio/bats
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Loki
+        type: loki
+        url: http://loki-stack.loki-stack.svc.cluster.local:3100
+        access: proxy
+        isDefault: false
 
 kube-state-metrics:
   image:
@@ -69,7 +78,7 @@ prometheus:
         relabel_configs:
         - source_labels: [__meta_kubernetes_pod_node_name]
           action: replace
-          target_label: kubernetes_node
+          target_label: node_hostname
       - job_name: infiniband-exporter
         scrape_interval: 30s
         metrics_path: /metrics
