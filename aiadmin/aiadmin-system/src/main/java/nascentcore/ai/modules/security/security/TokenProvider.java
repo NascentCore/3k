@@ -25,9 +25,6 @@ import org.springframework.stereotype.Component;
 import nascentcore.ai.modules.security.config.bean.SecurityProperties;
 import nascentcore.ai.utils.RedisUtils;
 
-/**
- * @author /
- */
 @Slf4j
 @Component
 public class TokenProvider implements InitializingBean {
