@@ -6,6 +6,7 @@ import (
 )
 
 // Reads the content of 'f' and return a key value map of the config entries.
+// The file content is a ':' separated key value entries, see examples in the test file.
 func Read(f string) (map[string]string, error) {
 	text, err := os.ReadFile(f)
 	if err != nil {
