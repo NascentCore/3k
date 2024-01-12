@@ -7,18 +7,17 @@ spec:
   predictor:
     containers:
       - name: kserve-container
-        args:
-          - --port
-          - "8080"
-          - --model
-          - /mnt/models
         command:
           - python3
           - -m
           - vllm.entrypoints.api_server
+          - --port
+          - "8080"
+          - --model
+          - /mnt/models
         env:
           - name: STORAGE_URI
-            value: pvc://modesaved/
+            value: pvc://modesaved/ # 训练微调产生的模型的PVC名称
         image: m.daocloud.io/ghcr.io/substratusai/vllm:latest
         resources:
           limits:
