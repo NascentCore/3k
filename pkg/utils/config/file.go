@@ -6,9 +6,12 @@ import (
 )
 
 // Reads the content of 'f' and return a key value map of the config entries.
-func Read(f string) map[string]string {
-	text := os.ReadFile(f)
-	return parse(text)
+func Read(f string) (map[string]string, error) {
+	text, err := os.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+	return parse(string(text)), nil
 }
 
 func parse(text string) map[string]string {
