@@ -40,7 +40,7 @@
     super-linter
   ```
 
-## Pip mirro
+## Pip mirror
 
 ```
 python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
