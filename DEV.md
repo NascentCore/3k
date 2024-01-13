@@ -46,6 +46,6 @@
 python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-## File and dir naming
+## File and dir naming convention
 
 Use '-' to separate file and dir name components, as in foo-bar/baz-tik-tok
