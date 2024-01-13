@@ -1,5 +1,8 @@
 # Development
 
+Look for README.md under each directories for the puposes of the code under the
+directories, and other details.
+
 ## Common items
 
 * Clone the minimal repo
