@@ -1,5 +1,6 @@
 package nascentcore.ai.modules.system.domain.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -13,6 +14,6 @@ import java.util.Set;
  */
 @Data
 public class UserQueryCriteria implements Serializable {
-
+    @ApiModelProperty(value = "用户ID")
     private Long userId;
 }

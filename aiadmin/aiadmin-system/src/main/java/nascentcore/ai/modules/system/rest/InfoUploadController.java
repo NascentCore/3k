@@ -26,7 +26,7 @@ public class InfoUploadController {
     private final FileurlService fileurlService;
     private final ServiceProperties serviceProperties;
     @PostMapping(value = "/upload_status")
-    @ApiOperation("上传模型数据文件 url")
+    @ApiOperation("上传模型数据文件 url-已挪Go")
     public ResponseEntity<Object> uploadStatus(@Validated @RequestBody String resources) {
         try {
             String url = serviceProperties.getServices().getScheduleService() + "info/upload_status";
