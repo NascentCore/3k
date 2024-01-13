@@ -40,8 +40,12 @@
     super-linter
   ```
 
-## Pip mirrow
+## Pip mirro
 
 ```
 python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+
+## File and dir naming
+
+Use '-' to separate file and dir name components, as in foo-bar/baz-tik-tok
