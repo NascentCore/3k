@@ -1,6 +1,8 @@
 package config
 
 // Reading configMap as config entries
+// 通常 configMap 会挂载到 pod 内，此时使用 env 或 file 方式可以读取内容
+// 当需要读取未挂载到 pod 内的 configMap 内容时可通过此函数读取
 
 import (
 	"context"
