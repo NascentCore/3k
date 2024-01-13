@@ -48,4 +48,7 @@ python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/sim
 
 ## File and dir naming convention
 
+- OK to break conventions
+- The most important rule is to keep consistent with the dominant convention in the existing codebase
+
 Use '-' to separate file and dir name components, as in foo-bar/baz-tik-tok
