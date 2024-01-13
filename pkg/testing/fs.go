@@ -10,14 +10,17 @@ import (
 
 // Initialize random seed for randStr()
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// CreateTmpDir returns a path to a newly created temporary directory.
-func CreateTmpDir() string {
+// createTmpDir returns a path to a newly created temporary directory.
+func createTmpDir() string {
 	prefix := "sxwl-test-"
 	dir := path.Join(os.TempDir(), prefix+randStr(10))
-	os.MkdirAll(dir, os.ModePerm)
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		log.Fatalf("Failed to create tmp dir '%s', error: %v", dir, err)
+	}
 	return dir
 }
 
@@ -30,15 +33,15 @@ func randStr(n int) string {
 	return string(b)
 }
 
-// GetTmpFilePath returns a random file path under temp directory.
+// getTmpFilePath returns a random file path under temp directory.
 // The file is not created.
-func GetTmpFilePath() string {
-	return path.Join(CreateTmpDir(), randStr(10))
+func getTmpFilePath() string {
+	return path.Join(createTmpDir(), randStr(10))
 }
 
 // CreateTmpFile returns a path to a file under the temporary directory.
 func CreateTmpFile() string {
-	f := GetTmpFilePath()
+	f := getTmpFilePath()
 	openedFile, err := os.Create(f)
 	if err != nil {
 		log.Fatalf("While creating temp file at '%s', failed to create the file, error: %v", f, err)
@@ -51,7 +54,7 @@ func CreateTmpFile() string {
 }
 
 func CreateTmpFileWithContent(content string) string {
-	f := GetTmpFilePath()
+	f := getTmpFilePath()
 	const defaultPerf = 0o644
 	err := os.WriteFile(f, []byte(content), defaultPerf)
 	if err != nil {
