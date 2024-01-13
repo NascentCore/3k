@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"sxwl/3k/gomicro/pkg/consts"
-	"sxwl/3k/gomicro/scheduler/internal/cpod_cache"
 	"sxwl/3k/gomicro/scheduler/internal/model"
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 	"sxwl/3k/gomicro/scheduler/internal/types"
@@ -219,60 +218,46 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		return nil, err
 	}
 
-	currentCache := make(map[string]bool)
+	currentCache := make(map[string]int64)
 	for _, cache := range cacheList {
-		currentCache[cpod_cache.Encode(cache.DataType, cache.DataId)] = true
+		currentCache[cache.DataId] = cache.Id
 	}
 
-	reportCache := make(map[string]bool)
-	for _, cachedModel := range req.ResourceInfo.CachedModels {
-		reportCache[cpod_cache.Encode(model.CacheModel, cachedModel)] = true
-	}
-	for _, cachedDataset := range req.ResourceInfo.CachedDatasets {
-		reportCache[cpod_cache.Encode(model.CacheDataset, cachedDataset)] = true
-	}
-	for _, cachedImage := range req.ResourceInfo.CachedImages {
-		reportCache[cpod_cache.Encode(model.CacheImage, cachedImage)] = true
+	reportCache := make(map[string]types.Cache)
+	for _, cache := range req.ResourceInfo.Caches {
+		reportCache[cache.DataId] = cache
 	}
 
 	// update cache insert
-	for rc := range reportCache {
-		if _, exists := currentCache[rc]; !exists {
-			dataType, dataId, err := cpod_cache.Decode(rc)
-			if err != nil {
-				l.Logger.Errorf("cpod_cache decode encoded=%s err=%s", rc, err)
-				return nil, err
+	for id, cache := range reportCache {
+		if _, exists := currentCache[id]; !exists {
+			dataType, ok := cacheTypeToDBMap[cache.DataType]
+			if !ok {
+				l.Logger.Errorf("cpod_cache data_type not match cpod_id=%s data_type=%s", req.CPODID, cache.DataType)
+				continue
 			}
 			_, err = CpodCacheModel.Insert(l.ctx, &model.SysCpodCache{
 				CpodId:      req.CPODID,
 				CpodVersion: req.ResourceInfo.CPODVersion,
-				DataType:    dataType,
-				DataId:      dataId,
+				DataType:    int64(dataType),
+				DataName:    cache.DataName,
+				DataId:      cache.DataId,
+				DataSource:  cache.DataSource,
 			})
 			if err != nil {
-				l.Logger.Errorf("cpod_cache insert cpod_id=%s data_type=%d data_id=%s err=%s", req.CPODID,
-					dataType, dataId, err)
+				l.Logger.Errorf("cpod_cache insert cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
+					req.CPODID, cache.DataType, cache.DataName, cache.DataId, cache.DataSource, err)
 				return nil, err
 			}
 		}
-		delete(currentCache, rc)
+		delete(currentCache, id)
 	}
 
 	// update cache delete
-	for rc := range currentCache {
-		dataType, dataId, err := cpod_cache.Decode(rc)
+	for dataId, id := range currentCache {
+		err = CpodCacheModel.Delete(l.ctx, id)
 		if err != nil {
-			l.Logger.Errorf("cpod_cache decode encoded=%s err=%s", rc, err)
-			return nil, err
-		}
-		err = CpodCacheModel.DeleteByCond(l.ctx, CpodCacheModel.DeleteBuilder().Where(squirrel.Eq{
-			"cpod_id":   req.CPODID,
-			"data_type": dataType,
-			"data_id":   dataId,
-		}))
-		if err != nil {
-			l.Logger.Errorf("cpod_cache delete cpod_id=%s data_type=%d data_id=%s err=%s", req.CPODID,
-				dataType, dataId, err)
+			l.Logger.Errorf("cpod_cache delete cpod_id=%s id=%d data_id=%s err=%s", req.CPODID, id, dataId, err)
 			return nil, err
 		}
 	}
@@ -286,4 +271,16 @@ var statusToDBMap = map[string]int{
 	string(state.JobStatusFailed):        model.JobStatusWorkerFail,
 	string(state.JobStatusSucceed):       model.JobStatusWorkerSuccess,
 	string(state.JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
+}
+
+var cacheTypeToDBMap = map[string]int{
+	consts.CacheModel:   model.CacheModel,
+	consts.CacheDataSet: model.CacheDataset,
+	consts.CacheImage:   model.CacheImage,
+}
+
+var dbToCacheTypeMap = map[int]string{
+	model.CacheModel:   consts.CacheModel,
+	model.CacheDataset: consts.CacheDataSet,
+	model.CacheImage:   consts.CacheImage,
 }

@@ -62,14 +62,19 @@ type GPUSummary struct {
 	Vendor      string `json:"vendor"`
 }
 
+type Cache struct {
+	DataType   string `json:"data_type"`
+	DataName   string `json:"data_name"`
+	DataId     string `json:"data_id"`
+	DataSource string `json:"data_source"`
+}
+
 type ResourceInfo struct {
-	GPUSummaries   []GPUSummary `json:"gpu_summaries"`
-	CPODVersion    string       `json:"cpod_version"`
-	Nodes          []NodeInfo   `json:"nodes"`
-	CPODID         string       `json:"cpod_id"`
-	CachedModels   []string     `json:"cached_models,optional"`
-	CachedDatasets []string     `json:"cached_datasets,optional"`
-	CachedImages   []string     `json:"cached_images,optional"`
+	GPUSummaries []GPUSummary `json:"gpu_summaries"`
+	CPODVersion  string       `json:"cpod_version"`
+	Nodes        []NodeInfo   `json:"nodes"`
+	CPODID       string       `json:"cpod_id"`
+	Caches       []Cache      `json:"caches"`
 }
 
 type JobStatus struct {

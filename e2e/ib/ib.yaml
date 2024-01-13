@@ -45,7 +45,7 @@ spec:
               command:
                 - "torchrun"
                 - "--nproc_per_node=1"
-                - "all_reduce.py"
+                - "test.py"
               securityContext:
                 capabilities:
                   add: [ "IPC_LOCK" ]

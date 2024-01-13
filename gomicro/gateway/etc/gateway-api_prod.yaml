@@ -43,6 +43,10 @@ Gateway:
       ToPath: "/job/job"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/resource"
+      ToPath: "/info/resource"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"

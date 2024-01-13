@@ -68,7 +68,7 @@ public class UserJobController {
     }
 
     @PostMapping(value = "/job_status")
-    @ApiOperation("查询用户任务状态")
+    @ApiOperation("查询用户任务状态-已挪go")
     public ResponseEntity<Object> queryUserJobStatus(@Validated @RequestBody String resources) {
         JSONObject obj = JSON.parseObject(resources);
         String jobId = obj.getString("job_id");
@@ -96,8 +96,8 @@ public class UserJobController {
     }
 
     @PostMapping
-    @ApiOperation("新增用户任务")
-    public ResponseEntity<Object> createUserJob(@Validated @RequestBody String resources){
+    @ApiOperation("新增用户任务-已挪Go")
+    public ResponseEntity<Object> createUserJob(@Validated @RequestBody String resources) {
         Long userId = SecurityUtils.getCurrentUserId();
         UserJob userJob = JSON.parseObject(resources,UserJob.class);
         Map<String, Object> obj = new HashMap<String, Object>();
@@ -120,7 +120,7 @@ public class UserJobController {
     }
 
     @GetMapping(value = "/cpod_jobs")
-    @ApiOperation("获取未下发的用户新任务")
+    @ApiOperation("获取未下发的用户新任务-已挪Go")
     public ResponseEntity<List<JSONObject>> getNewJob(String cpodid) {
         List<CpodMain> cpodMains = cpodMainService.findByCpodId(cpodid);
         UserJobQueryCriteria criteria = new UserJobQueryCriteria();
@@ -156,7 +156,7 @@ public class UserJobController {
     }
 
     @PostMapping(value = "/cpod_status")
-    @ApiOperation("上传三千平台信息")
+    @ApiOperation("上传三千平台信息-已挪Go")
     public ResponseEntity<Object> putPodStatus(@Validated @RequestBody String resources) {
         Long userId = SecurityUtils.getCurrentUserId();
         try {
@@ -174,7 +174,7 @@ public class UserJobController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("返回支持的GPU类型")
+    @ApiOperation("返回支持的GPU类型-已挪Go")
     @GetMapping(value = "/getGpuType")
     public ResponseEntity<List<CpodMain>> queryAllGpuType(){
         return new ResponseEntity<>(cpodMainService.queryAllGpuType(),HttpStatus.OK);
@@ -187,7 +187,7 @@ public class UserJobController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("终止任务")
+    @ApiOperation("终止任务-已挪Go")
     @PostMapping(value = "/job_del")
     public ResponseEntity<Object> logicDeleteJob(@RequestBody String body){
         JSONObject obj = JSON.parseObject(body);

@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -30,6 +31,7 @@ type (
 		FindAll(ctx context.Context, orderBy string) ([]*SysCpodCache, error)
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodCache, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodCache, error)
+		FindActive(ctx context.Context, minutes int) ([]*SysCpodCache, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 		DeleteByCond(ctx context.Context, deleteBuilder squirrel.DeleteBuilder) error
 	}
@@ -150,6 +152,20 @@ func (m *defaultSysCpodCacheModel) FindPageListByPage(ctx context.Context, selec
 	default:
 		return nil, err
 	}
+}
+
+func (m *defaultSysCpodCacheModel) FindActive(ctx context.Context, minutes int) ([]*SysCpodCache, error) {
+	caches := make([]*SysCpodCache, 0)
+	err := m.conn.QueryRowsCtx(ctx, &caches, fmt.Sprintf(`SELECT c.*
+	FROM sys_cpod_cache c
+	JOIN sys_cpod_main m ON c.cpod_id = m.cpod_id
+	WHERE m.update_time > NOW() - INTERVAL %d MINUTE;`, minutes),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return caches, nil
 }
 
 // UpdateColsByCond -

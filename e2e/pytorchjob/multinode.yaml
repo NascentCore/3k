@@ -19,10 +19,10 @@ spec:
               imagePullPolicy: Always
               resources:
                 limits:
-                  nvidia.com/gpu: 4
+                  nvidia.com/gpu: 1
               command:
                 - "torchrun"
-                - "--nproc_per_node=4"
+                - "--nproc_per_node=1"
                 - "main.py"
                 - "50"
                 - "10"

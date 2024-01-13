@@ -24,18 +24,6 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @GetMapping
-    public ResponseEntity<EmailConfig> queryEmailConfig(){
-        return new ResponseEntity<>(emailService.find(),HttpStatus.OK);
-    }
-
-    @PutMapping
-    @ApiOperation("配置邮件")
-    public ResponseEntity<Object> updateEmailConfig(@Validated @RequestBody EmailConfig emailConfig) throws Exception {
-        emailService.config(emailConfig, emailService.find());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @PostMapping
     @ApiOperation("发送邮件")
     public ResponseEntity<Object> sendEmail(@Validated @RequestBody EmailVo emailVo){

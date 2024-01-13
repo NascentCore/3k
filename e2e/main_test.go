@@ -15,16 +15,18 @@ import (
 )
 
 var (
-	testenv   env.Environment
-	cfg       envconf.Config
-	namespace string
-	enableIb  bool
+	testenv          env.Environment
+	cfg              envconf.Config
+	namespace        string
+	enableIb         bool
+	backOffLimitTime int
 )
 
 func TestMain(m *testing.M) {
 	// declare the test environment
 	flag.BoolVar(&enableIb, "enable-ib", true, "whethe check ib")
 	flag.StringVar(&namespace, "namespace", "3k-e2e", "whethe check ib")
+	flag.IntVar(&backOffLimitTime, "backoff-limit-time", 10, "the time of backoff limit to wait for test casejob to complete")
 
 	cfg, err := envconf.NewFromFlags()
 	if err != nil {

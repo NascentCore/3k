@@ -24,11 +24,14 @@ class Registry(cli.Application):
 @Init.subcommand("cpodinfo")
 class CpodInfo(cli.Application):
     """initialize cpod info"""
-    access_key = cli.SwitchAttr("--access-key", str, mandatory=True,
-                                help="cloud.nascentcore.ai user accessKey")
+    access_key = cli.SwitchAttr("--access-key", str, mandatory=True, help="cloud.nascentcore.ai user accessKey")
+    api_address = cli.SwitchAttr("--api-address", str, mandatory=False, default="https://cloud.nascentcore.ai", help="api address")
+    storage_class = cli.SwitchAttr("--storage-class", str, mandatory=False, default="ceph-filesystem", help="storageClass name")
+    oss_bucket = cli.SwitchAttr("--oss-bucket", str, mandatory=False, default="sxwl-ai", help="upload model to oss bucket name")
+    log_level = cli.SwitchAttr("--log-level", str, mandatory=False, default="INFO", help="log level")
 
     def main(self):
-        init_cpod_info(self.access_key)
+        init_cpod_info(self.access_key, self.api_address, self.storage_class, self.oss_bucket, self.log_level)
 
 
 @Deploy.subcommand("push")
@@ -126,8 +129,11 @@ class All(cli.Application):
     no_push_images = cli.Flag("--no-push-images", default=False, help="default: false")
     no_push_charts = cli.Flag("--no-push-charts", default=False, help="default: false")
     no_install_operators = cli.Flag("--no-install-operators", default=False, help="default: false")
-    access_key = cli.SwitchAttr("--access-key", str, mandatory=True,
-                                help="cloud.nascentcore.ai user accessKey")
+    access_key = cli.SwitchAttr("--access-key", str, mandatory=True, help="cloud.nascentcore.ai user accessKey")
+    api_address = cli.SwitchAttr("--api-address", str, mandatory=False, default="https://cloud.nascentcore.ai", help="api address")
+    storage_class = cli.SwitchAttr("--storage-class", str, mandatory=False, default="ceph-filesystem", help="storageClass name")
+    oss_bucket = cli.SwitchAttr("--oss-bucket", str, mandatory=False, default="sxwl-ai", help="upload model to oss bucket name")
+    log_level = cli.SwitchAttr("--log-level", str, mandatory=False, default="INFO", help="log level")
 
     def main(self):
         if not self.no_init_registry:
@@ -138,7 +144,7 @@ class All(cli.Application):
             push_images()
 
         install_kubernetes_cluster()
-        init_cpod_info(self.access_key)
+        init_cpod_info(self.access_key, self.api_address, self.storage_class, self.oss_bucket, self.log_level)
         check_coredns_schedule()
 
         if not self.no_push_charts:

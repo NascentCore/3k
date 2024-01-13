@@ -47,6 +47,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/job/job",
 				Handler: JobGetHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/info/resource",
+				Handler: ResourceHandler(serverCtx),
+			},
 		},
 	)
 }

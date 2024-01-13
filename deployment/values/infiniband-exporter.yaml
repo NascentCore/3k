@@ -28,7 +28,7 @@ spec:
         app: infiniband-exporter
     spec:
       nodeSelector:
-        infiniband: available
+        feature.node.kubernetes.io/rdma.available: true
       containers:
       - name: infiniband-exporter
         image: dockerhub.kubekey.local/kubesphereio/infiniband-exporter:main

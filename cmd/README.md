@@ -1,2 +1,3 @@
 # cmd
-executables for cpodmanager
+
+三千平台范畴内的各个组件的可执行文件

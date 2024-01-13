@@ -24,17 +24,6 @@ public class AliPayController {
     private final AlipayUtils alipayUtils;
     private final AliPayService alipayService;
 
-    @GetMapping
-    public ResponseEntity<AlipayConfig> queryAliConfig() {
-        return new ResponseEntity<>(alipayService.find(), HttpStatus.OK);
-    }
-
-    @ApiOperation("配置支付宝")
-    @PutMapping
-    public ResponseEntity<Object> updateAliPayConfig(@Validated @RequestBody AlipayConfig alipayConfig) throws Exception {
-        alipayService.config(alipayConfig);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     @ApiOperation("当面付支付")
     @PostMapping(value = "/toPayAsPrecreate")

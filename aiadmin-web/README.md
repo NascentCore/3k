@@ -1,6 +1,8 @@
-# marketplace
+# 算想云 Web UI
 
-## Build Setup
+这里是算想云 Web UI 代码，后端代码位于 aiadmin
+
+## 编译构建
 
 **推荐 node 版本：12-16**
 
@@ -34,7 +36,7 @@ systemctl restart nginx
 重启 nginx 后，访问你的域名
 ```
 
-## Translations
+## 国际化
 
 ```
 marketplace/aiadmin-web/src/components/language/zh.js

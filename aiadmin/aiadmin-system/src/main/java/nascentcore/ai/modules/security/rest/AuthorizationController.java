@@ -70,6 +70,7 @@ public class AuthorizationController {
             onlineUserService.save(jwtUserDto, token, request);
             return ResponseEntity.ok(authInfo);
         } else {
+            // 生成 Token
             String token = tokenProvider.createToken(authentication);
             final JwtUserDto jwtUserDto = (JwtUserDto) authentication.getPrincipal();
             // 返回 token 与 用户信息
@@ -77,6 +78,7 @@ public class AuthorizationController {
                 put("token", properties.getTokenStartWith() + token);
                 put("user", jwtUserDto);
             }};
+            // 保存 Token 到 Redis
             redisUtils.set(authUser.getUsername(), token);
             // 保存在线信息
             onlineUserService.save(jwtUserDto, token, request);

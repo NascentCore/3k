@@ -1,3 +1,7 @@
+# 部署
+
+这里介绍三千平台的各个组件如何进行部署，以及部署的相关配置文件及自动化工具和代码。
+
 - 默认宿主机安装了python，kubectl
 - 下载三个文件任意文件夹，在master上运行build_k8s, 使用kubekey安装单节点集群:
   - chmod a+x build_k8s

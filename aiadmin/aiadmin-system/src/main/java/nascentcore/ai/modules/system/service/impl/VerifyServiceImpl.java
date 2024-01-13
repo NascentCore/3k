@@ -29,6 +29,9 @@ public class VerifyServiceImpl implements VerifyService {
     private Long expiration;
     private final RedisUtils redisUtils;
 
+    /**
+    * 发送邮箱验证码的 API
+    */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public EmailVo sendEmail(String email, String key) {
@@ -55,6 +58,9 @@ public class VerifyServiceImpl implements VerifyService {
         return emailVo;
     }
 
+    /**
+    * 发送 AccessKey 的代码；AccessKey 用于给客户端访问 API 使用
+    */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public EmailVo sendTokenEmail(String email) {
