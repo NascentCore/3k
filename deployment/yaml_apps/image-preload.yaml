@@ -1,0 +1,13 @@
+apiVersion: apps.kruise.io/v1alpha1
+kind: ImageListPullJob
+metadata:
+  name: job-with-never
+spec:
+  images:
+  - sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/torch-base:v2024-01-12-01   
+  parallelism: 3
+  completionPolicy:
+    type: Never
+  pullPolicy:
+    backoffLimit: 3
+    timeoutSeconds: 600
