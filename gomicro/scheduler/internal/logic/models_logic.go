@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"sxwl/3k/gomicro/scheduler/internal/model"
 
 	"github.com/jinzhu/copier"
 
@@ -11,23 +12,23 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ResourceLogic struct {
+type ModelsLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewResourceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ResourceLogic {
-	return &ResourceLogic{
+func NewModelsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ModelsLogic {
+	return &ModelsLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ResourceLogic) Resource() (resp []types.Cache, err error) {
+func (l *ModelsLogic) Models() (resp []types.Cache, err error) {
 	CpodCacheModel := l.svcCtx.CpodCacheModel
-	caches, err := CpodCacheModel.FindActive(l.ctx, 30)
+	caches, err := CpodCacheModel.FindActive(l.ctx, model.CacheModel, 30)
 	if err != nil {
 		l.Logger.Errorf("cache find active error: %s", err)
 		return nil, err

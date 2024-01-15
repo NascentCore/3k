@@ -31,7 +31,7 @@ type (
 		FindAll(ctx context.Context, orderBy string) ([]*SysCpodCache, error)
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodCache, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodCache, error)
-		FindActive(ctx context.Context, minutes int) ([]*SysCpodCache, error)
+		FindActive(ctx context.Context, dataType int, minutes int) ([]*SysCpodCache, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 		DeleteByCond(ctx context.Context, deleteBuilder squirrel.DeleteBuilder) error
 	}
@@ -154,12 +154,12 @@ func (m *defaultSysCpodCacheModel) FindPageListByPage(ctx context.Context, selec
 	}
 }
 
-func (m *defaultSysCpodCacheModel) FindActive(ctx context.Context, minutes int) ([]*SysCpodCache, error) {
+func (m *defaultSysCpodCacheModel) FindActive(ctx context.Context, dataType int, minutes int) ([]*SysCpodCache, error) {
 	caches := make([]*SysCpodCache, 0)
 	err := m.conn.QueryRowsCtx(ctx, &caches, fmt.Sprintf(`SELECT c.*
 	FROM sys_cpod_cache c
 	JOIN sys_cpod_main m ON c.cpod_id = m.cpod_id
-	WHERE m.update_time > NOW() - INTERVAL %d MINUTE;`, minutes),
+	WHERE c.data_type = %d AND m.update_time > NOW() - INTERVAL %d MINUTE;`, dataType, minutes),
 	)
 	if err != nil {
 		return nil, err

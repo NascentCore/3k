@@ -8,10 +8,10 @@ import (
 	"sxwl/3k/gomicro/scheduler/internal/svc"
 )
 
-func ResourceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ModelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewResourceLogic(r.Context(), svcCtx)
-		resp, err := l.Resource()
+		l := logic.NewModelsLogic(r.Context(), svcCtx)
+		resp, err := l.Models()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
