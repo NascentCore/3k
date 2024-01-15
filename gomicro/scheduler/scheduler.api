@@ -239,6 +239,9 @@ service scheduler-api {
 	@handler JobGetHandler
 	get /job/job (JobGetReq) returns (JobGetResp)
 
-	@handler ResourceHandler
-	get /info/resource () returns ([]Cache)
+	@handler ModelsHandler
+	get /resource/models () returns ([]Cache)
+
+	@handler DatasetsHandler
+	get /resource/datasets () returns ([]Cache)
 }

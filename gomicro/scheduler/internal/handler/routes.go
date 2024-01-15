@@ -49,8 +49,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/info/resource",
-				Handler: ResourceHandler(serverCtx),
+				Path:    "/resource/models",
+				Handler: ModelsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/datasets",
+				Handler: DatasetsHandler(serverCtx),
 			},
 		},
 	)
