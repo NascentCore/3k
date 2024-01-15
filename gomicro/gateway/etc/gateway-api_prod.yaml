@@ -43,8 +43,12 @@ Gateway:
       ToPath: "/job/job"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/resource"
-      ToPath: "/info/resource"
+    - Path: "/api/resource/models"
+      ToPath: "/resource/models"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/datasets"
+      ToPath: "/resource/datasets"
       Auth: Yes
       Server: scheduler
     - Path: "/api"
