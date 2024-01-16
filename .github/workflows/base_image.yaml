@@ -30,7 +30,12 @@ jobs:
 
       - name: Build and push changed Docker images
         run: |
-          changed_files=$(git diff --name-only HEAD^ HEAD | grep 'examples/docker/')
+          changed_files=""
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+              changed_files=$(git diff --name-only HEAD^ HEAD | grep 'examples/docker/')
+          else
+              changed_files=$(git ls-tree --name-only -r HEAD | grep 'examples/docker/')
+          fi
           for file in $changed_files; do
             if [[ $file == *.Dockerfile ]]; then
               image_name=$(basename $file .Dockerfile)
