@@ -6,7 +6,7 @@ FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt install -y tzdata && \
-    apt-get install -y python3-pip python-is-python3 git wget && \
+    apt-get install -y python3-pip python-is-python3 git wget vim && \
     pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
     python3 -m pip install --no-cache-dir --upgrade pip && \
     pip install torch==2.0.1
