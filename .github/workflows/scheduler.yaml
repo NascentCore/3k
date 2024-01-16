@@ -6,8 +6,8 @@ on:
     branches:
       - main
     paths:
-      - 'gomicro/pkg/**'
-      - 'gomicro/scheduler/**'
+      - 'cmd/scheduler/**'
+      - 'internal/scheduler/**'
 
 jobs:
   build-and-push:
