@@ -24,12 +24,13 @@ dataset需要下载到执行目录下的`src/llama_recipes/datasets/`
 
 ## 启动命令
 根据实际情况调整GPU数量设置、checkpoint目录、模型目录、模型输出目录
+注意: 要提前把checkpoint目录和模型输出目录创建好！
 ```bash
 export CUDA_VISIBLE_DEVICES=4,5,6,7
 export FINE_TUNE_NODES=1
 export FINE_TUNE_PERNODE_PROCS=4
 
-torchrun --nnodes $FINE_TUNE_NODES --nproc_per_node $FINE_TUNE_PERNODE_PROCS full-param/main.py \
+torchrun --nnodes $FINE_TUNE_NODES --nproc_per_node $FINE_TUNE_PERNODE_PROCS ./main.py \
     --enable_fsdp \
     --save_optimizer \
     --dist_checkpoint_root_folder /data/chenshu/model_checkpoints \
