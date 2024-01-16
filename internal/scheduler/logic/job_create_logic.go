@@ -51,6 +51,9 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		return nil, err
 	}
 	userJob.StopType = sql.NullInt64{Int64: int64(stopType), Valid: true}
+	if req.PretrainedModelId != "" {
+		userJob.PretrainedModelName = sql.NullString{String: req.PretrainedModelId, Valid: true}
+	}
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
 

@@ -141,9 +141,9 @@ type JobCreateReq struct {
 	JobType             string            `json:"jobType"`
 	StopType            string            `json:"stopType"`
 	StopTime            int64             `json:"stopTime,optional"`
-	PretrainedModelName string            `json:"pretrainedModelName,optional"`
+	PretrainedModelId   string            `json:"pretrainedModelId,optional"`
 	PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
-	DatasetName         string            `json:"datasetName,optional"`
+	DatasetId           string            `json:"datasetId,optional"`
 	DatasetPath         string            `json:"datasetPath,optional"`
 	RunCommand          string            `json:"runCommand,optional"`
 	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
