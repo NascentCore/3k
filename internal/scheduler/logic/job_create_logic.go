@@ -54,6 +54,9 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	if req.PretrainedModelId != "" {
 		userJob.PretrainedModelName = sql.NullString{String: req.PretrainedModelId, Valid: true}
 	}
+	if req.DatasetId != "" {
+		userJob.DatasetName = sql.NullString{String: req.DatasetId, Valid: true}
+	}
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
 
