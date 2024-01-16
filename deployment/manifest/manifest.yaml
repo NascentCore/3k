@@ -1,0 +1,129 @@
+apiVersion: kubekey.kubesphere.io/v1alpha2
+kind: Manifest
+metadata:
+  name: sample
+spec:
+  arches:
+  - amd64
+  operatingSystems:
+  - arch: amd64
+    type: linux
+    id: ubuntu
+    version: "20.04"
+    osImage: Ubuntu 20.04.6 LTS
+    repository:
+      iso:
+        # 将iso一起导出到artifact，离线部署依赖的操作系统相关package可直接从iso挂载获取
+        localPath:
+        url:
+  kubernetesDistributions:
+  - type: kubernetes
+    version: v1.24.3
+  components:
+    helm:
+      version: v3.9.0
+    cni:
+      version: v0.9.1
+    etcd:
+      version: v3.4.13
+    containerRuntimes:
+    - type: containerd
+      version: 1.6.4
+    crictl:
+      version: v1.24.0
+    # 开启harbor/docker-compose，用于离线部署时安装私有仓库
+    docker-registry:
+      version: "2"
+    harbor:
+      version: v2.4.1
+    docker-compose:
+      version: v2.2.2
+  images: 
+  # 以下列表基于kubekey单独安装kubernetes后生成
+  # 如需其他镜像可在此添加，离线部署时所有镜像将push到私有仓库
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/cni:v3.23.2
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/coredns:1.8.6
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/k8s-dns-node-cache:1.15.12
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/kube-apiserver:v1.24.3
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/kube-controller-manager:v1.24.3
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/kube-controllers:v3.23.2
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/kube-proxy:v1.24.3
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/kube-scheduler:v1.24.3
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/node:v3.23.2
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/pause:3.7
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/pod2daemon-flexvol:v3.23.2
+  - registry.cn-beijing.aliyuncs.com/kubesphereio/haproxy:2.3
+  - dockerhub.kubekey.local/kubesphereio/metrics-server:v0.6.4
+  - dockerhub.kubekey.local/kubesphereio/alpine-nginx:main
+  - dockerhub.kubekey.local/kubesphereio/node-feature-discovery:v0.14.1
+  - dockerhub.kubekey.local/kubesphereio/gpu-operator-validator:v23.6.1
+  - dockerhub.kubekey.local/kubesphereio/gpu-operator:v23.6.1
+  - dockerhub.kubekey.local/kubesphereio/container-toolkit:v1.13.4-ubuntu20.04
+  - dockerhub.kubekey.local/kubesphereio/cuda:12.2.0-base-ubi8
+  - dockerhub.kubekey.local/kubesphereio/dcgm-exporter:3.1.8-3.1.5-ubuntu20.04
+  - dockerhub.kubekey.local/kubesphereio/k8s-device-plugin:v0.14.1-ubi8
+  - dockerhub.kubekey.local/kubesphereio/driver:535.104.05-ubuntu20.04
+  - dockerhub.kubekey.local/kubesphereio/gpu-feature-discovery:v0.8.1-ubi8
+  - dockerhub.kubekey.local/kubesphereio/k8s-mig-manager:v0.5.3-ubuntu20.04
+  - dockerhub.kubekey.local/kubesphereio/vgpu-device-manager:v0.2.3
+  - dockerhub.kubekey.local/kubesphereio/k8s-driver-manager:v0.6.2
+  - dockerhub.kubekey.local/kubesphereio/network-operator:v23.7.0
+  - dockerhub.kubekey.local/kubesphereio/k8s-rdma-shared-dev-plugin:v1.3.2
+  - dockerhub.kubekey.local/kubesphereio/plugins:v1.2.0-amd64
+  - dockerhub.kubekey.local/kubesphereio/multus-cni:v3.9.3
+  - dockerhub.kubekey.local/kubesphereio/whereabouts:v0.6.1-amd64
+  - dockerhub.kubekey.local/kubesphereio/ipoib-cni:v1.1.0
+  - dockerhub.kubekey.local/kubesphereio/mofed:23.07-0.5.0.0-ubuntu20.04-amd64
+  - dockerhub.kubekey.local/kubesphereio/sriov-network-device-plugin:7e7f979087286ee950bd5ebc89d8bbb6723fc625
+  - dockerhub.kubekey.local/kubesphereio/kube-webhook-certgen:v20221220-controller-v1.5.1-58-g787ea74b6
+  - dockerhub.kubekey.local/kubesphereio/alertmanager:v0.26.0
+  - dockerhub.kubekey.local/kubesphereio/prometheus-operator:v0.68.0
+  - dockerhub.kubekey.local/kubesphereio/prometheus:v2.47.0
+  - dockerhub.kubekey.local/kubesphereio/k8s-sidecar:1.25.1
+  - dockerhub.kubekey.local/kubesphereio/node-exporter:v1.6.1
+  - dockerhub.kubekey.local/kubesphereio/grafana:10.1.4
+  - dockerhub.kubekey.local/kubesphereio/bats:v1.4.1
+  - dockerhub.kubekey.local/kubesphereio/kube-state-metrics:v2.10.0
+  - dockerhub.kubekey.local/kubesphereio/infiniband-exporter:main
+  - dockerhub.kubekey.local/kubesphereio/mpi-operator:master
+  - dockerhub.kubekey.local/kubesphereio/training-operator:master
+  - dockerhub.kubekey.local/kubesphereio/ceph:v17.2.6
+  - dockerhub.kubekey.local/kubesphereio/ceph:v1.12.5
+  - dockerhub.kubekey.local/kubesphereio/cephcsi:v3.9.0
+  - dockerhub.kubekey.local/kubesphereio/csi-provisioner:v3.5.0
+  - dockerhub.kubekey.local/kubesphereio/csi-resizer:v1.8.0
+  - dockerhub.kubekey.local/kubesphereio/csi-attacher:v4.3.0
+  - dockerhub.kubekey.local/kubesphereio/csi-snapshotter:v6.2.2
+  - dockerhub.kubekey.local/kubesphereio/csi-node-driver-registrar:v2.8.0
+  - dockerhub.kubekey.local/kubesphereio/prometheus-config-reloader:v0.68.0
+  - dockerhub.kubekey.local/kubesphereio/sriov-network-operator:network-operator-23.7.0
+  - dockerhub.kubekey.local/kubesphereio/vc-controller-manager:latest
+  - dockerhub.kubekey.local/kubesphereio/vc-webhook-manager:latest
+  - dockerhub.kubekey.local/kubesphereio/vc-scheduler:latest
+  - dockerhub.kubekey.local/kubesphereio/jupyterlab:v5
+  - dockerhub.kubekey.local/kubesphereio/loki:2.6.1
+  - dockerhub.kubekey.local/kubesphereio/promtail:2.8.3
+  - dockerhub.kubekey.local/kubesphereio/bats:1.8.2
+  - dockerhub.kubekey.local/kubesphereio/kube-rbac-proxy:0.15.0
+  - dockerhub.kubekey.local/kubesphereio/cpodoperator:e81b699
+  - dockerhub.kubekey.local/kubesphereio/portalsynch:e81b699
+  - dockerhub.kubekey.local/kubesphereio/cert-manager-cainjector:v1.13.3
+  - dockerhub.kubekey.local/kubesphereio/cert-manager-webhook:v1.13.3
+  - dockerhub.kubekey.local/kubesphereio/cert-manager-controller:v1.13.3
+  - dockerhub.kubekey.local/kubesphereio/cert-manager-acmesolver:v1.13.3
+  - dockerhub.kubekey.local/kubesphereio/controller:v1.8.2
+  - dockerhub.kubekey.local/kubesphereio/kube-webhook-certgen:v20230407
+  - dockerhub.kubekey.local/kubesphereio/kserve-controller:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/kube-rbac-proxy:v0.13.1
+  - dockerhub.kubekey.local/kubesphereio/lgbserver:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/mlserver:1.3.2c
+  - dockerhub.kubekey.local/kubesphereio/paddleserver:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/pmmlserver:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/sklearnserver:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/serving:2.6.2
+  - dockerhub.kubekey.local/kubesphereio/torchserve-kfs:0.8.0
+  - dockerhub.kubekey.local/kubesphereio/tritonserver:23.05-py3
+  - dockerhub.kubekey.local/kubesphereio/xgbserver:v0.11.0
+  - dockerhub.kubekey.local/kubesphereio/kruise-manager:v1.5.1
+  registry:
+    auths: {}
