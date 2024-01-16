@@ -2,7 +2,7 @@
 # NVIDIA-SMI 515.65.01    Driver Version: 515.65.01    CUDA Version: 11.7
 FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 
-# Install python3 pip torch tzdata git wget
+# Install python3 pip torch tzdata git wget vim
 RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt install -y tzdata && \
