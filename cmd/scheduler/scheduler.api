@@ -161,9 +161,9 @@ type (
 		JobType             string            `json:"jobType"`
 		StopType            string            `json:"stopType"`
 		StopTime            int64             `json:"stopTime,optional"`
-		PretrainedModelName string            `json:"pretrainedModelName,optional"`
+		PretrainedModelId   string            `json:"pretrainedModelId,optional"`
 		PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
-		DatasetName         string            `json:"datasetName,optional"`
+		DatasetId           string            `json:"datasetId,optional"`
 		DatasetPath         string            `json:"datasetPath,optional"`
 		RunCommand          string            `json:"runCommand,optional"`
 		CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
@@ -240,8 +240,8 @@ service scheduler-api {
 	get /job/job (JobGetReq) returns (JobGetResp)
 
 	@handler ModelsHandler
-	get /resource/models () returns ([]Cache)
+	get /resource/models returns ([]Cache)
 
 	@handler DatasetsHandler
-	get /resource/datasets () returns ([]Cache)
+	get /resource/datasets returns ([]Cache)
 }
