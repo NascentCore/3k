@@ -40,7 +40,7 @@ jobs:
             if [[ $file == *.Dockerfile ]]; then
               image_name=$(basename $file .Dockerfile)
               tag=$(date +%Y-%m-%d)
-              docker build -t ${{ env.DOCKER_REGISTRY }}/${{ env.NAMESPACE }}/${image_name}:${tag} -f $file ./examples/docker
+              docker build -t ${{ env.DOCKER_REGISTRY }}/${{ env.NAMESPACE }}/${image_name}:v${tag} -f $file ./examples/docker
               docker push ${{ env.DOCKER_REGISTRY }}/${{ env.NAMESPACE }}/${image_name}:v${tag}
             fi
           done
