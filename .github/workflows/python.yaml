@@ -55,4 +55,3 @@ jobs:
           file: ./coverage.xml
           fail_ci_if_error: true
           verbose: true
-        working-directory: 3kctl
