@@ -1,5 +1,5 @@
 {
   "exclude": [
-    "gomicro/go-zero-template/"
+    "tools/go-zero-template/"
   ]
 }

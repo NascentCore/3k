@@ -48,6 +48,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./gomicro/scheduler/Dockerfile
+          file: ./cmd/scheduler/Dockerfile
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.VERSION_TAG }}

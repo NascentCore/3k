@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	{{.importPackages}}
-	_ "sxwl/3k/gomicro/pkg/sxwlzero"
 )
 
 var configFile = flag.String("f", "etc/{{.serviceName}}.yaml", "the config file")
