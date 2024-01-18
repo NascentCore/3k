@@ -26,7 +26,7 @@ class ModelScopeHub(object):
         """return the size of model in GB"""
 
         total_size = 0
-        file_list = HubApi().get_model_files(model_id)
+        file_list = HubApi().get_model_files(model_id, recursive=True)
         for file in file_list:
             size = file.get("Size", 0)
             total_size += size
