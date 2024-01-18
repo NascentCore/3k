@@ -6,12 +6,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"sxwl/3k/cmd/downloader/internal/consts"
 	"sxwl/3k/cmd/downloader/internal/download"
 	e "sxwl/3k/cmd/downloader/internal/errors"
+	consts2 "sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/log"
+
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -22,16 +24,16 @@ var (
 var gitCmd = &cobra.Command{
 	Use:   "git url",
 	Short: "download data from git url",
-	Long: `download data from git url. Example:
+	Long: fmt.Sprintf(`download data from git url. Example:
     downloader git https://www.modelscope.cn/Cherrytest/rot_bgr.git -o /data \
         -r crd \
-        -g "cpod.sxwl.ai" \
+        -g "%s" \
         -v v1 \
         -p modelstorages \
         -n cpod \
         --name model-storage-b93697a593f9bc93
 		--depth 1
-`,
+`, consts2.ApiGroup),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			fmt.Println("please input the git url for downloading")
@@ -68,7 +70,7 @@ func init() {
 	gitCmd.Flags().SortFlags = false
 	gitCmd.Flags().StringVarP(&c.OutDir, "output_dir", "o", "/data", "output dir")
 	gitCmd.Flags().StringVarP(&c.Record, "record", "r", "crd", "record type (crd)")
-	gitCmd.Flags().StringVarP(&c.Group, "group", "g", "cpod.sxwl.ai", "CRD group")
+	gitCmd.Flags().StringVarP(&c.Group, "group", "g", consts2.ApiGroup, "CRD group")
 	gitCmd.Flags().StringVarP(&c.Version, "version", "v", "v1", "CRD version")
 	gitCmd.Flags().StringVarP(&c.Plural, "plural", "p", "modelstorages", "CRD resource")
 	gitCmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "cpod", "CRD namespace")

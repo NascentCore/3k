@@ -5,6 +5,7 @@ import (
 	"fmt"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/consts"
 )
 
 // NO_TEST_NEEDED
@@ -22,7 +23,7 @@ func GetDatasetPVC(datasetname string) (string, error) {
 
 // map  datasetname : pvc
 func GetDatasetStorageMap() (map[string]string, error) {
-	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, "cpod.sxwl.ai", "v1", "datasetstorages")
+	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, consts.ApiGroup, "v1", "datasetstorages")
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
 	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/consts"
 )
 
 // NO_TEST_NEEDED
@@ -22,7 +23,7 @@ func GetModelPVC(modelname string) (string, error) {
 
 // map  modelname : pvc
 func GetModelStorageMap() (map[string]string, error) {
-	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, "cpod.sxwl.ai", "v1", "modelstorages")
+	data, err := clientgo.GetObjects(config.CPOD_NAMESPACE, consts.ApiGroup, "v1", "modelstorages")
 	if err != nil {
 		return nil, err
 	}
