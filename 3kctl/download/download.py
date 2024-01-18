@@ -79,7 +79,7 @@ class Model(cli.Application):
                 return
 
         # 创建PVC
-        storage = model_size * 1.5  # 默认是depth=1 1.5倍空间
+        storage = model_size * 2  # 默认是depth=1 2倍空间
         if depth > 1:
             storage = model_size * 3  # 多层深度 3倍空间
         storage = "%dGi" % math.ceil(storage)
