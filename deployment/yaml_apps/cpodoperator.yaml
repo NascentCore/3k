@@ -16,9 +16,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: cpodjobs.cpod.sxwl.ai
+  name: cpodjobs.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod
   names:
     kind: CPodJob
     listKind: CPodJobList
@@ -8435,9 +8435,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: datasetstorages.cpod.sxwl.ai
+  name: datasetstorages.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod
   names:
     kind: DataSetStorage
     listKind: DataSetStorageList
@@ -8504,9 +8504,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: modelstorages.cpod.sxwl.ai
+  name: modelstorages.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod
   names:
     kind: ModelStorage
     listKind: ModelStorageList
@@ -8724,7 +8724,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - cpodjobs
   verbs:
@@ -8736,13 +8736,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - cpodjobs/finalizers
   verbs:
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - cpodjobs/status
   verbs:
@@ -8750,7 +8750,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - datasetstorages
   verbs:
@@ -8762,7 +8762,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - modelstorages
   verbs:
@@ -8774,13 +8774,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - modelstorages/finalizers
   verbs:
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod
   resources:
   - modelstorages/status
   verbs:

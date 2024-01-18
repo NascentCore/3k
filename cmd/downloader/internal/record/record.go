@@ -1,10 +1,11 @@
 package record
 
 import (
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sxwl/3k/cmd/downloader/internal/consts"
 	"sxwl/3k/cmd/downloader/internal/record/crd"
 	"sxwl/3k/cmd/downloader/internal/record/none"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Recorder interface {
@@ -15,7 +16,7 @@ type Recorder interface {
 }
 
 type Config struct {
-	Group     string // "cpod.sxwl.ai"
+	Group     string // "cpod"
 	Version   string // "v1"
 	Plural    string // "modelstorages"
 	Name      string // "example-modelstorage"

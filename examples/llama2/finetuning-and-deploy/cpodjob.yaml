@@ -1,4 +1,4 @@
-apiVersion: cpod.sxwl.ai/v1beta1
+apiVersion: cpod/v1beta1
 kind: CPodJob
 metadata:
   labels:

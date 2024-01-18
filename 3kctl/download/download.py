@@ -9,7 +9,7 @@ from .hugging_face import HuggingFaceHub
 from .k8s import *
 from .model_scope import ModelScopeHub
 
-GROUP = "cpod.sxwl.ai"
+GROUP = "cpod"
 VERSION = "v1"
 MODEL_PLURAL = "modelstorages"
 DATASET_PLURAL = "datasetstorages"
