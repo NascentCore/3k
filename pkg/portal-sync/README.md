@@ -1,2 +1,0 @@
-# portalsync
-使Cpod中运行的任务与Portal中的任务保持一致
