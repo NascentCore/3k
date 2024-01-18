@@ -73,7 +73,7 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         "kind": "PersistentVolumeClaim",
         "metadata": {"name": pvc_name, "namespace": namespace},
         "spec": {
-            "accessModes": ["ReadWriteOnce"],
+            "accessModes": ["ReadWriteMany"],
             "resources": {"requests": {"storage": storage_size}},
             "storageClassName": "ceph-filesystem",
             "volumeMode:": "Filesystem"
