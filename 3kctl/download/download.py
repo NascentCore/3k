@@ -9,7 +9,7 @@ from .hugging_face import HuggingFaceHub
 from .k8s import *
 from .model_scope import ModelScopeHub
 
-GROUP = "cpod.sxwl.ai"
+GROUP = "cpod.cpod"
 VERSION = "v1"
 MODEL_PLURAL = "modelstorages"
 DATASET_PLURAL = "datasetstorages"
@@ -23,7 +23,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.4", namespace="cpod"):
+    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.5", namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
