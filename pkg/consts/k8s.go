@@ -1,5 +1,5 @@
 package consts
 
 const (
-	ApiGroup = "cpod.sxwl.ai"
+	ApiGroup = "cpod.cpod"
 )
