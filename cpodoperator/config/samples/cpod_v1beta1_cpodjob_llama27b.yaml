@@ -1,0 +1,51 @@
+# Test case for modihand
+apiVersion: cpod.cpod/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    app.kubernetes.io/created-by: cpodjob
+  name: llama-2-7b
+  namespace: cpod
+spec:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/mohe:v1
+  command:
+    - "torchrun"
+    - "--nproc_per_node=8"
+    - "/workspace/FastChat/fastchat/train/train_mem.py"
+    - "--model_name_or_path=/workspace/models"
+    - "--data_path=/workspace/FastChat/data/dummy_conversation.json"
+    - "--eval_data_path=/workspace/FastChat/data/dummy_conversation.json"
+    - "--lazy_preprocess=True"
+    - "--bf16=True"
+    - "--output_dir=/workspace/modelsaved"
+    - "--num_train_epochs=10"
+    - "--per_device_train_batch_size=2"
+    - "--per_device_eval_batch_size=16"
+    - "--gradient_accumulation_steps=4"
+    - "--evaluation_strategy=epoch"
+    - "--save_strategy=no"
+    - "--save_total_limit=10"
+    - "--learning_rate=2e-5"
+    - "--weight_decay=0.1"
+    - "--warmup_ratio=0.04"
+    - "--lr_scheduler_type=cosine"
+    - "--logging_steps=1"
+    - "--fsdp=full_shard auto_wrap"
+    - "--fsdp_transformer_layer_cls_to_wrap=LlamaDecoderLayer"
+    - "--tf32=True"
+    - "--model_max_length=2048"
+    - "--gradient_checkpointing=True"
+  env:
+    - name: WANDB_MODE
+      value: "disabled"
+  jobType: pytorch
+  gpuRequiredPerReplica: 8
+  gpuType: NVIDIA-A100-SXM4-40GB
+  workerReplicas: 1
+  pretrainModelName: llama2-7b
+  pretrainModelPath: /workspace/models
+  uploadModel: true 
+  modelSaveVolumeSize: 100
+  modelSavePath: /workspace/modelsaved
+
+  

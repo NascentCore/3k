@@ -1,0 +1,31 @@
+# Test case for modihand
+apiVersion: cpod.cpod/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    app.kubernetes.io/name: cpodjob
+    app.kubernetes.io/instance: cpodjob-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: modihand-sample
+  # namespace: cpodoperator
+  namespace: cpod
+spec:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/mohe:v1
+  command:
+    - torchrun
+    - run.py
+  jobType: pytorch
+  gpuRequiredPerReplica: 8
+  gpuType: NVIDIA-GeForce-RTX-3090
+  workerReplicas: 1
+  pretrainModelName: model-storage-8bfc0ffceca0f0ce
+  pretrainModelPath: /sixpen_models/chatlm3
+  datasetName: modihand-dataset
+  datasetPath: /tmp/ds
+  uploadModel: true 
+  modelSaveVolumeSize: 100
+  modelSavePath: /sixpen_models/modihand_outputs/test_10059997
+
+  

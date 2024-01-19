@@ -1,0 +1,27 @@
+# permissions for end users to view modelstorages.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: modelstorage-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+  name: modelstorage-viewer-role
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - modelstorages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - modelstorages/status
+  verbs:
+  - get

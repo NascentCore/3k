@@ -1,0 +1,13 @@
+apiVersion: cpod.cpod/v1beta1
+kind: ModelStorage
+metadata:
+  labels:
+    app.kubernetes.io/name: modelstorage
+    app.kubernetes.io/instance: modelstorage-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: modelstorage-sample
+spec:
+  name: "ZhipuAI/chatglm3-6b"
+  type: "modelscope"
