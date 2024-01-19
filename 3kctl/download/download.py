@@ -105,7 +105,7 @@ class Model(cli.Application):
                                  "-n", namespace,
                                  "--name", crd_name,
                                  "-d", str(depth),
-                                 "-t", model_size*1024*1024*1024],
+                                 "-t", str(model_size*1024*1024*1024)],
                                 proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
