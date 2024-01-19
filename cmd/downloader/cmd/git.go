@@ -69,6 +69,7 @@ func init() {
 	rootCmd.AddCommand(gitCmd)
 	gitCmd.Flags().SortFlags = false
 	gitCmd.Flags().StringVarP(&c.OutDir, "output_dir", "o", "/data", "output dir")
+	gitCmd.Flags().Int64VarP(&c.Total, "total_size", "t", 0, "total size of the repo")
 	gitCmd.Flags().StringVarP(&c.Record, "record", "r", "crd", "record type (crd)")
 	gitCmd.Flags().StringVarP(&c.Group, "group", "g", consts2.ApiGroup, "CRD group")
 	gitCmd.Flags().StringVarP(&c.Version, "version", "v", "v1", "CRD version")

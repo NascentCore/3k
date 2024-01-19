@@ -7,11 +7,13 @@ import (
 	"sxwl/3k/cmd/downloader/internal/record"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/log"
+	"time"
 )
 
 type Config struct {
 	record.Config
 	GitUrl string
+	Total  int64
 	OutDir string
 	Record string
 	IsCRD  bool
@@ -46,13 +48,53 @@ func GitDownload(c Config) error {
 	log.SLogger.Infof("record crd begin")
 
 	// download repo
-	err = downloadGitRepo(c.GitUrl, c.OutDir, c.Depth)
-	if err != nil {
-		log.SLogger.Errorf("Error downloading Git repository err: %v", err)
-		_ = recorder.Fail()
-		return err
+	done := make(chan error)
+	go func() {
+		log.SLogger.Infof("Cloning the repository...")
+		err = downloadGitRepo(c.GitUrl, c.OutDir, c.Depth)
+		if err != nil {
+			log.SLogger.Errorf("Error downloading Git repository err: %v", err)
+			_ = recorder.Fail()
+		}
+		done <- err
+	}()
+
+	// Set up a ticker that fires every minute
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	// Loop to check the size every minute or exit when done
+	beginTime := time.Now()
+	totalSize := "Unknown"
+	if c.Total != 0 {
+		totalSize = fs.FormatBytes(c.Total)
 	}
-	log.SLogger.Infof("download complete")
+loop:
+	for {
+		select {
+		case <-ticker.C:
+			size, err := fs.GetDirSize(c.OutDir)
+			if err != nil {
+				log.SLogger.Errorf("Error calculating directory size: %v", err)
+				continue
+			}
+			log.SLogger.Infof("Downloaded size: %s total: %s usedTime: %s",
+				fs.FormatBytes(size),
+				totalSize,
+				time.Since(beginTime).String(),
+			)
+		case err = <-done:
+			if err != nil {
+				return err
+			}
+			size, _ := fs.GetDirSize(c.OutDir)
+			log.SLogger.Infof("Downloaded completed size: %s usedTime: %s",
+				fs.FormatBytes(size),
+				time.Since(beginTime).String(),
+			)
+			break loop
+		}
+	}
 
 	// record done
 	err = recorder.Complete()
