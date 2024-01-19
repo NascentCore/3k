@@ -23,7 +23,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.5", namespace="cpod"):
+    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.6", namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -104,7 +104,8 @@ class Model(cli.Application):
                                  "-p", MODEL_PLURAL,
                                  "-n", namespace,
                                  "--name", crd_name,
-                                 "-d", str(depth)],
+                                 "-d", str(depth),
+                                 "-t", model_size*1024*1024*1024],
                                 proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
