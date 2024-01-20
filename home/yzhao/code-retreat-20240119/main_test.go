@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func TestToString(t *testing.T) {
+func TestPointStringConv(t *testing.T) {
 	if pointToString(point{1, 1}) != "1,1" {
 		t.Fail()
 	}
-	if pointToString(point{-1, 1}) != "-1,1" {
+	if !reflect.DeepEqual(stringToPoint("1,1"), point{1, 1}) {
 		t.Fail()
 	}
 }
