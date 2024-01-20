@@ -14,7 +14,16 @@ func pointToString(p point) string {
 }
 
 func getNeighbors(p point) []point {
-	return make([]point, 0, 8)
+	res := make([]point, 0, 8)
+	for _, i := range []int{-1, 0, 1} {
+		for _, j := range []int{-1, 0, 1} {
+			if i == 0 && j == 0 {
+				continue
+			}
+			res = append(res, point{p.x+i, p.y+j})
+		}
+	}
+	return res
 }
 
 func countAlive(board map[string]bool, p point) int {
