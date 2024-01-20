@@ -6,7 +6,7 @@ type point struct {
 }
 
 func pointToString(p point) string {
-	return ""
+	return fmt.Sprintf("%d,%d", p.x, p.y)
 }
 
 func getNeighbors(p point) []point {
