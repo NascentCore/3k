@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 type point struct {
@@ -11,6 +13,13 @@ type point struct {
 
 func pointToString(p point) string {
 	return fmt.Sprintf("%d,%d", p.x, p.y)
+}
+
+func stringToPoint(s string) point {
+	strs := strings.Split(s, ",")
+	x, _ := strconv.Atoi(strs[0])
+	y, _ := strconv.Atoi(strs[1])
+	return point{x, y}
 }
 
 func getNeighbors(p point) []point {
@@ -36,6 +45,25 @@ func countAlive(board map[string]bool, p point) int {
 	return count
 }
 
+func getPointsToCheck(board map[string]bool) []point {
+	res := make([]point, 0, len(board))
+	for pStr, _ := range board {
+		res = append(res, getNeighbors(stringToPoint(pStr))...)
+	}
+	return res
+}
+
 func next(board map[string]bool) map[string]bool {
-	return make(map[string]bool)
+	res := make(map[string]bool)
+	for _, p := range getPointsToCheck(board) {
+		c := countAlive(board, p)
+		_, isAlive := board[pointToString(p)]
+		if isAlive && (c == 2 || c == 3) {
+			res[pointToString(p)] = true
+		}
+		if !isAlive && c == 3 {
+			res[pointToString(p)] = true
+		}
+	}
+	return res
 }
