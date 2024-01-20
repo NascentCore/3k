@@ -24,7 +24,7 @@ func main() {
 		{false, false, false, false, false}}
 
 	for i := 0; i < 10; i++ {
-		fmt.Println(fmt.Sprintf("-- %d ----------", i))
+		fmt.Printf("-- %d ----------\n", i)
 		board = next(board)
 		printBoard(board)
 	}
