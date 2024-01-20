@@ -71,6 +71,30 @@ func countLiveNeighbors(board *Board, x, y int) int {
 	return count
 }
 
+// printBoard prints the board to the console
+func printBoard(board *Board) {
+	for y := 0; y < board.Height; y++ {
+		for x := 0; x < board.Width; x++ {
+			if board.Cells[y][x] {
+				fmt.Print("O")
+			} else {
+				fmt.Print(".")
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func clearScreen() {
+	if runtime.GOOS == "windows" {
+		// Windows-specific screen clearing can be complex in Go without flashing a command prompt window
+		fmt.Println("\033[H\033[2J")
+	} else {
+		// Unix-like OS (Linux, macOS)
+		fmt.Print("\033[H\033[2J")
+	}
+}
+
 func main() {
 	if len(os.Args) < 5 {
 		fmt.Println("Usage: go run gameoflife.go [width] [height] [steps] [live cell positions...]")
@@ -130,29 +154,5 @@ func main() {
 		printBoard(board)
 		time.Sleep(500 * time.Millisecond) // Delay for half a second
 		Next(board)
-	}
-}
-
-// printBoard prints the board to the console
-func printBoard(board *Board) {
-	for y := 0; y < board.Height; y++ {
-		for x := 0; x < board.Width; x++ {
-			if board.Cells[y][x] {
-				fmt.Print("O")
-			} else {
-				fmt.Print(".")
-			}
-		}
-		fmt.Println()
-	}
-}
-
-func clearScreen() {
-	if runtime.GOOS == "windows" {
-		// Windows-specific screen clearing can be complex in Go without flashing a command prompt window
-		fmt.Println("\033[H\033[2J")
-	} else {
-		// Unix-like OS (Linux, macOS)
-		fmt.Print("\033[H\033[2J")
 	}
 }
