@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type point struct {
@@ -11,8 +12,8 @@ type point struct {
 	y int
 }
 
-func toString(x, y int) string {
-	return fmt.Sprintf("%s,%s", strconv.Itoa(x), strconv.Itoa(y))
+func pointToString(p point) string {
+	return fmt.Sprintf("%s,%s", strconv.Itoa(p.x), strconv.Itoa(p.y))
 }
 
 func toPoint(str string) point {
@@ -22,37 +23,40 @@ func toPoint(str string) point {
 	return point {x, y}
 }
 
-func countAlive(board map[string]bool, x, y int) int {
-	count := 0
-	// return the number of alive neighbors of x, y
-	for xOffset := range []int{-1, 0, 1} {
-		for yOffset := range []int{-1, 0, 1} {
-			x1 := x + xOffset
-			y1 := y + yOffset
-			if exist, ok := board[toString(x1, y1)]; ok && exist {
-				count += 1
+func getNeighbors(p point) []point {
+	points := make([]point, 0, 8)
+	for _, xOffset := range []int{-1, 0, 1} {
+		for _, yOffset := range []int{-1, 0, 1} {
+			if xOffset == 0 && yOffset == 0 {
+				continue
 			}
+			points = append(points, point{p.x + xOffset, p.y + yOffset})
+		}
+	}
+	return points
+}
+
+func countAlive(board map[string]bool, p point) int {
+	count := 0
+	neighbors := getNeighbors(p)
+	for _, n := range neighbors {
+		if _, ok := board[pointToString(n)]; ok {
+			count += 1
 		}
 	}
 	return count
 }
 
 func isAlive(gameBoard map[string]bool, p point) bool {
-	exist, ok := gameBoard[toString(p.x, p.y)]
+	exist, ok := gameBoard[pointToString(p)]
 	return ok && exist
 }
 
 func next(gameBoard map[string]bool) map[string]bool {
 	pointsToCheck := make([]point, 0, 100)
 	for pointStr, _ := range gameBoard {
-		p := toPoint(pointStr)
-		for xOffset := range []int{-1, 0, 1} {
-			for yOffset := range []int{-1, 0, 1} {
-				x1 := p.x + xOffset
-				y1 := p.y + yOffset
-				pointsToCheck = append(pointsToCheck, point{x1, y1})
-			}
-		}
+		point := toPoint(pointStr)
+		pointsToCheck = append(pointsToCheck, getNeighbors(point)...)
 	}
 
 	// TODO: Add dedup
@@ -60,13 +64,12 @@ func next(gameBoard map[string]bool) map[string]bool {
 	newBoard := make(map[string]bool)
 
 	for _, point := range pointsToCheck {
-		fmt.Println("examining point: %v", point)
-		aliveCount := countAlive(gameBoard, point.x, point.y)
+		aliveCount := countAlive(gameBoard, point)
 		if isAlive(gameBoard, point) && aliveCount == 2 || aliveCount == 3 {
-			newBoard[toString(point.x, point.y)] = true
+			newBoard[pointToString(point)] = true
 		}
 		if !isAlive(gameBoard, point) && aliveCount == 3 {
-			newBoard[toString(point.x, point.y)] = true
+			newBoard[pointToString(point)] = true
 		}
 	}
 
@@ -77,12 +80,13 @@ func main() {
 	b := make(map[string]bool)
 	b["0,0"] = true
 	b["0,1"] = true
-	b["1,0"] = true
+	b["0,2"] = true
+
 	fmt.Println(b)
-	next := next(b)
-	fmt.Println(next)
-	test := make(map[point]bool)
-	test[point{0, 0}] = true
-	test[point{0, 0}] = false
-	fmt.Println(test)
+
+	for len(b) > 0 {
+		b = next(b)
+		fmt.Println(b)
+		time.Sleep(1 * time.Second)
+	}
 }
