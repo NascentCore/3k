@@ -1,4 +1,4 @@
-package chenshu
+package bubble
 
 func BubbleSort(nums []int) {
 	if len(nums) <= 1 {
