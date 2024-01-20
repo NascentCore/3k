@@ -67,3 +67,7 @@ func next(board map[string]bool) map[string]bool {
 	}
 	return res
 }
+
+func main() {
+	fmt.Println("Conway Game of Life")
+}
