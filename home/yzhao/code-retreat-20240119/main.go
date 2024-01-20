@@ -47,7 +47,7 @@ func countAlive(board map[string]bool, p point) int {
 
 func getPointsToCheck(board map[string]bool) []point {
 	res := make([]point, 0, len(board))
-	for pStr, _ := range board {
+	for pStr := range board {
 		res = append(res, getNeighbors(stringToPoint(pStr))...)
 	}
 	return res
