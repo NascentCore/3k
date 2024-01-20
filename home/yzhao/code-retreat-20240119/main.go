@@ -27,7 +27,13 @@ func getNeighbors(p point) []point {
 }
 
 func countAlive(board map[string]bool, p point) int {
-	return 0
+	count := 0
+	for _, p := range getNeighbors(p) {
+		if _, ok := board[pointToString(p)]; ok {
+			count += 1
+		}
+	}
+	return count
 }
 
 func next(board map[string]bool) map[string]bool {
