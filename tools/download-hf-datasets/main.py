@@ -1,7 +1,4 @@
-from huggingface_hub import hf_hub_download
-import pandas as pd
+import datasets
 
-REPO_ID = "wikitext"
-FILENAME = "data.csv"
-
-hf_hub_download(repo_id=REPO_ID, repo_type="dataset")
+dataset = datasets.load_dataset("wikitext","wikitext-2-v1",split="train")
+dataset.save_to_disk('wikitext')
