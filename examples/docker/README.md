@@ -1,5 +1,7 @@
 # Docker
 
+这里是常用的基础镜像，用于为客户提供一个基础的 NVIDIA GPU 上的 AI 开发环境。
+
 基础镜像dockerfile文件名以 `<imagename>.Dockerfile` 命名，合并至 main 分支后将自动构建，镜像以 `<imagename>` 命名，以 `v$(date +%Y-%m-%d)` 为tag
 
 ## Build CUDA base image
