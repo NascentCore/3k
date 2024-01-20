@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import math
+
 from colorama import Fore, Style
 from kubernetes import config
 from plumbum import cli
@@ -105,7 +106,7 @@ class Model(cli.Application):
                                  "-n", namespace,
                                  "--name", crd_name,
                                  "-d", str(depth),
-                                 "-t", str(model_size*1024*1024*1024)],
+                                 "-t", str(model_size * 2 * 1024 * 1024 * 1024)],
                                 proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
