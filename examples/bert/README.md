@@ -1,6 +1,6 @@
 # Bert
 
-You can a publically available docker container image at:
+You can get the pre-built docker container image at:
 ```
 registry.cn-beijing.aliyuncs.com/sxwl-ai/bert:latest
 ```
@@ -94,3 +94,8 @@ If you need to update the `bert-base` image:
 docker build . -f base.Dockerfile -t swr.cn-east-3.myhuaweicloud.com/sxwl/bert-base
 docker push swr.cn-east-3.myhuaweicloud.com/sxwl/bert-base
 ```
+
+## Auto build
+
+Updating `Dockerfile` will trigger GitHub action to build and release a new
+version of docker container image.
