@@ -1,0 +1,17 @@
+{
+    "jobName": "job1",
+    "gpuNumber": 1,
+    "gpuType": "NVIDIA-GeForce-RTX-3090",
+    "ckptPath": "/data",
+    "ckptVol": "10",
+    "modelPath": "/sixpen_models/modihand_outputs/test_10059997",
+    "modelVol": "100",
+    "imagePath": "dockerhub.kubekey.local/kubesphereio/modihand:test",
+    "datasetPath": "/tmp/ds",
+    "jobType": "Pytorch",
+    "stopType": "0",
+    "pretrainedModelName": "model-storage-8bfc0ffceca0f0ce",
+    "runCommand": "torchrun run.py",
+    "pretrainedModelPath": "/sixpen_models/chatlm3",
+    "datasetName": "modihand-dataset"
+}

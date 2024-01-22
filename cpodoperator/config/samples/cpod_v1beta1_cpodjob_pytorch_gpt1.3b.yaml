@@ -1,0 +1,29 @@
+# Test case for gpt-1.3b
+apiVersion: cpod.cpod/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    app.kubernetes.io/name: cpodjob
+    app.kubernetes.io/instance: cpodjob-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: gpt3
+  namespace: cpod
+spec:
+  image: registry.cn-beijing.aliyuncs.com/sxwl-ai/modelscope_gpt3_1h1g1dp:latest
+  command:
+    - torchrun
+    - --nproc_per_node=8
+    - finetune_poetry.py
+  jobType: pytorch
+  gpuRequiredPerReplica: 8
+  gpuType: NVIDIA-GeForce-RTX-3090
+  workerReplicas: 1
+  pretrainModelName: gpt3
+  pretrainModelPath:  /workspace/nlp_gpt3_text-generation_1.3B
+  datasetName: dataset-storage-944a4f16092746ea
+  datasetPath: /workspace/chinese-poetry-collection
+  
+
+  

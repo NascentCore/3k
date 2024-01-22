@@ -1,0 +1,7 @@
+## Append samples of your project ##
+resources:
+- cpod_v1beta1_cpodjob.yaml
+- cpod_v1beta1_modelstorage.yaml
+- cpod_v1_modelstorage.yaml
+- cpod_v1_datasetstorage.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

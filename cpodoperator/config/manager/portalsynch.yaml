@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-portalsynch
+  namespace: system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: role-portalsynch
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - cpodjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - cpodjobs/status
+  verbs:
+  - get
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - datasetstorages  
+  - datasetstorages/status  
+  - modelstorages
+  - modelstorages/status
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: portalsynch-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: role-portalsynch
+subjects:
+- kind: ServiceAccount
+  name: sa-portalsynch
+  namespace: cpod-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portalsynch
+  namespace: system
+  labels:
+    control-plane: portalsynch
+    app.kubernetes.io/name: deployment
+    app.kubernetes.io/instance: portalsynch
+    app.kubernetes.io/component: portalsynch
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: portalsynch
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: portalsynch
+      labels:
+        control-plane: portalsynch
+    spec:
+      containers:
+      - name: portalsynch
+        env:
+        - name: DEPLOY
+          value: DEBUG
+        - name: ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              key: access_key
+              name: cpod-info
+        - name: CPOD_ID
+          valueFrom:
+            configMapKeyRef:
+              key: cpod_id
+              name: cpod-info
+        image: portalsynch:latest
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      serviceAccountName: sa-portalsynch
+      terminationGracePeriodSeconds: 10

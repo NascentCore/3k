@@ -1,0 +1,49 @@
+apiVersion: cpod.cpod/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    app.kubernetes.io/name: cpodjob
+    app.kubernetes.io/instance: cpodjob-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: cpodjob-sample
+  namespace: cpodoperator
+spec:
+  image: dockerhub.kubekey.local/kubesphereio/mpi-horovod-mnist:latest
+  command:
+    - mpirun
+    - -np
+    - "4"
+    - --allow-run-as-root
+    - -bind-to
+    - none
+    - -map-by
+    - slot
+    - -x
+    - NCCL_DEBUG=INFO
+    - -x
+    - NCCL_P2P_DISABLE=1
+    - -x
+    - LD_LIBRARY_PATH
+    - -x
+    - PATH
+    - -mca
+    - mpi_warn_on_fork
+    - "0"
+    - python3
+    - train_bert_ds.py
+    - --checkpoint_dir
+    - ds-experiments
+    - --dataset_dir
+    - dataset/wikitext
+    - --checkpoint_every=100
+    - --num_iterations=50000
+  jobType: mpi
+  gpuRequiredPerReplica: 1
+  gpuType: NVIDIA-GeForce-RTX-3090
+  ckptPath: /workspace/ckpt
+  ckptVolumeSize: 100
+  workerReplicas: 1
+
+  

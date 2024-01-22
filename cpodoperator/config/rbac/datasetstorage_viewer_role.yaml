@@ -1,0 +1,27 @@
+# permissions for end users to view datasetstorages.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: datasetstorage-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+  name: datasetstorage-viewer-role
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - datasetstorages
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - datasetstorages/status
+  verbs:
+  - get
