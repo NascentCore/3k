@@ -2,3 +2,4 @@
 https://www.modelscope.cn/models/01ai/Yi-34B
 https://modelscope.cn/studios/AI-ModelScope/Stable_Diffusion_XL_1.0
 https://huggingface.co/stabilityai/stable-code-3b
+https://huggingface.co/01-ai/Yi-VL-6B
