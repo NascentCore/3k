@@ -36,6 +36,7 @@ import (
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/internal/controller"
 
+	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	mpiv2 "github.com/kubeflow/mpi-operator/pkg/apis/kubeflow/v2beta1"
 	tov1 "github.com/kubeflow/training-operator/pkg/apis/kubeflow.org/v1"
 	//+kubebuilder:scaffold:imports
@@ -53,6 +54,7 @@ func init() {
 	utilruntime.Must(cpodv1.AddToScheme(scheme))
 	utilruntime.Must(tov1.AddToScheme(scheme))
 	utilruntime.Must(mpiv2.AddToScheme(scheme))
+	utilruntime.Must(kservev1beta1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -118,6 +120,15 @@ func main() {
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CPodJob")
+		os.Exit(1)
+	}
+
+	if err = (&controller.InferenceReconciler{
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: mgr.GetEventRecorderFor("inference-controller"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Inference")
 		os.Exit(1)
 	}
 

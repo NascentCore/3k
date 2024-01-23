@@ -1,0 +1,11 @@
+apiVersion: cpod.cpod/v1beta1
+kind: Inference
+metadata:
+  name: sklearn-iris
+  namespace: cpod
+spec:
+  predictor:
+    sklearn:
+      storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
+      name: ""
+      
