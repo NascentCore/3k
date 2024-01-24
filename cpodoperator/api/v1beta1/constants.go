@@ -12,6 +12,10 @@ const (
 )
 
 const (
+	ModelStoragePrefix = "modelstorage://"
+)
+
+const (
 	//cpod manager相关的配置
 	CPOD_NAMESPACE                 = "cpod"                     //CPod 所工作的NameSpace
 	PORTAL_JOBTYPE_MPI             = "MPI"                      //Portal中MPI JobType的表示

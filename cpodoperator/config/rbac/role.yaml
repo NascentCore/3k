@@ -89,6 +89,32 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
+  - inferences
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - inferences/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - inferences/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
   - modelstorages
   verbs:
   - create
@@ -148,6 +174,26 @@ rules:
   - kubeflow.org
   resources:
   - pytorchjobs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - inferenceservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - serving.kserve.io
+  resources:
+  - inferenceservices/status
   verbs:
   - get
   - patch
