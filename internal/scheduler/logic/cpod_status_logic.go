@@ -9,13 +9,28 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 	"sxwl/3k/pkg/consts"
-	"sxwl/3k/pkg/job/state"
 	"time"
 
 	"github.com/zeromicro/go-zero/rest/httpc"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type JobStatus string
+
+// 通用的任务状态定义
+const (
+	JobStatusCreated        JobStatus = "created"        //任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
+	JobStatusCreateFailed   JobStatus = "createfailed"   //任务在创建时直接失败（因为配置原因）
+	JobStatusRunning        JobStatus = "running"        //Pod全部创建成功，并正常运行
+	JobStatusPending        JobStatus = "pending"        //因为资源不足，在等待
+	JobStatusErrorLoop      JobStatus = "crashloop"      //进入crashloop
+	JobStatusModelUploaded  JobStatus = "modeluploaded"  //模型文件（训练结果）已上传
+	JobStatusModelUploading JobStatus = "modeluploading" //模型文件（训练结果）正在上传
+	JobStatusSucceed        JobStatus = "succeeded"      //所有工作成功完成
+	JobStatusFailed         JobStatus = "failed"         //在中途以失败中止
+	JobStatusUnknown        JobStatus = "unknown"        //无法获取任务状态，状态未知
 )
 
 type CpodStatusLogic struct {
@@ -267,10 +282,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 }
 
 var statusToDBMap = map[string]int{
-	string(state.JobStatusCreateFailed):  model.JobStatusWorkerFail,
-	string(state.JobStatusFailed):        model.JobStatusWorkerFail,
-	string(state.JobStatusSucceed):       model.JobStatusWorkerSuccess,
-	string(state.JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
+	string(JobStatusCreateFailed):  model.JobStatusWorkerFail,
+	string(JobStatusFailed):        model.JobStatusWorkerFail,
+	string(JobStatusSucceed):       model.JobStatusWorkerSuccess,
+	string(JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
 }
 
 var cacheTypeToDBMap = map[string]int{

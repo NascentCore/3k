@@ -8,9 +8,30 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sxwl/3k/pkg/communication"
 	"sxwl/3k/pkg/log"
 )
+
+type RawJobDataItem struct {
+	CkptPath          string            `json:"ckptPath"`
+	CkptVol           int               `json:"ckptVol"`
+	Command           string            `json:"runCommand"`
+	Envs              map[string]string `json:"env"`
+	DatasetPath       string            `json:"datasetPath"`
+	DatasetName       string            `json:"DatasetName"`
+	GpuNumber         int               `json:"gpuNumber"`
+	GpuType           string            `json:"gpuType"`
+	HfURL             string            `json:"hfUrl"`
+	ImagePath         string            `json:"imagePath"`
+	JobID             int               `json:"jobId"`
+	JobName           string            `json:"jobName"`
+	JobType           string            `json:"jobType"`
+	ModelPath         string            `json:"modelPath"`
+	ModelVol          int               `json:"modelVol"`
+	PretrainModelName string            `json:"pretrainedModelName"`
+	PretrainModelPath string            `json:"pretrainedModelPath"`
+	StopTime          int               `json:"stopTime"`
+	StopType          int               `json:"stopType"`
+}
 
 func main() {
 	// TODO: 使用 Cobra 来编写完整的命令行功能 以后应该使用专门的命令行工具框架库
@@ -47,7 +68,7 @@ func main() {
 	        "jobType": "GeneralJob",
 	        "gpuType": "NVIDIA-GeForce-RTX-3090"
         }`
-	job := communication.RawJobDataItem{}
+	var job RawJobDataItem
 	json.Unmarshal([]byte(jobStr), &job)
 	gpuCnt, _ := strconv.Atoi(gpuNum)
 	job.GpuNumber = gpuCnt

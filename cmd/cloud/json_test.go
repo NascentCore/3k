@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"sxwl/3k/pkg/communication"
 	"testing"
 )
 
@@ -42,7 +41,7 @@ func TestJob(t *testing.T) {
         "jobType": "GeneralJob",
         "gpuType": "NVIDIA-GeForce-RTX-3090"
       }`
-	job := communication.RawJobDataItem{}
+	job := RawJobDataItem{}
 	json.Unmarshal([]byte(jobStr), &job)
 	fmt.Printf("%+v\n", job)
 }
