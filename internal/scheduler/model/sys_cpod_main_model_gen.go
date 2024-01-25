@@ -40,6 +40,7 @@ type (
 		CpodVersion    sql.NullString `db:"cpod_version"`    // pod 版本
 		GpuVendor      sql.NullString `db:"gpu_vendor"`      // gpu vendor
 		GpuProd        sql.NullString `db:"gpu_prod"`        // GPU型号
+		GpuMem         sql.NullInt64  `db:"gpu_mem"`         // GPU显存(MB)
 		GpuTotal       sql.NullInt64  `db:"gpu_total"`       // GPU总数量
 		GpuAllocatable sql.NullInt64  `db:"gpu_allocatable"` // GPU可分配数量
 		CreateTime     sql.NullTime   `db:"create_time"`     // 创建日期
@@ -76,14 +77,14 @@ func (m *defaultSysCpodMainModel) FindOne(ctx context.Context, mainId int64) (*S
 }
 
 func (m *defaultSysCpodMainModel) Insert(ctx context.Context, data *SysCpodMain) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodMainRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodMainRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId)
 	return ret, err
 }
 
 func (m *defaultSysCpodMainModel) Update(ctx context.Context, data *SysCpodMain) error {
 	query := fmt.Sprintf("update %s set %s where `main_id` = ?", m.table, sysCpodMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId, data.MainId)
+	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CreateTime, data.UpdateTime, data.UserId, data.MainId)
 	return err
 }
 

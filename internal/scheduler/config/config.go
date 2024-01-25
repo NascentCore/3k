@@ -9,4 +9,8 @@ type Config struct {
 	DB struct {
 		DataSource string
 	} `json:"DB,optional" `
+	FinetuneModel map[string]struct {
+		Image  string `json:"image"`
+		GPUMem int64  `json:"gpu_mem"`
+	} `json:"FinetuneModel"`
 }

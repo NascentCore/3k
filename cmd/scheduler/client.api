@@ -5,3 +5,4 @@ type JobCallBackReq {
 	URL    string `json:"url"`
 	JobID  string `json:"jobId"`
 }
+

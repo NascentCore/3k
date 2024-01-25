@@ -11,3 +11,7 @@ const (
 	CacheDataSet = "dataset"
 	CacheImage   = "image"
 )
+
+const (
+	JobTypePytorch = "Pytorch"
+)

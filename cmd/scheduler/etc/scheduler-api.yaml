@@ -7,3 +7,8 @@ Log:
   ServiceName: scheduler
   Mode: console
   Level: info
+
+FinetuneModel:
+  chatglm3-6b:
+    image: 'sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest'
+    gpu_mem: 16384

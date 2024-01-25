@@ -9,3 +9,8 @@ Log:
   Path: /var/log
   Level: info
   KeepDays: 30
+
+FinetuneModel:
+  chatglm3-6b:
+    image: 'sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest'
+    gpu_mem: 16384
