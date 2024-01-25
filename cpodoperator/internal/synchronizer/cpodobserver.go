@@ -175,14 +175,17 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 	//stat gpus in cpod
 	statTotal := map[[2]string]int{}
 	statAlloc := map[[2]string]int{}
+	statMemSize := map[[2]string]int{}
 	for _, node := range info.Nodes {
 		statTotal[[2]string{node.GPUInfo.Vendor, node.GPUInfo.Prod}] += node.GPUTotal
 		statAlloc[[2]string{node.GPUInfo.Vendor, node.GPUInfo.Prod}] += node.GPUAllocatable
+		statMemSize[[2]string{node.GPUInfo.Vendor, node.GPUInfo.Prod}] = node.GPUInfo.MemSize
 	}
 	for k, v := range statTotal {
 		info.GPUSummaries = append(info.GPUSummaries, resource.GPUSummary{
 			Vendor:      k[0],
 			Prod:        k[1],
+			MemSize:     statMemSize[k],
 			Total:       v,
 			Allocatable: statAlloc[k],
 		})

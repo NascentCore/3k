@@ -72,6 +72,7 @@ type NodeInfo struct {
 type GPUSummary struct {
 	Vendor      string `json:"vendor"`      //生产商
 	Prod        string `json:"prod"`        //型号
+	MemSize     int    `json:"mem_size"`    //MB
 	Total       int    `json:"total"`       //总量
 	Allocatable int    `json:"allocatable"` //可用量
 }
