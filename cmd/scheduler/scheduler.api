@@ -1,10 +1,10 @@
 syntax = "v1"
 
-info(
-	title: "调度器服务"
-	desc: "调度器服务的接口定义"
-	author: "chenshu"
-	date: "2023 年 12 月 11 日"
+info (
+	title:   "调度器服务"
+	desc:    "调度器服务的接口定义"
+	author:  "chenshu"
+	date:    "2023 年 12 月 11 日"
 	version: "v1"
 )
 
@@ -68,6 +68,7 @@ type GPUSummary {
 	Allocatable int    `json:"allocatable"`
 	Total       int    `json:"total"`
 	Prod        string `json:"prod"`
+	MemSize     int    `json:"mem_size"`
 	Vendor      string `json:"vendor"`
 }
 
@@ -101,7 +102,6 @@ type (
 		CPODID       string       `json:"cpod_id"`
 		UserID       int64        `header:"Sx-User"`
 	}
-
 	CPODStatusResp {
 		Message string `json:"message"`
 	}
@@ -112,16 +112,13 @@ type (
 		DownloadUrls []string `json:"download_urls"`
 		JobName      string   `json:"job_name"`
 	}
-
 	ModelUrlResp {
 		Message string `json:"message"`
 	}
 )
 
 type (
-	GPUTypeReq {
-	}
-
+	GPUTypeReq  {}
 	GPUTypeResp {
 		Amount  float64 `json:"amount"`
 		GPUProd string  `json:"gpuProd"`
@@ -132,7 +129,6 @@ type (
 	JobStatusReq {
 		JobId string `json:"job_id"`
 	}
-
 	JobStatusResp {
 		URL    string `json:"url"`
 		Status string `json:"status"`
@@ -143,7 +139,6 @@ type (
 	JobStopReq {
 		JobId string `json:"job_id"`
 	}
-
 	JobStopResp {
 		Message string `json:"message"`
 	}
@@ -170,8 +165,33 @@ type (
 		Env                 map[string]string `json:"env,optional,omitempty"`
 		UserID              int64             `header:"Sx-User" json:"-"`
 	}
-
 	JobCreateResp {
+		JobId string `json:"job_id"`
+	}
+)
+
+type (
+	FinetuneReqBak {
+		GpuNumber         int64                  `json:"gpuNumber"`
+		GpuType           string                 `json:"gpuType"`
+		PretrainedModelId string                 `json:"pretrainedModelId"`
+		DatasetId         string                 `json:"datasetId,optional"`
+		DatasetPath       string                 `json:"datasetPath,optional"`
+		CallbackUrl       string                 `json:"callbackUrl,optional,omitempty"`
+		TrainingFile      string                 `json:"training_file"`
+		Model             string                 `json:"model"`
+		Hyperparameters   map[string]interface{} `json:"hyperparameters,optional,omitempty"`
+		Config            map[string]interface{} `json:"config,optional,omitempty"`
+		UserID            int64                  `header:"Sx-User" json:"-"`
+	}
+	FinetuneReq {
+		TrainingFile    string                 `json:"training_file"`
+		Model           string                 `json:"model"`
+		Hyperparameters map[string]interface{} `json:"hyperparameters,optional,omitempty"`
+		Config          map[string]interface{} `json:"config,optional,omitempty"`
+		UserID          int64                  `header:"Sx-User" json:"-"`
+	}
+	FinetuneResp {
 		JobId string `json:"job_id"`
 	}
 )
@@ -182,7 +202,6 @@ type (
 		Size    int   `form:"size"`
 		UserID  int64 `header:"Sx-User"`
 	}
-
 	Job {
 		CkptPath            string `json:"ckptPath"`
 		CkptVol             string `json:"ckptVol"`
@@ -210,7 +229,6 @@ type (
 		UserId              int    `json:"userId"`
 		WorkStatus          int    `json:"workStatus"`
 	}
-
 	JobGetResp {
 		Content       []Job `json:"content"`
 		TotalElements int64 `json:"totalElements"`
@@ -239,9 +257,13 @@ service scheduler-api {
 	@handler JobGetHandler
 	get /job/job (JobGetReq) returns (JobGetResp)
 
+	@handler FinetuneHandler
+	post /job/finetune (FinetuneReq) returns (FinetuneResp)
+
 	@handler ModelsHandler
 	get /resource/models returns ([]Cache)
 
 	@handler DatasetsHandler
 	get /resource/datasets returns ([]Cache)
 }
+

@@ -13,6 +13,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/cpod/gpu_type",
+				Handler: GpuTypeHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/cpod/status",
 				Handler: CpodStatusHandler(serverCtx),
@@ -23,19 +28,9 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: UploadStatusHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodGet,
-				Path:    "/cpod/gpu_type",
-				Handler: GpuTypeHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodPost,
-				Path:    "/job/status",
-				Handler: JobStatusHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/job/stop",
-				Handler: JobStopHandler(serverCtx),
+				Path:    "/job/finetune",
+				Handler: FinetuneHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
@@ -48,14 +43,24 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: JobGetHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodGet,
-				Path:    "/resource/models",
-				Handler: ModelsHandler(serverCtx),
+				Method:  http.MethodPost,
+				Path:    "/job/status",
+				Handler: JobStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/job/stop",
+				Handler: JobStopHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
 				Path:    "/resource/datasets",
 				Handler: DatasetsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/models",
+				Handler: ModelsHandler(serverCtx),
 			},
 		},
 	)

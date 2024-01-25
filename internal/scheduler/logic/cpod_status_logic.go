@@ -55,6 +55,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				CpodVersion:    sql.NullString{String: req.ResourceInfo.CPODVersion, Valid: true},
 				GpuVendor:      sql.NullString{String: gpu.Vendor, Valid: true},
 				GpuProd:        sql.NullString{String: gpu.Prod, Valid: true},
+				GpuMem:         sql.NullInt64{Int64: int64(gpu.MemSize)},
 				GpuTotal:       sql.NullInt64{Int64: int64(gpu.Total), Valid: true},
 				GpuAllocatable: sql.NullInt64{Int64: int64(gpu.Allocatable), Valid: true},
 				CreateTime:     sql.NullTime{Time: time.Now(), Valid: true},
