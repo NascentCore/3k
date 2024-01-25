@@ -68,7 +68,7 @@ func main() {
 	        "jobType": "GeneralJob",
 	        "gpuType": "NVIDIA-GeForce-RTX-3090"
         }`
-	job := RawJobDataItem{}
+	var job RawJobDataItem
 	json.Unmarshal([]byte(jobStr), &job)
 	gpuCnt, _ := strconv.Atoi(gpuNum)
 	job.GpuNumber = gpuCnt
