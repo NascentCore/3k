@@ -123,18 +123,8 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	if !ok {
 		learningRate = "5e-5"
 	}
-	cmd := fmt.Sprintf(`
-	accelerate launch src/train_bash.py
-	--num_train_epochs=%s
-	--learning_rate=%s
-	--per_device_train_batch_size=%s
-	--num_processes=1
-	--do_train=True
-	--model_name_or_path=/data/model
-	--dataset=dataset
-	--dataset_dir=/data/dataset
-	--output_dir=/data/save/
-`, epochs, learningRate, batchSize)
+	cmd := fmt.Sprintf(ftModel.Command,
+		epochs, learningRate, batchSize)
 	for param, value := range req.Config {
 		cmd = cmd + fmt.Sprintf(" %s=%s", param, value)
 	}
@@ -160,6 +150,9 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["jobName"] = userJob.JobName.String
 	jsonAll["datasetId"] = userJob.DatasetName.String
 	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
+	jsonAll["ckptVol"] = 0
+	jsonAll["modelVol"] = 200
+	jsonAll["stopType"] = 0
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {

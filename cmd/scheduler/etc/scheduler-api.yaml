@@ -12,3 +12,8 @@ FinetuneModel:
   chatglm3-6b:
     image: 'sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest'
     gpu_mem: 16384
+    command: 'accelerate launch --num_processes=1 src/train_bash.py --num_train_epochs=%s --learning_rate=%s --per_device_train_batch_size=%s --do_train=True --model_name_or_path=/data/model --dataset=dataset --dataset_dir=/data/dataset --output_dir=/data/save --stage=sft --template=alpaca --finetuning_type=lora --lora_target=query_key_value --overwrite_cache=True --gradient_accumulation_steps=4 --lr_scheduler_type=cosine --logging_steps=10 --save_steps=1000 --plot_loss=True --fp16=True'
+  ZhipuAI/chatglm3-6b:
+    image: 'sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest'
+    gpu_mem: 16384
+    command: 'accelerate launch --num_processes=1 src/train_bash.py --num_train_epochs=%s --learning_rate=%s --per_device_train_batch_size=%s --do_train=True --model_name_or_path=/data/model --dataset=dataset --dataset_dir=/data/dataset --output_dir=/data/save --stage=sft --template=alpaca --finetuning_type=lora --lora_target=query_key_value --overwrite_cache=True --gradient_accumulation_steps=4 --lr_scheduler_type=cosine --logging_steps=10 --save_steps=1000 --plot_loss=True --fp16=True'
