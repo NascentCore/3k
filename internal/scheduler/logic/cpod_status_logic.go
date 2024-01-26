@@ -87,6 +87,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			_, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
 				"gpu_total":       gpu.Total,
 				"gpu_allocatable": gpu.Allocatable,
+				"gpu_mem":         gpu.MemSize,
 				"update_time": sql.NullTime{
 					Time:  time.Now(),
 					Valid: true,
