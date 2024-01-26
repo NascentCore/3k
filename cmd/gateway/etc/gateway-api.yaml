@@ -49,6 +49,10 @@ Gateway:
       ToPath: "/resource/datasets"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/finetune"
+      ToPath: "/job/finetune"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
