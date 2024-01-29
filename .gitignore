@@ -9,6 +9,8 @@
 __pycache__
 venv
 
+go.work*
+
 ### macOS ###
 # General
 .DS_Store
