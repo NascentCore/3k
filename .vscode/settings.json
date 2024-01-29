@@ -1,7 +1,0 @@
-{
-    "github.gitAuthentication": true,
-    "java.compile.nullAnalysis.mode": "automatic",
-    "gopls": {
-        "ui.semanticTokens": true
-    }
-}
