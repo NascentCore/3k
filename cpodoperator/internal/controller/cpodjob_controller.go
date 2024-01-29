@@ -381,6 +381,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 			Spec: tov1.PyTorchJobSpec{
 				RunPolicy: tov1.RunPolicy{
 					CleanPodPolicy: tov1.CleanPodPolicyPointer(tov1.CleanPodPolicyRunning),
+					BackoffLimit:   cpodjob.Spec.BackoffLimit,
 				},
 				PyTorchReplicaSpecs: map[tov1.ReplicaType]*tov1.ReplicaSpec{
 					tov1.PyTorchJobReplicaTypeWorker: {

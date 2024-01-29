@@ -16,7 +16,7 @@ limitations under the License.
 
 // Package v1beta1 contains API Schema definitions for the cpod v1beta1 API group
 // +kubebuilder:object:generate=true
-// +groupName=cpod
+// +groupName=cpod.cpod
 package v1beta1
 
 import (
