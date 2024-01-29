@@ -74,10 +74,6 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.DatasetName = orm.NullString(cache.DataId)
 	userJob.DatasetPath = orm.NullString("/data/dataset/custom")
 
-	// output
-	userJob.ModelPath = orm.NullString("/data/save")
-	userJob.ModelVol = orm.NullString("200")
-
 	// image
 	ftModel, ok := l.svcCtx.Config.FinetuneModel[req.Model]
 	if !ok {
@@ -85,6 +81,10 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		return nil, fmt.Errorf("model: %s for codeless fine-tune is not supported", req.Model)
 	}
 	userJob.ImagePath = orm.NullString(ftModel.Image)
+
+	// output
+	userJob.ModelPath = orm.NullString("/data/save")
+	userJob.ModelVol = orm.NullString(fmt.Sprintf("%d", ftModel.ModelVol))
 
 	// job_type
 	userJob.JobType = orm.NullString(consts.JobTypePytorch)
@@ -104,7 +104,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 			req.Model, ftModel.GPUMem, req.UserID)
 	}
 	userJob.GpuType = cpodMain.GpuProd
-	userJob.GpuNumber = orm.NullInt64(1)
+	userJob.GpuNumber = orm.NullInt64(ftModel.GPUNum)
 
 	// time
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
@@ -151,7 +151,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["datasetId"] = userJob.DatasetName.String
 	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
 	jsonAll["ckptVol"] = 0
-	jsonAll["modelVol"] = 200
+	jsonAll["modelVol"] = ftModel.ModelVol
 	jsonAll["stopType"] = 0
 
 	bytes, err = json.Marshal(jsonAll)
