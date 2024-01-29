@@ -3,7 +3,6 @@
 # It should be run by config/default
 resources:
 - bases/cpod.cpod_cpodjobs.yaml
-# - bases/cpod.cpod_modelstorages.yaml
 - bases/cpod.cpod_modelstorages.yaml
 - bases/cpod.cpod_datasetstorages.yaml
 - bases/cpod.cpod_inferences.yaml

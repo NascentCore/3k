@@ -167,6 +167,8 @@ type CPodJobSpec struct {
 	//     "Worker": ReplicaSpec,
 	//   }
 	ReplicaSpecs map[tov1.ReplicaType]*tov1.ReplicaSpec `json:"replicaSpecs,omitempty"`
+
+	BackoffLimit *int32 `json:"backoffLimit,omitempty"`
 }
 
 // Represents a git repository.
