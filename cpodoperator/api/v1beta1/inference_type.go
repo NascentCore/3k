@@ -19,6 +19,7 @@ package v1beta1
 import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
 
 // InferenceSpec defines the desired state of Inference
@@ -36,6 +37,8 @@ type InferenceStatus struct {
 	Ready bool `json:"ready,omitempty"`
 
 	URL *string `json:"url,omitempty"`
+
+	Conditions duckv1.Conditions `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
