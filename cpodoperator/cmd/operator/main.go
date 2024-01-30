@@ -67,6 +67,7 @@ func main() {
 	var modelUploadJobImage string
 	var modelUploadJobBackoffLimit int
 	var modelUploadOssBucketName string
+	var inferenceIngressDomain string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -77,6 +78,7 @@ func main() {
 	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:ea1b518", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
 	flag.StringVar(&modelUploadOssBucketName, "model-upload-job-bucket-name", "sxwl-ai-test", "the oss bucket name of model upload job")
+	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "219.159.22.20:30005", "the domain of inference ingress")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -127,6 +129,9 @@ func main() {
 		Client:   mgr.GetClient(),
 		Scheme:   mgr.GetScheme(),
 		Recorder: mgr.GetEventRecorderFor("inference-controller"),
+		Options: controller.InferenceOptions{
+			Domain: inferenceIngressDomain,
+		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Inference")
 		os.Exit(1)

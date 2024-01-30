@@ -9,6 +9,7 @@ import (
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,6 +22,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
+type InferenceOptions struct {
+	// IngressClass string
+	Domain string
+}
+
 // CPodJobReconciler reconciles a CPodJob object
 type InferenceReconciler struct {
 	client.Client
@@ -29,6 +35,8 @@ type InferenceReconciler struct {
 	// Recorder is an event recorder for recording Event resources to the
 	// Kubernetes API.
 	Recorder record.EventRecorder
+
+	Options InferenceOptions
 }
 
 //+kubebuilder:rbac:groups=cpod.cpod,resources=inferences,verbs=get;list;watch;create;update;patch;delete
@@ -36,6 +44,7 @@ type InferenceReconciler struct {
 //+kubebuilder:rbac:groups=cpod.cpod,resources=inferences/finalizers,verbs=update
 //+kubebuilder:rbac:groups=serving.kserve.io,resources=inferenceservices,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=serving.kserve.io,resources=inferenceservices/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
 
 func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	logger := log.FromContext(ctx)
@@ -74,8 +83,12 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		inferenceDeepcopy.Status.Conditions = inferenceService.Status.Conditions
 	} else {
 		inferenceDeepcopy.Status.Conditions = nil
+		url, err := i.GetIngress(ctx, inference, inferenceService)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		inferenceDeepcopy.Status.URL = &url
 	}
-	inferenceDeepcopy.Status.URL = inferenceServiceURL(inferenceService.Status)
 
 	return ctrl.Result{}, nil
 }
@@ -153,6 +166,76 @@ func (i *InferenceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&cpodv1beta1.Inference{}).
 		Owns(&kservev1beta1.InferenceService{}).
 		Complete(i)
+}
+
+func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1beta1.Inference, inferenceservice *kservev1beta1.InferenceService) (string, error) {
+	ingressName := inference.Name + "-ingress"
+
+	var ingress netv1.Ingress
+	if err := i.Client.Get(ctx, types.NamespacedName{Namespace: inference.Namespace, Name: ingressName}, &ingress); err != nil {
+		if apierrors.IsNotFound(err) {
+			// 获取对应preidector service name
+			svcName := PredictorServiceName(inferenceservice.Name)
+			// create ingress
+			path := fmt.Sprintf("/%v/(.*)", inference.Name)
+			var rules []netv1.IngressRule
+			rules = append(rules, generateRule(svcName, path, 80))
+			ingress := &netv1.Ingress{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      ingressName,
+					Namespace: inference.Namespace,
+					OwnerReferences: []metav1.OwnerReference{
+						i.generateOwnerRefInference(ctx, inference),
+					},
+				},
+				Spec: netv1.IngressSpec{
+					Rules: rules,
+				},
+			}
+			if err := i.Client.Create(ctx, ingress); err != nil {
+				ctrl.Log.Info("create ingress failed", "err", err)
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateIngressFailed", "create ingress failed")
+				return "", err
+			}
+			return "", nil
+		}
+		return "", err
+	}
+
+	return fmt.Sprintf("%v/%v", i.Options.Domain, inference.Name), nil
+}
+
+func PredictorServiceName(name string) string {
+	return name + "-predictor"
+}
+
+// func DefaultPredictorServiceName(name string) string {
+// 	return name + "-predictor-" + InferenceServiceDefault
+// }
+
+func generateRule(componentName string, path string, port int32) netv1.IngressRule {
+	pathType := netv1.PathTypeImplementationSpecific
+	rule := netv1.IngressRule{
+		IngressRuleValue: netv1.IngressRuleValue{
+			HTTP: &netv1.HTTPIngressRuleValue{
+				Paths: []netv1.HTTPIngressPath{
+					{
+						Path:     path,
+						PathType: &pathType,
+						Backend: netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: componentName,
+								Port: netv1.ServiceBackendPort{
+									Number: port,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	return rule
 }
 
 func inferenceServiceReadiness(status kservev1beta1.InferenceServiceStatus) bool {
