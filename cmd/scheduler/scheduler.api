@@ -265,12 +265,17 @@ type (
 )
 
 type (
+	InferenceService {
+		ServiceName string `json:"service_name"`
+		Status      string `json:"status"`
+		ModelId     string `json:"model_id"`
+	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
 	}
 	CpodJobResp {
 		JobList              []map[string]interface{} `json:"job_list"`
-		InferenceServiceList []map[string]interface{} `json:"inference_service_list"`
+		InferenceServiceList []InferenceService       `json:"inference_service_list"`
 	}
 )
 

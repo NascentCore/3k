@@ -34,7 +34,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	UserJobModel := l.svcCtx.UserJobModel
 	resp = &types.CpodJobResp{}
 	resp.JobList = make([]map[string]interface{}, 0)
-	resp.InferenceServiceList = make([]map[string]interface{}, 0)
+	resp.InferenceServiceList = make([]types.InferenceService, 0)
 
 	gpus, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.Eq{
 		"cpod_id": req.CpodId,

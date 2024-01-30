@@ -32,7 +32,7 @@ type CpodJobReq struct {
 
 type CpodJobResp struct {
 	JobList              []map[string]interface{} `json:"job_list"`
-	InferenceServiceList []map[string]interface{} `json:"inference_service_list"`
+	InferenceServiceList []InferenceService       `json:"inference_service_list"`
 }
 
 type DiskInfo struct {
@@ -116,6 +116,12 @@ type InferenceInfoReq struct {
 
 type InferenceInfoResp struct {
 	Data []SysInference `json:"data"`
+}
+
+type InferenceService struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+	ModelId     string `json:"model_id"`
 }
 
 type InferenceStatus struct {
