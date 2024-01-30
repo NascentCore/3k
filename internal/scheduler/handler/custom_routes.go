@@ -11,11 +11,11 @@ import (
 func RegisterCustomHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/cpod/job",
-				Handler: CpodJobHandler(serverCtx),
-			},
+			//{
+			//	Method:  http.MethodGet,
+			//	Path:    "/cpod/job",
+			//	Handler: CpodJobHandler(serverCtx),
+			//},
 			{
 				Method:  http.MethodDelete,
 				Path:    "/job/job",

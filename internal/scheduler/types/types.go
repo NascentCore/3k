@@ -2,11 +2,12 @@
 package types
 
 type CPODStatusReq struct {
-	JobStatus    []JobStatus  `json:"job_status"`
-	ResourceInfo ResourceInfo `json:"resource_info"`
-	UpdateTime   string       `json:"update_time"`
-	CPODID       string       `json:"cpod_id"`
-	UserID       int64        `header:"Sx-User"`
+	JobStatus       []JobStatus       `json:"job_status"`
+	InferenceStatus []InferenceStatus `json:"inference_status"`
+	ResourceInfo    ResourceInfo      `json:"resource_info"`
+	UpdateTime      string            `json:"update_time"`
+	CPODID          string            `json:"cpod_id"`
+	UserID          int64             `header:"Sx-User"`
 }
 
 type CPODStatusResp struct {
@@ -23,6 +24,15 @@ type Cache struct {
 	DataName   string `json:"data_name"`
 	DataId     string `json:"data_id"`
 	DataSource string `json:"data_source"`
+}
+
+type CpodJobReq struct {
+	CpodId string `form:"cpodid"`
+}
+
+type CpodJobResp struct {
+	JobList              []map[string]interface{} `json:"job_list"`
+	InferenceServiceList []map[string]interface{} `json:"inference_service_list"`
 }
 
 type DiskInfo struct {
@@ -88,6 +98,29 @@ type GPUTypeReq struct {
 type GPUTypeResp struct {
 	Amount  float64 `json:"amount"`
 	GPUProd string  `json:"gpuProd"`
+}
+
+type InferenceDeployReq struct {
+	ModelId string `json:"model_id"`
+	UserID  int64  `header:"Sx-User"`
+}
+
+type InferenceDeployResp struct {
+	ServiceName string `json:"service_name"`
+}
+
+type InferenceInfoReq struct {
+	ServiceName string `json:"service_name,optional"`
+	UserID      int64  `header:"Sx-User"`
+}
+
+type InferenceInfoResp struct {
+	Data []SysInference `json:"data"`
+}
+
+type InferenceStatus struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
 }
 
 type Job struct {
@@ -225,4 +258,13 @@ type ResourceInfo struct {
 	Nodes        []NodeInfo   `json:"nodes"`
 	CPODID       string       `json:"cpod_id"`
 	Caches       []Cache      `json:"caches"`
+}
+
+type SysInference struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+	ModelId     string `json:"model_id"`
+	Url         string `json:"url"`
+	StartTime   string `json:"start_time"` // 推理服务启动时间
+	EndTime     string `json:"end_time"`   // 推理服务终止时间
 }

@@ -85,6 +85,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		return nil, err
 	}
 	jsonAll["stopType"] = userJob.StopType.Int64
+	jsonAll["backoffLimit"] = 1
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {

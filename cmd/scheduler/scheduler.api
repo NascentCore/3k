@@ -87,20 +87,24 @@ type ResourceInfo {
 	Caches       []Cache      `json:"caches"`
 }
 
-type JobStatus {
-	JobStatus string `json:"job_status"`
-	Name      string `json:"name"`
-	Namespace string `json:"namespace"`
-	JobType   string `json:"jobtype"`
-}
-
 type (
+	JobStatus {
+		JobStatus string `json:"job_status"`
+		Name      string `json:"name"`
+		Namespace string `json:"namespace"`
+		JobType   string `json:"jobtype"`
+	}
+	InferenceStatus {
+		ServiceName string `json:"service_name"`
+		Status      string `json:"status"`
+	}
 	CPODStatusReq {
-		JobStatus    []JobStatus  `json:"job_status"`
-		ResourceInfo ResourceInfo `json:"resource_info"`
-		UpdateTime   string       `json:"update_time"`
-		CPODID       string       `json:"cpod_id"`
-		UserID       int64        `header:"Sx-User"`
+		JobStatus       []JobStatus       `json:"job_status"`
+		InferenceStatus []InferenceStatus `json:"inference_status"`
+		ResourceInfo    ResourceInfo      `json:"resource_info"`
+		UpdateTime      string            `json:"update_time"`
+		CPODID          string            `json:"cpod_id"`
+		UserID          int64             `header:"Sx-User"`
 	}
 	CPODStatusResp {
 		Message string `json:"message"`
@@ -235,9 +239,47 @@ type (
 	}
 )
 
+type (
+	SysInference {
+		ServiceName string `json:"service_name"`
+		Status      string `json:"status"`
+		ModelId     string `json:"model_id"`
+		Url         string `json:"url"`
+		StartTime   string `json:"start_time"` // 推理服务启动时间
+		EndTime     string `json:"end_time"` // 推理服务终止时间
+	}
+	InferenceDeployReq {
+		ModelId string `json:"model_id"`
+		UserID  int64  `header:"Sx-User"`
+	}
+	InferenceDeployResp {
+		ServiceName string `json:"service_name"`
+	}
+	InferenceInfoReq {
+		ServiceName string `json:"service_name,optional"`
+		UserID      int64  `header:"Sx-User"`
+	}
+	InferenceInfoResp {
+		Data []SysInference `json:"data"`
+	}
+)
+
+type (
+	CpodJobReq {
+		CpodId string `form:"cpodid"`
+	}
+	CpodJobResp {
+		JobList              []map[string]interface{} `json:"job_list"`
+		InferenceServiceList []map[string]interface{} `json:"inference_service_list"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
+
+	@handler CpodJobHandler
+	get /cpod/job (CpodJobReq) returns (CpodJobResp)
 
 	@handler UploadStatusHandler
 	post /info/upload_status (ModelUrlReq) returns (ModelUrlResp)
@@ -265,5 +307,11 @@ service scheduler-api {
 
 	@handler DatasetsHandler
 	get /resource/datasets returns ([]Cache)
+
+	@handler InferenceDeployHandler
+	post /inference/deploy (InferenceDeployReq) returns (InferenceDeployResp)
+
+	@handler InferenceInfoHandler
+	get /inference/info (InferenceInfoReq) returns (InferenceInfoResp)
 }
 
