@@ -53,7 +53,8 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		if apierrors.IsNotFound(err) {
 			createErr := i.CreateBaseInferenceServices(ctx, inference)
 			if createErr != nil {
-
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", "Get ckpt pvc failed")
+				return ctrl.Result{}, createErr
 			}
 			return ctrl.Result{}, err
 		}
@@ -69,6 +70,11 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}()
 
 	inferenceDeepcopy.Status.Ready = inferenceServiceReadiness(inferenceService.Status)
+	if !inferenceDeepcopy.Status.Ready {
+		inferenceDeepcopy.Status.Conditions = inferenceService.Status.Conditions
+	} else {
+		inferenceDeepcopy.Status.Conditions = nil
+	}
 	inferenceDeepcopy.Status.URL = inferenceServiceURL(inferenceService.Status)
 
 	return ctrl.Result{}, nil

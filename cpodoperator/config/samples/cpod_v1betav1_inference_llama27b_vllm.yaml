@@ -1,0 +1,30 @@
+apiVersion: cpod.cpod/v1beta1
+kind: Inference
+metadata:
+  name: sklearn-iris
+  namespace: cpod
+spec:
+  predictor:
+    containers:
+      - name: kserve-container
+        command:
+          - python3
+          - -m
+          - vllm.entrypoints.api_server
+          - --port
+          - "8080"
+          - --model
+          - /mnt/models
+        env:
+          - name: STORAGE_URI
+            value: pvc://pvc-model-8cdec02f9f4f3a08/ # 训练微调产生的模型的PVC名称
+        image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/vllm
+        resources:
+          limits:
+            cpu: "4"
+            memory: 50Gi
+            nvidia.com/gpu: "1"
+          requests:
+            cpu: "1"
+            memory: 50Gi
+            nvidia.com/gpu: "1"
