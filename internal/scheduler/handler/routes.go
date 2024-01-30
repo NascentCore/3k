@@ -18,9 +18,24 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: GpuTypeHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/cpod/job",
+				Handler: CpodJobHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/cpod/status",
 				Handler: CpodStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/inference/deploy",
+				Handler: InferenceDeployHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/inference/info",
+				Handler: InferenceInfoHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

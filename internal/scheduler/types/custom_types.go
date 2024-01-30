@@ -1,5 +1,5 @@
 package types
 
-type CpodJobReq struct {
-	CPODID string `form:"cpodid"`
-}
+//type CpodJobReq struct {
+//	CPODID string `form:"cpodid"`
+//}

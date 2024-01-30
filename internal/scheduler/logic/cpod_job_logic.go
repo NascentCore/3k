@@ -29,16 +29,18 @@ func NewCpodJobLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CpodJobLo
 	}
 }
 
-func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp []interface{}, err error) {
+func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, err error) {
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
-	resp = make([]interface{}, 0)
+	resp = &types.CpodJobResp{}
+	resp.JobList = make([]map[string]interface{}, 0)
+	resp.InferenceServiceList = make([]map[string]interface{}, 0)
 
 	gpus, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"cpod_id": req.CPODID,
+		"cpod_id": req.CpodId,
 	}))
 	if err != nil {
-		l.Logger.Errorf("cpod_main find cpod_id=%s err=%s", req.CPODID, err)
+		l.Logger.Errorf("cpod_main find cpod_id=%s err=%s", req.CpodId, err)
 		return nil, err
 	}
 
@@ -66,7 +68,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp []interface{}, err e
 				}
 			}
 		} else {
-			if job.CpodId.String == req.CPODID {
+			if job.CpodId.String == req.CpodId {
 				activeJobs = append(activeJobs, job)
 			}
 		}
@@ -76,16 +78,16 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp []interface{}, err e
 		_, err = UserJobModel.UpdateColsByCond(l.ctx, UserJobModel.UpdateBuilder().Where(squirrel.Eq{
 			"job_id": job.JobId,
 		}).SetMap(map[string]interface{}{
-			"cpod_id":     req.CPODID,
+			"cpod_id":     req.CpodId,
 			"update_time": sql.NullTime{Time: time.Now(), Valid: true},
 		}))
 		if err != nil {
 			l.Logger.Errorf("user_job assigned job_id=%d job_name=%s cpod_id=%s err=%s",
-				job.JobId, job.JobName.String, req.CPODID, err)
+				job.JobId, job.JobName.String, req.CpodId, err)
 			return nil, err
 		}
 
-		l.Logger.Infof("user_job assigned job_id=%d job_name=%s cpod_id=%s", job.JobId, job.JobName.String, req.CPODID)
+		l.Logger.Infof("user_job assigned job_id=%d job_name=%s cpod_id=%s", job.JobId, job.JobName.String, req.CpodId)
 
 		// set to resp
 		cpodJobResp := map[string]any{}
@@ -94,7 +96,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp []interface{}, err e
 			l.Logger.Errorf("unmarshal json=%s err=%s", job.JsonAll.String, err)
 			continue
 		}
-		resp = append(resp, &cpodJobResp)
+		resp.JobList = append(resp.JobList, cpodJobResp)
 	}
 
 	for _, job := range activeJobs {
@@ -105,7 +107,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp []interface{}, err e
 			l.Logger.Errorf("unmarshal json=%s err=%s", job.JsonAll.String, err)
 			continue
 		}
-		resp = append(resp, &cpodJobResp)
+		resp.JobList = append(resp.JobList, cpodJobResp)
 	}
 
 	for _, gpu := range assignedGPUs {
