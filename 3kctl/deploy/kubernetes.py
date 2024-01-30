@@ -5,6 +5,7 @@ import hashlib
 from plumbum import colors, local, RETCODE, TF
 from plumbum.cmd import grep, ssh, awk, ls, scp, sed
 from .utils import kk_run, Conf, helm_run, kubectl_run, is_true
+from .software import load_installed_softwares, install_software
 
 
 def install_kubernetes_cluster():
@@ -26,27 +27,16 @@ def install_kubernetes_cluster():
            )
 
 
-def install_operators():
-    for app in Conf.c.deploy.helm_apps.split(","):
-        print(colors.yellow | "===== [3kctl] install {} =====".format(app))
+def install_operators(software=""):
+    print(colors.yellow | "===== [3kctl] install softwares =====")
 
-        helm_run("install",
-                 app,
-                 "harbor/{}".format(app),
-                 "-n",
-                 app,
-                 "--create-namespace",
-                 "-f",
-                 "{}/deploy/values/{}.yaml".format(Conf.c.deploy.work_dir, app)
-                 )
+    softwares = Conf.s.softwares
+    if software:
+        softwares = software.split(",")
 
-    for app in Conf.c.deploy.yaml_apps.split(","):
-        print(colors.yellow | "===== [3kctl] install {} =====".format(app))
-
-        kubectl_run("create",
-                    "-f",
-                    "{}/deploy/yaml_apps/{}.yaml".format(Conf.c.deploy.work_dir, app)
-                    )
+    installed_softwares = load_installed_softwares()
+    for software in softwares:
+        install_software(software, installed_softwares, Conf.s.softwares)
 
 
 def install_ceph_csi_cephfs():
@@ -65,42 +55,6 @@ def install_ceph_csi_cephfs():
                      "-f",
                      "{}/deploy/values/ceph-csi-cephfs.yaml".format(Conf.c.deploy.work_dir)
                      )
-
-
-def install_ceph():
-    print(colors.yellow | "===== [3kctl] install rook-ceph & ceph-cluster =====")
-
-    for node in Conf.c.deploy.ceph_nodes.split(","):
-        retcode = (local["kubectl"]["get", "node", node, "--show-labels=true"] | grep["role=ceph"]) & RETCODE
-        if retcode != 0:
-            kubectl_run("label", "node", node, "role=ceph")
-
-    helm_run("install",
-             "rook-ceph",
-             "harbor/rook-ceph",
-             "-n",
-             "rook-ceph",
-             "--create-namespace",
-             "-f",
-             "{}/deploy/values/rook-ceph.yaml".format(Conf.c.deploy.work_dir)
-             )
-
-    if is_true(local["kubectl"]["get", "pods", "-n", "rook-ceph"]
-               | grep["rook-ceph-operator"]
-               | grep["Running"]
-               | grep["1/1"]):
-        helm_run("install",
-                 "rook-ceph-cluster",
-                 "harbor/rook-ceph-cluster",
-                 "-n",
-                 "rook-ceph",
-                 "--create-namespace",
-                 "-f",
-                 "{}/deploy/values/rook-ceph-cluster.yaml".format(Conf.c.deploy.work_dir)
-                 )
-    else:
-        print(colors.red | "===== [3kctl] rook-ceph-operator not ready, timeout: 120s =====")
-        sys.exit(3)
 
 
 def add_nodes():

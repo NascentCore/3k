@@ -16,7 +16,7 @@ class TestParseYaml(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data="a: 1\nb: 2")
     def test_parse_yaml(self, mock_file):
-        result = parse_yaml()
+        result = parse_yaml("dummy.yaml")
         self.assertEqual(result.a, 1)
         self.assertEqual(result.b, 2)
 

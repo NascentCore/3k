@@ -74,26 +74,19 @@ class Kubernetes(cli.Application):
 @Install.subcommand("operators")
 class Operators(cli.Application):
     """install nfdgpu/netowrk/prometheus/mpi operator"""
+    software = cli.SwitchAttr("--software", str, mandatory=False, help="Install specified software, example: tensorboard,kruise")
 
     def main(self):
         init_apt_source()
-        install_operators()
+        install_operators(self.software)
 
 
 @Install.subcommand("ceph-csi-cephfs")
-class Operators(cli.Application):
+class CephCsiCephfs(cli.Application):
     """install ceph csi cephfs"""
 
     def main(self):
         install_ceph_csi_cephfs()
-
-
-@Install.subcommand("ceph")
-class Ceph(cli.Application):
-    """install rook ceph cluster"""
-
-    def main(self):
-        install_ceph()
 
 
 @Deploy.subcommand("add")
