@@ -19,30 +19,40 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const (
+	InferenceJobDeploying = "deploying"
+	InferenceJobDeployed  = "deployed"
+	InferenceJobFailed    = "failed"
+)
+
 type CPodObserver struct {
-	kubeClient             client.Client
-	logger                 logr.Logger
-	ch                     chan<- sxwl.HeartBeatPayload
-	createFailedJobsGetter func() []sxwl.PortalTrainningJob
-	cpodId                 string
-	cpodNamespace          string
+	kubeClient                      client.Client
+	logger                          logr.Logger
+	ch                              chan<- sxwl.HeartBeatPayload
+	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob
+	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob
+	cpodId                          string
+	cpodNamespace                   string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedJobsGetter func() []sxwl.PortalTrainningJob, logger logr.Logger) *CPodObserver {
-	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch, createFailedJobsGetter: createFailedJobsGetter,
-		cpodId: cpodId, cpodNamespace: cpodNamespace}
+	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob, createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
+	logger logr.Logger) *CPodObserver {
+	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
+		createFailedTrainningJobsGetter: createFailedTrainningJobsGetter,
+		createFailedInferenceJobsGetter: createFailedInferenceJobsGetter,
+		cpodId:                          cpodId, cpodNamespace: cpodNamespace}
 }
 
 func (co *CPodObserver) Start(ctx context.Context) {
 	co.logger.Info("cpod observer")
-	js, err := co.getJobStates(ctx)
+	js, err := co.getTrainningJobStates(ctx)
 	if err != nil {
 		co.logger.Error(err, "get job state error")
 		return
 	}
 	// combine with createdfailed jobs
-	for _, j := range co.createFailedJobsGetter() {
+	for _, j := range co.createFailedTrainningJobsGetter() {
 		js = append(js, sxwl.TrainningJobState{
 			Name:      j.JobName,
 			Namespace: co.cpodNamespace,
@@ -52,6 +62,20 @@ func (co *CPodObserver) Start(ctx context.Context) {
 		})
 	}
 	co.logger.Info("jobstates to upload", "js", js)
+	//inferencejobs
+	ijs, err := co.getInferenceJobStates(ctx)
+	if err != nil {
+		co.logger.Error(err, "get inference job state error")
+		return
+	}
+	// combine with createdfailed jobs
+	for _, j := range co.createFailedInferenceJobsGetter() {
+		ijs = append(ijs, sxwl.InferenceJobState{
+			ServiceName: j.ServiceName,
+			Status:      InferenceJobFailed,
+		})
+	}
+	co.logger.Info("inference jobstates to upload", "ijs", ijs)
 	resourceInfo, err := co.getResourceInfo(ctx)
 	if err != nil {
 		co.logger.Error(err, "get resource error")
@@ -86,7 +110,7 @@ func parseStatus(s v1beta1.CPodJobStatus) (v1beta1.JobConditionType, string) {
 	return v1beta1.JobCreated, "unknow status"
 }
 
-func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
+func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
 	var cpodjobs v1beta1.CPodJobList
 	err := co.kubeClient.List(ctx, &cpodjobs, &client.MatchingLabels{
 		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
@@ -120,6 +144,30 @@ func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.TrainningJobSt
 			// TODO: synch defination with portal
 			JobStatus: v1beta1.JobConditionType(strings.ToLower(string(status))),
 			Info:      info,
+		})
+	}
+	return stats, nil
+}
+
+func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.InferenceJobState, error) {
+	var inferenceJobs v1beta1.InferenceList
+	err := co.kubeClient.List(ctx, &inferenceJobs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	stats := []sxwl.InferenceJobState{}
+	for _, inferenceJob := range inferenceJobs.Items {
+		status := InferenceJobDeploying
+		if inferenceJob.Status.Ready {
+			status = InferenceJobDeployed
+		}
+
+		stats = append(stats, sxwl.InferenceJobState{
+			ServiceName: inferenceJob.Name,
+			Status:      status,
 		})
 	}
 	return stats, nil

@@ -14,6 +14,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const (
+	InferenceJob = "inferencejob"
+	TrainningJob = "trainningjob"
+)
+
 type jobBuffer struct {
 	mtj map[string]sxwl.PortalTrainningJob
 	mij map[string]sxwl.PortalInferenceJob
@@ -198,4 +203,33 @@ func (s *SyncJob) deleteCreateFailedTrainningJob(j string) {
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
 	delete(s.createFailedJobs.mtj, j)
+}
+
+func (s *SyncJob) getCreateFailedInferenceJobs() []sxwl.PortalInferenceJob {
+	res := []sxwl.PortalInferenceJob{}
+	s.createFailedJobs.mu.RLock()
+	defer s.createFailedJobs.mu.RUnlock()
+	for _, v := range s.createFailedJobs.mij {
+		res = append(res, v)
+	}
+	return res
+}
+
+func (s *SyncJob) addCreateFailedInferenceJob(j sxwl.PortalInferenceJob) {
+	if _, ok := s.createFailedJobs.mij[j.ServiceName]; ok {
+		return
+	}
+	s.createFailedJobs.mu.Lock()
+	defer s.createFailedJobs.mu.Unlock()
+	s.createFailedJobs.mij[j.ServiceName] = j
+}
+
+// 如果任务创建成功了，将其从失败任务列表中删除
+func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
+	if _, ok := s.createFailedJobs.mij[j]; !ok {
+		return
+	}
+	s.createFailedJobs.mu.Lock()
+	defer s.createFailedJobs.mu.Unlock()
+	delete(s.createFailedJobs.mij, j)
 }
