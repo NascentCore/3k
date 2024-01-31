@@ -53,6 +53,10 @@ Gateway:
       ToPath: "/job/finetune"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/inference"
+      ToPath: "/inference"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
