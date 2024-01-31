@@ -101,7 +101,7 @@ type GPUTypeResp struct {
 }
 
 type InferenceDeleteReq struct {
-	ServiceName string `path:"service_name"`
+	ServiceName string `form:"service_name"`
 	UserID      int64  `header:"Sx-User"`
 }
 
