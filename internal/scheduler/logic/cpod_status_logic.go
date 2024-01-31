@@ -9,6 +9,7 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 	"sxwl/3k/pkg/consts"
+	"sxwl/3k/pkg/orm"
 	"time"
 
 	"github.com/zeromicro/go-zero/rest/httpc"
@@ -52,6 +53,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	UserJobModel := l.svcCtx.UserJobModel
 	FileURLModel := l.svcCtx.FileURLModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
+	InferModel := l.svcCtx.InferenceModel
 
 	// update sys_main_job or insert
 	for _, gpu := range req.ResourceInfo.GPUSummaries {
@@ -224,6 +226,42 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			logger.Infof("callback job_name=%s url=%s status=%s", jobName,
 				userJob.CallbackUrl.String, callBackResp.Status)
 		}(req.CPODID, job.Name)
+	}
+
+	// update inference
+	for _, infer := range req.InferenceStatus {
+		updateBuilder := InferModel.UpdateBuilder().Where(squirrel.Eq{
+			"service_name": infer.ServiceName,
+		})
+
+		setMap := map[string]interface{}{}
+
+		switch infer.Status {
+		case model.InferStatusDescDeployed:
+			setMap = map[string]interface{}{
+				"start_time": orm.NullTime(time.Now()),
+				"status":     model.InferStatusDeployed,
+			}
+		case model.InferStatusDescFailed:
+			setMap = map[string]interface{}{
+				"status": model.InferStatusDeployed,
+			}
+		}
+
+		result, err := InferModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
+		if err != nil {
+			l.Logger.Errorf("inference update cpod_id=%s service_name=%s err=%s", req.CPODID, infer.ServiceName, err)
+			return nil, err
+		}
+		rows, err := result.RowsAffected()
+		if err != nil {
+			l.Logger.Errorf("inference update cpod_id=%s service_name=%s RowsAffected err=%s", req.CPODID, infer.ServiceName, err)
+			return nil, err
+		}
+		if rows != 1 {
+			l.Logger.Errorf("inference update rows=%d cpod_id=%s service_name=%s err=%s", rows, req.CPODID, infer.ServiceName, err)
+			continue // no update
+		}
 	}
 
 	// update cache
