@@ -15,8 +15,9 @@ import (
 )
 
 type jobBuffer struct {
-	m  map[string]sxwl.PortalTrainningJob
-	mu *sync.RWMutex
+	mtj map[string]sxwl.PortalTrainningJob
+	mij map[string]sxwl.PortalInferenceJob
+	mu  *sync.RWMutex
 }
 
 type SyncJob struct {
@@ -28,10 +29,14 @@ type SyncJob struct {
 
 func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger) *SyncJob {
 	return &SyncJob{
-		kubeClient:       kubeClient,
-		scheduler:        scheduler,
-		createFailedJobs: jobBuffer{m: map[string]sxwl.PortalTrainningJob{}, mu: new(sync.RWMutex)},
-		logger:           logger,
+		kubeClient: kubeClient,
+		scheduler:  scheduler,
+		createFailedJobs: jobBuffer{
+			mtj: map[string]sxwl.PortalTrainningJob{},
+			mij: map[string]sxwl.PortalInferenceJob{},
+			mu:  new(sync.RWMutex),
+		},
+		logger: logger,
 	}
 }
 
@@ -98,7 +103,7 @@ func (s *SyncJob) Start(ctx context.Context) {
 			jobType, ok := jobTypeCheck(job.JobType)
 			if !ok {
 				s.logger.Info("invalid jobtype", "jobtype", job.JobType)
-				s.addCreateFailedJob(job)
+				s.addCreateFailedTrainningJob(job)
 				continue
 			}
 			var backoffLimit int32 = int32(job.BackoffLimit)
@@ -133,10 +138,10 @@ func (s *SyncJob) Start(ctx context.Context) {
 				},
 			}
 			if err = s.kubeClient.Create(ctx, &newCPodJob); err != nil {
-				s.addCreateFailedJob(job)
+				s.addCreateFailedTrainningJob(job)
 				s.logger.Error(err, "failed to create cpodjob", "job", newCPodJob)
 			} else {
-				s.deleteCreateFailedJob(job.JobName)
+				s.deleteCreateFailedTrainningJob(job.JobName)
 				s.logger.Info("cpodjob created", "job", newCPodJob)
 			}
 		}
@@ -166,31 +171,31 @@ func (s *SyncJob) Start(ctx context.Context) {
 
 }
 
-func (s *SyncJob) getCreateFailedJobs() []sxwl.PortalTrainningJob {
+func (s *SyncJob) getCreateFailedTrainningJobs() []sxwl.PortalTrainningJob {
 	res := []sxwl.PortalTrainningJob{}
 	s.createFailedJobs.mu.RLock()
 	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.m {
+	for _, v := range s.createFailedJobs.mtj {
 		res = append(res, v)
 	}
 	return res
 }
 
-func (s *SyncJob) addCreateFailedJob(j sxwl.PortalTrainningJob) {
-	if _, ok := s.createFailedJobs.m[j.JobName]; ok {
+func (s *SyncJob) addCreateFailedTrainningJob(j sxwl.PortalTrainningJob) {
+	if _, ok := s.createFailedJobs.mtj[j.JobName]; ok {
 		return
 	}
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.m[j.JobName] = j
+	s.createFailedJobs.mtj[j.JobName] = j
 }
 
 // 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedJob(j string) {
-	if _, ok := s.createFailedJobs.m[j]; !ok {
+func (s *SyncJob) deleteCreateFailedTrainningJob(j string) {
+	if _, ok := s.createFailedJobs.mtj[j]; !ok {
 		return
 	}
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.m, j)
+	delete(s.createFailedJobs.mtj, j)
 }
