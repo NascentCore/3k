@@ -263,7 +263,7 @@ type (
 		Data []SysInference `json:"data"`
 	}
 	InferenceDeleteReq {
-		ServiceName string `path:"service_name"`
+		ServiceName string `form:"service_name"`
 		UserID      int64  `header:"Sx-User"`
 	}
 	InferenceDeleteResp {
@@ -328,6 +328,6 @@ service scheduler-api {
 	get /inference (InferenceInfoReq) returns (InferenceInfoResp)
 
 	@handler InferenceDeleteHandler
-	delete /inference/:service_name (InferenceDeleteReq) returns (InferenceDeleteResp)
+	delete /inference (InferenceDeleteReq) returns (InferenceDeleteResp)
 }
 
