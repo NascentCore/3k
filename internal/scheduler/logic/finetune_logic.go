@@ -153,6 +153,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["ckptVol"] = 0
 	jsonAll["modelVol"] = ftModel.ModelVol
 	jsonAll["stopType"] = 0
+	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
