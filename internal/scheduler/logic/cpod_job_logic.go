@@ -134,7 +134,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	services, err := InferenceModel.FindAll(l.ctx, InferenceModel.AllFieldsBuilder().Where(
 		squirrel.Or{
 			squirrel.Eq{"status": model.InferStatusWaitDeploy},
-			squirrel.Eq{"cpod_id": req.CpodId},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.InferStatusStopped}},
 		},
 	), "")
 	if err != nil {
@@ -152,7 +152,9 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 
 		// 新分配的部署更新cpod_id和status
-		if service.CpodId == "" {
+		// 2024-01-31 目前逻辑简单粗暴，把所有等待部署的任务都下发下去。更完善的方案应该是考虑到推理部署的GPU占用，不要超卖，否则cpod
+		// 运行不了那么多的推理部署。
+		if service.CpodId == "" && service.Status == model.InferStatusWaitDeploy {
 			_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
 				"id": service.Id,
 			}).SetMap(map[string]interface{}{

@@ -15,6 +15,7 @@ const (
 	InferStatusDescDeploying  = "deploying"
 	InferStatusDescDeployed   = "deployed"
 	InferStatusDescStopped    = "stopped"
+	InferStatusDescFailed     = "failed"
 )
 
 const (
@@ -22,6 +23,7 @@ const (
 	InferStatusDeploying  = 1
 	InferStatusDeployed   = 2
 	InferStatusStopped    = 3
+	InferStatusFailed     = 4
 )
 
 var (
@@ -30,6 +32,7 @@ var (
 		InferStatusDeploying:  InferStatusDescDeploying,
 		InferStatusDeployed:   InferStatusDescDeployed,
 		InferStatusStopped:    InferStatusDescStopped,
+		InferStatusFailed:     InferStatusDescFailed,
 	}
 
 	InferDescToStatus = map[string]int64{
@@ -37,6 +40,7 @@ var (
 		InferStatusDescDeploying:  InferStatusDeploying,
 		InferStatusDescDeployed:   InferStatusDeployed,
 		InferStatusDescStopped:    InferStatusStopped,
+		InferStatusDescFailed:     InferStatusFailed,
 	}
 )
 
@@ -53,18 +57,6 @@ type (
 		FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*SysInference, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysInference, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
-
-		// Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
-		// RowBuilder() squirrel.SelectBuilder
-		// CountBuilder(field string) squirrel.SelectBuilder
-		// SumBuilder(field string) squirrel.SelectBuilder
-		// FindOneByQuery(ctx context.Context, rowBuilder squirrel.SelectBuilder) (*HomestayOrder, error)
-		// FindSum(ctx context.Context, sumBuilder squirrel.SelectBuilder) (float64, error)
-		// FindCount(ctx context.Context, countBuilder squirrel.SelectBuilder) (int64, error)
-		// FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByPage(ctx context.Context, rowBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByIdDESC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMinId, pageSize int64) ([]*HomestayOrder, error)
-		// FindPageListByIdASC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMaxId, pageSize int64) ([]*HomestayOrder, error)
 	}
 
 	customSysInferenceModel struct {
@@ -91,7 +83,7 @@ func (m *defaultSysInferenceModel) UpdateBuilder() squirrel.UpdateBuilder {
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultSysInferenceModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysInference, error) {
-	selectBuilder = selectBuilder.Where("deleted_at is null").Limit(1)
+	selectBuilder = selectBuilder.Limit(1)
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
@@ -148,7 +140,7 @@ func (m *defaultSysInferenceModel) FindPageListByPage(ctx context.Context, selec
 	}
 	offset := (page - 1) * pageSize
 
-	query, args, err := selectBuilder.Where("deleted_at is null").Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
+	query, args, err := selectBuilder.Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
 	if err != nil {
 		return nil, err
 	}
