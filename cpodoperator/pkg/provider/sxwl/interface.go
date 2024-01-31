@@ -38,7 +38,7 @@ type PortalInferenceJob struct {
 	CpodId      string `json:"cpod_id"`
 }
 
-type State struct {
+type TrainningJobState struct {
 	Name      string          `json:"name"`
 	Namespace string          `json:"namespace"`
 	JobType   v1beta1.JobType `json:"jobtype"`
@@ -56,11 +56,17 @@ type Scheduler interface {
 	HeartBeat(HeartBeatPayload) error
 }
 
+type InferenceJobState struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+}
+
 type HeartBeatPayload struct {
-	CPodID       string                    `json:"cpod_id"`
-	JobStatus    []State                   `json:"job_status"`
-	ResourceInfo resource.CPodResourceInfo `json:"resource_info"`
-	UpdateTime   time.Time                 `json:"update_time"`
+	CPodID              string                    `json:"cpod_id"`
+	TrainningJobsStatus []TrainningJobState       `json:"job_status"`
+	InferenceJobsStatus []InferenceJobState       `json:"inference_status"`
+	ResourceInfo        resource.CPodResourceInfo `json:"resource_info"`
+	UpdateTime          time.Time                 `json:"update_time"`
 }
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {

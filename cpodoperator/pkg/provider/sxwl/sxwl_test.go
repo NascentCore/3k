@@ -81,8 +81,12 @@ func Test_sxwl_HeartBeat(t *testing.T) {
 	}
 	var testPayload HeartBeatPayload
 	testPayload = HeartBeatPayload{
-		CPodID:    "",
-		JobStatus: []State{},
+		CPodID:              "",
+		TrainningJobsStatus: []TrainningJobState{},
+		InferenceJobsStatus: []InferenceJobState{{
+			ServiceName: "test1",
+			Status:      "ok",
+		}},
 		ResourceInfo: resource.CPodResourceInfo{
 			CPodID:      "cpod0001",
 			CPodVersion: "1.0",
