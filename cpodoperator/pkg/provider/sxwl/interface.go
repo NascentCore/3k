@@ -29,6 +29,7 @@ type PortalTrainningJob struct {
 	PretrainModelPath string `json:"pretrainedModelPath"`
 	StopTime          int    `json:"stopTime"`
 	StopType          int    `json:"stopType"`
+	BackoffLimit      int    `json:"backoffLimit"`
 }
 
 type PortalInferenceJob struct {
