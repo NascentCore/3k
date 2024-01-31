@@ -15,7 +15,7 @@ import (
 )
 
 type jobBuffer struct {
-	m  map[string]sxwl.PortalJob
+	m  map[string]sxwl.PortalTrainningJob
 	mu *sync.RWMutex
 }
 
@@ -30,7 +30,7 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 	return &SyncJob{
 		kubeClient:       kubeClient,
 		scheduler:        scheduler,
-		createFailedJobs: jobBuffer{m: map[string]sxwl.PortalJob{}, mu: new(sync.RWMutex)},
+		createFailedJobs: jobBuffer{m: map[string]sxwl.PortalTrainningJob{}, mu: new(sync.RWMutex)},
 		logger:           logger,
 	}
 }
@@ -60,7 +60,7 @@ func (s *SyncJob) Start(ctx context.Context) {
 		return
 	}
 
-	portaljobs, err := s.scheduler.GetAssignedJobList()
+	portaljobs, _, err := s.scheduler.GetAssignedJobList()
 	if err != nil {
 		s.logger.Error(err, "failed to list job")
 		return
@@ -163,8 +163,8 @@ func (s *SyncJob) Start(ctx context.Context) {
 
 }
 
-func (s *SyncJob) getCreateFailedJobs() []sxwl.PortalJob {
-	res := []sxwl.PortalJob{}
+func (s *SyncJob) getCreateFailedJobs() []sxwl.PortalTrainningJob {
+	res := []sxwl.PortalTrainningJob{}
 	s.createFailedJobs.mu.RLock()
 	defer s.createFailedJobs.mu.RUnlock()
 	for _, v := range s.createFailedJobs.m {
@@ -173,7 +173,7 @@ func (s *SyncJob) getCreateFailedJobs() []sxwl.PortalJob {
 	return res
 }
 
-func (s *SyncJob) addCreateFailedJob(j sxwl.PortalJob) {
+func (s *SyncJob) addCreateFailedJob(j sxwl.PortalTrainningJob) {
 	if _, ok := s.createFailedJobs.m[j.JobName]; ok {
 		return
 	}

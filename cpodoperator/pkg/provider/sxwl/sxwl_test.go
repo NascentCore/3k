@@ -1,6 +1,7 @@
 package sxwl
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"testing"
@@ -37,10 +38,11 @@ func Test_sxwl_GetAssignedJobList(t *testing.T) {
 			wantErr: false,
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := s.GetAssignedJobList()
+			tjobs, ijobs, err := s.GetAssignedJobList()
+			fmt.Println(tjobs)
+			fmt.Println(ijobs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("sxwl.GetAssignedJobList() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -79,8 +81,12 @@ func Test_sxwl_HeartBeat(t *testing.T) {
 	}
 	var testPayload HeartBeatPayload
 	testPayload = HeartBeatPayload{
-		CPodID:    "",
-		JobStatus: []State{},
+		CPodID:              "",
+		TrainningJobsStatus: []TrainningJobState{},
+		InferenceJobsStatus: []InferenceJobState{{
+			ServiceName: "test1",
+			Status:      "ok",
+		}},
 		ResourceInfo: resource.CPodResourceInfo{
 			CPodID:      "cpod0001",
 			CPodVersion: "1.0",

@@ -8,7 +8,7 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 )
 
-type PortalJob struct {
+type PortalTrainningJob struct {
 	CkptPath    string            `json:"ckptPath"`
 	CkptVol     int               `json:"ckptVol"`
 	Command     string            `json:"runCommand"`
@@ -31,7 +31,14 @@ type PortalJob struct {
 	StopType          int    `json:"stopType"`
 }
 
-type State struct {
+type PortalInferenceJob struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+	ModelId     string `json:"model_id"`
+	CpodId      string `json:"cpod_id"`
+}
+
+type TrainningJobState struct {
 	Name      string          `json:"name"`
 	Namespace string          `json:"namespace"`
 	JobType   v1beta1.JobType `json:"jobtype"`
@@ -43,17 +50,23 @@ type State struct {
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalJob, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
 }
 
+type InferenceJobState struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+}
+
 type HeartBeatPayload struct {
-	CPodID       string                    `json:"cpod_id"`
-	JobStatus    []State                   `json:"job_status"`
-	ResourceInfo resource.CPodResourceInfo `json:"resource_info"`
-	UpdateTime   time.Time                 `json:"update_time"`
+	CPodID              string                    `json:"cpod_id"`
+	TrainningJobsStatus []TrainningJobState       `json:"job_status"`
+	InferenceJobsStatus []InferenceJobState       `json:"inference_status"`
+	ResourceInfo        resource.CPodResourceInfo `json:"resource_info"`
+	UpdateTime          time.Time                 `json:"update_time"`
 }
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {

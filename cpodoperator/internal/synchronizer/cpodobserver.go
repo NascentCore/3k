@@ -23,13 +23,13 @@ type CPodObserver struct {
 	kubeClient             client.Client
 	logger                 logr.Logger
 	ch                     chan<- sxwl.HeartBeatPayload
-	createFailedJobsGetter func() []sxwl.PortalJob
+	createFailedJobsGetter func() []sxwl.PortalTrainningJob
 	cpodId                 string
 	cpodNamespace          string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedJobsGetter func() []sxwl.PortalJob, logger logr.Logger) *CPodObserver {
+	createFailedJobsGetter func() []sxwl.PortalTrainningJob, logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch, createFailedJobsGetter: createFailedJobsGetter,
 		cpodId: cpodId, cpodNamespace: cpodNamespace}
 }
@@ -43,7 +43,7 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	}
 	// combine with createdfailed jobs
 	for _, j := range co.createFailedJobsGetter() {
-		js = append(js, sxwl.State{
+		js = append(js, sxwl.TrainningJobState{
 			Name:      j.JobName,
 			Namespace: co.cpodNamespace,
 			JobType:   v1beta1.JobType(j.JobType),
@@ -58,10 +58,10 @@ func (co *CPodObserver) Start(ctx context.Context) {
 		return
 	}
 	co.ch <- sxwl.HeartBeatPayload{
-		CPodID:       co.cpodId,
-		ResourceInfo: resourceInfo,
-		JobStatus:    js,
-		UpdateTime:   time.Now(),
+		CPodID:              co.cpodId,
+		ResourceInfo:        resourceInfo,
+		TrainningJobsStatus: js,
+		UpdateTime:          time.Now(),
 	}
 	co.logger.Info("upload payload refreshed")
 }
@@ -86,7 +86,7 @@ func parseStatus(s v1beta1.CPodJobStatus) (v1beta1.JobConditionType, string) {
 	return v1beta1.JobCreated, "unknow status"
 }
 
-func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.State, error) {
+func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
 	var cpodjobs v1beta1.CPodJobList
 	err := co.kubeClient.List(ctx, &cpodjobs, &client.MatchingLabels{
 		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
@@ -95,7 +95,7 @@ func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.State, error) 
 		return nil, err
 	}
 
-	stats := []sxwl.State{}
+	stats := []sxwl.TrainningJobState{}
 	for _, cpodjob := range cpodjobs.Items {
 		status, info := parseStatus(cpodjob.Status)
 		// it'a time limit job
@@ -113,7 +113,7 @@ func (co *CPodObserver) getJobStates(ctx context.Context) ([]sxwl.State, error) 
 			}
 		}
 
-		stats = append(stats, sxwl.State{
+		stats = append(stats, sxwl.TrainningJobState{
 			Name:      cpodjob.Name,
 			Namespace: cpodjob.Namespace,
 			JobType:   cpodjob.Spec.JobType,
