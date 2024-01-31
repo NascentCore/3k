@@ -29,13 +29,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/inference/deploy",
+				Path:    "/inference",
 				Handler: InferenceDeployHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/inference/info",
+				Path:    "/inference",
 				Handler: InferenceInfoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/inference/:service_name",
+				Handler: InferenceDeleteHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

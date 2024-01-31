@@ -262,6 +262,13 @@ type (
 	InferenceInfoResp {
 		Data []SysInference `json:"data"`
 	}
+	InferenceDeleteReq {
+		ServiceName string `path:"service_name"`
+		UserID      int64  `header:"Sx-User"`
+	}
+	InferenceDeleteResp {
+		Message string `json:"message"`
+	}
 )
 
 type (
@@ -315,9 +322,12 @@ service scheduler-api {
 	get /resource/datasets returns ([]Cache)
 
 	@handler InferenceDeployHandler
-	post /inference/deploy (InferenceDeployReq) returns (InferenceDeployResp)
+	post /inference (InferenceDeployReq) returns (InferenceDeployResp)
 
 	@handler InferenceInfoHandler
-	get /inference/info (InferenceInfoReq) returns (InferenceInfoResp)
+	get /inference (InferenceInfoReq) returns (InferenceInfoResp)
+
+	@handler InferenceDeleteHandler
+	delete /inference/:service_name (InferenceDeleteReq) returns (InferenceDeleteResp)
 }
 

@@ -100,6 +100,15 @@ type GPUTypeResp struct {
 	GPUProd string  `json:"gpuProd"`
 }
 
+type InferenceDeleteReq struct {
+	ServiceName string `path:"service_name"`
+	UserID      int64  `header:"Sx-User"`
+}
+
+type InferenceDeleteResp struct {
+	Message string `json:"message"`
+}
+
 type InferenceDeployReq struct {
 	ModelId string `json:"model_id"`
 	UserID  int64  `header:"Sx-User"`
