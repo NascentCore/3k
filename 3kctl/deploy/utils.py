@@ -33,8 +33,8 @@ def parse_ini():
     return c
 
 
-def parse_yaml():
-    with open("conf/config-sample.yaml", "r") as f:
+def parse_yaml(filename):
+    with open(filename, "r") as f:
         data = yaml.load(f, Loader=SafeLoader)
     y = dict_to_obj(data)
 
@@ -88,4 +88,5 @@ def is_true(cmd, timeout=120):
 
 class Conf:
     c = parse_ini()
-    y = parse_yaml()
+    y = parse_yaml("conf/config-sample.yaml")
+    s = parse_yaml("conf/softwares.yaml")

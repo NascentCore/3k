@@ -1,0 +1,135 @@
+softwares:
+  - name: "node-feature-discovery"
+    type: "helm"
+    namespace: "nfd"
+    values: "node-feature-discovery.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "gpu-operator"
+    type: "helm"
+    namespace: "gpu-operator"
+    values: "gpu-operator.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "network-operator"
+    type: "helm"
+    namespace: "network-operator"
+    values: "network-operator.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "kube-prometheus-stack"
+    type: "helm"
+    namespace: "monitor"
+    values: "kube-prometheus-stack.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "rook-ceph"
+    type: "helm"
+    namespace: "rook-ceph"
+    values: "rook-ceph.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "rook-ceph-cluster"
+    type: "helm"
+    namespace: "rook-ceph"
+    values: "rook-ceph-cluster.yaml"
+    dependencies: ["rook-ceph"]
+    deploy: true
+    deployNode: ["worker1", "worker2", "worker3"]
+
+  - name: "loki-stack"
+    type: "helm"
+    namespace: "loki-stack"
+    values: "loki-stack.yaml"
+    dependencies: ["rook-ceph-cluster"]
+    deploy: true
+
+  - name: "kruise"
+    type: "helm"
+    namespace: "kruise"
+    values: "kruise.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "volcano-development"
+    type: "kubectl"
+    namespace: "volcano-system"
+    file: "volcano-development.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "mpi-operator"
+    type: "kubectl"
+    namespace: "mpi-operator"
+    file: "mpi-operator.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "infiniband-exporter"
+    type: "kubectl"
+    namespace: "network-operator"
+    file: "infiniband-exporter.yaml"
+    dependencies: ["network-operator"]
+    deploy: true
+
+  - name: "training-operator"
+    type: "kubectl"
+    namespace: "training-operator"
+    file: "training-operator.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "cpodoperator"
+    type: "kubectl"
+    namespace: "cpod-system"
+    file: "cpodoperator.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "downloader-rbac"
+    type: "kubectl"
+    namespace: ""
+    file: "downloader-rbac.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "image-preload"
+    type: "kubectl"
+    namespace: ""
+    file: "image-preload.yaml"
+    dependencies: ["kruise"]
+    deploy: true
+
+  - name: "ingress-nginx"
+    type: "kubectl"
+    namespace: "ingress-nginx"
+    file: "ingress-nginx.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "cert-manager"
+    type: "kubectl"
+    namespace: "cert-manager"
+    file: "cert-manager.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "kserve"
+    type: "kubectl"
+    namespace: "kserve"
+    file: "kserve.yaml"
+    dependencies: ["ingress-nginx", "cert-manager"]
+    deploy: true
+
+  - name: "tensorboard"
+    type: "kubectl"
+    namespace: "monitor"
+    file: "tensorboard.yaml"
+    dependencies: ["rook-ceph-cluster"]
+    deploy: true
+
