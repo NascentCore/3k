@@ -3,13 +3,42 @@ package model
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ SysInferenceModel = (*customSysInferenceModel)(nil)
+
+const (
+	InferStatusDescWaitDeploy = "waitdeploy"
+	InferStatusDescDeploying  = "deploying"
+	InferStatusDescDeployed   = "deployed"
+	InferStatusDescStopped    = "stopped"
+)
+
+const (
+	InferStatusWaitDeploy = 0
+	InferStatusDeploying  = 1
+	InferStatusDeployed   = 2
+	InferStatusStopped    = 3
+)
+
+var (
+	InferStatusToDesc = map[int64]string{
+		InferStatusWaitDeploy: InferStatusDescWaitDeploy,
+		InferStatusDeploying:  InferStatusDescDeploying,
+		InferStatusDeployed:   InferStatusDescDeployed,
+		InferStatusStopped:    InferStatusDescStopped,
+	}
+
+	InferDescToStatus = map[string]int64{
+		InferStatusDescWaitDeploy: InferStatusWaitDeploy,
+		InferStatusDescDeploying:  InferStatusDeploying,
+		InferStatusDescDeployed:   InferStatusDeployed,
+		InferStatusDescStopped:    InferStatusStopped,
+	}
+)
 
 type (
 	// SysInferenceModel is an interface to be customized, add more methods here,
@@ -19,10 +48,9 @@ type (
 		AllFieldsBuilder() squirrel.SelectBuilder
 		UpdateBuilder() squirrel.UpdateBuilder
 
-		DeleteSoft(ctx context.Context, data *SysInference) error
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysInference, error)
 		FindOneById(ctx context.Context, data *SysInference) (*SysInference, error)
-		FindAll(ctx context.Context, orderBy string) ([]*SysInference, error)
+		FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*SysInference, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysInference, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 
@@ -61,25 +89,6 @@ func (m *defaultSysInferenceModel) UpdateBuilder() squirrel.UpdateBuilder {
 	return squirrel.Update(m.table)
 }
 
-// DeleteSoft set deleted_at with CURRENT_TIMESTAMP
-func (m *defaultSysInferenceModel) DeleteSoft(ctx context.Context, data *SysInference) error {
-	builder := squirrel.Update(m.table)
-	builder = builder.Set("deleted_at", sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	})
-	builder = builder.Where("id = ?", data.Id)
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return err
-	}
-
-	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
-		return err
-	}
-	return nil
-}
-
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultSysInferenceModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysInference, error) {
 	selectBuilder = selectBuilder.Where("deleted_at is null").Limit(1)
@@ -104,15 +113,14 @@ func (m *defaultSysInferenceModel) FindOneById(ctx context.Context, data *SysInf
 }
 
 // FindAll returns all valid rows in the table
-func (m *defaultSysInferenceModel) FindAll(ctx context.Context, orderBy string) ([]*SysInference, error) {
-	selectBuilder := m.AllFieldsBuilder()
+func (m *defaultSysInferenceModel) FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*SysInference, error) {
 	if orderBy == "" {
-		selectBuilder = selectBuilder.OrderBy("id DESC")
+		rowBuilder = rowBuilder.OrderBy("id DESC")
 	} else {
-		selectBuilder = selectBuilder.OrderBy(orderBy)
+		rowBuilder = rowBuilder.OrderBy(orderBy)
 	}
 
-	query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+	query, args, err := rowBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}

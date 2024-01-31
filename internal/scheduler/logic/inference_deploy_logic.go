@@ -2,6 +2,10 @@ package logic
 
 import (
 	"context"
+	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/orm"
+
+	"github.com/google/uuid"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
@@ -24,7 +28,28 @@ func NewInferenceDeployLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 }
 
 func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (resp *types.InferenceDeployResp, err error) {
-	// todo: add your logic here and delete this line
+	InferenceModel := l.svcCtx.InferenceModel
+
+	newUUID, err := uuid.NewRandom()
+	if err != nil {
+		l.Errorf("new uuid userId: %d err: %s", req.UserID, err)
+		return nil, err
+	}
+	serviceName := "infer-" + newUUID.String()
+
+	infer := &model.SysInference{
+		ServiceName: serviceName,
+		UserId:      req.UserID,
+		ModelId:     orm.NullString(req.ModelId),
+	}
+
+	_, err = InferenceModel.Insert(l.ctx, infer)
+	if err != nil {
+		l.Errorf("insert userId: %d err: %s", req.UserID, err)
+		return nil, err
+	}
+
+	resp = &types.InferenceDeployResp{ServiceName: serviceName}
 
 	return
 }

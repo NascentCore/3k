@@ -122,6 +122,7 @@ type InferenceService struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
 	ModelId     string `json:"model_id"`
+	CpodId      string `json:"cpod_id"`
 }
 
 type InferenceStatus struct {

@@ -7,6 +7,8 @@ import (
 	"sxwl/3k/internal/scheduler/model"
 	"time"
 
+	"github.com/jinzhu/copier"
+
 	"github.com/Masterminds/squirrel"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -32,6 +34,8 @@ func NewCpodJobLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CpodJobLo
 func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, err error) {
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
+	InferenceModel := l.svcCtx.InferenceModel
+
 	resp = &types.CpodJobResp{}
 	resp.JobList = make([]map[string]interface{}, 0)
 	resp.InferenceServiceList = make([]types.InferenceService, 0)
@@ -124,6 +128,43 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		}
 		l.Logger.Infof("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d",
 			gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64)
+	}
+
+	// inference services
+	services, err := InferenceModel.FindAll(l.ctx, InferenceModel.AllFieldsBuilder().Where(
+		squirrel.Or{
+			squirrel.Eq{"status": model.InferStatusWaitDeploy},
+			squirrel.Eq{"cpod_id": req.CpodId},
+		},
+	), "")
+	if err != nil {
+		l.Errorf("InferenceModel.FindAll err: %s", err)
+		return nil, err
+	}
+
+	for _, service := range services {
+		serviceResp := types.InferenceService{}
+		_ = copier.Copy(&serviceResp, service)
+		statusDesc, ok := model.InferStatusToDesc[service.Status]
+		if ok {
+			serviceResp.Status = statusDesc
+		}
+		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
+
+		// 新分配的部署更新cpod_id和status
+		if service.CpodId == "" {
+			_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
+				"id": service.Id,
+			}).SetMap(map[string]interface{}{
+				"cpod_id": req.CpodId,
+				"status":  model.InferStatusDeploying,
+			}))
+			if err != nil {
+				l.Errorf("inference assigned inferId=%d cpod_id=%s err=%s", service.Id, req.CpodId, err)
+				return nil, err
+			}
+			l.Infof("inference assigned inferId=%d cpod_id=%s", service.Id, req.CpodId)
+		}
 	}
 
 	return

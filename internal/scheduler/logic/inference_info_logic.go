@@ -2,6 +2,11 @@ package logic
 
 import (
 	"context"
+	"sxwl/3k/internal/scheduler/model"
+
+	"github.com/jinzhu/copier"
+
+	"github.com/Masterminds/squirrel"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
@@ -24,7 +29,30 @@ func NewInferenceInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Inf
 }
 
 func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *types.InferenceInfoResp, err error) {
-	// todo: add your logic here and delete this line
+	InferenceModel := l.svcCtx.InferenceModel
+
+	selectBuilder := InferenceModel.AllFieldsBuilder()
+	selectBuilder = selectBuilder.Where(squirrel.Eq{"user_id": req.UserID})
+	if req.ServiceName != "" {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"service_name": req.ServiceName})
+	}
+	infers, err := InferenceModel.FindAll(l.ctx, selectBuilder, "")
+	if err != nil {
+		l.Errorf("InferenceModel.FindAll user_id: %d service_name: %s err: %s", req.UserID, req.ServiceName, err)
+		return nil, err
+	}
+
+	resp = &types.InferenceInfoResp{}
+	resp.Data = make([]types.SysInference, 0)
+	for _, infer := range infers {
+		inferResp := types.SysInference{}
+		_ = copier.Copy(&inferResp, &infer)
+		statusDesc, ok := model.InferStatusToDesc[infer.Status]
+		if ok {
+			inferResp.Status = statusDesc
+		}
+		resp.Data = append(resp.Data, inferResp)
+	}
 
 	return
 }
