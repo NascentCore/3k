@@ -8,7 +8,7 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 )
 
-type PortalJob struct {
+type PortalTrainningJob struct {
 	CkptPath    string            `json:"ckptPath"`
 	CkptVol     int               `json:"ckptVol"`
 	Command     string            `json:"runCommand"`
@@ -31,6 +31,13 @@ type PortalJob struct {
 	StopType          int    `json:"stopType"`
 }
 
+type PortalInferenceJob struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+	ModelId     string `json:"model_id"`
+	CpodId      string `json:"cpod_id"`
+}
+
 type State struct {
 	Name      string          `json:"name"`
 	Namespace string          `json:"namespace"`
@@ -43,7 +50,7 @@ type State struct {
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalJob, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error

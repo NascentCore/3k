@@ -1,6 +1,7 @@
 package sxwl
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"testing"
@@ -37,10 +38,11 @@ func Test_sxwl_GetAssignedJobList(t *testing.T) {
 			wantErr: false,
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := s.GetAssignedJobList()
+			tjobs, ijobs, err := s.GetAssignedJobList()
+			fmt.Println(tjobs)
+			fmt.Println(ijobs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("sxwl.GetAssignedJobList() error = %v, wantErr %v", err, tt.wantErr)
 				return

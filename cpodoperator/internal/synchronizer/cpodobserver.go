@@ -23,13 +23,13 @@ type CPodObserver struct {
 	kubeClient             client.Client
 	logger                 logr.Logger
 	ch                     chan<- sxwl.HeartBeatPayload
-	createFailedJobsGetter func() []sxwl.PortalJob
+	createFailedJobsGetter func() []sxwl.PortalTrainningJob
 	cpodId                 string
 	cpodNamespace          string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedJobsGetter func() []sxwl.PortalJob, logger logr.Logger) *CPodObserver {
+	createFailedJobsGetter func() []sxwl.PortalTrainningJob, logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch, createFailedJobsGetter: createFailedJobsGetter,
 		cpodId: cpodId, cpodNamespace: cpodNamespace}
 }

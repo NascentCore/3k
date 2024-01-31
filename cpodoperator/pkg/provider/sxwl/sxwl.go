@@ -20,15 +20,20 @@ type sxwl struct {
 	identity   string
 }
 
+type GetJobResponse struct {
+	TrainningJobs []PortalTrainningJob `json:"job_list"`
+	InferenceJobs []PortalInferenceJob `json:"inference_service_list"`
+}
+
 // GetAssignedJobList implements Scheduler.
-func (s *sxwl) GetAssignedJobList() ([]PortalJob, error) {
+func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, error) {
 	urlStr, err := url.JoinPath(s.baseURL, v1beta1.URLPATH_FETCH_JOB)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	req, err := http.NewRequest(http.MethodGet, urlStr, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	q := req.URL.Query()
 	q.Add("cpodid", s.identity)
@@ -38,24 +43,24 @@ func (s *sxwl) GetAssignedJobList() ([]PortalJob, error) {
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("httpcode(%d) is not 200 , resp body: %s", resp.StatusCode, string(body))
+		return nil, nil, fmt.Errorf("httpcode(%d) is not 200 , resp body: %s", resp.StatusCode, string(body))
 	}
 
-	var res []PortalJob
+	var res GetJobResponse
 	if err = json.Unmarshal(body, &res); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return res, nil
+	return res.TrainningJobs, res.InferenceJobs, nil
 }
 
 func (s *sxwl) HeartBeat(payload HeartBeatPayload) error {
