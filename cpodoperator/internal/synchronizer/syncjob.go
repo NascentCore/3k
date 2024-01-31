@@ -101,6 +101,8 @@ func (s *SyncJob) Start(ctx context.Context) {
 				s.addCreateFailedJob(job)
 				continue
 			}
+			var backoffLimit int32 = int32(job.BackoffLimit)
+
 			newCPodJob := v1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
 					// TODO: create namespace for different tenant
@@ -121,12 +123,13 @@ func (s *SyncJob) Start(ctx context.Context) {
 					CKPTVolumeSize:        int32(job.CkptVol),
 					ModelSavePath:         job.ModelPath,
 					ModelSaveVolumeSize:   int32(job.ModelVol),
+					UploadModel:           true,
 					Duration:              int32(duration),
 					Image:                 job.ImagePath,
-					UploadModel:           true,
 					Command:               cmd,
 					Envs:                  envs,
 					WorkerReplicas:        replicas,
+					BackoffLimit:          &backoffLimit,
 				},
 			}
 			if err = s.kubeClient.Create(ctx, &newCPodJob); err != nil {
