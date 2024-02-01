@@ -10,10 +10,10 @@ metadata:
   namespace: cpod
   name: role-downloader
 rules:
-- apiGroups: ["cpod.cpod"]
+- apiGroups: ["cpod.sxwl.ai"]
   resources: ["datasetstorages" , "modelstorages"]
   verbs: ["*"]
-- apiGroups: ["cpod.cpod"]
+- apiGroups: ["cpod.sxwl.ai"]
   resources: ["datasetstorages/status" , "modelstorages/status"]
   verbs: ["*"]
 ---

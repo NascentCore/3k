@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tensorboard
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: ceph-filesystem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tensorboard
+  labels:
+    app: tensorboard
+spec:
+  type: NodePort
+  ports:
+  - port: 6006
+    targetPort: 6006
+  selector:
+    app: tensorboard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensorboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tensorboard
+  template:
+    metadata:
+      labels:
+        app: tensorboard
+    spec:
+      containers:
+      - name: tensorboard
+        image: dockerhub.kubekey.local/kubesphereio/tensorflow:latest
+        command: ["tensorboard", "--logdir", "/logs", "--host", "0.0.0.0"]
+        ports:
+        - containerPort: 6006
+        volumeMounts:
+        - name: log-volume
+          mountPath: /logs
+      volumes:
+      - name: log-volume
+        persistentVolumeClaim:
+          claimName: tensorboard

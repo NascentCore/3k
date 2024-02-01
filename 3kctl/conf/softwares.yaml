@@ -10,14 +10,14 @@ softwares:
     type: "helm"
     namespace: "gpu-operator"
     values: "gpu-operator.yaml"
-    dependencies: []
+    dependencies: ["node-feature-discovery"]
     deploy: true
 
   - name: "network-operator"
     type: "helm"
     namespace: "network-operator"
     values: "network-operator.yaml"
-    dependencies: []
+    dependencies: ["node-feature-discovery"]
     deploy: true
 
   - name: "kube-prometheus-stack"

@@ -6,9 +6,7 @@ from colorama import Fore, Style
 from kubernetes import config
 from plumbum import cli
 
-from .hugging_face import HuggingFaceHub
 from .k8s import *
-from .model_scope import ModelScopeHub
 
 GROUP = "cpod.cpod"
 VERSION = "v1"
@@ -338,8 +336,10 @@ class Delete(cli.Application):
 
 def hub_factory(hub_name):
     if hub_name == "modelscope":
+        from .model_scope import ModelScopeHub
         return ModelScopeHub()
     if hub_name == "huggingface":
+        from .hugging_face import HuggingFaceHub
         return HuggingFaceHub()
     else:
         return None

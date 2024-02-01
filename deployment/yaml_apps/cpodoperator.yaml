@@ -16,9 +16,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: cpodjobs.cpod.sxwl.ai
+  name: cpodjobs.cpod.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod.cpod
   names:
     kind: CPodJob
     listKind: CPodJobList
@@ -8435,9 +8435,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: datasetstorages.cpod.sxwl.ai
+  name: datasetstorages.cpod.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod.cpod
   names:
     kind: DataSetStorage
     listKind: DataSetStorageList
@@ -8504,9 +8504,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: modelstorages.cpod.sxwl.ai
+  name: modelstorages.cpod.cpod
 spec:
-  group: cpod.sxwl.ai
+  group: cpod.cpod
   names:
     kind: ModelStorage
     listKind: ModelStorageList
@@ -8629,6 +8629,12 @@ metadata:
   name: cpod-controller-manager
   namespace: cpod-system
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cpod-sa-portalsynch
+  namespace: cpod-system
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -8724,7 +8730,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - cpodjobs
   verbs:
@@ -8736,13 +8742,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - cpodjobs/finalizers
   verbs:
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - cpodjobs/status
   verbs:
@@ -8750,7 +8756,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - datasetstorages
   verbs:
@@ -8762,7 +8768,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - modelstorages
   verbs:
@@ -8774,13 +8780,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - modelstorages/finalizers
   verbs:
   - update
 - apiGroups:
-  - cpod.sxwl.ai
+  - cpod.cpod
   resources:
   - modelstorages/status
   verbs:
@@ -8871,6 +8877,49 @@ rules:
   - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cpod-role-portalsynch
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - cpodjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - cpodjobs/status
+  verbs:
+  - get
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - datasetstorages
+  - datasetstorages/status
+  - modelstorages
+  - modelstorages/status
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   labels:
@@ -8909,6 +8958,19 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: cpod-controller-manager
+  namespace: cpod-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cpod-portalsynch-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cpod-role-portalsynch
+subjects:
+- kind: ServiceAccount
+  name: cpod-sa-portalsynch
   namespace: cpod-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -9006,6 +9068,8 @@ spec:
         - --health-probe-bind-address=:8081
         - --metrics-bind-address=127.0.0.1:8080
         - --leader-elect
+        - --model-upload-job-image=sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:06f5c14
+        - --model-upload-job-bucket-name=sxwl-ai
         command:
         - /manager
         env:
@@ -9021,7 +9085,7 @@ spec:
             configMapKeyRef:
               key: cpod_id
               name: cpod-info
-        image: dockerhub.kubekey.local/kubesphereio/cpodoperator:e81b699
+        image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cpodoperator:8ef3d62
         livenessProbe:
           httpGet:
             path: /healthz
@@ -9050,4 +9114,59 @@ spec:
       securityContext:
         runAsNonRoot: true
       serviceAccountName: cpod-controller-manager
+      terminationGracePeriodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: portalsynch
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/instance: portalsynch
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: deployment
+    app.kubernetes.io/part-of: cpodjob
+    control-plane: portalsynch
+  name: cpod-portalsynch
+  namespace: cpod-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: portalsynch
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: portalsynch
+      labels:
+        control-plane: portalsynch
+    spec:
+      containers:
+      - command:
+        - /app/portalsynch
+        - --sxwl-baseurl
+        - https://llm.sxwl.ai
+        env:
+        - name: DEPLOY
+          value: DEBUG
+        - name: ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              key: access_key
+              name: cpod-info
+        - name: CPOD_ID
+          valueFrom:
+            configMapKeyRef:
+              key: cpod_id
+              name: cpod-info
+        image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/portalsynch:8ef3d62
+        name: portalsynch
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      serviceAccountName: cpod-sa-portalsynch
       terminationGracePeriodSeconds: 10

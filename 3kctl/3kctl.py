@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/.venv/bin/python
 from plumbum import cli, colors
 from deploy.deploy import Deploy
 from download.download import Download
