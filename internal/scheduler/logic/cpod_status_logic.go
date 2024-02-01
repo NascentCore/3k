@@ -234,8 +234,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			"service_name": infer.ServiceName,
 		})
 
-		setMap := map[string]interface{}{}
-
+		var setMap = map[string]interface{}{}
 		switch infer.Status {
 		case model.InferStatusDescDeployed:
 			setMap = map[string]interface{}{
@@ -244,8 +243,11 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			}
 		case model.InferStatusDescFailed:
 			setMap = map[string]interface{}{
-				"status": model.InferStatusDeployed,
+				"status": model.InferStatusFailed,
 			}
+		}
+		if len(setMap) == 0 {
+			continue
 		}
 
 		result, err := InferModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
