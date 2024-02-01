@@ -7,6 +7,7 @@ import (
 
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
+	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
@@ -61,26 +62,32 @@ func jobTypeCheck(jobtype string) (v1beta1.JobType, bool) {
 func (s *SyncJob) Start(ctx context.Context) {
 	s.logger.Info("sync job")
 
-	var cpodjobs v1beta1.CPodJobList
-	err := s.kubeClient.List(ctx, &cpodjobs, &client.MatchingLabels{
-		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-	})
-	if err != nil {
-		s.logger.Error(err, "failed to list cpodjob")
-		return
-	}
-
-	portaljobs, _, err := s.scheduler.GetAssignedJobList()
+	portalTrainningJobs, portalInferenceJobs, err := s.scheduler.GetAssignedJobList()
 	if err != nil {
 		s.logger.Error(err, "failed to list job")
 		return
 	}
-	s.logger.Info("assigned job", "jobs", portaljobs)
+	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs)
+	s.logger.Info("assigned inference job", "jobs", portalInferenceJobs)
+	s.processTrainningJobs(ctx, portalTrainningJobs)
+	s.processInferenceJobs(ctx, portalInferenceJobs)
+
+}
+
+func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.PortalTrainningJob) {
+	var cpodTrainningJobs v1beta1.CPodJobList
+	err := s.kubeClient.List(ctx, &cpodTrainningJobs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	})
+	if err != nil {
+		s.logger.Error(err, "failed to list trainningjob")
+		return
+	}
 
 	for _, job := range portaljobs {
 		exists := false
-		for _, cpodjob := range cpodjobs.Items {
-			if cpodjob.Name == job.JobName {
+		for _, cpodTrainningJob := range cpodTrainningJobs.Items {
+			if cpodTrainningJob.Name == job.JobName {
 				exists = true
 			}
 		}
@@ -113,7 +120,7 @@ func (s *SyncJob) Start(ctx context.Context) {
 			}
 			var backoffLimit int32 = int32(job.BackoffLimit)
 
-			newCPodJob := v1beta1.CPodJob{
+			newJob := v1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
 					// TODO: create namespace for different tenant
 					Namespace: v1beta1.CPOD_NAMESPACE,
@@ -142,38 +149,96 @@ func (s *SyncJob) Start(ctx context.Context) {
 					BackoffLimit:          &backoffLimit,
 				},
 			}
-			if err = s.kubeClient.Create(ctx, &newCPodJob); err != nil {
+			if err = s.kubeClient.Create(ctx, &newJob); err != nil {
 				s.addCreateFailedTrainningJob(job)
-				s.logger.Error(err, "failed to create cpodjob", "job", newCPodJob)
+				s.logger.Error(err, "failed to create trainningjob", "job", newJob)
 			} else {
 				s.deleteCreateFailedTrainningJob(job.JobName)
-				s.logger.Info("cpodjob created", "job", newCPodJob)
+				s.logger.Info("trainningjob created", "job", newJob)
 			}
 		}
 	}
 
-	for _, cpodjob := range cpodjobs.Items {
+	for _, cpodTrainningJob := range cpodTrainningJobs.Items {
 		// do nothing if job has reached a no more change status
-		status, _ := parseStatus(cpodjob.Status)
+		status, _ := parseStatus(cpodTrainningJob.Status)
 		if status == v1beta1.JobFailed || status == v1beta1.JobModelUploaded ||
 			status == v1beta1.JobSucceeded || status == v1beta1.JobModelUploading {
 			continue
 		}
 		exists := false
 		for _, job := range portaljobs {
-			if cpodjob.Name == job.JobName {
+			if cpodTrainningJob.Name == job.JobName {
 				exists = true
 			}
 		}
 		if !exists {
-			if err = s.kubeClient.Delete(ctx, &cpodjob); err != nil {
-				s.logger.Error(err, "failed to delete cpodjob")
+			if err = s.kubeClient.Delete(ctx, &cpodTrainningJob); err != nil {
+				s.logger.Error(err, "failed to delete trainningjob")
 				return
 			}
-			s.logger.Info("cpodjob deleted", "jobid", cpodjob.Name)
+			s.logger.Info("trainningjob deleted", "jobid", cpodTrainningJob.Name)
 		}
 	}
 
+}
+
+func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.PortalInferenceJob) {
+	var cpodInferenceJobs v1beta1.InferenceList
+	err := s.kubeClient.List(ctx, &cpodInferenceJobs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	})
+	if err != nil {
+		s.logger.Error(err, "failed to list inference job")
+		return
+	}
+
+	for _, job := range portaljobs {
+		exists := false
+		for _, cpodInferenceJob := range cpodInferenceJobs.Items {
+			if cpodInferenceJob.Name == job.ServiceName {
+				exists = true
+			}
+		}
+		if !exists {
+			//create
+			newJob := v1beta1.Inference{
+				ObjectMeta: metav1.ObjectMeta{
+					// TODO: create namespace for different tenant
+					Namespace: v1beta1.CPOD_NAMESPACE,
+					Name:      job.ServiceName,
+					Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+				},
+				// TODO: fill PredictorSpec with infomation provided by portaljob
+				Spec: v1beta1.InferenceSpec{
+					Predictor: kservev1beta1.PredictorSpec{},
+				},
+			}
+			if err = s.kubeClient.Create(ctx, &newJob); err != nil {
+				s.addCreateFailedInferenceJob(job)
+				s.logger.Error(err, "failed to create inference job", "job", newJob)
+			} else {
+				s.deleteCreateFailedInferenceJob(job.ServiceName)
+				s.logger.Info("inference job created", "job", newJob)
+			}
+		}
+	}
+
+	for _, cpodInferenceJob := range cpodInferenceJobs.Items {
+		exists := false
+		for _, job := range portaljobs {
+			if cpodInferenceJob.Name == job.ServiceName {
+				exists = true
+			}
+		}
+		if !exists {
+			if err = s.kubeClient.Delete(ctx, &cpodInferenceJob); err != nil {
+				s.logger.Error(err, "failed to delete inference job")
+				return
+			}
+			s.logger.Info("inference job deleted", "jobid", cpodInferenceJob.Name)
+		}
+	}
 }
 
 func (s *SyncJob) getCreateFailedTrainningJobs() []sxwl.PortalTrainningJob {
