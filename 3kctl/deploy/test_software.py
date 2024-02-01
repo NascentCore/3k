@@ -38,23 +38,26 @@ class TestInstallWithHelm(unittest.TestCase):
 
 
 class TestApplyWithKubectl(unittest.TestCase):
+    @patch('subprocess.run')
+    def test_apply_with_kubectl_apply_action(self, mock_run):
+        # 测试正常的 apply 操作
+        filename = "normal-application.yaml"
+        software.apply_with_kubectl(filename)
+        mock_run.assert_called_once_with(["kubectl", "apply", "-f", f"deploy/yaml_apps/{filename}"], check=True)
 
     @patch('subprocess.run')
-    def test_apply_with_kubectl_success(self, mock_run):
-        # 模拟 subprocess.run 方法成功执行
-        mock_run.return_value = None  # 表示命令成功执行
-        try:
-            software.apply_with_kubectl("test.yaml")
-            mock_run.assert_called_with(["kubectl", "apply", "-f", "test.yaml"], check=True)
-        except Exception as e:
-            self.fail(f"Unexpected exception raised: {e}")
+    def test_apply_with_kubectl_create_action(self, mock_run):
+        # 测试对特定文件使用 create 操作
+        filename = "volcano-development.yaml"
+        software.apply_with_kubectl(filename)
+        mock_run.assert_called_once_with(["kubectl", "create", "-f", f"deploy/yaml_apps/{filename}"], check=True)
 
     @patch('subprocess.run')
     def test_apply_with_kubectl_failure(self, mock_run):
-        # 模拟 subprocess.run 方法抛出 CalledProcessError 异常
-        mock_run.side_effect = subprocess.CalledProcessError(1, ['kubectl'])
-        with self.assertRaises(subprocess.CalledProcessError):
-            software.apply_with_kubectl("test.yaml")
+        # 测试 subprocess.run 抛出异常的情况
+        mock_run.side_effect = Exception("测试错误")
+        with self.assertRaises(Exception):
+            software.apply_with_kubectl("fail-application.yaml")
 
 
 class TestGetPodStatus(unittest.TestCase):
