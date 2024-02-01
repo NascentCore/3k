@@ -39,6 +39,7 @@ def create_project():
 def install_helm_push():
     print(colors.yellow | "===== [3kctl] install helm-push plugin =====")
 
+    local["cp"]["bin/kubectl-assert", "/usr/local/bin"] & TF(0)
     res = local["helm"]("env").split("HELM_PLUGINS=")[1].split()[0].strip('"')
     plugin_dir = "{}/helm-push".format(res)
     mkdir("-p", plugin_dir)
