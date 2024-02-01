@@ -30,13 +30,11 @@ def install_kubernetes_cluster():
 def install_operators(software=""):
     print(colors.yellow | "===== [3kctl] install softwares =====")
 
-    softwares = Conf.s.softwares
-    if software:
-        softwares = software.split(",")
-
     installed_softwares = load_installed_softwares()
-    for software in softwares:
-        install_software(software, installed_softwares, Conf.s.softwares)
+    for sw in Conf.s.softwares:
+        if software and software.strip() != sw["name"]:
+            continue
+        install_software(sw, installed_softwares, Conf.s.softwares)
 
 
 def install_ceph_csi_cephfs():
@@ -143,6 +141,8 @@ def gen_cpod_id():
 
 
 def init_cpod_info(access_key, api_address, storage_class, oss_bucket, log_level):
+    if not (local["kubectl"]["get", "ns"] | grep["^cpod$"]) & TF(0):
+        kubectl_run("create", "ns", "cpod")
     if not (local["kubectl"]["get", "ns"] | grep["^cpod-system"]) & TF(0):
         kubectl_run("create", "ns", "cpod-system")
 
@@ -210,7 +210,7 @@ def init_apt_source():
             "-p",
             "8080:80",
             "-v",
-            "{}/packages:/usr/share/nginx/html".format(Conf.c.deploy.work_dir),
+            f"{Conf.c.deploy.work_dir}/packages/apt-source:/usr/share/nginx/html",
             "dockerhub.kubekey.local/kubesphereio/alpine-nginx:main"
         ] & RETCODE
 

@@ -34,18 +34,23 @@ def install_with_helm(name, namespace, values):
         raise
 
 
-def apply_with_kubectl(file):
+def apply_with_kubectl(filename):
     try:
-        subprocess.run(["kubectl", "apply", "-f", file], check=True)
-        logger.info(f"Kubectl 应用 {file} 成功")
+        action = "apply"
+        if filename == "volcano-development.yaml":
+            action = "create"
+        subprocess.run(["kubectl", action, "-f", f"deploy/yaml_apps/{filename}"], check=True)
+        logger.info(f"Kubectl 应用 {filename} 成功")
     except subprocess.CalledProcessError as e:
-        logger.error(f"Kubectl 应用 {file} 失败: {e}")
+        logger.error(f"Kubectl 应用 {filename} 失败: {e}")
         raise
 
 
 def get_pod_status(app_name, namespace):
     try:
-        result = subprocess.run(["kubectl-assert", "pod-ready", "-n", namespace], capture_output=True, text=True, check=True)
+        if namespace == "kruise":
+            namespace = "kruise-system"
+        result = subprocess.run(["kubectl", "assert", "pod-ready", "-n", namespace], capture_output=True, text=True, check=False)
         return result
     except subprocess.CalledProcessError as e:
         logger.error(f"获取 {app_name} 的 Pod 状态失败: {e}")
@@ -61,12 +66,15 @@ def check_pod_status(app_name, namespace, timeout=300, interval=10):
     :param interval: 检查间隔（秒）
     :return: 如果 Pod 成功运行则返回 True，否则返回 False
     """
+    if not namespace:
+        return True
+
     start_time = time.time()
     while time.time() - start_time < timeout:
         status = get_pod_status(app_name, namespace)
         if status is None:
             break  # 获取状态失败，跳出循环
-        if status.returncode == 0 and "No resources found in network namespace" not in status.stdout:
+        if status.returncode == 0 and "No resources found" not in status.stderr:
             logger.info(f"{app_name} 的 Pod 状态为 Running")
             return True
         else:
@@ -101,7 +109,7 @@ def install_software(software, installed_softwares, softwares):
         if software["type"] == "helm":
             if name == "rook-ceph-cluster":
                 add_node_label(software["deployNode"])
-                
+
             install_with_helm(name, software["namespace"], software["values"])
         elif software["type"] == "kubectl":
             apply_with_kubectl(software["file"])
@@ -112,6 +120,7 @@ def install_software(software, installed_softwares, softwares):
 
         # 添加到已安装软件集合
         installed_softwares.add(name)
+        update_installed_softwares(installed_softwares)
         logger.info(f"{name} 安装并运行成功")
 
     except Exception as e:

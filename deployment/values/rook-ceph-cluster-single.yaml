@@ -1,0 +1,27 @@
+cephClusterSpec:
+  mon:
+    count: 1
+  mgr:
+    count: 1
+  cephVersion:
+    image: dockerhub.kubekey.local/kubesphereio/ceph:v17.2.6
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                    - ceph
+
+toolbox:
+  enabled: true
+  image: dockerhub.kubekey.local/kubesphereio/ceph:v17.2.6
+
+configOverride: |
+    [global]
+    mon_allow_pool_delete = true
+    osd_pool_default_size = 1
+    osd_pool_default_min_size = 1
