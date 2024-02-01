@@ -85,6 +85,7 @@ func (co *CPodObserver) Start(ctx context.Context) {
 		CPodID:              co.cpodId,
 		ResourceInfo:        resourceInfo,
 		TrainningJobsStatus: js,
+		InferenceJobsStatus: ijs,
 		UpdateTime:          time.Now(),
 	}
 	co.logger.Info("upload payload refreshed")
