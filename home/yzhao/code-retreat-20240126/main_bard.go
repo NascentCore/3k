@@ -2,7 +2,6 @@ package main
 
 import (
     "fmt"
-    "math/rand"
 )
 
 type CellState int
@@ -12,74 +11,57 @@ const (
     CellDead CellState = 0
 )
 
-type Cell struct {
+type Point struct {
     x, y int
-    state CellState
 }
 
-type Grid struct {
-    width, height int
-    cells [][]Cell
-}
-
-func NewGrid(width, height int) *Grid {
-    grid := &Grid{
-        width: width,
-        height: height,
-        cells: make([][]Cell, width),
+func next(board [][]CellState) [][]CellState {
+    newBoard := make([][]CellState, len(board))
+    for i := range board {
+        newBoard[i] = make([]CellState, len(board[0]))
     }
-    for i := 0; i < width; i++ {
-        grid.cells[i] = make([]Cell, height)
-    }
-    return grid
-}
-
-func (g *Grid) Init() {
-    for i := 0; i < g.width; i++ {
-        for j := 0; j < g.height; j++ {
-            g.cells[i][j].state = CellAlive
+    for i := range board {
+        for j := range board[i] {
+            neighbors := countNeighbors(board, Point{i, j})
+            newState := board[i][j]
+            switch neighbors {
+            case 2:
+                newState = CellAlive
+            case 3:
+                newState = CellAlive
+            case 4, 5, 6, 7, 8:
+                newState = CellDead
+            }
+            newBoard[i][j] = newState
         }
     }
+    return newBoard
 }
 
-func (g *Grid) NextGeneration() {
-    newGrid := NewGrid(g.width, g.height)
-    for i := 0; i < g.width; i++ {
-        for j := 0; j < g.height; j++ {
-            neighbors := 0
-            for k := -1; k <= 1; k++ {
-                for l := -1; l <= 1; l++ {
-                    if 0 <= i+k < g.width && 0 <= j+l < g.height && g.cells[i+k][j+l].state == CellAlive {
-                        neighbors++
-                    }
+func countNeighbors(board [][]CellState, point Point) int {
+    neighbors := 0
+    for dx := -1; dx <= 1; dx++ {
+        for dy := -1; dy <= 1; dy++ {
+            neighbor := Point{point.x + dx, point.y + dy}
+            if neighbor.x >= 0 && neighbor.x < len(board) && neighbor.y >= 0 && neighbor.y < len(board[0]) {
+                if board[neighbor.x][neighbor.y] == CellAlive {
+                    neighbors++
                 }
             }
-            newGrid.cells[i][j].state = CellState(neighbors)
         }
     }
-    g.cells = newGrid.cells
-}
-
-func (g *Grid) Print() {
-    for i := 0; i < g.width; i++ {
-        for j := 0; j < g.height; j++ {
-            switch g.cells[i][j].state {
-            case CellAlive:
-                fmt.Print("*")
-            case CellDead:
-                fmt.Print(" ")
-            }
-        }
-        fmt.Println()
-    }
+    return neighbors
 }
 
 func main() {
-    grid := NewGrid(100, 100)
-    grid.Init()
+    board := [][]CellState{
+        {CellAlive, CellAlive, CellAlive},
+        {CellAlive, CellDead, CellAlive},
+        {CellAlive, CellAlive, CellAlive},
+    }
     for {
-        grid.Print()
-        grid.NextGeneration()
+        board = next(board)
+        fmt.Println(board)
     }
 }
 
