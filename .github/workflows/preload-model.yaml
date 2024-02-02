@@ -1,0 +1,62 @@
+name: Preload Model
+
+on:
+  push:
+    paths:
+      - 'deployment/models/pre_loaded.txt'
+
+jobs:
+  process-new-models:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install Git LFS
+      run: |
+        sudo apt-get update && sudo apt-get install git-lfs -y
+        git lfs install
+
+    - name: Checkout Previous Commit
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.before }}
+        path: 'old'
+
+    - name: Install ossutil
+      run: |
+        wget http://gosspublic.alicdn.com/ossutil/1.7.0/ossutil64
+        chmod +x ossutil64
+        sudo mv ossutil64 /usr/local/bin/ossutil
+
+    - name: Find New Models
+      id: new_models
+      run: |
+        diff --new-line-format="" --unchanged-line-format="" old/deployment/models/pre_loaded.txt deployment/models/pre_loaded.txt > new_models.txt || true
+        if [ -s new_models.txt ]; then
+            echo "New models found, processing..."
+            echo "::set-output name=list::$(cat new_models.txt)"
+        else
+            echo "No new models found. Nothing to do."
+        fi
+
+    - name: Download and Upload New Models
+      if: steps.new_models.outputs.list != ''
+      run: |
+        while read repo; do
+          git clone "$repo" model
+          cd model
+          git lfs fetch
+          git lfs checkout
+          cd ..
+          rm -rf ./model/.git
+          model_name=$(basename "$repo")
+          ossutil cp -r ./model oss://${{ secrets.OSS_BUCKET }}/models/"$model_name"/ --update
+          rm -rf ./model
+        done < new_models.txt
+      env:
+        OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
