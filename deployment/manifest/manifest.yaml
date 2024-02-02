@@ -38,7 +38,7 @@ spec:
       version: v2.4.1
     docker-compose:
       version: v2.2.2
-  images: 
+  images:
   # 以下列表基于kubekey单独安装kubernetes后生成
   # 如需其他镜像可在此添加，离线部署时所有镜像将push到私有仓库
   - registry.cn-beijing.aliyuncs.com/kubesphereio/cni:v3.23.2
@@ -125,5 +125,11 @@ spec:
   - dockerhub.kubekey.local/kubesphereio/tritonserver:23.05-py3
   - dockerhub.kubekey.local/kubesphereio/xgbserver:v0.11.0
   - dockerhub.kubekey.local/kubesphereio/kruise-manager:v1.5.1
+  - dockerhub.kubekey.local/kubesphereio/ib:latest
+  - dockerhub.kubekey.local/kubesphereio/mpi-pi:openmpi
+  - dockerhub.kubekey.local/kubesphereio/pytorch-example:latest
+  - dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h1g1dp:latest
+  - dockerhub.kubekey.local/kubesphereio/opencost-ui:latest
+  - dockerhub.kubekey.local/kubesphereio/kubecost-cost-model:latest
   registry:
     auths: {}
