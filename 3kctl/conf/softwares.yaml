@@ -1,10 +1,10 @@
 softwares:
-  - name: "node-feature-discovery"
-    type: "helm"
-    namespace: "nfd"
-    values: "node-feature-discovery.yaml"
-    dependencies: []
-    deploy: true
+  - name: "node-feature-discovery"         # 组件名称
+    type: "helm"                           # 安装类型，目前包含两种：helm|kubectl
+    namespace: "nfd"                       # 组件部署的命名空间，安装时 3kctl 会检查该命名空间下的 pod-ready
+    values: "node-feature-discovery.yaml"  # helm 部署时使用的自定义 values 文件
+    dependencies: []                       # 组件是否依赖其他组件，如有依赖，会先安装被依赖的组件，前提是依赖组件也在 softwares 列表中
+    deploy: true                           # 3kctl 安装时是否部署该组件
 
   - name: "gpu-operator"
     type: "helm"
@@ -37,10 +37,10 @@ softwares:
   - name: "rook-ceph-cluster"
     type: "helm"
     namespace: "rook-ceph"
-    values: "rook-ceph-cluster.yaml"
+    values: "rook-ceph-cluster.yaml"                 # 如果单节点部署 ceph，可修改该值为 rook-ceph-cluster-single.yaml
     dependencies: ["rook-ceph"]
     deploy: true
-    deployNode: ["worker1", "worker2", "worker3"]
+    deployNode: ["worker1", "worker2", "worker3"]    # 部署 ceph 时可指定部署的节点，根据实现部署环境进行修改
 
   - name: "loki-stack"
     type: "helm"
@@ -59,7 +59,7 @@ softwares:
   - name: "volcano-development"
     type: "kubectl"
     namespace: "volcano-system"
-    file: "volcano-development.yaml"
+    file: "volcano-development.yaml"      # file 是 kubectl 方式部署时指定的 yaml 文件
     dependencies: []
     deploy: true
 
@@ -93,7 +93,7 @@ softwares:
 
   - name: "downloader-rbac"
     type: "kubectl"
-    namespace: ""
+    namespace: ""                        # namespace 值为空时，3kctl 会跳过检查 pod-ready
     file: "downloader-rbac.yaml"
     dependencies: []
     deploy: true
