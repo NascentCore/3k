@@ -49,8 +49,6 @@ jobs:
         while read repo; do
           git clone "$repo" model
           cd model
-          git lfs fetch
-          git lfs checkout
           cd ..
           rm -rf ./model/.git
           model_name=$(basename "$repo")
