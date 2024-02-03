@@ -1,5 +1,3 @@
 # A list of models to be preloaded
-https://www.modelscope.cn/01ai/Yi-34B.git
-https://www.modelscope.cn/AI-ModelScope/stable-diffusion-xl-refiner-1.0.git
 https://huggingface.co/stabilityai/stable-code-3b
 https://huggingface.co/01-ai/Yi-VL-6B
