@@ -1,2 +1,3 @@
 # A list of models to be preloaded
 https://huggingface.co/stabilityai/stable-code-3b
+https://huggingface.co/01-ai/Yi-VL-6B
