@@ -38,7 +38,7 @@ jobs:
         diff old/deployment/models/pre_loaded.txt deployment/models/pre_loaded.txt | grep '^>' | sed 's/^> //' > new_models.txt || true
         if [ -s new_models.txt ]; then
             echo "New models found, processing..."
-            echo "NEW_MODELS=$(cat new_models.txt | base64)" >> $GITHUB_ENV
+            echo "NEW_MODELS=true" >> $GITHUB_ENV
         else
             echo "No new models found. Nothing to do."
             echo "NEW_MODELS=" >> $GITHUB_ENV
