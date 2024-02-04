@@ -5,5 +5,3 @@ https://huggingface.co/THUDM/chatglm3-6b
 https://huggingface.co/baichuan-inc/Baichuan2-7B-Base
 https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1
 https://huggingface.co/Qwen/Qwen-7B-Chat
-https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
-https://huggingface.co/01-ai/Yi-34B
