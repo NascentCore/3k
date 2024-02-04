@@ -1,4 +1,4 @@
-package gpt4
+package main
 
 import (
     "reflect"

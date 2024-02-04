@@ -1,4 +1,4 @@
-package gencode
+package main
 
 import (
     "fmt"
