@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -211,7 +212,54 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 				},
 				// TODO: fill PredictorSpec with infomation provided by portaljob
 				Spec: v1beta1.InferenceSpec{
-					Predictor: kservev1beta1.PredictorSpec{},
+					Predictor: kservev1beta1.PredictorSpec{
+						PodSpec: kservev1beta1.PodSpec{
+							Containers: []v1.Container{
+								{
+									Name:  "kserve-container",
+									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+									Command: []string{
+										"python",
+										"src/api_demo.py",
+										"--model_name_or_path",
+										"/mnt/models",
+										"--template",
+										"default",
+									},
+									Env: []v1.EnvVar{
+										{
+											Name:  "STORAGE_URI",
+											Value: "modelstorage://model-storage-8bfc0ffceca0f0ce",
+										},
+									},
+									Resources: v1.ResourceRequirements{
+										Limits: map[v1.ResourceName]resource.Quantity{
+											v1.ResourceCPU: {
+												Format: "4",
+											},
+											v1.ResourceMemory: {
+												Format: "50Gi",
+											},
+											"nvidia.com/gpu": {
+												Format: "1",
+											},
+										},
+										Requests: map[v1.ResourceName]resource.Quantity{
+											v1.ResourceCPU: {
+												Format: "4",
+											},
+											v1.ResourceMemory: {
+												Format: "50Gi",
+											},
+											"nvidia.com/gpu": {
+												Format: "1",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 			}
 			if err = s.kubeClient.Create(ctx, &newJob); err != nil {
