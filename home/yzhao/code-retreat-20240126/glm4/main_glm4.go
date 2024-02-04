@@ -1,4 +1,4 @@
-package main
+package gencode
 
 import (
 	"fmt"
@@ -42,7 +42,9 @@ func countNeighbors(x, y int) int {
 	for i := -1; i <= 1; i++ {
 		for j := -1; j <= 1; j++ {
 			if (i != 0 || j != 0) && (x+i >= 0) && (x+i < height) && (y+j >= 0) && (y+j < width) {
-				count += int(board[x+i][y+j])
+				if board[x+i][y+j] {
+					count += 1
+				}
 			}
 		}
 	}
