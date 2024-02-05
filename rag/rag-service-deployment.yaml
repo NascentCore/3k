@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-service
+  template:
+    metadata:
+      labels:
+        app: rag-service
+    spec:
+      containers:
+        - name: rag-service
+          image: rag-service:v0.0.4
+          ports:
+            - containerPort: 5000
+          env:
+            - name: https_proxy
+              value: "http://squid:squid@214.2.5.239:13128"
+            - name: http_proxy
+              value: "http://squid:squid@214.2.5.239:13128"
+            - name: no_proxy
+              value: "localhost,127.0.0.1,openchat.llm.sxwl.ai"
