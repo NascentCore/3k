@@ -231,6 +231,10 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 											Name:  "STORAGE_URI",
 											Value: "modelstorage://" + job.ModelId,
 										},
+										{
+											Name:  "API_PORT",
+											Value: "8080",
+										},
 									},
 									Resources: v1.ResourceRequirements{
 										Limits: map[v1.ResourceName]resource.Quantity{
