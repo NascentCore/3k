@@ -229,7 +229,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 									Env: []v1.EnvVar{
 										{
 											Name:  "STORAGE_URI",
-											Value: "modelstorage://model-storage-8bfc0ffceca0f0ce",
+											Value: "modelstorage://" + job.ModelId,
 										},
 									},
 									Resources: v1.ResourceRequirements{
