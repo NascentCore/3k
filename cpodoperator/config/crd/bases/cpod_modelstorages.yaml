@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.13.0
-  name: modelstorages.cpod
+  name: modelstorages.cpod.cpod
 spec:
-  group: cpod
+  group: cpod.cpod
   names:
     kind: ModelStorage
     listKind: ModelStorageList
