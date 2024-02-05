@@ -2,6 +2,8 @@ name: Preload Model
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'deployment/models/pre_loaded.txt'
 
