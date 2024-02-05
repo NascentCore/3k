@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: rag-service
-          image: rag-service:v0.0.4
+          image: dockerhub.kubekey.local/kubesphereio/rag-service:v0.0.6
           ports:
             - containerPort: 5000
           env:
@@ -23,4 +23,10 @@ spec:
             - name: http_proxy
               value: "http://squid:squid@214.2.5.239:13128"
             - name: no_proxy
-              value: "localhost,127.0.0.1,openchat.llm.sxwl.ai"
+              value: "localhost,127.0.0.1,openchat.llm.sxwl.ai,10.233.57.192,10.233.52.22"
+            - name: MILVUS_HOST
+              value: "10.233.52.22"
+            - name: MILVUS_PORT
+              value: "19530"
+            - name: OPENCHAT_URL
+              value: "http://10.233.57.192/v1/chat/completions"
