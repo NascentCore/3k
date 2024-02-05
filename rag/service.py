@@ -21,6 +21,7 @@ with open(config.Config.ID_TEXT_FILE_NAME, 'r') as f:
 connections.connect("default", host=app.config['MILVUS_HOST'], port=app.config['MILVUS_PORT'])
 
 collection = Collection(name=app.config['MILVUS_COLLECTION_NAME'])
+collection.load()
 
 @app.route("/complete", methods=["POST"])
 def complete():
