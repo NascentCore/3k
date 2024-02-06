@@ -27,16 +27,26 @@ import (
 type ModelStorageSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	ModelType string `json:"modeltype,omitempty"`
-	ModelName string `json:"modelname,omitempty"`
-	PVC       string `json:"pvc,omitempty"`
+	ModelType             string `json:"modeltype,omitempty"`
+	ModelName             string `json:"modelname,omitempty"`
+	PVC                   string `json:"pvc,omitempty"`
+	ConvertTensorRTEngine bool   `json:"converttensortrengine,omitempty"`
 }
+
+type ConvertTensorRTEngineStatus string
+
+const (
+	ConvertTensorRTEngineStatusConverting ConvertTensorRTEngineStatus = "Converting"
+	ConvertTensorRTEngineStatusConverted  ConvertTensorRTEngineStatus = "Converted"
+	ConvertTensorRTEngineStatusFailed     ConvertTensorRTEngineStatus = "Failed"
+)
 
 // ModelStorageStatus defines the observed state of ModelStorage
 type ModelStorageStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Phase string `json:"phase,omitempty"`
+	Phase                       string                      `json:"phase,omitempty"`
+	ConvertTensorRTEngineStatus ConvertTensorRTEngineStatus `json:"converttensortrenginestatus,omitempty"`
 }
 
 //+kubebuilder:object:root=true
