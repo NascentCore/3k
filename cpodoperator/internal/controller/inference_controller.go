@@ -177,13 +177,16 @@ func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1b
 			// 获取对应preidector service name
 			svcName := PredictorServiceName(inferenceservice.Name)
 			// create ingress
-			path := fmt.Sprintf("/%v/(.*)", inference.Name)
+			path := "/"
 			var rules []netv1.IngressRule
-			rules = append(rules, generateRule(svcName, path, 80))
+			rules = append(rules, i.generateRule(inference.Name, svcName, path, 80))
 			ingress := &netv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      ingressName,
 					Namespace: inference.Namespace,
+					Annotations: map[string]string{
+						"kubernetes.io/ingress.class": "nginx",
+					},
 					OwnerReferences: []metav1.OwnerReference{
 						i.generateOwnerRefInference(ctx, inference),
 					},
@@ -202,7 +205,7 @@ func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1b
 		return "", err
 	}
 
-	return fmt.Sprintf("%v/%v", i.Options.Domain, inference.Name), nil
+	return fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain), nil
 }
 
 func PredictorServiceName(name string) string {
@@ -213,9 +216,10 @@ func PredictorServiceName(name string) string {
 // 	return name + "-predictor-" + InferenceServiceDefault
 // }
 
-func generateRule(componentName string, path string, port int32) netv1.IngressRule {
-	pathType := netv1.PathTypeImplementationSpecific
+func (i *InferenceReconciler) generateRule(inferenceName, componentName string, path string, port int32) netv1.IngressRule {
+	pathType := netv1.PathTypePrefix
 	rule := netv1.IngressRule{
+		Host: fmt.Sprintf("%v.%v", inferenceName, i.Options.Domain),
 		IngressRuleValue: netv1.IngressRuleValue{
 			HTTP: &netv1.HTTPIngressRuleValue{
 				Paths: []netv1.HTTPIngressPath{
