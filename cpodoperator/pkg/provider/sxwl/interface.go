@@ -60,6 +60,7 @@ type Scheduler interface {
 type InferenceJobState struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
+	URL         string `json:"url"`
 }
 
 type HeartBeatPayload struct {
