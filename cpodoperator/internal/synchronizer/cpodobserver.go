@@ -165,10 +165,15 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 		if inferenceJob.Status.Ready {
 			status = InferenceJobDeployed
 		}
+		url := ""
+		if inferenceJob.Status.URL != nil {
+			url = *inferenceJob.Status.URL
+		}
 
 		stats = append(stats, sxwl.InferenceJobState{
 			ServiceName: inferenceJob.Name,
 			Status:      status,
+			URL:         url,
 		})
 	}
 	return stats, nil
