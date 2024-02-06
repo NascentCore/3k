@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sxwl/3k/internal/scheduler/model"
+	"time"
 
 	"github.com/jinzhu/copier"
 
@@ -53,8 +54,18 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 			inferResp.Status = statusDesc
 		}
 		if infer.Url != "" {
-			inferResp.Url = fmt.Sprintf("http://%s:30005/v1/chat/completions", infer.Url)
+			inferConfig, ok := l.svcCtx.Config.Inference[infer.ModelId.String]
+			if ok {
+				inferResp.Url = fmt.Sprintf(inferConfig.UrlFormat, infer.Url)
+			}
 		}
+		if infer.StartTime.Valid {
+			inferResp.StartTime = infer.StartTime.Time.Format(time.DateTime)
+		}
+		if infer.EndTime.Valid {
+			inferResp.EndTime = infer.EndTime.Time.Format(time.DateTime)
+		}
+
 		resp.Data = append(resp.Data, inferResp)
 	}
 

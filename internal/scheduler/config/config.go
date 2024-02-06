@@ -16,4 +16,7 @@ type Config struct {
 		ModelVol int64  `json:"model_vol"`
 		GPUNum   int64  `json:"gpu_num"`
 	} `json:"FinetuneModel"`
+	Inference map[string]struct {
+		UrlFormat string `json:"url_format"`
+	} `json:"inference"`
 }
