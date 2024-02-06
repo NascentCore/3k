@@ -139,3 +139,17 @@ softwares:
     file: "opencost.yaml"
     dependencies: []
     deploy: true
+
+  - name: "kubernetes-dashboard"
+    type: "kubectl"
+    namespace: "kubernetes-dashboard"
+    file: "kubernetes-dashboard.yaml"
+    dependencies: []
+    deploy: true
+
+  - name: "dashboard-admin-sa"
+    type: "kubectl"
+    namespace: ""
+    file: "dashboard-admin-sa.yaml"
+    dependencies: ["kubernetes-dashboard"]
+    deploy: true
