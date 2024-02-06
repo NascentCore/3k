@@ -52,7 +52,9 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if ok {
 			inferResp.Status = statusDesc
 		}
-		inferResp.Url = fmt.Sprintf("http://%s:30005/v1/chat/completions", infer.Url)
+		if infer.Url != "" {
+			inferResp.Url = fmt.Sprintf("http://%s:30005/v1/chat/completions", infer.Url)
+		}
 		resp.Data = append(resp.Data, inferResp)
 	}
 
