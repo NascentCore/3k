@@ -238,26 +238,14 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 									},
 									Resources: v1.ResourceRequirements{
 										Limits: map[v1.ResourceName]resource.Quantity{
-											v1.ResourceCPU: {
-												Format: "4",
-											},
-											v1.ResourceMemory: {
-												Format: "50Gi",
-											},
-											"nvidia.com/gpu": {
-												Format: "1",
-											},
+											v1.ResourceCPU:    resource.MustParse("4"),
+											v1.ResourceMemory: resource.MustParse("50Gi"),
+											"nvidia.com/gpu":  resource.MustParse("1"),
 										},
 										Requests: map[v1.ResourceName]resource.Quantity{
-											v1.ResourceCPU: {
-												Format: "4",
-											},
-											v1.ResourceMemory: {
-												Format: "50Gi",
-											},
-											"nvidia.com/gpu": {
-												Format: "1",
-											},
+											v1.ResourceCPU:    resource.MustParse("4"),
+											v1.ResourceMemory: resource.MustParse("50Gi"),
+											"nvidia.com/gpu":  resource.MustParse("1"),
 										},
 									},
 								},
