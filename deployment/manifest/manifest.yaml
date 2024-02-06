@@ -129,9 +129,13 @@ spec:
   - dockerhub.kubekey.local/kubesphereio/mpi-pi:openmpi
   - dockerhub.kubekey.local/kubesphereio/pytorch-example:latest
   - dockerhub.kubekey.local/kubesphereio/modelscope_gpt3_1h1g1dp:latest
+  - dockerhub.kubekey.local/kubesphereio/fastchat:v1
+  - dockerhub.kubekey.local/kubesphereio/vllm:latest
   - dockerhub.kubekey.local/kubesphereio/opencost-ui:latest
   - dockerhub.kubekey.local/kubesphereio/kubecost-cost-model:latest
   - dockerhub.kubekey.local/kubesphereio/dashboard:v2.7.0
   - dockerhub.kubekey.local/kubesphereio/metrics-scraper:v1.0.8
+  - dockerhub.kubekey.local/kubesphereio/tensorflow:latest
+  - dockerhub.kubekey.local/kubesphereio/tensorboard-example:main
   registry:
     auths: {}
