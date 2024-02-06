@@ -97,6 +97,7 @@ type (
 	InferenceStatus {
 		ServiceName string `json:"service_name"`
 		Status      string `json:"status"`
+		URL         string `json:"url"`
 	}
 	CPODStatusReq {
 		JobStatus       []JobStatus       `json:"job_status"`

@@ -240,6 +240,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			setMap = map[string]interface{}{
 				"start_time": orm.NullTime(time.Now()),
 				"status":     model.InferStatusDeployed,
+				"url":        infer.URL,
 			}
 		case model.InferStatusDescFailed:
 			setMap = map[string]interface{}{

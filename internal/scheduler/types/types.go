@@ -137,6 +137,7 @@ type InferenceService struct {
 type InferenceStatus struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
+	URL         string `json:"url"`
 }
 
 type Job struct {
