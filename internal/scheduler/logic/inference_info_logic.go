@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 
 	"github.com/jinzhu/copier"
@@ -51,6 +52,7 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if ok {
 			inferResp.Status = statusDesc
 		}
+		inferResp.Url = fmt.Sprintf("http://%s:30005/v1/chat/completions", infer.Url)
 		resp.Data = append(resp.Data, inferResp)
 	}
 
