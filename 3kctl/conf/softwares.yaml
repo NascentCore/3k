@@ -153,3 +153,10 @@ softwares:
     file: "dashboard-admin-sa.yaml"
     dependencies: ["kubernetes-dashboard"]
     deploy: true
+
+  - name: "jupyterlab"
+    type: "kubectl"
+    namespace: ""
+    file: "jupyterlab.yaml"
+    dependencies: []
+    deploy: true
