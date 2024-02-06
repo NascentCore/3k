@@ -78,7 +78,7 @@ func main() {
 	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:ea1b518", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
 	flag.StringVar(&modelUploadOssBucketName, "model-upload-job-bucket-name", "sxwl-ai-test", "the oss bucket name of model upload job")
-	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "219.159.22.20:30005", "the domain of inference ingress")
+	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
 	opts := zap.Options{
 		Development: true,
 	}
