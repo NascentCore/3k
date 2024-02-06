@@ -22,16 +22,16 @@ type JobStatus string
 
 // 通用的任务状态定义
 const (
-	JobStatusCreated        JobStatus = "created"        //任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
-	JobStatusCreateFailed   JobStatus = "createfailed"   //任务在创建时直接失败（因为配置原因）
-	JobStatusRunning        JobStatus = "running"        //Pod全部创建成功，并正常运行
-	JobStatusPending        JobStatus = "pending"        //因为资源不足，在等待
-	JobStatusErrorLoop      JobStatus = "crashloop"      //进入crashloop
-	JobStatusModelUploaded  JobStatus = "modeluploaded"  //模型文件（训练结果）已上传
-	JobStatusModelUploading JobStatus = "modeluploading" //模型文件（训练结果）正在上传
-	JobStatusSucceed        JobStatus = "succeeded"      //所有工作成功完成
-	JobStatusFailed         JobStatus = "failed"         //在中途以失败中止
-	JobStatusUnknown        JobStatus = "unknown"        //无法获取任务状态，状态未知
+	JobStatusCreated        JobStatus = "created"        // 任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
+	JobStatusCreateFailed   JobStatus = "createfailed"   // 任务在创建时直接失败（因为配置原因）
+	JobStatusRunning        JobStatus = "running"        // Pod全部创建成功，并正常运行
+	JobStatusPending        JobStatus = "pending"        // 因为资源不足，在等待
+	JobStatusErrorLoop      JobStatus = "crashloop"      // 进入crashloop
+	JobStatusModelUploaded  JobStatus = "modeluploaded"  // 模型文件（训练结果）已上传
+	JobStatusModelUploading JobStatus = "modeluploading" // 模型文件（训练结果）正在上传
+	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
+	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
+	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
 )
 
 type CpodStatusLogic struct {
@@ -232,6 +232,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	for _, infer := range req.InferenceStatus {
 		updateBuilder := InferModel.UpdateBuilder().Where(squirrel.Eq{
 			"service_name": infer.ServiceName,
+			"status":       model.InferStatusDeploying, // 只有在初始状态才接收cpod上报
 		})
 
 		var setMap = map[string]interface{}{}
