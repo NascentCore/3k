@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: rag-service
-          image: dockerhub.kubekey.local/kubesphereio/rag-service:v0.0.6
+          image: dockerhub.kubekey.local/kubesphereio/rag-service:v0.0.7
           ports:
             - containerPort: 5000
           env:
