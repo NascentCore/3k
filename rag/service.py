@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
 from transformers import AutoTokenizer, AutoModel
-import json
+import json, os
 from pymilvus import connections, Collection
 
 import config
