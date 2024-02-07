@@ -63,6 +63,7 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var downloaderImage string
+	var tensorrtConvertImage string
 	var storageClassName string
 	var modelUploadJobImage string
 	var modelUploadJobBackoffLimit int
@@ -74,6 +75,7 @@ func main() {
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.StringVar(&downloaderImage, "artifact-downloader-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0", "The artifact download job image ")
+	flag.StringVar(&tensorrtConvertImage, "tensorrt-convert-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/trtinfer:build-engine", "The image to implement tensorrt convert job")
 	flag.StringVar(&storageClassName, "storageClassName", "ceph-filesystem", "which storagecalss the artifact downloader should create")
 	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:ea1b518", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
@@ -141,8 +143,9 @@ func main() {
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 		Option: &controller.ModelStorageOption{
-			DownloaderImage:  downloaderImage,
-			StorageClassName: storageClassName,
+			DownloaderImage:      downloaderImage,
+			StorageClassName:     storageClassName,
+			TensorRTConvertImage: tensorrtConvertImage,
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ModelStorage")
