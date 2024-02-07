@@ -13,10 +13,6 @@ app.config.from_object(config.Config)
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 
-# Load ID to Text Mapping
-with open(config.Config.ID_TEXT_FILE_NAME, 'r') as f:
-    id_text_map = json.load(f)
-
 # Connect to Milvus
 connections.connect("default", host=app.config['MILVUS_HOST'], port=app.config['MILVUS_PORT'])
 
@@ -39,6 +35,10 @@ def complete():
         search_params = {"metric_type": "L2", "params": {"nprobe": 10}}
         top_k = 3  # Number of similar texts to retrieve
         results = collection.search([query_vector], "text_vector", search_params, top_k)
+
+        # Load ID to Text Mapping
+        with open(config.Config.ID_TEXT_FILE_NAME, 'r') as f:
+            id_text_map = json.load(f)
 
         # Construct a new prompt from the search results and the original message
         similar_texts = [id_text_map.get(str(hit.id), "Related text not found") for hit in results[0]]
