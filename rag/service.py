@@ -37,11 +37,19 @@ def complete():
         results = collection.search([query_vector], "text_vector", search_params, top_k)
 
         # Load ID to Text Mapping
-        with open(config.Config.ID_TEXT_FILE_NAME, 'r') as f:
-            id_text_map = json.load(f)
+        combined_id_text_map = {}
+        id_text_dir = config.Config.ID_TEXT_DIR
+        for filename in os.listdir(id_text_dir):
+            file_path = os.path.join(id_text_dir, filename)
+            # Check if the current file is a JSON file
+            if os.path.isfile(file_path) and file_path.endswith('.json'):
+                with open(file_path, 'r') as f:
+                    id_text_map = json.load(f)
+                    # Merge the current file's mappings into the combined dictionary
+                    combined_id_text_map.update(id_text_map)
 
         # Construct a new prompt from the search results and the original message
-        similar_texts = [id_text_map.get(str(hit.id), "Related text not found") for hit in results[0]]
+        similar_texts = [combined_id_text_map.get(str(hit.id), "Related text not found") for hit in results[0]]
         prompt = f"Based on: {'; '.join(similar_texts)}.\nMy question is: {message}"
     else:
         # If 'rag' is False, use the original message as the prompt
