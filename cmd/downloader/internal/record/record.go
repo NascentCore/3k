@@ -13,9 +13,10 @@ type Recorder interface {
 	Begin() error
 	Fail() error
 	Complete() error
+	Name() string
 }
 
-type Config struct {
+type RecordConfig struct {
 	Group     string // "cpod.cpod"
 	Version   string // "v1"
 	Plural    string // "modelstorages"
@@ -24,7 +25,7 @@ type Config struct {
 	Depth     uint   // 1
 }
 
-func NewRecorder(recorderType string, c Config) Recorder {
+func NewRecorder(recorderType string, c RecordConfig) Recorder {
 	switch recorderType {
 	case consts.CRD:
 		return crd.NewRecorder(schema.GroupVersionResource{

@@ -9,7 +9,9 @@ import (
 	"os"
 	"sxwl/3k/cmd/downloader/internal/consts"
 	"sxwl/3k/cmd/downloader/internal/download"
+	"sxwl/3k/cmd/downloader/internal/download/config"
 	e "sxwl/3k/cmd/downloader/internal/errors"
+	"sxwl/3k/cmd/downloader/internal/record"
 	consts2 "sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/log"
 
@@ -17,7 +19,7 @@ import (
 )
 
 var (
-	c download.Config
+	c config.Config
 )
 
 // gitCmd represents the git command
@@ -25,14 +27,15 @@ var gitCmd = &cobra.Command{
 	Use:   "git url",
 	Short: "download data from git url",
 	Long: fmt.Sprintf(`download data from git url. Example:
-    downloader git https://www.modelscope.cn/Cherrytest/rot_bgr.git -o /data \
-        -r crd \
-        -g "%s" \
-        -v v1 \
-        -p modelstorages \
-        -n cpod \
-        --name model-storage-b93697a593f9bc93
-		--depth 1
+
+downloader git https://www.modelscope.cn/Cherrytest/rot_bgr.git -o /data \
+  -r crd \
+  -g "%s" \
+  -v v1 \
+  -p modelstorages \
+  -n cpod \
+  --name model-storage-b93697a593f9bc93 \
+  --depth 1
 `, consts2.ApiGroup),
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
@@ -48,7 +51,10 @@ var gitCmd = &cobra.Command{
 
 		log.SLogger.Infof("downloader args : %+v", c)
 
-		err := download.GitDownload(c)
+		downloader := download.NewDownloader(consts.GitDownloader, c)
+		recorder := record.NewRecorder(c.Record, c.RecordConfig)
+
+		err := download.Download(c, downloader, recorder)
 		if err != nil {
 			if errors.Is(err, e.ErrJobComplete) {
 				log.SLogger.Infof("download %s has completed", c.GitUrl)

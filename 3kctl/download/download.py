@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import math
+import math, os
 
 from colorama import Fore, Style
 from kubernetes import config
@@ -8,11 +8,17 @@ from plumbum import cli
 
 from .k8s import *
 
+DOWNLOADER_VERSION = "v0.0.7"
+
 GROUP = "cpod.cpod"
 VERSION = "v1"
 MODEL_PLURAL = "modelstorages"
 DATASET_PLURAL = "datasetstorages"
 
+OSS_ENDPOINT = os.getenv('OSS_ENDPOINT', 'https://oss-cn-beijing.aliyuncs.com')
+OSS_ACCESS_ID = os.getenv('OSS_ACCESS_ID')
+OSS_ACCESS_KEY = os.getenv('OSS_ACCESS_KEY')
+OSS_BUCKET = 'sxwl-cache'
 
 class Download(cli.Application):
     """Download model or dataset"""
@@ -22,7 +28,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version="v0.0.6", namespace="cpod"):
+    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -81,6 +87,10 @@ class Model(cli.Application):
         storage = model_size * 2  # 默认是depth=1 2倍空间
         if depth > 1:
             storage = model_size * 3  # 多层深度 3倍空间
+
+        if hub_name == "oss":
+            storage = model_size * 1.1 # oss文件是准确的大小
+
         storage = "%dGi" % math.ceil(storage)
         print("model {0} size {1} GB pvc {2} GB".format(hub_name, model_size, storage))
 
@@ -92,19 +102,37 @@ class Model(cli.Application):
 
         # 创建下载Job
         try:
+            job_params = [
+                "-g", GROUP,
+                "-v", VERSION,
+                "-p", MODEL_PLURAL,
+                "-n", namespace,
+                "--name", crd_name
+            ]
+
+            if hub_name == "oss":
+                additional_params = [
+                    "oss", hub.git_model_url(model_id),
+                    "-t", str(model_size * 1024 * 1024 * 1024),
+                    "--endpoint", OSS_ENDPOINT,
+                    "--access_id", OSS_ACCESS_ID,
+                    "--access_key", OSS_ACCESS_KEY
+                ]
+                job_params.extend(additional_params)
+            else:
+                additional_params = [
+                    "git", hub.git_model_url(model_id),
+                    "-d", str(depth),
+                    "-t", str(model_size * 2 * 1024 * 1024 * 1024)
+                ]
+                job_params.extend(additional_params)
+
             create_download_job(batch_v1_api,
                                 job_name,
                                 "model-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
                                 pvc_name,
-                                ["git", hub.git_model_url(model_id),
-                                 "-g", GROUP,
-                                 "-v", VERSION,
-                                 "-p", MODEL_PLURAL,
-                                 "-n", namespace,
-                                 "--name", crd_name,
-                                 "-d", str(depth),
-                                 "-t", str(model_size * 2 * 1024 * 1024 * 1024)],
+                                job_params,
                                 proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
@@ -139,7 +167,7 @@ class Model(cli.Application):
 class Dataset(cli.Application):
     """download dataset"""
 
-    def main(self, hub_name, dataset_id, proxy="", depth=1, downloader_version="v0.0.4", namespace="cpod"):
+    def main(self, hub_name, dataset_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="cpod"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -196,9 +224,13 @@ class Dataset(cli.Application):
                 return
 
         # 创建PVC
-        storage = dataset_size * 1.5  # 默认是depth=1 1.5倍空间
+        storage = dataset_size * 2  # 默认是depth=1 2倍空间
         if depth > 1:
             storage = dataset_size * 3  # 多层深度 3倍空间
+
+        if hub_name == "oss":
+            storage = dataset_size * 1.1 # oss文件是准确的大小
+
         storage = "%dGi" % math.ceil(storage)
         print("dataset {0} size {1} GB pvc {2} GB".format(hub_name, dataset_size, storage))
 
@@ -210,18 +242,37 @@ class Dataset(cli.Application):
 
         # 创建下载Job
         try:
+            job_params = [
+                "-g", GROUP,
+                "-v", VERSION,
+                "-p", MODEL_PLURAL,
+                "-n", namespace,
+                "--name", crd_name
+            ]
+
+            if hub_name == "oss":
+                additional_params = [
+                    "oss", hub.git_dataset_url(dataset_id),
+                    "-t", str(model_size * 1024 * 1024 * 1024),
+                    "--endpoint", OSS_ENDPOINT,
+                    "--access_id", OSS_ACCESS_ID,
+                    "--access_key", OSS_ACCESS_KEY
+                ]
+                job_params.extend(additional_params)
+            else:
+                additional_params = [
+                    "git", hub.git_dataset_url(dataset_id),
+                    "-d", str(depth),
+                    "-t", str(model_size * 2 * 1024 * 1024 * 1024)
+                ]
+                job_params.extend(additional_params)
+
             create_download_job(batch_v1_api,
                                 job_name,
                                 "dataset-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
                                 pvc_name,
-                                ["git", hub.git_dataset_url(dataset_id),
-                                 "-g", GROUP,
-                                 "-v", VERSION,
-                                 "-p", DATASET_PLURAL,
-                                 "-n", namespace,
-                                 "--name", crd_name,
-                                 "-d", str(depth)],
+                                job_params,
                                 proxy,
                                 namespace,
                                 "aliyun-enterprise-registry",
@@ -341,6 +392,9 @@ def hub_factory(hub_name):
     if hub_name == "huggingface":
         from .hugging_face import HuggingFaceHub
         return HuggingFaceHub()
+    if hub_name == "oss":
+        from .oss import OSSHub
+        return OSSHub(OSS_ENDPOINT, OSS_ACCESS_ID, OSS_ACCESS_KEY, OSS_BUCKET)
     else:
         return None
 

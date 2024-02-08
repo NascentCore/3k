@@ -1,37 +1,24 @@
 package download
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
+	"sxwl/3k/cmd/downloader/internal/download/config"
 	"sxwl/3k/cmd/downloader/internal/record"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/log"
 	"time"
 )
 
-type Config struct {
-	record.Config
-	GitUrl string
-	Total  int64
-	OutDir string
-	Record string
-	IsCRD  bool
-}
-
-func GitDownload(c Config) error {
-	recorder := record.NewRecorder(c.Record, c.Config)
-
+func Download(c config.Config, downloader Downloader, recorder record.Recorder) error {
 	// check record state
 	if err := recorder.Check(); err != nil {
 		log.SLogger.Errorf("Error record check %s namespace:%s name:%s err:%s", c.Record, c.Namespace, c.Name, err)
 		return err
 	}
-	log.SLogger.Info("recorder check ok.")
+	log.SLogger.Infof("Recorder %s check ok.", recorder.Name())
 
 	// empty outDir
 	if fs.IsDirExist(c.OutDir) {
-		log.SLogger.Infof("empty the outdir:%s", c.OutDir)
+		log.SLogger.Infof("Empty the outdir:%s", c.OutDir)
 		err := fs.RemoveAllFilesInDir(c.OutDir)
 		if err != nil {
 			log.SLogger.Errorf("Error RemoveAllFilesInDir %s err: %v", c.OutDir, err)
@@ -42,18 +29,18 @@ func GitDownload(c Config) error {
 	// record begin
 	err := recorder.Begin()
 	if err != nil {
-		log.SLogger.Errorf("Error Record begin %s err: %v", c.OutDir, err)
+		log.SLogger.Errorf("Record %s begin err: %v", recorder.Name(), err)
 		return err
 	}
-	log.SLogger.Infof("record crd begin")
+	log.SLogger.Infof("Record %s begin", recorder.Name())
 
 	// download repo
 	done := make(chan error)
 	go func() {
-		log.SLogger.Infof("Cloning the repository...")
-		err = downloadGitRepo(c.GitUrl, c.OutDir, c.Depth)
+		log.SLogger.Infof("Begin downloading")
+		err = downloader.Download()
 		if err != nil {
-			log.SLogger.Errorf("Error downloading Git repository err: %v", err)
+			log.SLogger.Errorf("Downloading err: %v", err)
 			_ = recorder.Fail()
 		}
 		done <- err
@@ -101,34 +88,7 @@ loop:
 	if err != nil {
 		return err
 	}
-	log.SLogger.Infof("record crd done")
-
-	return nil
-}
-
-func downloadGitRepo(repoURL, outputPath string, depth uint) error {
-	// 检查 git 是否安装
-	_, err := exec.LookPath("git")
-	if err != nil {
-		return fmt.Errorf("git is not installed")
-	}
-
-	// 使用 git clone 命令下载仓库
-	var cmd *exec.Cmd
-	if depth == 0 {
-		cmd = exec.Command("git", "clone", repoURL, outputPath)
-	} else {
-		cmd = exec.Command("git", "clone", fmt.Sprintf("--depth=%d", depth), repoURL, outputPath)
-	}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Run()
-	if err != nil {
-		return fmt.Errorf("error running git clone: %v", err)
-	}
-
-	fmt.Printf("Downloaded Git repository from %s and saved to %s\n", repoURL, outputPath)
+	log.SLogger.Infof("Record %s done", recorder.Name())
 
 	return nil
 }
