@@ -1,5 +1,9 @@
 package none
 
+import (
+	"sxwl/3k/cmd/downloader/internal/consts"
+)
+
 type Recorder struct {
 }
 
@@ -21,4 +25,8 @@ func (r *Recorder) Fail() error {
 
 func (r *Recorder) Complete() error {
 	return nil
+}
+
+func (r *Recorder) Name() string {
+	return consts.None
 }

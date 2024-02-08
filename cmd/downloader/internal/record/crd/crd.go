@@ -1,10 +1,11 @@
 package crd
 
 import (
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sxwl/3k/cmd/downloader/internal/consts"
 	"sxwl/3k/cmd/downloader/internal/errors"
 	clientgo "sxwl/3k/pkg/cluster/client-go"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Recorder struct {
@@ -67,4 +68,8 @@ func (r *Recorder) Fail() error {
 
 func (r *Recorder) Complete() error {
 	return clientgo.UpdateCRDStatus(r.gvr, r.namespace, r.name, consts.Phase, consts.PhaseComplete)
+}
+
+func (r *Recorder) Name() string {
+	return consts.CRD
 }

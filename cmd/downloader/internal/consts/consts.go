@@ -1,7 +1,13 @@
 package consts
 
 const (
-	CRD = "crd"
+	GitDownloader = "git_downloader"
+	OSSDownloader = "oss_downloader"
+)
+
+const (
+	CRD  = "crd"
+	None = "none"
 )
 
 const (
