@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify
+import json
+import os
+
 import requests
-from transformers import AutoTokenizer, AutoModel
-import json, os
+from flask import Flask, request, jsonify
 from pymilvus import connections, Collection
+from transformers import AutoTokenizer, AutoModel
 
 import config
 
@@ -16,8 +18,6 @@ model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 # Connect to Milvus
 connections.connect("default", host=app.config['MILVUS_HOST'], port=app.config['MILVUS_PORT'])
 
-collection = Collection(name=app.config['MILVUS_COLLECTION_NAME'])
-collection.load()
 
 @app.route("/complete", methods=["POST"])
 def complete():
@@ -26,6 +26,8 @@ def complete():
     rag = data.get("rag", False)  # Get the 'rag' parameter, default to False if not provided
 
     if rag:
+        collection = Collection(name=app.config['MILVUS_COLLECTION_NAME'])
+        collection.load()
         # Embed the message to create a query vector
         inputs = tokenizer(message, return_tensors="pt", truncation=True, max_length=512)
         outputs = model(**inputs)
@@ -69,6 +71,7 @@ def complete():
         return jsonify(resp_data)  # Return the OpenChat response
     else:
         return jsonify({"error": "Failed to get response from OpenChat", "status_code": response.status_code})
+
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
