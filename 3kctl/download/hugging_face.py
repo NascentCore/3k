@@ -30,12 +30,12 @@ class HuggingFaceHub(object):
 
         return total_size / 1024 / 1024 / 1024
 
-    def git_model_url(self, model_id):
+    def model_url(self, model_id):
         """return the git url by model id"""
 
         return "https://huggingface.co/%s" % model_id
 
-    def git_dataset_url(self, dataset_id):
+    def dataset_url(self, dataset_id):
         """return the git url by model id"""
 
         return "https://huggingface.co/datasets/%s" % dataset_id

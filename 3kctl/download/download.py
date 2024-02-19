@@ -112,7 +112,7 @@ class Model(cli.Application):
 
             if hub_name == "oss":
                 additional_params = [
-                    "oss", hub.git_model_url(model_id),
+                    "oss", hub.model_url(model_id),
                     "-t", str(model_size * 1024 * 1024 * 1024),
                     "--endpoint", OSS_ENDPOINT,
                     "--access_id", OSS_ACCESS_ID,
@@ -121,7 +121,7 @@ class Model(cli.Application):
                 job_params.extend(additional_params)
             else:
                 additional_params = [
-                    "git", hub.git_model_url(model_id),
+                    "git", hub.model_url(model_id),
                     "-d", str(depth),
                     "-t", str(model_size * 2 * 1024 * 1024 * 1024)
                 ]
@@ -252,8 +252,8 @@ class Dataset(cli.Application):
 
             if hub_name == "oss":
                 additional_params = [
-                    "oss", hub.git_dataset_url(dataset_id),
-                    "-t", str(model_size * 1024 * 1024 * 1024),
+                    "oss", hub.dataset_url(dataset_id),
+                    "-t", str(dataset_id * 1024 * 1024 * 1024),
                     "--endpoint", OSS_ENDPOINT,
                     "--access_id", OSS_ACCESS_ID,
                     "--access_key", OSS_ACCESS_KEY
@@ -261,9 +261,9 @@ class Dataset(cli.Application):
                 job_params.extend(additional_params)
             else:
                 additional_params = [
-                    "git", hub.git_dataset_url(dataset_id),
+                    "git", hub.dataset_url(dataset_id),
                     "-d", str(depth),
-                    "-t", str(model_size * 2 * 1024 * 1024 * 1024)
+                    "-t", str(dataset_id * 2 * 1024 * 1024 * 1024)
                 ]
                 job_params.extend(additional_params)
 

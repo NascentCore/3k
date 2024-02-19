@@ -46,12 +46,12 @@ class ModelScopeHub(object):
 
         return total_size / 1024 / 1024 / 1024
 
-    def git_model_url(self, model_id):
+    def model_url(self, model_id):
         """return the git url by model id"""
 
         return "https://www.modelscope.cn/%s.git" % model_id
 
-    def git_dataset_url(self, dataset_id):
+    def dataset_url(self, dataset_id):
         """return the git url by dataset id"""
 
         return "https://www.modelscope.cn/datasets/%s.git" % dataset_id
