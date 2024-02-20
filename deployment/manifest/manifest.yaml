@@ -137,5 +137,13 @@ spec:
   - dockerhub.kubekey.local/kubesphereio/metrics-scraper:v1.0.8
   - dockerhub.kubekey.local/kubesphereio/tensorflow:latest
   - dockerhub.kubekey.local/kubesphereio/tensorboard-example:main
+  - dockerhub.kubekey.local/kubesphereio/pulsar:2.8.2
+  - dockerhub.kubekey.local/kubesphereio/etcd:3.5.5-r2
+  - dockerhub.kubekey.local/kubesphereio/milvus-config-tool:v0.1.1
+  - dockerhub.kubekey.local/kubesphereio/milvus:v2.2.13
+  - dockerhub.kubekey.local/kubesphereio/minio:RELEASE.2023-03-20T20-16-18Z
+  - dockerhub.kubekey.local/kubesphereio/rag-service:v0.1.1
+  - dockerhub.kubekey.local/kubesphereio/openchat:v0106
+  - dockerhub.kubekey.local/kubesphereio/llamafactory:latest
   registry:
     auths: {}
