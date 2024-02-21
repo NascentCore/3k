@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sxwl/3k/pkg/storage"
 
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/handler"
@@ -16,7 +17,6 @@ import (
 func main() {
 	var configFile string
 	env := os.Getenv("SCHEDULER_ENV")
-	dsn := os.Getenv("SCHEDULER_DSN")
 	switch env {
 	case "prod":
 		configFile = "etc/scheduler-api_prod.yaml"
@@ -32,7 +32,27 @@ func main() {
 	conf.MustLoad(configFile, &c)
 
 	// insert dsn
+	dsn := os.Getenv("SCHEDULER_DSN")
 	c.DB.DataSource = dsn
+
+	// insert access
+	uploadAccessID := os.Getenv("UPLOAD_ACCESS_ID")
+	uploadAccessKey := os.Getenv("UPLOAD_ACCESS_KEY")
+	if uploadAccessID == "" || uploadAccessKey == "" {
+		log.Fatalf("env UPLOAD_ACCESS_ID or UPLOAD_ACCESS_KEY not defined")
+	}
+	c.OSSAccess.UploadAccessID = uploadAccessID
+	c.OSSAccess.UploadAccessKey = uploadAccessKey
+	adminAccessID := os.Getenv("ADMIN_ACCESS_ID")
+	adminAccessKey := os.Getenv("ADMIN_ACCESS_KEY")
+	if adminAccessID == "" || adminAccessKey == "" {
+		log.Fatalf("env ADMIN_ACCESS_ID or ADMIN_ACCESS_KEY not defined")
+	}
+	c.OSSAccess.AdminAccessID = adminAccessID
+	c.OSSAccess.AdminAccessKey = adminAccessKey
+
+	// init oss
+	storage.InitClient(adminAccessID, adminAccessKey)
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()

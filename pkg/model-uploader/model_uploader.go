@@ -15,7 +15,8 @@ import (
 // err != nil 代表上传任务失败，程序无法继续执行。
 // 需要由K8S触发重启
 func UploadModel(bucket string, jobName string, modelPath string) error {
-	return storage.UploadDirToOSS(bucket, jobName, modelPath)
+	_, err := storage.UploadDirToOSS(bucket, jobName, modelPath)
+	return err
 }
 
 func UploadPackedFile(bucket string, jobName string) error {

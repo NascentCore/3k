@@ -8,6 +8,14 @@ Log:
   Mode: console
   Level: info
 
+OSS:
+  Bucket: "sxwl-cache"
+  Endpoint: "https://oss-cn-beijing.aliyuncs.com"
+  PublicModelDir: "models/public/"
+  PublicDatasetDir: "dataset/public/"
+  UserModelDir: "models/user-%d/"
+  UserDatasetDir: "dataset/user-%d/"
+
 FinetuneModel:
   ZhipuAI/chatglm3-6b:
     image: 'sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest'

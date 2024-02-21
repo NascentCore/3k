@@ -269,12 +269,36 @@ type NodeInfo struct {
 	Status         string         `json:"status"`
 }
 
+type Resource struct {
+	ID     string `json:"id"`
+	Object string `json:"object"`
+	Owner  string `json:"owner"`
+}
+
+type ResourceDatasetsReq struct {
+	UserID int64 `header:"Sx-User" json:"-"`
+}
+
+type ResourceDatasetsResp struct {
+	Total int64      `json:"total"`
+	List  []Resource `json:"list"`
+}
+
 type ResourceInfo struct {
 	GPUSummaries []GPUSummary `json:"gpu_summaries"`
 	CPODVersion  string       `json:"cpod_version"`
 	Nodes        []NodeInfo   `json:"nodes"`
 	CPODID       string       `json:"cpod_id"`
 	Caches       []Cache      `json:"caches"`
+}
+
+type ResourceModelsReq struct {
+	UserID int64 `header:"Sx-User" json:"-"`
+}
+
+type ResourceModelsResp struct {
+	Total int64      `json:"total"`
+	List  []Resource `json:"list"`
 }
 
 type SysInference struct {
@@ -284,4 +308,14 @@ type SysInference struct {
 	Url         string `json:"url"`
 	StartTime   string `json:"start_time"` // 推理服务启动时间
 	EndTime     string `json:"end_time"`   // 推理服务终止时间
+}
+
+type UploaderAccessReq struct {
+	UserID int64 `header:"Sx-User" json:"-"`
+}
+
+type UploaderAccessResp struct {
+	AccessID  string `json:"access_id"`
+	AccessKey string `json:"access_key"`
+	UserID    int64  `json:"user_id"`
 }

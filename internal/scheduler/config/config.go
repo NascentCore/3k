@@ -8,7 +8,21 @@ type Config struct {
 	rest.RestConf
 	DB struct {
 		DataSource string
-	} `json:"DB,optional" `
+	} `json:"-"`
+	OSS struct {
+		Bucket           string
+		Endpoint         string
+		PublicModelDir   string
+		PublicDatasetDir string
+		UserModelDir     string
+		UserDatasetDir   string
+	} `json:"OSS"`
+	OSSAccess struct {
+		UploadAccessID  string
+		UploadAccessKey string
+		AdminAccessID   string
+		AdminAccessKey  string
+	} `json:"-"`
 	FinetuneModel map[string]struct {
 		Image    string `json:"image"`
 		GPUMem   int64  `json:"gpu_mem"`
