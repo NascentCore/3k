@@ -245,7 +245,7 @@ class Dataset(cli.Application):
             job_params = [
                 "-g", GROUP,
                 "-v", VERSION,
-                "-p", MODEL_PLURAL,
+                "-p", DATASET_PLURAL,
                 "-n", namespace,
                 "--name", crd_name
             ]
@@ -253,7 +253,7 @@ class Dataset(cli.Application):
             if hub_name == "oss":
                 additional_params = [
                     "oss", hub.dataset_url(dataset_id),
-                    "-t", str(dataset_id * 1024 * 1024 * 1024),
+                    "-t", str(dataset_size * 1024 * 1024 * 1024),
                     "--endpoint", OSS_ENDPOINT,
                     "--access_id", OSS_ACCESS_ID,
                     "--access_key", OSS_ACCESS_KEY
