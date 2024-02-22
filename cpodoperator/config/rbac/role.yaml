@@ -89,6 +89,32 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
+  - finetunes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - finetunes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - finetunes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
   - inferences
   verbs:
   - create

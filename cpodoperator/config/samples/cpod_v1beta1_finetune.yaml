@@ -1,0 +1,20 @@
+apiVersion: cpod.cpod/v1beta1
+kind: FineTune
+metadata:
+  labels:
+    app.kubernetes.io/name: finetune
+    app.kubernetes.io/instance: finetune-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: finetune-sample
+  namespace: cpod
+spec:
+  model: "LLaMA-2-7B"
+  dataset: "llama-2-7b-dataset"
+  hyperParameters:
+    n_epochs: "3"
+    batch_size: "4"
+    learning_rate_multiplier: "5e-5"
+
+

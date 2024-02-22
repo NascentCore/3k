@@ -51,4 +51,13 @@ resources:
   kind: DataSetStorage
   path: sxwl/cpodoperator/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: cpod
+  group: cpod
+  kind: FineTune
+  path: sxwl/cpodoperator/api/v1beta1
+  version: v1beta1
 version: "3"

@@ -33,6 +33,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
+
+	cpodv1beta1 "sxwl/cpodoperator/api/v1beta1"
 	//+kubebuilder:scaffold:imports
 )
 
