@@ -147,6 +147,10 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 		return ctrl.Result{}, err
 	}
 
+	if err := c.createModelstorage(ctx, cpodjob); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	if util.IsSucceeded(cpodjob.Status) && cpodjob.Spec.UploadModel && cpodjob.Spec.ModelSavePath != "" {
 		err := c.uploadSavedModel(ctx, cpodjob)
 		if err != nil {
@@ -803,4 +807,50 @@ func (c *CPodJobReconciler) releaseSavedModel(ctx context.Context, cpodjob *v1be
 		}
 	}
 	return nil
+}
+
+func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.ModelStorage, cpodjob *v1beta1.CPodJob) *cpodv1.ModelStorage {
+	modelstorageName := cpodjob.Name + "-modelsavestorage"
+	return &cpodv1.ModelStorage{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      modelstorageName,
+			Namespace: cpodjob.Namespace,
+		},
+		Spec: cpodv1.ModelStorageSpec{
+			ModelType: preTrainModelStoreage.Spec.ModelType,
+			ModelName: preTrainModelStoreage.Spec.ModelName,
+			PVC:       c.GetModelSavePVCName(cpodjob),
+		},
+	}
+}
+
+func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+	if cpodjob.Spec.ModelSavePath == "" || cpodjob.Spec.ModelSaveVolumeSize == 0 || cpodjob.Spec.PretrainModelName == "" || cpodjob.Spec.PretrainModelPath == "" {
+		return nil
+	}
+
+	preTrainModelStoreage := cpodv1.ModelStorage{}
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, &preTrainModelStoreage); err == nil {
+		return err
+	}
+
+	modelstorageName := cpodjob.Name + "-modelsavestorage"
+	modelstorage := cpodv1.ModelStorage{}
+
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err == nil {
+		if apierrors.IsNotFound(err) {
+			if err := c.Client.Create(ctx, c.generateModelstorage(preTrainModelStoreage, cpodjob)); err != nil {
+				return err
+			}
+		}
+		return err
+	}
+
+	if modelstorage.Status.Phase != "done" {
+		modelstorage.Status.Phase = "done"
+		return c.Client.Status().Update(ctx, &modelstorage)
+	}
+
+	return nil
+
 }
