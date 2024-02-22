@@ -1,0 +1,12 @@
+https://www.modelscope.cn/datasets/modelscope/chinese-poetry-collection.git
+alpaca_data_en_52k
+alpaca_data_zh_51k
+alpaca_gpt4_data_en
+alpaca_gpt4_data_zh
+comparison_gpt4_data_en
+comparison_gpt4_data_zh
+glaive_toolcall_10k
+oaast_rm
+oaast_rm_zh
+oaast_sft
+oaast_sft_zh

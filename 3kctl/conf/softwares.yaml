@@ -160,3 +160,10 @@ softwares:
     file: "jupyterlab.yaml"
     dependencies: []
     deploy: true
+
+  - name: "milvus"
+    type: "kubectl"
+    namespace: ""
+    file: "milvus.yaml"
+    dependencies: []
+    deploy: true
