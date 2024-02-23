@@ -128,7 +128,7 @@ softwares:
 
   - name: "tensorboard"
     type: "kubectl"
-    namespace: "monitor"
+    namespace: ""
     file: "tensorboard.yaml"
     dependencies: ["rook-ceph-cluster"]
     deploy: true
