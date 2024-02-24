@@ -16,7 +16,6 @@ def query_weather(date, location):
             city_code = code
             break
 
-    print(city_code)
     key = os.getenv('WEATHER_KEY')
     api_url = "https://restapi.amap.com/v3/weather/weatherInfo"
     
