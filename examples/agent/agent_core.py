@@ -17,7 +17,9 @@ def process_req(req) :
 
     # split into tasks 
     tasks = planning(enriched_query , registry.tool_list)
-
+    print("tasks : " , tasks)
+    if type(tasks) == str :
+        tasks = eval(tasks)
     # do the tasks
     task_output = enriched_query
     for task in tasks :
@@ -43,3 +45,21 @@ def get_service_list() :
 
 def register_tool() :
     pass 
+
+
+if __name__ == "__main__" :
+    # 调用函数并打印结果
+    tasks = [{"query_weather":{"input":"2024-02-26,杭州"}},{"call_inference":{"input":"明天是晴天，适合洗车吗？"}}]
+    task_output = ""
+    for task in tasks :
+        print(task)
+        for tool_id in task :
+            tool_ipt = task[tool_id]
+            #如果没给输入，则用上一次的输出作为输入
+            tool_ipt = tool_ipt.get("input" , "")
+            #将其中的 <answer> ， 替换成上一次的输出 {\"input\":\"<answer> 是的，晴天的话，非常适合洗车\"}
+            tool_ipt = tool_ipt.replace("answer" , task_output)
+            print(tool_id , tool_ipt)
+
+
+
