@@ -1,18 +1,44 @@
-from tools import query_weather
+from tools import query_weather, call_inference
 
 # 定义函数注册器
 class FunctionRegistry:
     def __init__(self):
         self._registry = {}
+        self.tool_list = []
 
     def register(self, func):
         """
-        注册工具函数到注册器中
+        注册工具函数到注册器中，并根据函数的文档字符串更新工具列表。
         :param func: 要注册的函数
         """
         if func.__name__ in self._registry:
             raise KeyError(f"Function '{func.__name__}' is already registered.")
         self._registry[func.__name__] = func
+
+        # 提取工具信息并添加到工具列表
+        tool_info = self.extract_tool_info(func)
+        self.tool_list.append(tool_info)
+
+    def extract_tool_info(self, func):
+        """
+        根据函数的文档字符串提取工具信息。
+        :param func: 已注册的函数
+        :return: 包含工具信息的字典
+        """
+        # 提取文档字符串中的描述、输入示例和输出示例
+        doc_lines = func.__doc__.split('\n')
+        print(doc_lines)
+        name = func.__name__
+        describe = doc_lines[1].strip()
+        input_example = doc_lines[3].split(": ")[1].strip('"')
+        output_example = doc_lines[4].split(": ")[1].strip('"')
+        
+        return {
+            "name": name,
+            "describe": describe,
+            "input_example": input_example,
+            "output_example": output_example
+        }
 
     def call(self, func_name, *args, **kwargs):
         """
@@ -30,10 +56,9 @@ class FunctionRegistry:
 # 创建注册器实例
 registry = FunctionRegistry()
 
-# 注册query_weather函数
+# 注册工具函数
 registry.register(query_weather)
+registry.register(call_inference)
 
-# 通过registry.call来调用query_weather函数
-# 例如，查询2024年2月25日杭州的天气
-# weather = registry.call('query_weather', "2024-02-25", "杭州")
-# print(weather)
+# 获取tool_list
+# print(registry.tool_list)
