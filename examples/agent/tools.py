@@ -53,7 +53,8 @@ def call_inference(question):
     :param question: 明天是晴天，适合洗车吗?
     :return: 是的，明天是晴天的话，非常适合洗车
     """
-    url = "http://openchat.llm.sxwl.ai:30005/v1/chat/completions"
+    #url = "http://openchat.llm.sxwl.ai:30005/v1/chat/completions"
+    url = "http://10.233.57.192/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     data = {
         "model": "openchat_3.5",
