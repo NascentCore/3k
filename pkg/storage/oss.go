@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"os"
 	"path"
+	"strings"
 	"sxwl/3k/pkg/config"
+	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -37,7 +39,7 @@ func FilesToUpload(dir, prefix string) ([]string, error) {
 			}
 			res = append(res, files...)
 		} else {
-			//去除标识文件
+			// 去除标识文件
 			if item.Name() == config.FILE_UPLOAD_LOG_FILE || item.Name() == config.UPLOAD_STARTED_FLAG_FILE ||
 				item.Name() == config.PRESIGNED_URL_FILE || item.Name() == config.PACK_FILE_NAME {
 			} else {
@@ -99,20 +101,27 @@ func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
 	return nil
 }
 
-func UploadDirToOSS(bucket, prefix, dir string) error {
-	//files are without dir
+func UploadDirToOSS(bucket, prefix, dir string) (int64, error) {
+	// files are without dir
 	files, err := FilesToUpload(dir, "")
 	if err != nil {
 		log.SLogger.Errorw("get file list error", "error", err)
-		return err
+		return 0, err
 	}
 	uploaded, err := GetUploaded(dir)
 	if err != nil {
 		log.SLogger.Errorw("get uploaded file list err", "error", err)
-		return err
+		return 0, err
 	}
+
+	size, err := fs.GetDirSize(dir)
+	if err != nil {
+		log.SLogger.Errorw("get dir size err", "error", err)
+		return 0, err
+	}
+
 	for _, file := range files {
-		//已上传
+		// 已上传
 		if _, ok := uploaded[file]; ok {
 			log.SLogger.Infow("file already uploaded", "file", file)
 			continue
@@ -122,11 +131,11 @@ func UploadDirToOSS(bucket, prefix, dir string) error {
 		err := UploadFileToOSS(bucket, prefix, file, dir)
 		if err != nil {
 			log.SLogger.Errorw("upload to oss err", "error", err)
-			return err
+			return 0, err
 		}
 		log.SLogger.Infow("uploaded", "file", file)
 	}
-	return nil
+	return size, nil
 }
 
 func WriteFile(filePath, content string) error {
@@ -140,4 +149,42 @@ func WriteFile(filePath, content string) error {
 		return err
 	}
 	return nil
+}
+
+// ListDir list the dirs in the bucket with a prefix dir. And ignore all level is not sub.
+func ListDir(bucketName, prefix string, sub int) ([]string, error) {
+	// Ensure the prefix ends with a slash to denote a directory-like structure
+	if prefix != "" && !strings.HasSuffix(prefix, "/") {
+		prefix += "/"
+	}
+
+	// Get the OSS bucket
+	bucket, err := client.Bucket(bucketName)
+	if err != nil {
+		log.SLogger.Errorw("error getting bucket", "bucketName", bucketName, "error", err)
+		return nil, err
+	}
+
+	// ListDir objects with the specified prefix
+	result, err := bucket.ListObjects(oss.Prefix(prefix))
+	if err != nil {
+		log.SLogger.Errorw("error listing objects", "prefix", prefix, "error", err)
+		return nil, err
+	}
+
+	dirSet := make(map[string]bool)
+	var dirs []string
+	for _, object := range result.Objects {
+		trimmedKey := strings.TrimPrefix(object.Key, prefix)
+		if strings.Count(trimmedKey, "/") != sub {
+			continue
+		}
+		slashIndex := strings.LastIndex(trimmedKey, "/")
+		dirSet[trimmedKey[:slashIndex+1]] = true
+	}
+	for dir := range dirSet {
+		dirs = append(dirs, dir)
+	}
+
+	return dirs, nil
 }

@@ -10,81 +10,75 @@ info (
 
 import "client.api"
 
-type GPUStateInfo {
-	Temp      int    `json:"temp"`
-	MemUsage  int    `json:"mem_usage"`
-	GPUUsage  int    `json:"gpu_usage"`
-	Power     int    `json:"power"`
-	Status    string `json:"status"`
-	Allocated bool   `json:"allocated"`
-}
-
-type GPUInfo {
-	CUDA    string `json:"cuda"`
-	Prod    string `json:"prod"`
-	Driver  string `json:"driver"`
-	Vendor  string `json:"vendor"`
-	MemSize int    `json:"mem_size"`
-	Status  string `json:"status"`
-}
-
-type CPUInfo {
-	Cores int `json:"cores"`
-	Usage int `json:"usage"`
-}
-
-type NetworkInfo {
-	Throughput int    `json:"throughput"`
-	Type       string `json:"type"`
-}
-
-type DiskInfo {
-	Size  int `json:"size"`
-	Usage int `json:"usage"`
-}
-
-type MemInfo {
-	Size  int `json:"size"`
-	Usage int `json:"usage"`
-}
-
-type NodeInfo {
-	CPUInfo        CPUInfo        `json:"cpu_info"`
-	LinuxDist      string         `json:"linux_dist"`
-	GPUInfo        GPUInfo        `json:"gpu_info"`
-	GPUTotal       int            `json:"gpu_total"`
-	GPUAllocatable int            `json:"gpu_allocatable"`
-	NetworkInfo    NetworkInfo    `json:"network_info"`
-	GPUState       []GPUStateInfo `json:"gpu_state"`
-	KernelVersion  string         `json:"kernel_version"`
-	DiskInfo       DiskInfo       `json:"disk_info"`
-	Name           string         `json:"name"`
-	MemInfo        MemInfo        `json:"mem_info"`
-	Arch           string         `json:"arch"`
-	Status         string         `json:"status"`
-}
-
-type GPUSummary {
-	Allocatable int    `json:"allocatable"`
-	Total       int    `json:"total"`
-	Prod        string `json:"prod"`
-	MemSize     int    `json:"mem_size"`
-	Vendor      string `json:"vendor"`
-}
+type (
+	GPUStateInfo {
+		Temp      int    `json:"temp"`
+		MemUsage  int    `json:"mem_usage"`
+		GPUUsage  int    `json:"gpu_usage"`
+		Power     int    `json:"power"`
+		Status    string `json:"status"`
+		Allocated bool   `json:"allocated"`
+	}
+	GPUInfo {
+		CUDA    string `json:"cuda"`
+		Prod    string `json:"prod"`
+		Driver  string `json:"driver"`
+		Vendor  string `json:"vendor"`
+		MemSize int    `json:"mem_size"`
+		Status  string `json:"status"`
+	}
+	CPUInfo {
+		Cores int `json:"cores"`
+		Usage int `json:"usage"`
+	}
+	NetworkInfo {
+		Throughput int    `json:"throughput"`
+		Type       string `json:"type"`
+	}
+	DiskInfo {
+		Size  int `json:"size"`
+		Usage int `json:"usage"`
+	}
+	MemInfo {
+		Size  int `json:"size"`
+		Usage int `json:"usage"`
+	}
+	NodeInfo {
+		CPUInfo        CPUInfo        `json:"cpu_info"`
+		LinuxDist      string         `json:"linux_dist"`
+		GPUInfo        GPUInfo        `json:"gpu_info"`
+		GPUTotal       int            `json:"gpu_total"`
+		GPUAllocatable int            `json:"gpu_allocatable"`
+		NetworkInfo    NetworkInfo    `json:"network_info"`
+		GPUState       []GPUStateInfo `json:"gpu_state"`
+		KernelVersion  string         `json:"kernel_version"`
+		DiskInfo       DiskInfo       `json:"disk_info"`
+		Name           string         `json:"name"`
+		MemInfo        MemInfo        `json:"mem_info"`
+		Arch           string         `json:"arch"`
+		Status         string         `json:"status"`
+	}
+	GPUSummary {
+		Allocatable int    `json:"allocatable"`
+		Total       int    `json:"total"`
+		Prod        string `json:"prod"`
+		MemSize     int    `json:"mem_size"`
+		Vendor      string `json:"vendor"`
+	}
+	ResourceInfo {
+		GPUSummaries []GPUSummary `json:"gpu_summaries"`
+		CPODVersion  string       `json:"cpod_version"`
+		Nodes        []NodeInfo   `json:"nodes"`
+		CPODID       string       `json:"cpod_id"`
+		Caches       []Cache      `json:"caches"`
+	}
+)
 
 type Cache {
 	DataType   string `json:"data_type"`
 	DataName   string `json:"data_name"`
 	DataId     string `json:"data_id"`
 	DataSource string `json:"data_source"`
-}
-
-type ResourceInfo {
-	GPUSummaries []GPUSummary `json:"gpu_summaries"`
-	CPODVersion  string       `json:"cpod_version"`
-	Nodes        []NodeInfo   `json:"nodes"`
-	CPODID       string       `json:"cpod_id"`
-	Caches       []Cache      `json:"caches"`
 }
 
 type (
@@ -198,6 +192,39 @@ type (
 	}
 	FinetuneResp {
 		JobId string `json:"job_id"`
+	}
+)
+
+type (
+	Resource {
+		ID     string `json:"id"`
+		Object string `json:"object"`
+		Owner  string `json:"owner"`
+	}
+	ResourceModelsReq {
+		UserID int64 `header:"Sx-User" json:"-"`
+	}
+	ResourceModelsResp {
+		Total int64      `json:"total"`
+		List  []Resource `json:"list"`
+	}
+	ResourceDatasetsReq {
+		UserID int64 `header:"Sx-User" json:"-"`
+	}
+	ResourceDatasetsResp {
+		Total int64      `json:"total"`
+		List  []Resource `json:"list"`
+	}
+)
+
+type (
+	UploaderAccessReq {
+		UserID int64 `header:"Sx-User" json:"-"`
+	}
+	UploaderAccessResp {
+		AccessID  string `json:"access_id"`
+		AccessKey string `json:"access_key"`
+		UserID    int64  `json:"user_id"`
 	}
 )
 
@@ -317,10 +344,19 @@ service scheduler-api {
 	post /job/finetune (FinetuneReq) returns (FinetuneResp)
 
 	@handler ModelsHandler
-	get /resource/models returns ([]Cache)
+	get /cache/models returns ([]Cache) // cpod缓存的模型
 
 	@handler DatasetsHandler
-	get /resource/datasets returns ([]Cache)
+	get /cache/datasets returns ([]Cache) // cpod缓存的数据集
+
+	@handler ResourceModelsHandler
+	get /resource/models (ResourceModelsReq) returns ([]Resource) // oss上存储的模型
+
+	@handler ResourceDatasetsHandler
+	get /resource/datasets (ResourceDatasetsReq) returns ([]Resource) // oss上存储的数据集
+
+	@handler UploaderAccessHandler
+	get /resource/uploader_access (UploaderAccessReq) returns (UploaderAccessResp)
 
 	@handler InferenceDeployHandler
 	post /inference (InferenceDeployReq) returns (InferenceDeployResp)
