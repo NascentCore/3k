@@ -22,7 +22,7 @@ def eval_openchat_api(model_name, subject, dev_df, test_df, num_few_shot, max_le
 
         # 准备请求数据
         data = {"model": model_name, "messages": [{"role": "user", "content": prompt}]}
-        print(prompt)
+        #print(prompt)
 
         # 发送请求到推理服务
         response = requests.post(api_url, json=data)
@@ -30,7 +30,7 @@ def eval_openchat_api(model_name, subject, dev_df, test_df, num_few_shot, max_le
             # 解析响应数据
             #pred = response.json().get('prediction', '')
             pred = response.json()["choices"][0]["message"]["content"].split(".")[0]
-            print(f"{pred}, 参考答案：{label}")
+            #print(f"{pred}, 参考答案：{label}")
             if pred and pred in choices:
                 cors.append(pred == label)
             all_preds.append(pred.replace("\n", ""))

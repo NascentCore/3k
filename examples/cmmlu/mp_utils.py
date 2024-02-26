@@ -5,7 +5,10 @@ import random
 import os.path as osp
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 from collections import defaultdict
+from torch.utils.tensorboard import SummaryWriter
 from categories import name_en2zh, subcategories, categories
 choices = ["A", "B", "C", "D"]
 
@@ -75,6 +78,19 @@ def softmax(x):
     softmax = numerator/denominator
     return softmax
 
+def plot_accuracy(subjects, accs, figsize=(10, 6)):
+    """生成包含科目名称的准确率图表"""
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.plot(subjects, [a * 100 for a in accs], 'o-')
+    for i, txt in enumerate(subjects):
+        ax.annotate(f"{accs[i]*100:.2f}%", (i, accs[i]*100), textcoords="offset points", xytext=(0,10), ha='center')  # 标注科目名称
+    plt.xlabel('CMMLU')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy by Subject')
+    plt.xticks(range(len(subjects)), subjects, rotation=90)
+    ax.yaxis.set_major_formatter(PercentFormatter())
+    plt.tight_layout()  # 调整布局以适应标签
+    return fig
 
 def run_eval(model, tokenizer, eval, args):
 
@@ -86,7 +102,11 @@ def run_eval(model, tokenizer, eval, args):
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
 
-    for subject in subjects:
+    accs = []
+    processed_subjects = []
+    writer = SummaryWriter(log_dir=f'/tmp/logs/{args.model_name}')
+
+    for index, subject in enumerate(subjects):
         out_file = os.path.join(args.save_dir, f"results_{subject}.csv")
         if os.path.exists(out_file):  # If result file exist, skip this subject
             continue
@@ -107,6 +127,15 @@ def run_eval(model, tokenizer, eval, args):
             test_df['conf'] = confs
 
         test_df.to_csv(out_file, header=None)
+        accs.append(acc)
+        processed_subjects.append(subject)  # 更新已处理的科目列表
+
+        # 为当前所有已处理的科目生成并记录图表
+        fig = plot_accuracy(processed_subjects, accs, figsize=(15, 6))
+        writer.add_figure('Accuracy by Subject/Update', fig, global_step=index)
+        plt.close(fig)  # 关闭图表以释放资源
+
+    writer.close()
 
     # print result
     get_results(args.save_dir)
