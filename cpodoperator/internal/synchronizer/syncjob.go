@@ -8,6 +8,8 @@ import (
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
@@ -105,7 +107,21 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			if job.StopType == v1beta1.PORTAL_STOPTYPE_WITHLIMIT && job.StopTime > 0 {
 				duration = job.StopTime
 			}
-			//
+			//判断指定的预训练模型是否存在
+			if job.PretrainModelId != "" {
+				exists, err := s.checkModelExistence(v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
+				if err != nil {
+					s.logger.Error(err, "failed to check model existence")
+					return
+				}
+				if !exists {
+					// TODO: create downloader task and return.
+					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
+					// return create failed status during the downloader task.
+					s.addCreateFailedTrainningJob(job)
+					return
+				}
+			}
 			var gpuPerWorker int32 = 8
 			var replicas int32 = 1
 			if job.GpuNumber < 8 {
@@ -181,7 +197,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			s.logger.Info("trainningjob deleted", "jobid", cpodTrainningJob.Name)
 		}
 	}
-
 }
 
 func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.PortalInferenceJob) {
@@ -337,4 +352,17 @@ func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
 	delete(s.createFailedJobs.mij, j)
+}
+
+// 检查模型是否存在
+func (s *SyncJob) checkModelExistence(namespace, m string) (bool, error) {
+	var ms v1beta1.ModelStorage
+	err := s.kubeClient.Get(context.TODO(), types.NamespacedName{Namespace: namespace, Name: m}, &ms)
+	if err != nil {
+		if kerrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
