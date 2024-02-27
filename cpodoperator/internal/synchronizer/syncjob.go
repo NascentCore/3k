@@ -13,6 +13,8 @@ import (
 
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
+
+	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -109,7 +111,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			}
 			//判断指定的预训练模型是否存在
 			if job.PretrainModelId != "" {
-				exists, err := s.checkModelExistence(v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
+				exists, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
 					s.logger.Error(err, "failed to check model existence")
 					return
@@ -117,6 +119,12 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				if !exists {
 					// TODO: create downloader task and return.
 					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
+					err := s.createDownloaderJob(ctx, job.JobName, job.PretrainModelId)
+					if err != nil {
+						s.logger.Error(err, "create downloader job failed")
+					} else {
+						s.logger.Info("downloader job created")
+					}
 					// return create failed status during the downloader task.
 					s.addCreateFailedTrainningJob(job)
 					return
@@ -355,9 +363,9 @@ func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
 }
 
 // 检查模型是否存在
-func (s *SyncJob) checkModelExistence(namespace, m string) (bool, error) {
+func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string) (bool, error) {
 	var ms v1beta1.ModelStorage
-	err := s.kubeClient.Get(context.TODO(), types.NamespacedName{Namespace: namespace, Name: m}, &ms)
+	err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: m}, &ms)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
 			return false, nil
@@ -365,4 +373,86 @@ func (s *SyncJob) checkModelExistence(namespace, m string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, jobName, modelID, ossPath, ossAK, ossSK string) error {
+	pint32 := func(i int32) *int32 {
+		return &i
+	}
+	pint64 := func(i int64) *int64 {
+		return &i
+	}
+	pstring := func(i batchv1.CompletionMode) *batchv1.CompletionMode {
+		return &i
+	}
+	j := batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: v1beta1.CPOD_NAMESPACE,
+			Name:      jobName,
+			Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+		},
+		Spec: batchv1.JobSpec{
+			Parallelism:  pint32(1),
+			Completions:  pint32(1),
+			BackoffLimit: pint32(6),
+			Template: v1.PodTemplateSpec{
+				Spec: v1.PodSpec{
+					Volumes: []v1.Volume{
+						{
+							Name: "data-volume",
+							VolumeSource: v1.VolumeSource{PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
+								ClaimName: pvcName,
+								ReadOnly:  false,
+							}},
+						},
+					},
+					Containers: []v1.Container{
+						v1.Container{
+							Name:  "model-downloader",
+							Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v0.0.7",
+							Args: []string{
+								"-g",
+								"cpod.cpod",
+								"-v",
+								"v1",
+								"-p",
+								"modelstorages",
+								"-n",
+								"cpod",
+								"--name",
+								modelID,
+								"oss",
+								ossPath,
+								"-t",
+								"13958643712",
+								"--endpoint",
+								"https://oss-cn-beijing.aliyuncs.com",
+								"--access_id",
+								ossAK,
+								"--access_key",
+								ossSK,
+							},
+							VolumeMounts: []v1.VolumeMount{
+								{
+									MountPath: "/data",
+									Name:      "data-volume",
+								},
+							},
+							ImagePullPolicy: v1.PullIfNotPresent,
+						},
+					},
+					RestartPolicy:                 "Never",
+					TerminationGracePeriodSeconds: pint64(30),
+					DNSPolicy:                     "ClusterFirst",
+					ServiceAccountName:            "sa-downloader",
+					ImagePullSecrets: []v1.LocalObjectReference{
+						{Name: "aliyun-enterprise-registry"},
+					},
+				},
+			},
+			CompletionMode: pstring(batchv1.NonIndexedCompletion),
+		},
+	}
+	err := s.kubeClient.Create(ctx, &j)
+	return err
 }
