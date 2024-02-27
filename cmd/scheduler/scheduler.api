@@ -200,6 +200,7 @@ type (
 		ID     string `json:"id"`
 		Object string `json:"object"`
 		Owner  string `json:"owner"`
+		Size   int64  `json:"size"`
 	}
 	ResourceModelsReq {
 		UserID int64 `header:"Sx-User" json:"-"`
