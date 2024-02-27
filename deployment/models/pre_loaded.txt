@@ -9,3 +9,7 @@ https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
 https://huggingface.co/01-ai/Yi-34B
 https://huggingface.co/openchat/openchat-3.5-0106
 https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+https://huggingface.co/google/gemma-7b-it
+https://huggingface.co/google/gemma-7b
+https://huggingface.co/google/gemma-2b
+https://huggingface.co/google/gemma-2b-it
