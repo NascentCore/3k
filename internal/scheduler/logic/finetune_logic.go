@@ -10,6 +10,7 @@ import (
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/storage"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -38,7 +39,6 @@ func NewFinetuneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Finetune
 
 func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneResp, err error) {
 	UserJobModel := l.svcCtx.UserJobModel
-	CpodCacheModel := l.svcCtx.CpodCacheModel
 	CpodMainModel := l.svcCtx.CpodMainModel
 
 	userJob := &model.SysUserJob{}
@@ -51,27 +51,31 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.JobName = orm.NullString(jobName)
 
 	// modelstorage id
-	cache, err := CpodCacheModel.FindOneByQuery(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"data_type": model.CacheModel,
-		"data_name": req.Model,
-	}))
+	modelOSSPath := storage.ResourceToOSSPath(consts.Model, req.Model)
+	ok, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
 	if err != nil {
-		l.Errorf("finetune find model err %s model: %s userId: %d", err, req.Model, req.UserID)
+		l.Errorf("model storage.ExistDir userID: %d model: %s err: %s", req.UserID, req.Model, err)
 		return nil, err
 	}
-	userJob.PretrainedModelName = orm.NullString(cache.DataId)
+	if !ok {
+		l.Errorf("model not exists userID: %d model: %s err: %s", req.UserID, req.Model, err)
+		return nil, fmt.Errorf("model not exists model: %s", req.Model)
+	}
+	userJob.PretrainedModelName = orm.NullString(storage.ModelCrdID(modelOSSPath))
 	userJob.PretrainedModelPath = orm.NullString("/data/model")
 
 	// dataset
-	cache, err = CpodCacheModel.FindOneByQuery(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"data_type": model.CacheDataset,
-		"data_name": req.TrainingFile,
-	}))
+	datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile)
+	ok, err = storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
 	if err != nil {
-		l.Errorf("finetune find dataset err %s training_file: %s userId: %d", err, req.TrainingFile, req.UserID)
+		l.Errorf("dataset storage.ExistDir userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
 		return nil, err
 	}
-	userJob.DatasetName = orm.NullString(cache.DataId)
+	if !ok {
+		l.Errorf("dataset not exists userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
+		return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
+	}
+	userJob.DatasetName = orm.NullString(storage.DatasetCrdID(datasetOSSPath))
 	userJob.DatasetPath = orm.NullString("/data/dataset/custom")
 
 	// image
@@ -148,8 +152,11 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	}
 
 	jsonAll["jobName"] = userJob.JobName.String
+	jsonAll["userId"] = req.UserID
 	jsonAll["datasetId"] = userJob.DatasetName.String
+	jsonAll["datasetName"] = req.TrainingFile
 	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
+	jsonAll["pretrainedModelName"] = req.Model
 	jsonAll["ckptVol"] = 0
 	jsonAll["modelVol"] = ftModel.ModelVol
 	jsonAll["stopType"] = 0

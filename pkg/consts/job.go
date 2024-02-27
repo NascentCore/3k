@@ -15,3 +15,12 @@ const (
 const (
 	JobTypePytorch = "Pytorch"
 )
+
+const (
+	Model                = "model"
+	Dataset              = "dataset"
+	OSSPublicModelPath   = "models/public/%s"
+	OSSUserModelPath     = "models/%s"
+	OSSPublicDatasetPath = "datasets/public/%s"
+	OSSUserDatasetPath   = "datasets/%s"
+)

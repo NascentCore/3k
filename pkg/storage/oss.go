@@ -188,3 +188,26 @@ func ListDir(bucketName, prefix string, sub int) ([]string, error) {
 
 	return dirs, nil
 }
+
+// ExistDir checks if oss://bucketName/dirPath exists.
+func ExistDir(bucketName, dirPath string) (bool, error) {
+	// Create an OSS client
+	svc, err := client.Bucket(bucketName)
+	if err != nil {
+		return false, err
+	}
+
+	// Add a trailing slash if dirPath does not end with one
+	if !strings.HasSuffix(dirPath, "/") {
+		dirPath += "/"
+	}
+
+	// List objects in the directory with the specified prefix
+	result, err := svc.ListObjects(oss.Prefix(dirPath))
+	if err != nil {
+		return false, err
+	}
+
+	// If there are any objects, the directory exists
+	return len(result.Objects) > 0, nil
+}
