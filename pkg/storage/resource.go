@@ -27,12 +27,28 @@ func ResourceToOSSPath(resourceType, resource string) string {
 	return ""
 }
 
-func ModelCrdID(ossPath string) string {
+func ModelCRDName(ossPath string) string {
 	return fmt.Sprintf("model-storage-%s", hash(ossPath))
 }
 
-func DatasetCrdID(ossPath string) string {
+func DatasetCRDName(ossPath string) string {
 	return fmt.Sprintf("dataset-storage-%s", hash(ossPath))
+}
+
+func ModelPVCName(ossPath string) string {
+	return fmt.Sprintf("pvc-model-%s", hash(ossPath))
+}
+
+func DatasetPVCName(ossPath string) string {
+	return fmt.Sprintf("pvc-dataset-%s", hash(ossPath))
+}
+
+func ModelDownloadJobName(ossPath string) string {
+	return fmt.Sprintf("download-model-%s", hash(ossPath))
+}
+
+func DatasetDownloadJobName(ossPath string) string {
+	return fmt.Sprintf("download-dataset-%s", hash(ossPath))
 }
 
 func hash(data string) string {

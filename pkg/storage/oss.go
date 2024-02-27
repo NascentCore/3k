@@ -152,7 +152,7 @@ func WriteFile(filePath, content string) error {
 }
 
 // ListDir list the dirs in the bucket with a prefix dir. And ignore all level is not sub.
-func ListDir(bucketName, prefix string, sub int) ([]string, error) {
+func ListDir(bucketName, prefix string, sub int) (map[string]int64, error) {
 	// Ensure the prefix ends with a slash to denote a directory-like structure
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
@@ -172,29 +172,45 @@ func ListDir(bucketName, prefix string, sub int) ([]string, error) {
 		return nil, err
 	}
 
-	dirSet := make(map[string]bool)
-	var dirs []string
+	dirSizes := make(map[string]int64)
 	for _, object := range result.Objects {
-		trimmedKey := strings.TrimPrefix(object.Key, prefix)
-		if strings.Count(trimmedKey, "/") != sub {
+		// Calculate the directory path of the object
+		dirPath := strings.TrimPrefix(object.Key, prefix)
+		if strings.Count(dirPath, "/") != sub {
 			continue
 		}
-		slashIndex := strings.LastIndex(trimmedKey, "/")
-		dirSet[trimmedKey[:slashIndex+1]] = true
-	}
-	for dir := range dirSet {
-		dirs = append(dirs, dir)
+		slashIndex := strings.LastIndex(dirPath, "/")
+		if slashIndex > -1 {
+			dirName := dirPath[:slashIndex+1]
+			fullDirPath := prefix + dirName
+			if _, exists := dirSizes[fullDirPath]; !exists {
+				// Initialize size for new directories
+				dirSizes[fullDirPath] = 0
+			}
+			// Sum the size of the object to its directory's total size
+			dirSizes[fullDirPath] += object.Size
+		}
 	}
 
-	return dirs, nil
+	// Since directories might not have explicit objects, handle them separately
+	for _, commonPrefix := range result.CommonPrefixes {
+		dirPath := strings.TrimPrefix(commonPrefix, prefix)
+		fullDirPath := prefix + dirPath
+		if _, exists := dirSizes[fullDirPath]; !exists {
+			// Initialize size for directories without explicit objects
+			dirSizes[fullDirPath] = 0
+		}
+	}
+
+	return dirSizes, nil
 }
 
-// ExistDir checks if oss://bucketName/dirPath exists.
-func ExistDir(bucketName, dirPath string) (bool, error) {
+// ExistDir checks if oss://bucketName/dirPath exists. Int64 is the dir size in bytes.
+func ExistDir(bucketName, dirPath string) (bool, int64, error) {
 	// Create an OSS client
 	svc, err := client.Bucket(bucketName)
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
 
 	// Add a trailing slash if dirPath does not end with one
@@ -205,9 +221,17 @@ func ExistDir(bucketName, dirPath string) (bool, error) {
 	// List objects in the directory with the specified prefix
 	result, err := svc.ListObjects(oss.Prefix(dirPath))
 	if err != nil {
-		return false, err
+		return false, 0, err
+	}
+
+	// Initialize directory size
+	var size int64 = 0
+
+	// Iterate over objects to calculate total size
+	for _, object := range result.Objects {
+		size += object.Size
 	}
 
 	// If there are any objects, the directory exists
-	return len(result.Objects) > 0, nil
+	return len(result.Objects) > 0, size, nil
 }

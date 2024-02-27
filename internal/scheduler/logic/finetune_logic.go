@@ -50,9 +50,9 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	}
 	userJob.JobName = orm.NullString(jobName)
 
-	// modelstorage id
+	// model
 	modelOSSPath := storage.ResourceToOSSPath(consts.Model, req.Model)
-	ok, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
+	ok, modelSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
 	if err != nil {
 		l.Errorf("model storage.ExistDir userID: %d model: %s err: %s", req.UserID, req.Model, err)
 		return nil, err
@@ -61,12 +61,12 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		l.Errorf("model not exists userID: %d model: %s err: %s", req.UserID, req.Model, err)
 		return nil, fmt.Errorf("model not exists model: %s", req.Model)
 	}
-	userJob.PretrainedModelName = orm.NullString(storage.ModelCrdID(modelOSSPath))
+	userJob.PretrainedModelName = orm.NullString(storage.ModelCRDName(modelOSSPath))
 	userJob.PretrainedModelPath = orm.NullString("/data/model")
 
 	// dataset
 	datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile)
-	ok, err = storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
+	ok, datasetSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
 	if err != nil {
 		l.Errorf("dataset storage.ExistDir userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
 		return nil, err
@@ -75,7 +75,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		l.Errorf("dataset not exists userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
 		return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
 	}
-	userJob.DatasetName = orm.NullString(storage.DatasetCrdID(datasetOSSPath))
+	userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
 	userJob.DatasetPath = orm.NullString("/data/dataset/custom")
 
 	// image
@@ -155,8 +155,10 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["userId"] = req.UserID
 	jsonAll["datasetId"] = userJob.DatasetName.String
 	jsonAll["datasetName"] = req.TrainingFile
+	jsonAll["datasetSize"] = datasetSize
 	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
 	jsonAll["pretrainedModelName"] = req.Model
+	jsonAll["pretrainedModelSize"] = modelSize
 	jsonAll["ckptVol"] = 0
 	jsonAll["modelVol"] = ftModel.ModelVol
 	jsonAll["stopType"] = 0

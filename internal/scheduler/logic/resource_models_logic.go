@@ -35,11 +35,12 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		return nil, err
 	}
 
-	for _, dir := range dirs {
+	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
 			ID:     strings.TrimSuffix(dir, "/"),
 			Object: "model",
 			Owner:  "public",
+			Size:   size,
 		})
 	}
 
@@ -49,11 +50,12 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		return nil, err
 	}
 
-	for _, dir := range dirs {
+	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
 			ID:     fmt.Sprintf("user-%d/%s", req.UserID, strings.TrimSuffix(dir, "/")),
 			Object: "model",
 			Owner:  strconv.FormatInt(req.UserID, 10),
+			Size:   size,
 		})
 	}
 

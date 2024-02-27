@@ -273,6 +273,7 @@ type Resource struct {
 	ID     string `json:"id"`
 	Object string `json:"object"`
 	Owner  string `json:"owner"`
+	Size   int64  `json:"size"`
 }
 
 type ResourceDatasetsReq struct {
