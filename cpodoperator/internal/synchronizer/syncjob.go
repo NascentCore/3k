@@ -120,25 +120,27 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				}
 				if !exists {
 					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
+					s.addCreateFailedTrainningJob(job)
 					//create PVC
-					ossAK := ""
-					ossSK := ""
-					storageClassName := ""
-					ossPath := ""
+					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
+					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
+					storageClassName := "ceph-filesystem"
+					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
 					storageName := ModelCRDName(ossPath)
 					pvcSize := fmt.Sprintf("%d", job.PretrainModelSize)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
 						s.logger.Error(err, "create pvc failed")
+						continue
 					} else {
 						s.logger.Info("pvc created")
 					}
 					//create ModelStorage
-
 					err = s.createModelStorage(ctx, storageName, job.PretrainModelName, pvcName)
 					if err != nil {
 						s.logger.Error(err, "create modelstorage failed")
+						continue
 					} else {
 						s.logger.Info("modelstorage created")
 					}
@@ -146,11 +148,12 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), storageName, pvcSize, ossPath, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed")
+						continue
 					} else {
 						s.logger.Info("downloader job created")
 					}
 					// return create failed status during the downloader task.
-					s.addCreateFailedTrainningJob(job)
+
 					continue
 				}
 			}
