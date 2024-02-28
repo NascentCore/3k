@@ -52,7 +52,7 @@ func main() {
 	var syncPeriod int
 	var sxwlBaseUrl string
 	flag.IntVar(&syncPeriod, "sync-period", 10, "the period of every run of synchronizer, unit is second")
-	flag.StringVar(&sxwlBaseUrl, "sxwl-baseurl", "https://llm.nascentcore.cn", "the sxwl url ")
+	flag.StringVar(&sxwlBaseUrl, "sxwl-baseurl", "https://8.140.22.241", "the sxwl url ")
 	flag.Parse()
 	accessKey := os.Getenv("ACCESS_KEY") //from configmap provided by cairong
 	cpodId := os.Getenv("CPOD_ID")       //from configmap provided by cairong

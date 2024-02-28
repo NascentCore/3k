@@ -120,6 +120,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				}
 				if !exists {
 					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
+					// return create failed status during the downloader task.
 					s.addCreateFailedTrainningJob(job)
 					//create PVC
 					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
@@ -152,8 +153,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					} else {
 						s.logger.Info("downloader job created")
 					}
-					// return create failed status during the downloader task.
-
 					continue
 				}
 			}

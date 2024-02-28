@@ -1,6 +1,7 @@
 package sxwl
 
 import (
+	"crypto/tls"
 	"net/http"
 	"time"
 
@@ -77,8 +78,13 @@ type HeartBeatPayload struct {
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {
 	return &sxwl{
+		// 临时修改，需要在域名可用时再改回来
 		httpClient: &http.Client{
-			Timeout: 5 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true, // 注意：这会禁用证书验证，请谨慎使用
+				},
+			},
 		},
 		baseURL:   baseURL,
 		accessKey: accesskey,
