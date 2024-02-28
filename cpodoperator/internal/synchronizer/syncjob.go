@@ -2,9 +2,11 @@ package synchronizer
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 
+	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
@@ -114,12 +116,34 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				exists, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
 					s.logger.Error(err, "failed to check model existence")
-					return
+					continue
 				}
 				if !exists {
-					// TODO: create downloader task and return.
 					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
-					err := s.createDownloaderJob(ctx, job.JobName, job.PretrainModelId)
+					//create PVC
+					ossAK := ""
+					ossSK := ""
+					storageClassName := ""
+					ossPath := ""
+					pvcName := ModelPVCName(ossPath)
+					storageName := ModelCRDName(ossPath)
+					pvcSize := fmt.Sprintf("%d", job.PretrainModelSize)
+					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
+					if err != nil {
+						s.logger.Error(err, "create pvc failed")
+					} else {
+						s.logger.Info("pvc created")
+					}
+					//create ModelStorage
+
+					err = s.createModelStorage(ctx, storageName, job.PretrainModelName, pvcName)
+					if err != nil {
+						s.logger.Error(err, "create modelstorage failed")
+					} else {
+						s.logger.Info("modelstorage created")
+					}
+					//create DownloaderJob
+					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), storageName, pvcSize, ossPath, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed")
 					} else {
@@ -127,7 +151,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					}
 					// return create failed status during the downloader task.
 					s.addCreateFailedTrainningJob(job)
-					return
+					continue
 				}
 			}
 			var gpuPerWorker int32 = 8
@@ -375,7 +399,48 @@ func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string) 
 	return true, nil
 }
 
-func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, jobName, modelID, ossPath, ossAK, ossSK string) error {
+func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
+	m := cpodv1.ModelStorage{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: v1beta1.CPOD_NAMESPACE,
+			Name:      modelStorageName,
+		},
+		Spec: cpodv1.ModelStorageSpec{
+			ModelType:             "oss",
+			ModelName:             modelName,
+			PVC:                   pvcName,
+			ConvertTensorRTEngine: false,
+		},
+	}
+	err := s.kubeClient.Create(ctx, &m)
+	return err
+}
+
+func (s *SyncJob) createPVC(ctx context.Context, pvcName, pvcSize, storageClass string) error {
+	volumeMode := v1.PersistentVolumeFilesystem
+	pvc := v1.PersistentVolumeClaim{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      pvcName,
+			Namespace: v1beta1.CPOD_NAMESPACE},
+		Spec: v1.PersistentVolumeClaimSpec{
+			AccessModes: []v1.PersistentVolumeAccessMode{
+				v1.ReadWriteMany,
+			},
+			Resources: v1.ResourceRequirements{
+				Requests: map[v1.ResourceName]resource.Quantity{
+					v1.ResourceStorage: resource.MustParse(pvcSize),
+				},
+			},
+			StorageClassName: &storageClass,
+			VolumeMode:       &volumeMode,
+		},
+	}
+	err := s.kubeClient.Create(ctx, &pvc)
+	return err
+
+}
+
+func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, downloadJobName, storageID, storageSize, ossPath, ossAK, ossSK string) error {
 	pint32 := func(i int32) *int32 {
 		return &i
 	}
@@ -388,7 +453,7 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, jobName, mod
 	j := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: v1beta1.CPOD_NAMESPACE,
-			Name:      jobName,
+			Name:      downloadJobName,
 			Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
 		},
 		Spec: batchv1.JobSpec{
@@ -420,11 +485,11 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, jobName, mod
 								"-n",
 								"cpod",
 								"--name",
-								modelID,
+								storageID,
 								"oss",
 								ossPath,
 								"-t",
-								"13958643712",
+								storageSize,
 								"--endpoint",
 								"https://oss-cn-beijing.aliyuncs.com",
 								"--access_id",

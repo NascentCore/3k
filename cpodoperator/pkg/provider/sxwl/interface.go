@@ -14,7 +14,9 @@ type PortalTrainningJob struct {
 	Command     string            `json:"runCommand"`
 	Envs        map[string]string `json:"env"`
 	DatasetPath string            `json:"datasetPath"`
-	DatasetId   string            `json:"DatasetId"`
+	DatasetId   string            `json:"datasetId"`
+	DatasetName string            `json:"datasetName"`
+	DatasetSize int               `json:"datasetSize"`
 	GpuNumber   int               `json:"gpuNumber"`
 	GpuType     string            `json:"gpuType"`
 	HfURL       string            `json:"hfUrl"`
@@ -26,6 +28,8 @@ type PortalTrainningJob struct {
 	ModelPath         string `json:"modelPath"`
 	ModelVol          int    `json:"modelVol"`
 	PretrainModelId   string `json:"pretrainedModelId"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelSize int    `json:"pretrainedModelSize"`
 	PretrainModelPath string `json:"pretrainedModelPath"`
 	StopTime          int    `json:"stopTime"`
 	StopType          int    `json:"stopType"`
