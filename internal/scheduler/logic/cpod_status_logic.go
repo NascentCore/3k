@@ -32,6 +32,7 @@ const (
 	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
 	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
 	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
+	JobStatusPreparing      JobStatus = "preparing"      // 正在准备任务所需资源
 )
 
 type CpodStatusLogic struct {
@@ -330,6 +331,7 @@ var statusToDBMap = map[string]int{
 	string(JobStatusFailed):        model.JobStatusWorkerFail,
 	string(JobStatusSucceed):       model.JobStatusWorkerSuccess,
 	string(JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
+	string(JobStatusPreparing):     model.JobStatusWorkerPreparing,
 }
 
 var cacheTypeToDBMap = map[string]int{
