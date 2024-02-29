@@ -37,6 +37,7 @@ type SyncJob struct {
 	kubeClient       client.Client
 	scheduler        sxwl.Scheduler
 	createFailedJobs jobBuffer
+	preparingJobs    jobBuffer
 	logger           logr.Logger
 }
 
@@ -45,6 +46,11 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
 		createFailedJobs: jobBuffer{
+			mtj: map[string]sxwl.PortalTrainningJob{},
+			mij: map[string]sxwl.PortalInferenceJob{},
+			mu:  new(sync.RWMutex),
+		},
+		preparingJobs: jobBuffer{
 			mtj: map[string]sxwl.PortalTrainningJob{},
 			mij: map[string]sxwl.PortalInferenceJob{},
 			mu:  new(sync.RWMutex),
@@ -122,7 +128,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				if !exists {
 					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
 					// return create failed status during the downloader task.
-					s.addCreateFailedTrainningJob(job)
+					s.addPreparingTrainningJob(job)
 					//create PVC
 					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
 					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
@@ -208,6 +214,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				s.logger.Error(err, "failed to create trainningjob", "job", newJob)
 			} else {
 				s.deleteCreateFailedTrainningJob(job.JobName)
+				s.deletePreparingTrainningJob(job.JobName)
 				s.logger.Info("trainningjob created", "job", newJob)
 			}
 		}
@@ -360,6 +367,34 @@ func (s *SyncJob) deleteCreateFailedTrainningJob(j string) {
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
 	delete(s.createFailedJobs.mtj, j)
+}
+
+func (s *SyncJob) getPreparingTrainningJobs() []sxwl.PortalTrainningJob {
+	res := []sxwl.PortalTrainningJob{}
+	s.preparingJobs.mu.RLock()
+	defer s.preparingJobs.mu.RUnlock()
+	for _, v := range s.preparingJobs.mtj {
+		res = append(res, v)
+	}
+	return res
+}
+
+func (s *SyncJob) addPreparingTrainningJob(j sxwl.PortalTrainningJob) {
+	if _, ok := s.preparingJobs.mtj[j.JobName]; ok {
+		return
+	}
+	s.preparingJobs.mu.Lock()
+	defer s.preparingJobs.mu.Unlock()
+	s.preparingJobs.mtj[j.JobName] = j
+}
+
+func (s *SyncJob) deletePreparingTrainningJob(j string) {
+	if _, ok := s.preparingJobs.mtj[j]; !ok {
+		return
+	}
+	s.preparingJobs.mu.Lock()
+	defer s.preparingJobs.mu.Unlock()
+	delete(s.preparingJobs.mtj, j)
 }
 
 func (s *SyncJob) getCreateFailedInferenceJobs() []sxwl.PortalInferenceJob {
