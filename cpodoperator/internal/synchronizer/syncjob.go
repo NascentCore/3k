@@ -120,13 +120,18 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 
 			if job.PretrainModelId != "" {
 				//判断指定的预训练模型是否存在
-				exists, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
+				exists, done, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
 					s.logger.Error(err, "failed to check model existence")
 					continue
 				}
-				if !exists {
-					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish")
+				if exists {
+					if !done {
+						s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", job.PretrainModelId)
+						continue
+					}
+				} else {
+					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish", "jobname", job.JobName)
 					// return create failed status during the downloader task.
 					s.addPreparingTrainningJob(job)
 					//create PVC
@@ -135,35 +140,36 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					storageClassName := "ceph-filesystem"
 					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
-					storageName := ModelCRDName(ossPath)
+					//storageName := ModelCRDName(ossPath)
 					modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
 					//pvcsize is 1.2 * modelsize
 					pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
-						s.logger.Error(err, "create pvc failed")
+						s.logger.Error(err, "create pvc failed", "jobname", job.JobName)
 						continue
 					} else {
-						s.logger.Info("pvc created")
+						s.logger.Info("pvc created", "jobname", job.JobName)
 					}
 					//create ModelStorage
-					err = s.createModelStorage(ctx, storageName, job.PretrainModelName, pvcName)
+					err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
 					if err != nil {
-						s.logger.Error(err, "create modelstorage failed")
+						s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName)
 						continue
 					} else {
-						s.logger.Info("modelstorage created")
+						s.logger.Info("modelstorage created", "jobname", job.JobName)
 					}
 					//create DownloaderJob
-					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), storageName, modelSize, ossPath, ossAK, ossSK)
+					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, ossPath, ossAK, ossSK)
 					if err != nil {
-						s.logger.Error(err, "create downloader job failed")
+						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName)
 						continue
 					} else {
-						s.logger.Info("downloader job created")
+						s.logger.Info("downloader job created", "jobname", job.JobName)
 					}
 					continue
 				}
+
 			}
 			var gpuPerWorker int32 = 8
 			var replicas int32 = 1
@@ -174,7 +180,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			}
 			jobType, ok := jobTypeCheck(job.JobType)
 			if !ok {
-				s.logger.Info("invalid jobtype", "jobtype", job.JobType)
+				s.logger.Info("invalid jobtype", "jobtype", job.JobType, "jobname", job.JobName)
 				s.addCreateFailedTrainningJob(job)
 				continue
 			}
@@ -427,16 +433,16 @@ func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
 }
 
 // 检查模型是否存在
-func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string) (bool, error) {
-	var ms v1beta1.ModelStorage
+func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string) (bool, bool, error) {
+	var ms cpodv1.ModelStorage
 	err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: m}, &ms)
 	if err != nil {
 		if kerrors.IsNotFound(err) {
-			return false, nil
+			return false, false, nil
 		}
-		return false, err
+		return false, false, err
 	}
-	return true, nil
+	return true, ms.Status.Phase == "done", nil
 }
 
 func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
