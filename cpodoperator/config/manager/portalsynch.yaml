@@ -14,6 +14,8 @@ rules:
   resources:
   - cpodjobs
   - inferences
+  - datasetstorages  
+  - modelstorages
   verbs:
   - create
   - delete
@@ -48,6 +50,30 @@ rules:
   - get
   - watch
   - list
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - "batch"
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
