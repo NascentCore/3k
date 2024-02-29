@@ -160,7 +160,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						s.logger.Info("modelstorage created", "jobname", job.JobName)
 					}
 					//create DownloaderJob
-					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, ossPath, ossAK, ossSK)
+					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName)
 						continue
