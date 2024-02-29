@@ -144,12 +144,17 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			},
 		)
 		setMap := map[string]interface{}{
-			"obtain_status": model.JobStatusObtainNotNeedSend,
 			"update_time": sql.NullTime{
 				Time:  time.Now(),
 				Valid: true,
 			},
 			"work_status": dbWorkStatus,
+		}
+		// 准备资源阶段继续下发任务
+		if dbWorkStatus == model.JobStatusWorkerPreparing {
+			setMap["obtain_status"] = model.JobStatusObtainNeedSend
+		} else {
+			setMap["obtain_status"] = model.JobStatusObtainNotNeedSend
 		}
 
 		result, err := UserJobModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
