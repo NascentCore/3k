@@ -111,8 +111,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			if job.StopType == v1beta1.PORTAL_STOPTYPE_WITHLIMIT && job.StopTime > 0 {
 				duration = job.StopTime
 			}
-			//判断指定的预训练模型是否存在
+
 			if job.PretrainModelId != "" {
+				//判断指定的预训练模型是否存在
 				exists, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
 					s.logger.Error(err, "failed to check model existence")
@@ -129,7 +130,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
 					storageName := ModelCRDName(ossPath)
-					pvcSize := fmt.Sprintf("%d", job.PretrainModelSize)
+					modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
+					//pvcsize is 1.2 * modelsize
+					pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
 						s.logger.Error(err, "create pvc failed")
@@ -146,7 +149,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						s.logger.Info("modelstorage created")
 					}
 					//create DownloaderJob
-					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), storageName, pvcSize, ossPath, ossAK, ossSK)
+					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), storageName, modelSize, ossPath, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed")
 						continue
