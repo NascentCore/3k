@@ -155,9 +155,15 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["userId"] = req.UserID
 	jsonAll["datasetId"] = userJob.DatasetName.String
 	jsonAll["datasetName"] = req.TrainingFile
+	jsonAll["datasetUrl"] = storage.OssPathToOssURL(
+		l.svcCtx.Config.OSS.Bucket,
+		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
 	jsonAll["datasetSize"] = datasetSize
 	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
 	jsonAll["pretrainedModelName"] = req.Model
+	jsonAll["pretrainedModelUrl"] = storage.OssPathToOssURL(
+		l.svcCtx.Config.OSS.Bucket,
+		storage.ResourceToOSSPath(consts.Model, req.Model))
 	jsonAll["pretrainedModelSize"] = modelSize
 	jsonAll["ckptVol"] = 0
 	jsonAll["modelVol"] = ftModel.ModelVol

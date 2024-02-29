@@ -51,6 +51,10 @@ func DatasetDownloadJobName(ossPath string) string {
 	return fmt.Sprintf("download-dataset-%s", hash(ossPath))
 }
 
+func OssPathToOssURL(bucket, ossPath string) string {
+	return fmt.Sprintf("oss://%s/%s", bucket, ossPath)
+}
+
 func hash(data string) string {
 	hash := sha1.New()
 	hash.Write([]byte(data))
