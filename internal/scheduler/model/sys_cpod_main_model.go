@@ -16,6 +16,7 @@ const (
 	JobStatusWorkerFail        = 1
 	JobStatusWorkerSuccess     = 2
 	JobStatusWorkerUrlSuccess  = 3
+	JobStatusWorkerPreparing   = 4
 )
 
 var _ SysCpodMainModel = (*customSysCpodMainModel)(nil)
