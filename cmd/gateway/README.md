@@ -39,3 +39,4 @@ docker run -d \
 --name go-gateway-$NEW_VERSION \
 sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-gateway:$NEW_VERSION
 ```
+
