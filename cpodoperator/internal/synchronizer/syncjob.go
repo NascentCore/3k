@@ -122,7 +122,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				//判断指定的预训练模型是否存在
 				exists, done, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
-					s.logger.Error(err, "failed to check model existence")
+					s.logger.Error(err, "failed to check model existence", "modelid", job.PretrainModelId)
 					continue
 				}
 				if exists {
@@ -130,9 +130,10 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						continue
 					}
-				} else {
-					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish", "jobname", job.JobName)
-					// return create failed status during the downloader task.
+				} else { // modelstorage not exist
+					s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish",
+						"jobname", job.JobName, "modelid", job.PretrainModelId)
+					// return preparing status during the downloader task.
 					s.addPreparingTrainningJob(job)
 					//create PVC
 					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
@@ -146,30 +147,81 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
-						s.logger.Error(err, "create pvc failed", "jobname", job.JobName)
+						s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						continue
 					} else {
-						s.logger.Info("pvc created", "jobname", job.JobName)
+						s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
 					//create ModelStorage
 					err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
 					if err != nil {
-						s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName)
+						s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						continue
 					} else {
-						s.logger.Info("modelstorage created", "jobname", job.JobName)
+						s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
 					//create DownloaderJob
 					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
 					if err != nil {
-						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName)
+						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						continue
 					} else {
-						s.logger.Info("downloader job created", "jobname", job.JobName)
+						s.logger.Info("downloader job created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
 					continue
 				}
-
+			}
+			if job.DatasetId != "" {
+				//判断指定的预训练模型是否存在
+				exists, done, err := s.checkDatasetExistence(ctx, v1beta1.CPOD_NAMESPACE, job.DatasetId)
+				if err != nil {
+					s.logger.Error(err, "failed to check dataset existence", "datasetid", job.DatasetId)
+					continue
+				}
+				if exists {
+					if !done {
+						s.logger.Info("Dataset is preparing.", "jobname", job.JobName, "datasetid", job.DatasetId)
+						continue
+					}
+				} else { // dataset not exist
+					s.logger.Info("dataset not exists , starting downloader task , task will be started when downloader task finish",
+						"jobname", job.JobName, "datasetid", job.DatasetId)
+					// return preparing status during the downloader task.
+					s.addPreparingTrainningJob(job)
+					//create PVC
+					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
+					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
+					storageClassName := "ceph-filesystem"
+					ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
+					pvcName := ModelPVCName(ossPath)
+					datasetSize := fmt.Sprintf("%d", job.DatasetSize)
+					//pvcsize is 1.2 * modelsize
+					pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
+					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
+					if err != nil {
+						s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+						continue
+					} else {
+						s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
+					}
+					//create DatasetStorage
+					err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
+					if err != nil {
+						s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+						continue
+					} else {
+						s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
+					}
+					//create DownloaderJob
+					err = s.createDownloaderJob(ctx, pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
+					if err != nil {
+						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+						continue
+					} else {
+						s.logger.Info("downloader job created", "jobname", job.JobName, "datasetid", job.DatasetId)
+					}
+					continue
+				}
 			}
 			var gpuPerWorker int32 = 8
 			var replicas int32 = 1
@@ -445,6 +497,19 @@ func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string) 
 	return true, ms.Status.Phase == "done", nil
 }
 
+// 检查数据集是否存在
+func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string) (bool, bool, error) {
+	var ds cpodv1.DataSetStorage
+	err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: d}, &ds)
+	if err != nil {
+		if kerrors.IsNotFound(err) {
+			return false, false, nil
+		}
+		return false, false, err
+	}
+	return true, ds.Status.Phase == "done", nil
+}
+
 func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
 	m := cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
@@ -459,6 +524,23 @@ func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, mode
 		},
 	}
 	err := s.kubeClient.Create(ctx, &m)
+	return err
+}
+
+func (s *SyncJob) createDatasetStorage(ctx context.Context, datasetStorageName, datasetName, pvcName string) error {
+	d := cpodv1.DataSetStorage{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: v1beta1.CPOD_NAMESPACE,
+			Name:      datasetStorageName,
+		},
+		Spec: cpodv1.DataSetStorageSpec{
+			DatasetType: "oss",
+			DatasetName: datasetName,
+			PVC:         pvcName,
+		},
+	}
+	err := s.kubeClient.Create(ctx, &d)
 	return err
 }
 
