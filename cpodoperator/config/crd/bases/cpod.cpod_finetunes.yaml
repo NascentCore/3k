@@ -1,0 +1,65 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+  name: finetunes.cpod.cpod
+spec:
+  group: cpod.cpod
+  names:
+    kind: FineTune
+    listKind: FineTuneList
+    plural: finetunes
+    singular: finetune
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.model
+      name: Model
+      type: string
+    - jsonPath: .spec.dataset
+      name: Dataset
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              config:
+                additionalProperties:
+                  type: string
+                type: object
+              dataset:
+                type: string
+              hyperParameters:
+                additionalProperties:
+                  type: string
+                type: object
+              model:
+                type: string
+            type: object
+          status:
+            properties:
+              failureMessage:
+                type: string
+              modelStorage:
+                type: string
+              phase:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

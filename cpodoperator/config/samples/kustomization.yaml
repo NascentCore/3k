@@ -4,4 +4,5 @@ resources:
 - cpod_v1beta1_modelstorage.yaml
 - cpod_v1_modelstorage.yaml
 - cpod_v1_datasetstorage.yaml
+- cpod_v1beta1_finetune.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples
