@@ -3,6 +3,7 @@ package synchronizer
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -136,9 +137,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					// return preparing status during the downloader task.
 					s.addPreparingTrainningJob(job)
 					//create PVC
-					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
-					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
-					storageClassName := "ceph-filesystem"
+					ossAK := os.Getenv("AK")
+					ossSK := os.Getenv("SK")
+					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
 					//storageName := ModelCRDName(ossPath)
@@ -189,9 +190,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					// return preparing status during the downloader task.
 					s.addPreparingTrainningJob(job)
 					//create PVC
-					ossAK := "LTAI5tMyEXgV76UE4WhiECLC"
-					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
-					storageClassName := "ceph-filesystem"
+					ossAK := os.Getenv("AK")
+					ossSK := os.Getenv("SK")
+					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
 					pvcName := DatasetPVCName(ossPath)
 					datasetSize := fmt.Sprintf("%d", job.DatasetSize)

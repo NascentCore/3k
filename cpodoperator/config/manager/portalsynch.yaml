@@ -128,6 +128,14 @@ spec:
             configMapKeyRef:
               key: cpod_id
               name: cpod-info
+        - name: STORAGECLASS
+          valueFrom:
+            configMapKeyRef:
+              key: storageclass
+              name: cpod-info
+        envFrom:
+        - secretRef:
+            name: akas4oss
         image: portalsynch:latest
         resources:
           limits:
