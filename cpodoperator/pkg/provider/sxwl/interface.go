@@ -1,6 +1,7 @@
 package sxwl
 
 import (
+	"crypto/tls"
 	"net/http"
 	"time"
 
@@ -14,7 +15,10 @@ type PortalTrainningJob struct {
 	Command     string            `json:"runCommand"`
 	Envs        map[string]string `json:"env"`
 	DatasetPath string            `json:"datasetPath"`
-	DatasetId   string            `json:"DatasetId"`
+	DatasetId   string            `json:"datasetId"`
+	DatasetName string            `json:"datasetName"`
+	DatasetUrl  string            `json:"datasetUrl"`
+	DatasetSize int               `json:"datasetSize"`
 	GpuNumber   int               `json:"gpuNumber"`
 	GpuType     string            `json:"gpuType"`
 	HfURL       string            `json:"hfUrl"`
@@ -26,6 +30,9 @@ type PortalTrainningJob struct {
 	ModelPath         string `json:"modelPath"`
 	ModelVol          int    `json:"modelVol"`
 	PretrainModelId   string `json:"pretrainedModelId"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelUrl  string `json:"pretrainedModelUrl"`
+	PretrainModelSize int    `json:"pretrainedModelSize"`
 	PretrainModelPath string `json:"pretrainedModelPath"`
 	StopTime          int    `json:"stopTime"`
 	StopType          int    `json:"stopType"`
@@ -73,8 +80,13 @@ type HeartBeatPayload struct {
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {
 	return &sxwl{
+		// 临时修改，需要在域名可用时再改回来
 		httpClient: &http.Client{
-			Timeout: 5 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true, // 注意：这会禁用证书验证，请谨慎使用
+				},
+			},
 		},
 		baseURL:   baseURL,
 		accessKey: accesskey,

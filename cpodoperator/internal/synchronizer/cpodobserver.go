@@ -30,16 +30,19 @@ type CPodObserver struct {
 	logger                          logr.Logger
 	ch                              chan<- sxwl.HeartBeatPayload
 	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob
+	preparingTrainningJobsGetter    func() []sxwl.PortalTrainningJob
 	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob
 	cpodId                          string
 	cpodNamespace                   string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob, createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
+	createFailedTrainningJobsGetter, preparingTrainningJobsGetter func() []sxwl.PortalTrainningJob,
+	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
 	logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
 		createFailedTrainningJobsGetter: createFailedTrainningJobsGetter,
+		preparingTrainningJobsGetter:    preparingTrainningJobsGetter,
 		createFailedInferenceJobsGetter: createFailedInferenceJobsGetter,
 		cpodId:                          cpodId, cpodNamespace: cpodNamespace}
 }
@@ -59,6 +62,16 @@ func (co *CPodObserver) Start(ctx context.Context) {
 			JobType:   v1beta1.JobType(j.JobType),
 			// TODO: add to api or const
 			JobStatus: "createfailed",
+		})
+	}
+	// combine with preparing jobs
+	for _, j := range co.preparingTrainningJobsGetter() {
+		js = append(js, sxwl.TrainningJobState{
+			Name:      j.JobName,
+			Namespace: co.cpodNamespace,
+			JobType:   v1beta1.JobType(j.JobType),
+			// TODO: add to api or const
+			JobStatus: "preparing",
 		})
 	}
 	co.logger.Info("jobstates to upload", "js", js)

@@ -50,12 +50,11 @@ func init() {
 
 func main() {
 	var syncPeriod int
-	var sxwlBaseUrl string
 	flag.IntVar(&syncPeriod, "sync-period", 10, "the period of every run of synchronizer, unit is second")
-	flag.StringVar(&sxwlBaseUrl, "sxwl-baseurl", "https://llm.nascentcore.cn", "the sxwl url ")
 	flag.Parse()
-	accessKey := os.Getenv("ACCESS_KEY") //from configmap provided by cairong
-	cpodId := os.Getenv("CPOD_ID")       //from configmap provided by cairong
+	sxwlBaseUrl := os.Getenv("API_ADDRESS") //from configmap provided by cairong
+	accessKey := os.Getenv("ACCESS_KEY")    //from configmap provided by cairong
+	cpodId := os.Getenv("CPOD_ID")          //from configmap provided by cairong
 
 	cli, err := client.New(clientconfig.GetClientConfig(), client.Options{Scheme: scheme})
 	if err != nil {
