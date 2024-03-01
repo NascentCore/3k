@@ -161,7 +161,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
 					//create DownloaderJob
-					err = s.createDownloaderJob(ctx, pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
+					err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						continue
@@ -193,9 +193,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					ossSK := "aCiSvl9E2yVD5mRj7VzKrL5pMmHIr3"
 					storageClassName := "ceph-filesystem"
 					ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
-					pvcName := ModelPVCName(ossPath)
+					pvcName := DatasetPVCName(ossPath)
 					datasetSize := fmt.Sprintf("%d", job.DatasetSize)
-					//pvcsize is 1.2 * modelsize
+					//pvcsize is 1.2 * datasetsize
 					pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
@@ -213,7 +213,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
 					}
 					//create DownloaderJob
-					err = s.createDownloaderJob(ctx, pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
+					err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
 						continue
@@ -568,7 +568,7 @@ func (s *SyncJob) createPVC(ctx context.Context, pvcName, pvcSize, storageClass 
 
 }
 
-func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, downloadJobName, storageID, storageSize, ossPath, ossAK, ossSK string) error {
+func (s *SyncJob) createDownloaderJob(ctx context.Context, tp, pvcName, downloadJobName, storageID, storageSize, ossPath, ossAK, ossSK string) error {
 	pint32 := func(i int32) *int32 {
 		return &i
 	}
@@ -600,8 +600,8 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, downloadJobN
 						},
 					},
 					Containers: []v1.Container{
-						v1.Container{
-							Name:  "model-downloader",
+						{
+							Name:  tp + "-downloader",
 							Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v0.0.7",
 							Args: []string{
 								"-g",
@@ -609,7 +609,7 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, pvcName, downloadJobN
 								"-v",
 								"v1",
 								"-p",
-								"modelstorages",
+								tp + "storages",
 								"-n",
 								"cpod",
 								"--name",
