@@ -131,7 +131,12 @@ spec:
         - name: STORAGECLASS
           valueFrom:
             configMapKeyRef:
-              key: storageclass
+              key: storage_class
+              name: cpod-info
+        - name: API_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              key: api_address
               name: cpod-info
         envFrom:
         - secretRef:

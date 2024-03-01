@@ -138,7 +138,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					s.addPreparingTrainningJob(job)
 					//create PVC
 					ossAK := os.Getenv("AK")
-					ossSK := os.Getenv("SK")
+					ossSK := os.Getenv("AS")
 					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
@@ -191,7 +191,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					s.addPreparingTrainningJob(job)
 					//create PVC
 					ossAK := os.Getenv("AK")
-					ossSK := os.Getenv("SK")
+					ossSK := os.Getenv("AS")
 					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
 					pvcName := DatasetPVCName(ossPath)
