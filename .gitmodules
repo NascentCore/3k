@@ -7,3 +7,18 @@
 [submodule "examples/nccl/gpu_direct_rdma_access"]
 	path = examples/nccl/gpu_direct_rdma_access
 	url = https://github.com/Mellanox/gpu_direct_rdma_access.git
+[submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/glog"]
+	path = experimental/qmapper_prototype/qmapper/csrc/third_party/glog
+	url = https://github.com/google/glog.git
+[submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/gflags"]
+	path = experimental/qmapper_prototype/qmapper/csrc/third_party/gflags
+	url = https://github.com/gflags/gflags.git
+[submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/googletest"]
+	path = experimental/qmapper_prototype/qmapper/csrc/third_party/googletest
+	url = https://github.com/google/googletest.git
+[submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/json"]
+	path = experimental/qmapper_prototype/qmapper/csrc/third_party/json
+	url = https://gitee.com/openGPL/json.git
+[submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/pybind11"]
+	path = experimental/qmapper_prototype/qmapper/csrc/third_party/pybind11
+	url = https://github.com/pybind/pybind11.git

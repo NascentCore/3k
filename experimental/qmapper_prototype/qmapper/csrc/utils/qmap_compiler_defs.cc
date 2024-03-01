@@ -1,0 +1,1 @@
+#include "qmap_compiler_defs.h"
