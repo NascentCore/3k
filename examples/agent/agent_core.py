@@ -1,9 +1,11 @@
 from domain import domain_check
 from stylish import stylish_output
 from config import TOOL_LIST , SERVICE_LIST
-from memory import get_relative_memory
 from plan import planning
 from registry import registry
+
+def get_relative_memory(ipt) :
+    return "" 
 
 def process_req(req) :
     # check the req 
