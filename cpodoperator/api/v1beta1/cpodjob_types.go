@@ -158,6 +158,8 @@ type CPodJobSpec struct {
 
 	Command []string `json:"command,omitempty"`
 
+	Args []string `json:"args,omitempty"`
+
 	Envs []v1.EnvVar `json:"env,omitempty"`
 
 	WorkerReplicas int32 `json:"workerReplicas,omitempty"`
