@@ -1,4 +1,6 @@
-LLM_URL = 'http://10.233.48.197/complete'
+import os
+
+LLM_URL = os.getenv('LLM_URL')
 
 STYLISH_DESC = "你是一名AI生活助手，要用最生活化、活泼的语言回答问题。"
 
