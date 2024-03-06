@@ -7,20 +7,26 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sxwl/3k/cmd/sxwlctl/internal/oss"
 	"sxwl/3k/internal/scheduler/types"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/storage"
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
-	dir     string
-	typ     string
-	authURL string
+	dir string
+	typ string
 )
+
+type Config struct {
+	Endpoint  string
+	AccessID  string
+	AccessKey string
+	Bucket    string
+}
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
@@ -40,18 +46,18 @@ var uploadCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		token := viper.GetString("token")
 		if token == "" {
-			fmt.Println("Please input a correct sxwl token")
+			fmt.Println("Please input a sxwl token")
 			os.Exit(1)
 		}
-
 		accessID, accessKey, userID, err := getAccessByToken(token)
 		if err != nil {
-			fmt.Println("Please input a correct sxwl token")
+			fmt.Println("Please check token and auth_url in config file")
 			os.Exit(1)
 		}
 
-		conf := oss.Config{
+		conf := Config{
 			Endpoint:  "https://oss-cn-beijing.aliyuncs.com",
 			AccessID:  accessID,
 			AccessKey: accessKey,
@@ -83,12 +89,12 @@ func init() {
 	rootCmd.AddCommand(uploadCmd)
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹")
 	uploadCmd.Flags().StringVar(&typ, "data_type", "model", "[model|dataset]")
-	uploadCmd.Flags().StringVar(&authURL, "auth_url", "https://llm.sxwl.ai/api/uploader_access", "鉴权接口")
+	viper.SetDefault("auth_url", "https://llm.sxwl.ai/api/uploader_access")
 }
 
 func getAccessByToken(token string) (id, key string, userID int64, err error) {
 	// Create a new request using http.NewRequest
-	req, err := http.NewRequest("GET", authURL, nil)
+	req, err := http.NewRequest("GET", viper.GetString("auth_url"), nil)
 	if err != nil {
 		err = fmt.Errorf("Error creating request: %s\n", err)
 		return
@@ -122,6 +128,6 @@ func getAccessByToken(token string) (id, key string, userID int64, err error) {
 	return response.AccessID, response.AccessKey, response.UserID, err
 }
 
-func upload(conf oss.Config, prefix, localDir string) (int64, error) {
-	return storage.UploadDirToOSS(conf.Bucket, prefix, localDir)
+func upload(conf Config, prefix, localDir string) (int64, error) {
+	return storage.UploadDir(conf.Bucket, localDir, prefix)
 }

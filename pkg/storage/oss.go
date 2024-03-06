@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/fs"
@@ -234,4 +235,57 @@ func ExistDir(bucketName, dirPath string) (bool, int64, error) {
 
 	// If there are any objects, the directory exists
 	return len(result.Objects) > 0, size, nil
+}
+
+// UploadDir uploads the whole local directory to the OSS
+func UploadDir(bucketName, localDirPath, ossDirPath string) (int64, error) {
+	// Ensure the OSS directory path ends with a slash
+	if !strings.HasSuffix(ossDirPath, "/") {
+		ossDirPath += "/"
+	}
+
+	// Get the OSS bucket
+	bucket, err := client.Bucket(bucketName)
+	if err != nil {
+		log.SLogger.Errorw("get bucket err", "error", err)
+		return 0, err
+	}
+
+	var totalBytes int64
+	// Walk through the local directory
+	err = filepath.Walk(localDirPath, func(filePath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// Skip directories
+		if info.IsDir() {
+			return nil
+		}
+
+		// Calculate the relative path and use it as the OSS object name
+		relativePath, err := filepath.Rel(localDirPath, filePath)
+		if err != nil {
+			return err
+		}
+		ossPath := ossDirPath + relativePath
+
+		// Upload the file to OSS
+		err = bucket.PutObjectFromFile(ossPath, filePath)
+		if err != nil {
+			log.SLogger.Errorw("upload file to oss err", "error", err, "ossPath", ossPath, "filePath", filePath)
+			return err
+		}
+
+		totalBytes += info.Size()
+		log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", info.Size())
+
+		return nil
+	})
+
+	if err != nil {
+		log.SLogger.Errorw("walk local dir err", "error", err)
+		return totalBytes, err
+	}
+
+	return totalBytes, nil
 }
