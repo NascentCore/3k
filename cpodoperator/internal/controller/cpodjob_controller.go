@@ -28,6 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -202,6 +203,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	// 5. 网络：
 	//     * 分布式训练任务
 
+	logger := log.FromContext(ctx)
 	volumes := []corev1.Volume{}
 	volumeMounts := []corev1.VolumeMount{}
 
@@ -219,6 +221,17 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 			Name:      name,
 			MountPath: mountPath,
 		})
+	}
+
+	// 检查 logs PVC 是否存在
+	exists, err := c.checkPVCExists(ctx, "logs", cpodjob.Namespace)
+	if err != nil {
+		logger.Info("Warning: checking if 'logs' PVC exists: %v", err)
+	}
+	if !exists {
+		logger.Info("Warning:'logs' PVC does not exist in namespace %s", cpodjob.Namespace)
+	} else {
+		addVolume("logs", "logs", "/logs")
 	}
 
 	if cpodjob.Spec.CKPTPath != "" {
@@ -463,6 +476,19 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	}
 
 	return client.IgnoreAlreadyExists(c.Client.Create(ctx, targetJob))
+}
+
+func (c *CPodJobReconciler) checkPVCExists(ctx context.Context, pvcName string, namespace string) (bool, error) {
+	pvc := &corev1.PersistentVolumeClaim{}
+	err := c.Client.Get(ctx, types.NamespacedName{Name: pvcName, Namespace: namespace}, pvc)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (c *CPodJobReconciler) UpdateStatus(ctx context.Context, cpodjob *cpodv1beta1.CPodJob, baseJobStatus *tov1.JobStatus) error {
