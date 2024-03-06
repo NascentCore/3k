@@ -1,6 +1,8 @@
 import os
 import requests
 from city import city_dict
+from config import LLM_URL
+
 
 def query_weather(input_str):
     """
@@ -53,21 +55,14 @@ def call_inference(question):
     :param question: 明天是晴天，适合洗车吗?
     :return: 是的，明天是晴天的话，非常适合洗车
     """
-    #url = "http://openchat.llm.sxwl.ai:30005/v1/chat/completions"
-    url = "http://10.233.57.192/v1/chat/completions"
     headers = {"Content-Type": "application/json"}
     data = {
-        "model": "openchat_3.5",
-        "messages": [
-            {
-                "role": "user",
-                "content": question
-            }
-        ]
+        "message": question,
+        "rag": False
     }
     
     try:
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(LLM_URL, headers=headers, json=data)
         response.raise_for_status()
 
         # 解析JSON格式的响应
@@ -78,5 +73,5 @@ def call_inference(question):
         return None
 
 if __name__ == '__main__':
-    result = query_weather("2024-02-25", "杭州")
-    print(result)
+    print(query_weather("2024-03-06,杭州"))
+    print(call_inference("明天是晴天，适合洗车吗?"))

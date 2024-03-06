@@ -9,9 +9,9 @@ def get_relative_memory(ipt) :
 
 def process_req(req) :
     # check the req 
-    check_res = domain_check(req)
-    if not check_res :
-        return "Your request is beyond the scope of our service" , False
+    # check_res = domain_check(req)
+    # if not check_res :
+    #     return "Your request is beyond the scope of our service" , False
     
     # get context from memory
     context = get_relative_memory(req)

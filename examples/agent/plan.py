@@ -1,5 +1,6 @@
 from datetime import datetime
 import requests
+from config import LLM_URL
 
 
 def planning(user_query, tool_list):
@@ -24,7 +25,7 @@ def planning(user_query, tool_list):
     }
 
     # Send request to OpenChat
-    response = requests.post("http://10.233.48.197/complete", json=payload)
+    response = requests.post(LLM_URL, json=payload)
 
     # Handle response
     if response.status_code == 200:
