@@ -24,15 +24,19 @@ def planning(user_query, tool_list):
         "rag": False
     }
 
-    # Send request to OpenChat
-    response = requests.post(LLM_URL, json=payload)
+    tries = 5
+    for i in range(tries) :
+        res = None
+        try :
+            # Send request to OpenChat
+            response = requests.post(LLM_URL, json=payload)
 
-    # Handle response
-    if response.status_code == 200:
-        plan = response.json()
-        content = plan['choices'][0]['message']['content']
-        return content
-    else:
-        print("Error:", response.status_code)
-        return None
-
+            plan = response.json()
+            content = plan['choices'][0]['message']['content']
+            res = eval(content)
+        except Exception as e:
+            print("exception occured:", e)
+        else:
+            return res
+    print(f"plan failed after {tries} tries")
+    return None
