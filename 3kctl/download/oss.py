@@ -10,11 +10,11 @@ class OSSHub(object):
 
     def have_model(self, model_id):
         result = self.bucket.list_objects(prefix=self.resource_to_oss_path("model", model_id))
-        return len(result.object_list) > 1
+        return len(result.object_list) > 0
 
     def have_dataset(self, dataset_id):
         result = self.bucket.list_objects(prefix=self.resource_to_oss_path("dataset", dataset_id))
-        return len(result.object_list) > 1
+        return len(result.object_list) > 0
 
     def model_size(self, model_id):
         """return the size of model in GB"""
