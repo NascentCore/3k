@@ -94,13 +94,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				logger.Error(fmt.Errorf("model not support"), "model not support")
 				return ctrl.Result{}, nil
 			}
-			commands := modelConfig.ConstructCommand(ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
-			finalCommand := []string{}
-			for _, command := range commands {
-				if command != "" {
-					finalCommand = append(finalCommand, command)
-				}
-			}
+			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
 
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
@@ -121,7 +115,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),
 					PretrainModelName:     modelConfig.ModelStorageName,
 					PretrainModelPath:     "/data/model",
-					Command:               finalCommand,
+					Command:               []string{"/bin/bash", "-c"},
+					Args:                  []string{commandArg},
 				},
 			}
 

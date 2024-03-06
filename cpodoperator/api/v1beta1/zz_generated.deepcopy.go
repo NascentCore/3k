@@ -100,6 +100,11 @@ func (in *CPodJobSpec) DeepCopyInto(out *CPodJobSpec) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.Args != nil {
+		in, out := &in.Args, &out.Args
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.Envs != nil {
 		in, out := &in.Envs, &out.Envs
 		*out = make([]v1.EnvVar, len(*in))

@@ -102,6 +102,13 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	}
 
 	if !c.needReconcile(cpodjob) {
+		if err := c.releaseSavedModel(ctx, cpodjob); err != nil {
+			return ctrl.Result{}, err
+		}
+
+		if err := c.createModelstorage(ctx, cpodjob); err != nil {
+			return ctrl.Result{}, err
+		}
 		return ctrl.Result{}, nil
 	}
 
@@ -350,6 +357,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 										Env:          cpodjob.Spec.Envs,
 										Name:         "launcher",
 										Command:      cpodjob.Spec.Command,
+										Args:         cpodjob.Spec.Args,
 										Image:        cpodjob.Spec.Image,
 										VolumeMounts: volumeMounts,
 									},
@@ -416,6 +424,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 										Env:          cpodjob.Spec.Envs,
 										Image:        cpodjob.Spec.Image,
 										Command:      cpodjob.Spec.Command,
+										Args:         cpodjob.Spec.Args,
 										VolumeMounts: volumeMounts,
 										Resources:    resources,
 									},
@@ -856,14 +865,14 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1b
 	}
 
 	preTrainModelStoreage := cpodv1.ModelStorage{}
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, &preTrainModelStoreage); err == nil {
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, &preTrainModelStoreage); err != nil {
 		return err
 	}
 
 	modelstorageName := cpodjob.Name + "-modelsavestorage"
 	modelstorage := cpodv1.ModelStorage{}
 
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err == nil {
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err != nil {
 		if apierrors.IsNotFound(err) {
 			if err := c.Client.Create(ctx, c.generateModelstorage(preTrainModelStoreage, cpodjob)); err != nil {
 				return err

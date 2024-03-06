@@ -62,7 +62,7 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		if apierrors.IsNotFound(err) {
 			createErr := i.CreateBaseInferenceServices(ctx, inference)
 			if createErr != nil {
-				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", "Get ckpt pvc failed")
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", createErr.Error())
 				return ctrl.Result{}, createErr
 			}
 			return ctrl.Result{}, err

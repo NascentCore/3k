@@ -13,7 +13,7 @@ type Model struct {
 	RequireGPUType  string
 }
 
-func (m *Model) ConstructCommand(hyperparameters, configs []string) []string {
+func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, configs []string) string {
 	baseParam := []string{
 		"accelerate",
 		"launch",
@@ -23,7 +23,7 @@ func (m *Model) ConstructCommand(hyperparameters, configs []string) []string {
 		"--model_name_or_path=/data/model",
 		"--dataset=dataset",
 		"--dataset_dir=/data/dataset",
-		"--output_dir=/data/save",
+		"--output_dir=/data/ckpt",
 		"--stage=sft",
 		"--finetuning_type=lora",
 		"--lr_scheduler_type=cosine",
@@ -33,11 +33,19 @@ func (m *Model) ConstructCommand(hyperparameters, configs []string) []string {
 		"--save_steps=1000",
 		"--plot_loss=True",
 		"--fp16=True",
+		"--report_to=tensorboard",
+		"--logging_dir=/logs/" + finetuneName,
 		fmt.Sprintf("--template=%v", m.Template),
 		fmt.Sprintf("--lora_target=%v", m.LoRATarget),
 	}
 
-	return append(append(baseParam, hyperparameters...), configs...)
+	trainStrings := append(append(baseParam, hyperparameters...), configs...)
+	var res string
+	for _, v := range trainStrings {
+		res += v + " "
+	}
+
+	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template)
 }
 
 var SupportModels = []Model{
@@ -73,6 +81,24 @@ var SupportModels = []Model{
 		ModelStorageName: "model-storage-bf51e08c872c690e",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
 		Template:         "alpaca",
+		LoRATarget:       "q_proj,v_proj",
+		Targetmodelsize:  30720,
+		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
+	},
+	{
+		Name:             "Gemma-2B-it",
+		ModelStorageName: "model-storage-89b0f24c4991ed83",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
+		Template:         "gemma",
+		LoRATarget:       "q_proj,v_proj",
+		Targetmodelsize:  30720,
+		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
+	},
+	{
+		Name:             "Mixtral-7B",
+		ModelStorageName: "model-storage-926fa37a09dd4724                            ",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",

@@ -33,6 +33,10 @@ spec:
             type: object
           spec:
             properties:
+              args:
+                items:
+                  type: string
+                type: array
               backoffLimit:
                 format: int32
                 type: integer
