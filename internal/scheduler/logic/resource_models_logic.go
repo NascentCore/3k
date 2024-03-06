@@ -37,7 +37,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
-			ID:     strings.TrimSuffix(dir, "/"),
+			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir),
 			Object: "model",
 			Owner:  "public",
 			Size:   size,
@@ -52,7 +52,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
-			ID:     fmt.Sprintf("user-%d/%s", req.UserID, strings.TrimSuffix(dir, "/")),
+			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
 			Object: "model",
 			Owner:  strconv.FormatInt(req.UserID, 10),
 			Size:   size,

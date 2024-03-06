@@ -37,7 +37,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 
 	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
-			ID:     strings.TrimSuffix(dir, "/"),
+			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir),
 			Object: "dataset",
 			Owner:  "public",
 			Size:   size,
@@ -52,7 +52,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 
 	for dir, size := range dirs {
 		resp = append(resp, types.Resource{
-			ID:     fmt.Sprintf("user-%d/%s", req.UserID, strings.TrimSuffix(dir, "/")),
+			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix),
 			Object: "dataset",
 			Owner:  strconv.FormatInt(req.UserID, 10),
 			Size:   size,

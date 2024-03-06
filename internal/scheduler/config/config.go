@@ -10,12 +10,14 @@ type Config struct {
 		DataSource string
 	} `json:"-"`
 	OSS struct {
-		Bucket           string
-		Endpoint         string
-		PublicModelDir   string
-		PublicDatasetDir string
-		UserModelDir     string
-		UserDatasetDir   string
+		Bucket            string
+		Endpoint          string
+		PublicModelDir    string
+		PublicDatasetDir  string
+		UserModelDir      string
+		UserModelPrefix   string
+		UserDatasetDir    string
+		UserDatasetPrefix string
 	} `json:"OSS"`
 	OSSAccess struct {
 		UploadAccessID  string
