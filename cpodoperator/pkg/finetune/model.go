@@ -51,8 +51,8 @@ func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, confi
 var SupportModels = []Model{
 	{
 		Name:             "ChatGLM3",
-		ModelStorageName: "chatglm-6b",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		ModelStorageName: "model-storage-13e253bdc2c04565",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "query_key_value",
 		Targetmodelsize:  30720,
@@ -60,8 +60,8 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "LLaMA-2-7B",
-		ModelStorageName: "llama-2-7b-hf",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		ModelStorageName: "model-storage-dd6b73224fa6ab8c",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -69,8 +69,8 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "Baichuan2-7B",
-		ModelStorageName: "model-storage-d69aabdc8e017114",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		ModelStorageName: "model-storage-e5d919757ed2d808",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "W_pack",
 		Targetmodelsize:  30720,
@@ -78,8 +78,8 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "Ziya-LLaMA-13B-v1",
-		ModelStorageName: "model-storage-bf51e08c872c690e",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		ModelStorageName: "model-storage-bce7b3f87937e7d3",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -96,8 +96,8 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "Mixtral-7B",
-		ModelStorageName: "model-storage-926fa37a09dd4724                            ",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+		ModelStorageName: "model-storage-926fa37a09dd4724",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,

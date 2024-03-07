@@ -148,9 +148,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			return ctrl.Result{Requeue: true}, nil
 		}
+		return ctrl.Result{Requeue: true}, nil
 	}
-
-	return ctrl.Result{}, nil
 }
 
 // getAvailableGPUType get available gpu type from k8s cluster

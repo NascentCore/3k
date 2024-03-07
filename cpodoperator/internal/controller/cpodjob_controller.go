@@ -852,7 +852,7 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 			Namespace: cpodjob.Namespace,
 		},
 		Spec: cpodv1.ModelStorageSpec{
-			ModelType: preTrainModelStoreage.Spec.ModelType,
+			ModelType: "trained",
 			ModelName: preTrainModelStoreage.Spec.ModelName,
 			PVC:       c.GetModelSavePVCName(cpodjob),
 		},
