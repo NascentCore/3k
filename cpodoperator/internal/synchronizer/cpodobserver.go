@@ -150,11 +150,21 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 				}
 			}
 		}
+		Name := cpodjob.Name
+		JobType := cpodjob.Spec.JobType
+
+		for _, owner := range cpodjob.OwnerReferences {
+			if owner.Kind == "FineTune" {
+				JobType = "Codeless"
+				Name = owner.Name
+				break
+			}
+		}
 
 		stats = append(stats, sxwl.TrainningJobState{
-			Name:      cpodjob.Name,
+			Name:      Name,
 			Namespace: cpodjob.Namespace,
-			JobType:   cpodjob.Spec.JobType,
+			JobType:   JobType,
 			// TODO: synch defination with portal
 			JobStatus: v1beta1.JobConditionType(strings.ToLower(string(status))),
 			Info:      info,
