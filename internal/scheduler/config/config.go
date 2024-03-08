@@ -25,14 +25,8 @@ type Config struct {
 		AdminAccessID   string
 		AdminAccessKey  string
 	} `json:"-"`
-	FinetuneModel map[string]struct {
-		Image    string `json:"image"`
-		GPUMem   int64  `json:"gpu_mem"`
-		Command  string `json:"command"`
-		ModelVol int64  `json:"model_vol"`
-		GPUNum   int64  `json:"gpu_num"`
-	} `json:"FinetuneModel"`
-	Inference map[string]struct {
+	FinetuneModel map[string]string `json:"FinetuneModel"`
+	Inference     map[string]struct {
 		UrlFormat string `json:"url_format"`
 	} `json:"inference"`
 }

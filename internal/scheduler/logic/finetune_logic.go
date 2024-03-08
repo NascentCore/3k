@@ -41,6 +41,13 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	UserJobModel := l.svcCtx.UserJobModel
 	CpodMainModel := l.svcCtx.CpodMainModel
 
+	// check model is in list
+	_, ok := l.svcCtx.Config.FinetuneModel[req.Model]
+	if !ok {
+		l.Errorf("finetune model %s is not supported userId: %d", req.Model, req.UserID)
+		return nil, fmt.Errorf("model: %s for codeless fine-tune is not supported", req.Model)
+	}
+
 	userJob := &model.SysUserJob{}
 	userJob.UserId = req.UserID
 	jobName, err := job.NewJobName()
@@ -51,18 +58,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.JobName = orm.NullString(jobName)
 
 	// model
-	modelOSSPath := storage.ResourceToOSSPath(consts.Model, req.Model)
-	ok, modelSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
-	if err != nil {
-		l.Errorf("model storage.ExistDir userID: %d model: %s err: %s", req.UserID, req.Model, err)
-		return nil, err
-	}
-	if !ok {
-		l.Errorf("model not exists userID: %d model: %s err: %s", req.UserID, req.Model, err)
-		return nil, fmt.Errorf("model not exists model: %s", req.Model)
-	}
-	userJob.PretrainedModelName = orm.NullString(storage.ModelCRDName(modelOSSPath))
-	userJob.PretrainedModelPath = orm.NullString("/data/model")
+	userJob.PretrainedModelName = orm.NullString(req.Model)
 
 	// dataset
 	datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile)
@@ -76,45 +72,28 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
 	}
 	userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
-	userJob.DatasetPath = orm.NullString("/data/dataset/custom")
-
-	// image
-	ftModel, ok := l.svcCtx.Config.FinetuneModel[req.Model]
-	if !ok {
-		l.Errorf("finetune model %s with no image userId: %d", req.Model, req.UserID)
-		return nil, fmt.Errorf("model: %s for codeless fine-tune is not supported", req.Model)
-	}
-	userJob.ImagePath = orm.NullString(ftModel.Image)
-
-	// output
-	userJob.ModelPath = orm.NullString("/data/save")
-	userJob.ModelVol = orm.NullString(fmt.Sprintf("%d", ftModel.ModelVol))
 
 	// job_type
-	userJob.JobType = orm.NullString(consts.JobTypePytorch)
+	userJob.JobType = orm.NullString(consts.JobTypeCodeless)
 
 	// fill gpu
 	cpodMain, err := CpodMainModel.FindOneByQuery(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.And{
 		squirrel.GtOrEq{
 			"update_time": orm.NullTime(time.Now().Add(-30 * time.Minute)),
 		},
-		squirrel.GtOrEq{
-			"gpu_mem": orm.NullInt64(ftModel.GPUMem),
-		},
 	}))
 	if err != nil {
-		l.Errorf("finetune no gpu match model: %s mem: %d userId: %d", req.Model, ftModel.GPUMem, req.UserID)
-		return nil, fmt.Errorf("finetune no gpu match model: %s mem: %d userId: %d",
-			req.Model, ftModel.GPUMem, req.UserID)
+		l.Errorf("finetune no gpu match model: %s userId: %d", req.Model, req.UserID)
+		return nil, fmt.Errorf("finetune no gpu match model: %s userId: %d", req.Model, req.UserID)
 	}
 	userJob.GpuType = cpodMain.GpuProd
-	userJob.GpuNumber = orm.NullInt64(ftModel.GPUNum)
+	userJob.GpuNumber = orm.NullInt64(1) // 无代码微调暂时都写1
 
 	// time
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
 
-	// run_command
+	// Hyperparameters
 	epochs, ok := req.Hyperparameters[config.ParamEpochs]
 	if !ok {
 		epochs = "3.0"
@@ -127,12 +106,6 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	if !ok {
 		learningRate = "5e-5"
 	}
-	cmd := fmt.Sprintf(ftModel.Command,
-		epochs, learningRate, batchSize)
-	for param, value := range req.Config {
-		cmd = cmd + fmt.Sprintf(" %s=%s", param, value)
-	}
-	userJob.RunCommand = orm.NullString(cmd)
 
 	// json_all
 	createReq := types.JobCreateReq{}
@@ -159,16 +132,14 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		l.svcCtx.Config.OSS.Bucket,
 		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
 	jsonAll["datasetSize"] = datasetSize
-	jsonAll["pretrainedModelId"] = userJob.PretrainedModelName.String
 	jsonAll["pretrainedModelName"] = req.Model
-	jsonAll["pretrainedModelUrl"] = storage.OssPathToOssURL(
-		l.svcCtx.Config.OSS.Bucket,
-		storage.ResourceToOSSPath(consts.Model, req.Model))
-	jsonAll["pretrainedModelSize"] = modelSize
-	jsonAll["ckptVol"] = 0
-	jsonAll["modelVol"] = ftModel.ModelVol
-	jsonAll["stopType"] = 0
 	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
+	jsonAll["ckptVol"] = 0      // 改为数值型默认值
+	jsonAll["modelVol"] = 0     // 改为数值型默认值
+	jsonAll["stopType"] = 0     // 改为数值型默认值
+	jsonAll["epochs"] = epochs
+	jsonAll["batchSize"] = batchSize
+	jsonAll["learningRate"] = learningRate
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
