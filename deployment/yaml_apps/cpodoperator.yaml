@@ -8885,10 +8885,6 @@ rules:
   - cpod.cpod
   resources:
   - cpodjobs
-  - inferences
-  - datasetstorages
-  - modelstorages
-  - finetunes
   verbs:
   - create
   - delete

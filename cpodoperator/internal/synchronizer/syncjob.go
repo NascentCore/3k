@@ -84,68 +84,8 @@ func (s *SyncJob) Start(ctx context.Context) {
 	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs)
 	s.logger.Info("assigned inference job", "jobs", portalInferenceJobs)
 	s.processTrainningJobs(ctx, portalTrainningJobs)
-	s.processFinetune(ctx, portalTrainningJobs)
 	s.processInferenceJobs(ctx, portalInferenceJobs)
 
-}
-
-func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalTrainningJob) {
-	var finetunes v1beta1.FineTuneList
-	err := s.kubeClient.List(ctx, &finetunes, &client.MatchingLabels{
-		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-	})
-	if err != nil {
-		s.logger.Error(err, "failed to list finetunejob")
-	}
-	for _, job := range portaljobs {
-		if job.JobType != "Codeless" {
-			continue
-		}
-		s.logger.Info("finetune job", "finetune", job.JobName)
-		exists := false
-		for _, finetune := range finetunes.Items {
-			if finetune.Name == job.JobName {
-				exists = true
-			}
-		}
-		if !exists {
-			//create
-			newJob := v1beta1.FineTune{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      job.JobName,
-					Namespace: v1beta1.CPOD_NAMESPACE,
-				},
-				Spec: v1beta1.FineTuneSpec{
-					Model:          job.PretrainModelName,
-					DatasetStorage: job.DatasetId,
-					HyperParameters: map[string]string{
-						"n_epochs":                 job.Epochs,
-						"learning_rate_multiplier": job.LearningRate,
-						"batch_size":               job.BatchSize,
-					},
-				},
-			}
-
-			if err = s.kubeClient.Create(ctx, &newJob); err != nil {
-				s.logger.Error(err, "failed to create finetune", "job", newJob)
-			}
-		}
-	}
-
-	for _, finetune := range finetunes.Items {
-		exists := false
-		for _, job := range portaljobs {
-			if finetune.Name == job.JobName {
-				exists = true
-			}
-		}
-		if !exists {
-			if err = s.kubeClient.Delete(ctx, &finetune); err != nil {
-				s.logger.Error(err, "failed to delete finetune")
-				return
-			}
-		}
-	}
 }
 
 func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.PortalTrainningJob) {
@@ -159,10 +99,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 	}
 
 	for _, job := range portaljobs {
-		if job.JobType == "Codeless" {
-			continue
-		}
-
 		exists := false
 		for _, cpodTrainningJob := range cpodTrainningJobs.Items {
 			if cpodTrainningJob.Name == job.JobName {

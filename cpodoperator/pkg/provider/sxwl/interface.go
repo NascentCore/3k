@@ -37,9 +37,6 @@ type PortalTrainningJob struct {
 	StopTime          int    `json:"stopTime"`
 	StopType          int    `json:"stopType"`
 	BackoffLimit      int    `json:"backoffLimit"`
-	Epochs            string `json:"epochs"`
-	LearningRate      string `json:"learningRate"`
-	BatchSize         string `json:"batchSize"`
 }
 
 type PortalInferenceJob struct {
