@@ -322,10 +322,10 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 
 	resources := corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
-			corev1.ResourceName("nvidia.com/gpu"): resource.MustParse(strconv.Itoa(int(cpodjob.Spec.GPURequiredPerReplica))),
+			corev1.ResourceName("hygon.com/dcu"): resource.MustParse(strconv.Itoa(int(cpodjob.Spec.GPURequiredPerReplica))),
 		},
 		Limits: corev1.ResourceList{
-			corev1.ResourceName("nvidia.com/gpu"): resource.MustParse(strconv.Itoa(int(cpodjob.Spec.GPURequiredPerReplica))),
+			corev1.ResourceName("hygon.com/dcu"): resource.MustParse(strconv.Itoa(int(cpodjob.Spec.GPURequiredPerReplica))),
 		},
 	}
 	if c.needAllocateRDMADevice(ctx, cpodjob) {
@@ -382,9 +382,9 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 									},
 								},
 								Volumes: volumes,
-								NodeSelector: map[string]string{
-									"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
-								},
+								// NodeSelector: map[string]string{
+								// 	"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
+								// },
 							},
 						},
 					},
@@ -430,9 +430,9 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 									},
 								},
 								Volumes: volumes,
-								NodeSelector: map[string]string{
-									"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
-								},
+								// NodeSelector: map[string]string{
+								// 	"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
+								// },
 							},
 						},
 					},
