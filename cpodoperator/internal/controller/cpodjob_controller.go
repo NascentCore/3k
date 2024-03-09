@@ -241,12 +241,14 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 		addVolume("logs", "logs", "/logs")
 	}
 
+	logger.Info("DEBUG begin:", "cpodjob", cpodjob)
 	if cpodjob.Spec.CKPTPath != "" {
 		ckptPVC, err := c.GetCKPTPVC(ctx, cpodjob)
 		if err != nil {
 			c.Recorder.Eventf(cpodjob, corev1.EventTypeWarning, "GetCKPTPVCFailed", "Get ckpt pvc failed")
 			return err
 		}
+		logger.Info("DEBUG:", "ckptPVC", ckptPVC, "cpodjob", cpodjob)
 		addVolume("ckpt", ckptPVC.Name, cpodjob.Spec.CKPTPath)
 	}
 
