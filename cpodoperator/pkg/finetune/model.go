@@ -50,7 +50,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, confi
 
 var SupportModels = []Model{
 	{
-		Name:             "ChatGLM3",
+		Name:             "ZhipuAI/chatglm3-6b",
 		ModelStorageName: "model-storage-13e253bdc2c04565",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
@@ -59,7 +59,7 @@ var SupportModels = []Model{
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 	{
-		Name:             "LLaMA-2-7B",
+		Name:             "meta-llama/Llama-2-7b",
 		ModelStorageName: "model-storage-dd6b73224fa6ab8c",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
@@ -68,7 +68,7 @@ var SupportModels = []Model{
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 	{
-		Name:             "Baichuan2-7B",
+		Name:             "baichuan-inc/Baichuan2-7B-Chat",
 		ModelStorageName: "model-storage-e5d919757ed2d808",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
@@ -77,7 +77,7 @@ var SupportModels = []Model{
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 	{
-		Name:             "Ziya-LLaMA-13B-v1",
+		Name:             "IDEA-CCNL/Ziya-LLaMA-13B-v1",
 		ModelStorageName: "model-storage-bce7b3f87937e7d3",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
@@ -86,7 +86,7 @@ var SupportModels = []Model{
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 	{
-		Name:             "Gemma-2B-it",
+		Name:             "google/gemma-2b-it",
 		ModelStorageName: "model-storage-89b0f24c4991ed83",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "gemma",
@@ -95,7 +95,7 @@ var SupportModels = []Model{
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 	{
-		Name:             "Mixtral-7B",
+		Name:             "mistralai/Mistral-7B-v0.1",
 		ModelStorageName: "model-storage-926fa37a09dd4724",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "mistral",
