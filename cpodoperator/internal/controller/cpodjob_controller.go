@@ -592,7 +592,7 @@ func (c *CPodJobReconciler) GetCKPTPVC(ctx context.Context, cpodjob *cpodv1beta1
 		if apierrors.IsNotFound(err) {
 			logger.Info("ckpt pvc not found, create it")
 			volumeMode := corev1.PersistentVolumeFilesystem
-			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+			createErr := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      ckptPVCName,
 					Namespace: cpodjob.Namespace,
@@ -611,7 +611,7 @@ func (c *CPodJobReconciler) GetCKPTPVC(ctx context.Context, cpodjob *cpodv1beta1
 					VolumeMode:       &volumeMode,
 				},
 			})
-			if err != nil {
+			if createErr != nil {
 				logger.Error(err, "create ckpt pvc failed")
 				return nil, err
 			}
