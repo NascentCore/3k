@@ -272,10 +272,11 @@ type NodeInfo struct {
 }
 
 type Resource struct {
-	ID     string `json:"id"`
-	Object string `json:"object"`
-	Owner  string `json:"owner"`
-	Size   int64  `json:"size"`
+	ID     string   `json:"id"`
+	Object string   `json:"object"`
+	Owner  string   `json:"owner"`
+	Size   int64    `json:"size"`
+	Tag    []string `json:"tag"`
 }
 
 type ResourceDatasetsReq struct {

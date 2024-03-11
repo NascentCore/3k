@@ -167,7 +167,11 @@ func ListDir(bucketName, prefix string, sub int) (map[string]int64, error) {
 	}
 
 	// ListDir objects with the specified prefix
-	result, err := bucket.ListObjects(oss.Prefix(prefix))
+	listOptions := []oss.Option{
+		oss.Prefix(prefix),
+		oss.MaxKeys(1000),
+	}
+	result, err := bucket.ListObjects(listOptions...)
 	if err != nil {
 		log.SLogger.Errorw("error listing objects", "prefix", prefix, "error", err)
 		return nil, err
@@ -235,6 +239,31 @@ func ExistDir(bucketName, dirPath string) (bool, int64, error) {
 
 	// If there are any objects, the directory exists
 	return len(result.Objects) > 0, size, nil
+}
+
+// ExistFile checks if oss://bucketName/filePath exists. Int64 is the file size in bytes.
+func ExistFile(bucketName, filePath string) (bool, int64, error) {
+	// Create an OSS client for the specified bucket
+	svc, err := client.Bucket(bucketName)
+	if err != nil {
+		return false, 0, err
+	}
+
+	// List objects with the exact file path as prefix.
+	// Since file paths are unique, if the file exists, it should be the only one listed.
+	result, err := svc.ListObjects(oss.Prefix(filePath), oss.MaxKeys(1))
+	if err != nil {
+		return false, 0, err
+	}
+
+	// Check if the file exists by looking at the objects returned
+	if len(result.Objects) == 1 && result.Objects[0].Key == filePath {
+		// If the object exists and the key matches the file path, return true with the file size
+		return true, result.Objects[0].Size, nil
+	}
+
+	// If the object was not found or the key does not match exactly, the file does not exist
+	return false, 0, nil
 }
 
 // UploadDir uploads the whole local directory to the OSS

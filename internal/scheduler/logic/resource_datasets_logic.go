@@ -40,6 +40,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir),
 			Object: "dataset",
 			Owner:  "public",
+			Tag:    []string{},
 			Size:   size,
 		})
 	}
@@ -55,6 +56,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix),
 			Object: "dataset",
 			Owner:  strconv.FormatInt(req.UserID, 10),
+			Tag:    []string{},
 			Size:   size,
 		})
 	}
