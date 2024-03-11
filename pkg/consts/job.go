@@ -13,7 +13,8 @@ const (
 )
 
 const (
-	JobTypePytorch = "Pytorch"
+	JobTypePytorch  = "Pytorch"
+	JobTypeCodeless = "Codeless"
 )
 
 const (
