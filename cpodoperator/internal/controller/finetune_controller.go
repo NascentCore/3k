@@ -115,6 +115,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),
 					PretrainModelName:     modelConfig.ModelStorageName,
 					PretrainModelPath:     "/data/model",
+					CKPTPath:              "/data/ckpt",
+					CKPTVolumeSize:        int32(modelConfig.Targetmodelsize),
 					Command:               []string{"/bin/bash", "-c"},
 					Args:                  []string{commandArg},
 				},
