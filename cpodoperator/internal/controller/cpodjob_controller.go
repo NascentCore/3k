@@ -241,7 +241,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 		addVolume("logs", "logs", "/logs")
 	}
 
-	if cpodjob.Spec.CKPTPath != "" {
+	if cpodjob.Spec.CKPTPath != "" && cpodjob.Spec.CKPTVolumeSize != 0 {
 		ckptPVC, err := c.GetCKPTPVC(ctx, cpodjob)
 		if err != nil {
 			c.Recorder.Eventf(cpodjob, corev1.EventTypeWarning, "GetCKPTPVCFailed", "Get ckpt pvc failed")
@@ -590,7 +590,7 @@ func (c *CPodJobReconciler) GetCKPTPVC(ctx context.Context, cpodjob *cpodv1beta1
 		if apierrors.IsNotFound(err) {
 			logger.Info("ckpt pvc not found, create it")
 			volumeMode := corev1.PersistentVolumeFilesystem
-			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+			createErr := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      ckptPVCName,
 					Namespace: cpodjob.Namespace,
@@ -602,16 +602,16 @@ func (c *CPodJobReconciler) GetCKPTPVC(ctx context.Context, cpodjob *cpodv1beta1
 					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
-							corev1.ResourceStorage: *resource.NewQuantity(int64(cpodjob.Spec.CKPTVolumeSize*1024*1024), resource.BinarySI),
+							corev1.ResourceStorage: *resource.NewQuantity((int64(cpodjob.Spec.CKPTVolumeSize) * 1024 * 1024), resource.BinarySI),
 						},
 					},
 					StorageClassName: &c.Option.StorageClassName,
 					VolumeMode:       &volumeMode,
 				},
 			})
-			if err != nil {
-				logger.Error(err, "create ckpt pvc failed")
-				return nil, err
+			if createErr != nil {
+				logger.Error(createErr, "create ckpt pvc failed")
+				return nil, createErr
 			}
 			// TODO: @sxwl-donggang Should not return an error
 			return nil, err

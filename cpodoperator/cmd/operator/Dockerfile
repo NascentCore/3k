@@ -8,7 +8,7 @@ WORKDIR /workspace
 COPY . .
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-RUN go mod download
+RUN GOPROXY=https://goproxy.io,direct go mod download
 
 
 
