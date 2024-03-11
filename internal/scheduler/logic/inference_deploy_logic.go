@@ -2,8 +2,11 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/storage"
 
 	"github.com/google/uuid"
 
@@ -37,10 +40,24 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	}
 	serviceName := "infer-" + newUUID.String()
 
+	// model
+	modelOSSPath := storage.ResourceToOSSPath(consts.Model, req.ModelName)
+	ok, modelSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
+	if err != nil {
+		l.Errorf("model storage.ExistDir userID: %d model: %s err: %s", req.UserID, req.ModelName, err)
+		return nil, err
+	}
+	if !ok {
+		l.Errorf("model not exists userID: %d model: %s err: %s", req.UserID, req.ModelName, err)
+		return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
+	}
+
 	infer := &model.SysInference{
 		ServiceName: serviceName,
 		UserId:      req.UserID,
-		ModelId:     orm.NullString(req.ModelId),
+		ModelName:   orm.NullString(req.ModelName),
+		ModelId:     orm.NullString(storage.ModelCRDName(modelOSSPath)),
+		ModelSize:   orm.NullInt64(modelSize),
 	}
 
 	_, err = InferenceModel.Insert(l.ctx, infer)

@@ -110,8 +110,8 @@ type InferenceDeleteResp struct {
 }
 
 type InferenceDeployReq struct {
-	ModelId string `json:"model_id"`
-	UserID  int64  `header:"Sx-User"`
+	ModelName string `json:"model_name"`
+	UserID    int64  `header:"Sx-User"`
 }
 
 type InferenceDeployResp struct {
@@ -130,7 +130,9 @@ type InferenceInfoResp struct {
 type InferenceService struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
+	ModelName   string `json:"model_name"`
 	ModelId     string `json:"model_id"`
+	ModelSize   int64  `json:"model_size"`
 	CpodId      string `json:"cpod_id"`
 }
 
@@ -305,7 +307,9 @@ type ResourceModelsResp struct {
 type SysInference struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
+	ModelName   string `json:"model_name"`
 	ModelId     string `json:"model_id"`
+	ModelSize   int64  `json:"model_size"`
 	Url         string `json:"url"`
 	StartTime   string `json:"start_time"` // 推理服务启动时间
 	EndTime     string `json:"end_time"`   // 推理服务终止时间

@@ -7,6 +7,7 @@ from kubernetes import config
 from plumbum import cli
 
 from .k8s import *
+from .resource import *
 
 DOWNLOADER_VERSION = "v0.0.7"
 
@@ -44,6 +45,11 @@ class Model(cli.Application):
         crd_name = create_crd_name(hub_name, model_id, "model")
         pvc_name = create_pvc_name(hub_name, model_id, "model")
         job_name = create_job_name(hub_name, model_id, "model")
+        if hub_name == "oss":
+            crd_name = model_crd_name(resource_to_oss_path(MODEL, model_id))
+            pvc_name = model_pvc_name(resource_to_oss_path(MODEL, model_id))
+            job_name = model_download_job_name(resource_to_oss_path(MODEL, model_id))
+
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -183,6 +189,10 @@ class Dataset(cli.Application):
         crd_name = create_crd_name(hub_name, dataset_id, "dataset")
         pvc_name = create_pvc_name(hub_name, dataset_id, "dataset")
         job_name = create_job_name(hub_name, dataset_id, "dataset")
+        if hub == "oss":
+            crd_name = dataset_crd_name(resource_to_oss_path(DATASET, dataset_id))
+            pvc_name = dataset_pvc_name(resource_to_oss_path(DATASET, dataset_id))
+            job_name = dataset_download_job_name(resource_to_oss_path(DATASET, dataset_id))
         config.load_kube_config()
         core_v1_api = client.CoreV1Api()
         batch_v1_api = client.BatchV1Api()
@@ -321,9 +331,12 @@ class Status(cli.Application):
         for model_storage_obj in model_storage_objs:
             spec = model_storage_obj.get('spec', {})
             status = model_storage_obj.get('status', {})
+            model_hash = resource_hash(spec.get('modeltype'), spec.get('modelname'))
+            if spec.get('modeltype') == "oss":
+                model_hash = hash_data(resource_to_oss_path(MODEL, spec.get('modelname')))
             data_list.append([spec.get('modeltype'),
                               spec.get('modelname'),
-                              resource_hash(spec.get('modeltype'), spec.get('modelname')),
+                              model_hash,
                               status.get("phase", "nil")])
         print('\n')
         print_list(data_list)
@@ -332,9 +345,12 @@ class Status(cli.Application):
         for dataset_storage_obj in dataset_storage_objs:
             spec = dataset_storage_obj.get('spec', {})
             status = dataset_storage_obj.get('status', {})
+            dataset_hash = resource_hash(spec.get('datasettype'), spec.get('datasetname'))
+            if spec.get('datasettype') == "oss":
+                dataset_hash = hash_data(resource_to_oss_path(DATASET, spec.get('datasetname')))
             data_list.append([spec.get('datasettype'),
                               spec.get('datasetname'),
-                              resource_hash(spec.get('datasettype'), spec.get('datasetname')),
+                              dataset_hash,
                               status.get("phase", "nil")])
         print('\n')
         print_list(data_list)
