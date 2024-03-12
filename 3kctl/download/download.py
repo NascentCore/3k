@@ -62,11 +62,11 @@ class Model(cli.Application):
                 phase_value = crd_obj['status'].get('phase', None)
                 if phase_value is not None:
                     if phase_value == "downloading":
-                        print("hub:%s model_id:%s is downloading" % (hub_name, model_id))
+                        print("hub:%s model_id:%s crd:%s is downloading" % (hub_name, model_id, crd_name))
                     elif phase_value == "done":
-                        print("hub:%s model_id:%s already downloaded" % (hub_name, model_id))
+                        print("hub:%s model_id:%s already crd:%s downloaded" % (hub_name, model_id, crd_name))
                     else:
-                        print("hub:%s model_id:%s phase:%s please check the phase" % (hub_name, model_id, phase_value))
+                        print("hub:%s model_id:%s phase:%s crd:%s please check the phase" % (hub_name, model_id, phase_value, crd_name))
                 else:
                     print('''hub:%s model_id:%s please try again later, if this continue occurs, please delete the crd:
     kubectl delete ModelStorage %s -n %s''' % (hub_name, model_id, crd_name, namespace))
