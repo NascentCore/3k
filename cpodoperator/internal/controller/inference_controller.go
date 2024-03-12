@@ -55,6 +55,10 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
+	if inference.DeletionTimestamp != nil {
+		return ctrl.Result{}, nil
+	}
+
 	inferenceDeepcopy := inference.DeepCopy()
 
 	inferenceService := &kservev1beta1.InferenceService{}
