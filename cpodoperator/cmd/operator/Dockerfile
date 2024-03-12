@@ -21,7 +21,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o manager cmd/operator/ma
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM --platform=linux/amd64 m.daocloud.io/gcr.io/distroless/static:nonroot
+FROM --platform=linux/amd64 sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/static:nonroot
 WORKDIR /
 COPY --from=builder /workspace/manager .
 USER 65532:65532

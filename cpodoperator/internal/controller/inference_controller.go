@@ -102,7 +102,9 @@ func (i InferenceReconciler) getInferenceServiceName(inference *cpodv1beta1.Infe
 }
 
 func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, inference *cpodv1beta1.Inference) error {
-
+	if len(inference.Spec.Predictor.GetImplementations()) == 0 {
+		return fmt.Errorf("the implementation of predictor is null")
+	}
 	predictor := inference.Spec.Predictor.GetImplementation()
 	if sourceURI := predictor.GetStorageUri(); sourceURI != nil {
 		if strings.HasPrefix(*sourceURI, cpodv1beta1.ModelStoragePrefix) {
