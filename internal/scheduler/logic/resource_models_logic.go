@@ -31,13 +31,20 @@ func NewResourceModelsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp []types.Resource, err error) {
 	resp = []types.Resource{}
 
+	// ListDir 只能查询1000个匹配前缀的文件，小批量数据ok，更完善还是需要有db来存储模型元数据
 	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket, l.svcCtx.Config.OSS.PublicModelDir, 2)
 	if err != nil {
 		return nil, err
 	}
 
 	for dir, size := range dirs {
-		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket, path.Join(dir, "sxwl-can-fine-tune.md"))
+		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+			path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
+		if err != nil {
+			return nil, err
+		}
+		canInference, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+			path.Join(dir, l.svcCtx.Config.OSS.InferenceTagFile))
 		if err != nil {
 			return nil, err
 		}
@@ -45,6 +52,9 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		tag := []string{}
 		if canFinetune {
 			tag = append(tag, "finetune")
+		}
+		if canInference {
+			tag = append(tag, "inference")
 		}
 
 		resp = append(resp, types.Resource{

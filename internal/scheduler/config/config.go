@@ -18,6 +18,8 @@ type Config struct {
 		UserModelPrefix   string
 		UserDatasetDir    string
 		UserDatasetPrefix string
+		FinetuneTagFile   string
+		InferenceTagFile  string
 	} `json:"OSS"`
 	OSSAccess struct {
 		UploadAccessID  string

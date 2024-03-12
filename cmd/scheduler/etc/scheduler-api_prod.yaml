@@ -19,6 +19,8 @@ OSS:
   UserModelPrefix: "models/"
   UserDatasetDir: "datasets/user-%d/"
   UserDatasetPrefix: "datasets/"
+  FinetuneTagFile: "sxwl-can-fine-tune.md"
+  InferenceTagFile: "sxwl-can-inference.md"
 
 FinetuneModel:
   ZhipuAI/chatglm3-6b: ""
