@@ -197,10 +197,11 @@ type (
 
 type (
 	Resource {
-		ID     string `json:"id"`
-		Object string `json:"object"`
-		Owner  string `json:"owner"`
-		Size   int64  `json:"size"`
+		ID     string   `json:"id"`
+		Object string   `json:"object"`
+		Owner  string   `json:"owner"`
+		Size   int64    `json:"size"`
+		Tag    []string `json:"tag"`
 	}
 	ResourceModelsReq {
 		UserID int64 `header:"Sx-User" json:"-"`
