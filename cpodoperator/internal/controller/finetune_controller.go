@@ -22,7 +22,7 @@ import (
 
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
 	"github.com/NascentCore/cpodoperator/pkg/util"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,10 +35,16 @@ import (
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 )
 
+type FineTuneOption struct {
+	GPUProduct string
+}
+
 // FineTuneReconciler reconciles a FineTune object
 type FineTuneReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+
+	Option *FineTuneOption
 }
 
 //+kubebuilder:rbac:groups=cpod.cpod,resources=finetunes,verbs=get;list;watch;create;update;patch;delete
@@ -109,7 +115,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					JobType:               "pytorch",
 					DatasetName:           finetune.Spec.DatasetStorage,
 					DatasetPath:           "/data/dataset/custom",
-					GPUType:               modelConfig.RequireGPUType,
+					GPUType:               r.Option.GPUProduct,
 					GPURequiredPerReplica: 1,
 					ModelSavePath:         "/data/save",
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),

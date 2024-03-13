@@ -69,6 +69,7 @@ func main() {
 	var modelUploadJobBackoffLimit int
 	var modelUploadOssBucketName string
 	var inferenceIngressDomain string
+	var finetuneGPUProduct string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -81,6 +82,7 @@ func main() {
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
 	flag.StringVar(&modelUploadOssBucketName, "model-upload-job-bucket-name", "sxwl-ai-test", "the oss bucket name of model upload job")
 	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
+	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -154,6 +156,9 @@ func main() {
 	if err = (&controller.FineTuneReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		Option: &controller.FineTuneOption{
+			GPUProduct: finetuneGPUProduct,
+		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "FineTune")
 		os.Exit(1)
