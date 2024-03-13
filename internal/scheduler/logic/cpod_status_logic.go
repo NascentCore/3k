@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 	"sxwl/3k/internal/scheduler/model"
@@ -55,6 +56,12 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	FileURLModel := l.svcCtx.FileURLModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	InferModel := l.svcCtx.InferenceModel
+
+	// check banned
+	_, ok := l.svcCtx.Config.BannedCpod[req.CPODID]
+	if ok {
+		return nil, fmt.Errorf("cpod is illegal")
+	}
 
 	// update sys_main_job or insert
 	for _, gpu := range req.ResourceInfo.GPUSummaries {

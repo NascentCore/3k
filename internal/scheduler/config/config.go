@@ -21,7 +21,8 @@ type Config struct {
 		FinetuneTagFile   string
 		InferenceTagFile  string
 	} `json:"OSS"`
-	OSSAccess struct {
+	BannedCpod map[string]string `json:"BannedCpod"`
+	OSSAccess  struct {
 		UploadAccessID  string
 		UploadAccessKey string
 		AdminAccessID   string
