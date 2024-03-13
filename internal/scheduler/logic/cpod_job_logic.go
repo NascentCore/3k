@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 	"time"
 
@@ -35,6 +36,12 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
 	InferenceModel := l.svcCtx.InferenceModel
+
+	// check banned
+	_, ok := l.svcCtx.Config.BannedCpod[req.CpodId]
+	if ok {
+		return nil, fmt.Errorf("cpod is illegal")
+	}
 
 	resp = &types.CpodJobResp{}
 	resp.JobList = make([]map[string]interface{}, 0)

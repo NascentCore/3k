@@ -20,6 +20,9 @@ OSS:
   FinetuneTagFile: "sxwl-can-fine-tune.md"
   InferenceTagFile: "sxwl-can-inference.md"
 
+BannedCpod:
+  9943a3c744bbb47e3a553d46559aea49: ""
+
 FinetuneModel:
   ZhipuAI/chatglm3-6b: ""
   google/gemma-2b-it: ""
