@@ -135,6 +135,7 @@ type InferenceService struct {
 	ModelSize   int64  `json:"model_size"`
 	Template    string `json:"template"`
 	CpodId      string `json:"cpod_id"`
+	UserId      int64  `json:"user_id"`
 }
 
 type InferenceStatus struct {

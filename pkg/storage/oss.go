@@ -210,6 +210,47 @@ func ListDir(bucketName, prefix string, sub int) (map[string]int64, error) {
 	return dirSizes, nil
 }
 
+// ListFiles return the files and size match the prefix
+func ListFiles(bucketName, prefix string) (map[string]int64, error) {
+	// Get the OSS bucket
+	bucket, err := client.Bucket(bucketName)
+	if err != nil {
+		log.SLogger.Errorw("error getting bucket", "bucketName", bucketName, "error", err)
+		return nil, err
+	}
+
+	// Initialize the map to return
+	fileSizes := make(map[string]int64)
+
+	// Define list options for the OSS API call
+	listOptions := []oss.Option{
+		oss.Prefix(prefix), // List files with the specified prefix
+	}
+
+	// Use a loop to handle pagination in case there are more than 1000 objects
+	isTruncated := true
+	for isTruncated {
+		result, err := bucket.ListObjects(listOptions...)
+		if err != nil {
+			log.SLogger.Errorw("error listing objects", "prefix", prefix, "error", err)
+			return nil, err
+		}
+
+		// Process each object in the list results
+		for _, object := range result.Objects {
+			fileSizes[object.Key] = object.Size
+		}
+
+		isTruncated = result.IsTruncated
+		// If there are more objects, set the next marker for the next list call
+		if isTruncated {
+			listOptions = append(listOptions, oss.Marker(result.NextMarker))
+		}
+	}
+
+	return fileSizes, nil
+}
+
 // ExistDir checks if oss://bucketName/dirPath exists. Int64 is the dir size in bytes.
 func ExistDir(bucketName, dirPath string) (bool, int64, error) {
 	// Create an OSS client

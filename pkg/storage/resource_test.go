@@ -26,3 +26,26 @@ func Test_hash(t *testing.T) {
 		})
 	}
 }
+
+func TestExtractTemplate(t *testing.T) {
+	type args struct {
+		filename string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			args: args{filename: "sxwl-infer-template-gema.md"},
+			want: "gema",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ExtractTemplate(tt.args.filename); got != tt.want {
+				t.Errorf("ExtractTemplate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
