@@ -1,15 +1,16 @@
 # A list of models to be preloaded
-https://huggingface.co/stabilityai/stable-code-3b
-https://huggingface.co/01-ai/Yi-VL-6B
-https://huggingface.co/THUDM/chatglm3-6b
-https://huggingface.co/baichuan-inc/Baichuan2-7B-Base
-https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1
-https://huggingface.co/Qwen/Qwen-7B-Chat
-https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
-https://huggingface.co/01-ai/Yi-34B
-https://huggingface.co/openchat/openchat-3.5-0106
-https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-https://huggingface.co/google/gemma-7b-it
-https://huggingface.co/google/gemma-7b
-https://huggingface.co/google/gemma-2b
-https://huggingface.co/google/gemma-2b-it
+# model finetune(yes/no) inference(yes no)
+https://huggingface.co/stabilityai/stable-code-3b                no  no 
+https://huggingface.co/01-ai/Yi-VL-6B                            no  no
+https://huggingface.co/THUDM/chatglm3-6b                         yes yes
+https://huggingface.co/baichuan-inc/Baichuan2-7B-Base            yes yes
+https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1               yes yes
+https://huggingface.co/Qwen/Qwen-7B-Chat                         no  no
+https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0  no  no
+https://huggingface.co/01-ai/Yi-34B                              no  no
+https://huggingface.co/openchat/openchat-3.5-0106                no  no
+https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2    no  no
+https://huggingface.co/google/gemma-7b-it                        no  yes
+https://huggingface.co/google/gemma-7b                           no  yes
+https://huggingface.co/google/gemma-2b                           no  yes
+https://huggingface.co/google/gemma-2b-it                        yes yes 

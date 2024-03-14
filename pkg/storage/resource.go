@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"strings"
 	"sxwl/3k/pkg/consts"
 )
@@ -60,4 +61,17 @@ func hash(data string) string {
 	hash.Write([]byte(data))
 	hashed := hash.Sum(nil)
 	return hex.EncodeToString(hashed)[:16]
+}
+
+func ExtractTemplate(filename string) string {
+	// Compile the regular expression to match the pattern
+	// This pattern assumes the target substring is between the last "-" and "."
+	regex := regexp.MustCompile(`-(\w+)\.`)
+	// Find the first match in the provided filename
+	match := regex.FindStringSubmatch(filename)
+	if len(match) > 1 {
+		// The first captured group (\w+) is at index 1
+		return match[1]
+	}
+	return ""
 }

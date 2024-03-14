@@ -33,6 +33,7 @@ type FineTuneSpec struct {
 	DatasetStorage  string            `json:"dataset,omitempty"`
 	HyperParameters map[string]string `json:"hyperParameters,omitempty"`
 	Config          map[string]string `json:"config,omitempty"`
+	Upload          bool              `json:"upload,omitempty"`
 }
 
 type Phase string

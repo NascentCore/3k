@@ -189,7 +189,7 @@ class Dataset(cli.Application):
         crd_name = create_crd_name(hub_name, dataset_id, "dataset")
         pvc_name = create_pvc_name(hub_name, dataset_id, "dataset")
         job_name = create_job_name(hub_name, dataset_id, "dataset")
-        if hub == "oss":
+        if hub_name == "oss":
             crd_name = dataset_crd_name(resource_to_oss_path(DATASET, dataset_id))
             pvc_name = dataset_pvc_name(resource_to_oss_path(DATASET, dataset_id))
             job_name = dataset_download_job_name(resource_to_oss_path(DATASET, dataset_id))

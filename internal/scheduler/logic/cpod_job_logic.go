@@ -156,6 +156,8 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		if ok {
 			serviceResp.Status = statusDesc
 		}
+		serviceResp.Template = service.Template.String
+		serviceResp.UserId = service.UserId
 		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 
 		// 新分配的部署更新cpod_id和status
