@@ -141,6 +141,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if util.IsFinshed(cpodjob.Status) {
 		if util.IsSucceeded(cpodjob.Status) {
 			finetune.Status.Phase = cpodv1beta1.PhaseSucceeded
+			finetune.Status.ModelStorage = finetune.Name + "-cpodjob-modelsavestorage"
 		} else {
 			finetune.Status.Phase = cpodv1beta1.PhaseFailed
 			finetune.Status.FailureMessage = util.GetCondition(cpodjob.Status, cpodv1beta1.JobFailed).Message
