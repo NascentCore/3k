@@ -22,6 +22,8 @@ func main() {
 		configFile = "etc/gateway-api_prod.yaml"
 	case "test":
 		configFile = "etc/gateway-api_test.yaml"
+	case "k8s":
+		configFile = "etc/gateway-api_k8s.yaml"
 	case "dev":
 		configFile = "etc/gateway-api.yaml"
 	default:

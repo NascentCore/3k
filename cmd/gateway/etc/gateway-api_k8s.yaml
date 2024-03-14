@@ -1,0 +1,69 @@
+Name: gateway-api
+Host: 0.0.0.0
+Port: 8080
+Timeout: 10000
+
+Log:
+  ServiceName: gateway
+  Mode: file
+  Path: /var/log
+  Level: info
+  KeepDays: 30
+
+Gateway:
+  Servers:
+    scheduler: "http://go-scheduler-service:8090"
+    java: "http://aiadmin-service:8012"
+  Routers:
+    - Path: "/api/userJob/cpod_jobs"
+      ToPath: "/cpod/job"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/cpod_status"
+      ToPath: "/cpod/status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/info/upload_status"
+      ToPath: "/info/upload_status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/getGpuType"
+      ToPath: "/cpod/gpu_type"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/job_status"
+      ToPath: "/job/status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/job_del"
+      ToPath: "/job/stop"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob"
+      ToPath: "/job/job"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/models"
+      ToPath: "/resource/models"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/datasets"
+      ToPath: "/resource/datasets"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/uploader_access"
+      ToPath: "/resource/uploader_access"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/finetune"
+      ToPath: "/job/finetune"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/inference"
+      ToPath: "/inference"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api"
+      Server: java
+    - Path: "/auth"
+      Server: java
