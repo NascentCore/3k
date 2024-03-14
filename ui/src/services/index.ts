@@ -70,3 +70,11 @@ export async function apiGetUserJob(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// 删除任务
+export async function apiDeleteUserJob(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/userJob', {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}

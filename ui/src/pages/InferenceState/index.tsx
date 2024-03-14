@@ -1,7 +1,7 @@
 import { apiDeleteInference, apiGetInference, apiGetUserJob } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Space, Table, message, theme } from 'antd';
+import { Button, Popconfirm, Space, Table, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 const Welcome: React.FC = () => {
@@ -78,9 +78,10 @@ const Welcome: React.FC = () => {
                     启动聊天
                   </Button>
 
-                  <Button
-                    type={'link'}
-                    onClick={() => {
+                  <Popconfirm
+                    title="提示"
+                    description="确认终止?"
+                    onConfirm={() => {
                       apiDeleteInference({
                         params: {
                           service_name: record.service_name,
@@ -92,9 +93,12 @@ const Welcome: React.FC = () => {
                         });
                       });
                     }}
+                    onCancel={() => {}}
+                    okText="是"
+                    cancelText="否"
                   >
-                    终止
-                  </Button>
+                    <Button type={'link'}>终止</Button>
+                  </Popconfirm>
                 </Space>
               </>
             ),
