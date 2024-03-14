@@ -70,6 +70,7 @@ const Welcome: React.FC = () => {
               <>
                 <Space>
                   <Button
+                    type={'link'}
                     onClick={() => {
                       console.log('打开聊天页面');
                     }}
@@ -78,6 +79,7 @@ const Welcome: React.FC = () => {
                   </Button>
 
                   <Button
+                    type={'link'}
                     onClick={() => {
                       apiDeleteInference({
                         params: {

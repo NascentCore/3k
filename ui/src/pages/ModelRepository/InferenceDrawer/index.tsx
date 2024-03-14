@@ -9,7 +9,7 @@ import { history, Link } from '@umijs/max';
 
 const Content = ({ record, onCancel }) => {
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState({ id: record.id });
+  const [formValues, setFormValues] = useState({ model_name: record.id });
 
   return (
     <>
@@ -21,15 +21,15 @@ const Content = ({ record, onCancel }) => {
         style={{ maxWidth: 600 }}
         onFinish={(values) => {
           console.log('Form values:', values);
-          apiInference({ model_id: record.id }).then((res) => {
+          apiInference({ data: { model_name: values.model_name } }).then((res) => {
             message.success('部署任务创建成功');
             onCancel();
             history.push('/InferenceState');
           });
         }}
       >
-        <Form.Item name="id" label="模型名称">
-          {formValues.id}
+        <Form.Item name="model_name" label="模型名称">
+          {formValues.model_name}
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
