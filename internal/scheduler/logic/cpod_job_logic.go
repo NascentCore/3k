@@ -156,6 +156,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		if ok {
 			serviceResp.Status = statusDesc
 		}
+		serviceResp.Template = "gemma"
 		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 
 		// 新分配的部署更新cpod_id和status
