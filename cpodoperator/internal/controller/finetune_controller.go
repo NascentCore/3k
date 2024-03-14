@@ -125,6 +125,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					CKPTVolumeSize:        int32(modelConfig.Targetmodelsize),
 					Command:               []string{"/bin/bash", "-c"},
 					Args:                  []string{commandArg},
+					UploadModel:           finetune.Spec.Upload,
 				},
 			}
 

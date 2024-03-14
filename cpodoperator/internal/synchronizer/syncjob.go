@@ -118,6 +118,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 				Spec: v1beta1.FineTuneSpec{
 					Model:          job.PretrainModelName,
 					DatasetStorage: job.DatasetId,
+					Upload:         true,
 					HyperParameters: map[string]string{
 						"n_epochs":                 job.Epochs,
 						"learning_rate_multiplier": job.LearningRate,
