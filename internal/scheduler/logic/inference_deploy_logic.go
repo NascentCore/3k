@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
@@ -52,12 +53,27 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
 	}
 
+	// model template
+	template := ""
+	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
+	if err != nil {
+		l.Errorf("model storage.ListFiles userID: %d model: %s err: %s", req.UserID, req.ModelName, err)
+		return nil, err
+	}
+	for file := range fileList {
+		if strings.Contains(file, "sxwl-infer-template-") {
+			template = storage.ExtractTemplate(file)
+			break
+		}
+	}
+
 	infer := &model.SysInference{
 		ServiceName: serviceName,
 		UserId:      req.UserID,
 		ModelName:   orm.NullString(req.ModelName),
 		ModelId:     orm.NullString(storage.ModelCRDName(modelOSSPath)),
 		ModelSize:   orm.NullInt64(modelSize),
+		Template:    orm.NullString(template),
 	}
 
 	_, err = InferenceModel.Insert(l.ctx, infer)
