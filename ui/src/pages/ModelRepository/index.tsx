@@ -3,11 +3,11 @@ import { Space, Table } from 'antd';
 import React from 'react';
 import FineTuningDrawer from './FineTuningDrawer';
 import InferenceDrawer from './InferenceDrawer';
-import { useApiResourceDatasets } from '@/services';
+import { useApiResourceModels } from '@/services';
 import { formatFileSize } from '@/utils';
 
 const Admin: React.FC = () => {
-  const { data: resourceModels, mutate, isLoading }: any = useApiResourceDatasets();
+  const { data: resourceModels, mutate, isLoading }: any = useApiResourceModels();
 
   return (
     <PageContainer>
