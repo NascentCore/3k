@@ -75,7 +75,7 @@ const Welcome: React.FC = () => {
                     </Button>
                   )}
 
-                  {record.status === 'deploying' && (
+                  {record.status !== 'stopped' && (
                     <Popconfirm
                       title="提示"
                       description="确认终止?"
