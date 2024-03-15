@@ -73,12 +73,31 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 	}
 
 	for dir, size := range dirs {
+		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+			path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
+		if err != nil {
+			return nil, err
+		}
+		canInference, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+			path.Join(dir, l.svcCtx.Config.OSS.InferenceTagFile))
+		if err != nil {
+			return nil, err
+		}
+
+		tag := []string{}
+		if canFinetune {
+			tag = append(tag, "finetune")
+		}
+		if canInference {
+			tag = append(tag, "inference")
+		}
+
 		resp = append(resp, types.Resource{
 			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
 			Object: "model",
-			Owner:  strconv.FormatInt(req.UserID, 10),
+			Owner:  fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
 			Size:   size,
-			Tag:    []string{},
+			Tag:    tag,
 		})
 	}
 
