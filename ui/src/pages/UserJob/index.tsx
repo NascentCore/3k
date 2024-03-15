@@ -1,4 +1,4 @@
-import { apiDeleteUserJob, apiGetUserJob } from '@/services';
+import { apiDeleteUserJob, apiGetUserJob, useApiGetUserJob } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Popconfirm, Space, Table, theme } from 'antd';
@@ -6,18 +6,17 @@ import React, { useEffect, useState } from 'react';
 import DetailModel from './DetailModel';
 
 const Welcome: React.FC = () => {
-  const { initialState } = useModel('@@initialState');
-  const [userJobList, setUserJobList] = useState([]);
-  useEffect(() => {
-    apiGetUserJob({
-      params: {
-        current: 1,
-        size: 1000,
-      },
-    }).then((res) => {
-      setUserJobList(res?.content);
-    });
-  }, []);
+  const {
+    data: userJobList,
+    mutate,
+    isLoading,
+  } = useApiGetUserJob({
+    params: {
+      current: 1,
+      size: 1000,
+    },
+  });
+
   return (
     <PageContainer>
       <Table
@@ -123,7 +122,9 @@ const Welcome: React.FC = () => {
                     title="提示"
                     description="确认删除?"
                     onConfirm={() => {
-                      apiDeleteUserJob({ data: [record?.id] });
+                      apiDeleteUserJob({ data: [record?.id] }).then(() => {
+                        mutate();
+                      });
                     }}
                     onCancel={() => {}}
                     okText="是"
@@ -136,7 +137,8 @@ const Welcome: React.FC = () => {
             ),
           },
         ]}
-        dataSource={userJobList}
+        dataSource={userJobList?.content || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
     </PageContainer>

@@ -1,16 +1,11 @@
-import { apiDeleteInference, apiGetInference, apiGetUserJob } from '@/services';
+import { apiDeleteInference, apiGetInference, apiGetUserJob, useApiGetInference } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Popconfirm, Space, Table, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 const Welcome: React.FC = () => {
-  const [inferenceList, setInferenceList] = useState([]);
-  useEffect(() => {
-    apiGetInference({}).then((res) => {
-      setInferenceList(res?.data);
-    });
-  }, []);
+  const { data: inferenceList, mutate, isLoading } = useApiGetInference();
   return (
     <PageContainer>
       <Table
@@ -106,7 +101,8 @@ const Welcome: React.FC = () => {
             ),
           },
         ]}
-        dataSource={inferenceList}
+        dataSource={inferenceList?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 350px)' }}
       />
     </PageContainer>

@@ -1,4 +1,5 @@
 import { request } from '@umijs/max';
+import useSWR from 'swr';
 
 // /auth/login
 export async function apiAuthLogin(options?: { [key: string]: any }) {
@@ -31,6 +32,14 @@ export async function apiResourceDatasets(options?: { [key: string]: any }) {
   });
 }
 
+export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
+  useSWR(['/api/resource/datasets', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
+
 // 2.6 无代码微调
 
 export async function apiFinetunes(options?: { [key: string]: any }) {
@@ -56,6 +65,14 @@ export async function apiGetInference(options?: { [key: string]: any }) {
   });
 }
 
+export const useApiGetInference = (options?: { [key: string]: any }) =>
+  useSWR(['/api/inference', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
+
 export async function apiDeleteInference(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/inference', {
     method: 'DELETE',
@@ -70,6 +87,14 @@ export async function apiGetUserJob(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+export const useApiGetUserJob = (options?: { [key: string]: any }) =>
+  useSWR(['/api/userJob', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
 
 // 删除任务
 export async function apiDeleteUserJob(options?: { [key: string]: any }) {
