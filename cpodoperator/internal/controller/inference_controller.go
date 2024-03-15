@@ -299,6 +299,9 @@ func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      inference.Name + "-web-ui",
 			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
@@ -317,6 +320,9 @@ func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      inference.Name + "-web-ui",
 			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: pointer.Int32Ptr(1),
@@ -373,6 +379,9 @@ func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      webUIIngressName,
 			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
 			Annotations: map[string]string{
 				"kubernetes.io/ingress.class": "nginx",
 			},
