@@ -1,8 +1,9 @@
-import { apiGetUserJob } from '@/services';
+import { apiDeleteUserJob, apiGetUserJob } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Space, Table, theme } from 'antd';
+import { Button, Popconfirm, Space, Table, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
+import DetailModel from './DetailModel';
 
 const Welcome: React.FC = () => {
   const { initialState } = useModel('@@initialState');
@@ -117,12 +118,19 @@ const Welcome: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <Button type="link" onClick={() => {}}>
-                    详情
-                  </Button>
-                  <Button type="link" onClick={() => {}}>
-                    删除
-                  </Button>
+                  <DetailModel />
+                  <Popconfirm
+                    title="提示"
+                    description="确认删除?"
+                    onConfirm={() => {
+                      apiDeleteUserJob({ data: [record?.id] });
+                    }}
+                    onCancel={() => {}}
+                    okText="是"
+                    cancelText="否"
+                  >
+                    <Button type="link">删除</Button>
+                  </Popconfirm>
                 </Space>
               </>
             ),
