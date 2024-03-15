@@ -7,6 +7,7 @@ const (
 const (
 	// CPodJobSourceLabel  represents the source of the cpodjob, e.g. sxwl、kubectl etc.
 	CPodJobSourceLabel = "cpod.cpod/cpodjob-source"
+	CPodUserIDLabel    = "cpod.cpod/userID"
 
 	CPodJobSource = "sxwl"
 )

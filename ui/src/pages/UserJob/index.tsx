@@ -1,4 +1,4 @@
-import { apiDeleteUserJob, apiGetUserJob, useApiGetUserJob } from '@/services';
+import { apiDeleteUserJob, useApiGetUserJob } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Popconfirm, Space, Table, theme } from 'antd';

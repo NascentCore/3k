@@ -45,13 +45,13 @@ func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, confi
 		res += v + " "
 	}
 
-	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template)
+	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
 }
 
 var SupportModels = []Model{
 	{
 		Name:             "ZhipuAI/chatglm3-6b",
-		ModelStorageName: "model-storage-13e253bdc2c04565",
+		ModelStorageName: "model-storage-10e872cd960e38cb",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "query_key_value",
@@ -60,7 +60,7 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "meta-llama/Llama-2-7b",
-		ModelStorageName: "model-storage-dd6b73224fa6ab8c",
+		ModelStorageName: "model-storage-6deacca0bbad927d",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
@@ -69,7 +69,7 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "baichuan-inc/Baichuan2-7B-Chat",
-		ModelStorageName: "model-storage-e5d919757ed2d808",
+		ModelStorageName: "model-storage-cfa5be686c53f1a2",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "W_pack",
@@ -78,7 +78,7 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "IDEA-CCNL/Ziya-LLaMA-13B-v1",
-		ModelStorageName: "model-storage-bce7b3f87937e7d3",
+		ModelStorageName: "model-storage-3f7baf1d50fdab32",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
@@ -87,7 +87,7 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "google/gemma-2b-it",
-		ModelStorageName: "model-storage-89b0f24c4991ed83",
+		ModelStorageName: "model-storage-0ce92f029254ff34",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "gemma",
 		LoRATarget:       "q_proj,v_proj",
@@ -96,7 +96,7 @@ var SupportModels = []Model{
 	},
 	{
 		Name:             "mistralai/Mistral-7B-v0.1",
-		ModelStorageName: "model-storage-926fa37a09dd4724",
+		ModelStorageName: "model-storage-e306a7d8b79c7e8f",
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",

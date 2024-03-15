@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -40,6 +41,7 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
+	"github.com/NascentCore/cpodoperator/internal/synchronizer"
 	"github.com/NascentCore/cpodoperator/pkg/util"
 
 	commonv1 "github.com/kubeflow/common/pkg/apis/common/v1"
@@ -160,7 +162,17 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	}
 
 	if util.IsSucceeded(cpodjob.Status) && cpodjob.Spec.UploadModel && cpodjob.Spec.ModelSavePath != "" {
-		err := c.uploadSavedModel(ctx, cpodjob)
+		var userID, jobName string
+		var ok bool
+		if userID, ok = cpodjob.Labels[v1beta1.CPodUserIDLabel]; !ok {
+			return ctrl.Result{}, nil
+		}
+		jobName = cpodjob.Name
+		if strings.HasSuffix(jobName, "-cpodjob") {
+			jobName, _ = strings.CutSuffix(jobName, "-cpodjob")
+		}
+
+		err := c.uploadSavedModel(ctx, cpodjob, userID, jobName)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -700,7 +712,7 @@ func (c *CPodJobReconciler) generateOwnerRefCPodJob(ctx context.Context, cpodjob
 	}
 }
 
-func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob, userID, jobName string) error {
 	uploadJob := &batchv1.Job{}
 	uploadJobName := cpodjob.Name + "-upload"
 	completion := int32(1)
@@ -728,7 +740,8 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 									ImagePullPolicy: corev1.PullAlways,
 									Command: []string{
 										"./modeluploadjob",
-										cpodjob.Name,
+										"user-" + userID,
+										jobName,
 										c.Option.ModelUploadOssBucketName,
 									},
 									Env: []corev1.EnvVar{
@@ -845,11 +858,11 @@ func (c *CPodJobReconciler) releaseSavedModel(ctx context.Context, cpodjob *v1be
 }
 
 func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.ModelStorage, cpodjob *v1beta1.CPodJob) *cpodv1.ModelStorage {
-	modelstorageName := cpodjob.Name + "-modelsavestorage"
 	return &cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      modelstorageName,
+			Name:      generateModelstorageName(cpodjob),
 			Namespace: cpodjob.Namespace,
+			Labels:    cpodjob.Labels,
 		},
 		Spec: cpodv1.ModelStorageSpec{
 			ModelType: "trained",
@@ -869,7 +882,7 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1b
 		return err
 	}
 
-	modelstorageName := cpodjob.Name + "-modelsavestorage"
+	modelstorageName := generateModelstorageName(cpodjob)
 	modelstorage := cpodv1.ModelStorage{}
 
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err != nil {
@@ -888,4 +901,16 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1b
 
 	return nil
 
+}
+
+func generateModelstorageName(cpodjob *v1beta1.CPodJob) string {
+	modelstorageName := cpodjob.Name + "-modelsavestorage"
+	jobName := cpodjob.Name
+	if strings.HasSuffix(jobName, "-cpodjob") {
+		jobName, _ = strings.CutSuffix(jobName, "-cpodjob")
+	}
+	if userId, ok := cpodjob.Labels[v1beta1.CPodUserIDLabel]; ok {
+		modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, "user-"+userId+"/"+jobName))
+	}
+	return modelstorageName
 }

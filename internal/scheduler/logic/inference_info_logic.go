@@ -54,10 +54,7 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 			inferResp.Status = statusDesc
 		}
 		if infer.Url != "" {
-			inferConfig, ok := l.svcCtx.Config.Inference[infer.ModelId.String]
-			if ok {
-				inferResp.Url = fmt.Sprintf(inferConfig.UrlFormat, infer.Url)
-			}
+			inferResp.Url = fmt.Sprintf("http://%s-web-ui-ingress.llm.sxwl.ai:30005/", infer.ServiceName)
 		}
 		if infer.StartTime.Valid {
 			inferResp.StartTime = infer.StartTime.Time.Format(time.DateTime)
