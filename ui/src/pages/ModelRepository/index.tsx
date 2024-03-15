@@ -1,19 +1,14 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Button, Space, Table } from 'antd';
-import React, { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
+import { Space, Table } from 'antd';
+import React from 'react';
 import FineTuningDrawer from './FineTuningDrawer';
 import InferenceDrawer from './InferenceDrawer';
-import { apiResourceDatasets, apiResourceModels } from '@/services';
+import { useApiResourceDatasets } from '@/services';
 import { formatFileSize } from '@/utils';
 
 const Admin: React.FC = () => {
-  const [resourceModels, setResourceModels] = useState([]);
-  useEffect(() => {
-    apiResourceModels({}).then((res) => {
-      setResourceModels(res);
-    });
-  }, []);
+  const { data: resourceModels, mutate, isLoading }: any = useApiResourceDatasets();
+
   return (
     <PageContainer>
       <Table
@@ -58,7 +53,8 @@ const Admin: React.FC = () => {
             ),
           },
         ]}
-        dataSource={resourceModels}
+        dataSource={resourceModels || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 300px)' }}
       />
     </PageContainer>

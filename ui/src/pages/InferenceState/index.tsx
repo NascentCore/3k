@@ -1,16 +1,11 @@
-import { apiDeleteInference, apiGetInference, apiGetUserJob } from '@/services';
+import { apiDeleteInference, apiGetInference, apiGetUserJob, useApiGetInference } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { Button, Popconfirm, Space, Table, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 const Welcome: React.FC = () => {
-  const [inferenceList, setInferenceList] = useState([]);
-  useEffect(() => {
-    apiGetInference({}).then((res) => {
-      setInferenceList(res?.data);
-    });
-  }, []);
+  const { data: inferenceList, mutate, isLoading } = useApiGetInference();
   return (
     <PageContainer>
       <Table
@@ -69,42 +64,45 @@ const Welcome: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <Button
-                    type={'link'}
-                    onClick={() => {
-                      console.log('打开聊天页面');
-                    }}
-                  >
-                    启动聊天
-                  </Button>
+                  {record.status === 'deployed' && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        window.open(record?.url);
+                      }}
+                    >
+                      启动聊天
+                    </Button>
+                  )}
 
-                  <Popconfirm
-                    title="提示"
-                    description="确认终止?"
-                    onConfirm={() => {
-                      apiDeleteInference({
-                        params: {
-                          service_name: record.service_name,
-                        },
-                      }).then((res) => {
-                        message.success('操作成功');
-                        apiGetInference({}).then((res) => {
-                          setInferenceList(res?.data);
+                  {record.status === 'deploying' && (
+                    <Popconfirm
+                      title="提示"
+                      description="确认终止?"
+                      onConfirm={() => {
+                        apiDeleteInference({
+                          params: {
+                            service_name: record.service_name,
+                          },
+                        }).then((res) => {
+                          message.success('操作成功');
+                          mutate();
                         });
-                      });
-                    }}
-                    onCancel={() => {}}
-                    okText="是"
-                    cancelText="否"
-                  >
-                    <Button type={'link'}>终止</Button>
-                  </Popconfirm>
+                      }}
+                      onCancel={() => {}}
+                      okText="是"
+                      cancelText="否"
+                    >
+                      <Button type={'link'}>终止</Button>
+                    </Popconfirm>
+                  )}
                 </Space>
               </>
             ),
           },
         ]}
-        dataSource={inferenceList}
+        dataSource={inferenceList?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 350px)' }}
       />
     </PageContainer>
