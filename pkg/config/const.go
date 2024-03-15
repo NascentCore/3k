@@ -21,6 +21,7 @@ const (
 	TIME_FORMAT_FOR_K8S_LABEL      = "2006-01-02_15-04-05MST"   //用来作为K8S Labels的Time Format
 	//Model Uploader 相关的配置
 	MODELUPLOADER_PVC_MOUNT_PATH = "/data"                    //在Pod中的PVC挂载路径
+	MODELUPLOADER_STATE_PATH     = "/tmp"                     //在Pod中的PVC挂载路径
 	STATUS_NEEDS_UPLOAD_MODEL    = "Complete"                 //需要上传模型时MPIJob的状态
 	UPLOAD_STARTED_FLAG_FILE     = "upload_started_flag_file" //标识上传工作开始的文件的名称
 	FILE_UPLOAD_LOG_FILE         = "files_uploaded_log"       //记录上传工作进度的文件的名称

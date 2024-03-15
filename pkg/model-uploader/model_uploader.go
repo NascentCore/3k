@@ -19,8 +19,8 @@ func UploadModel(bucket string, jobName string, modelPath string) error {
 	return err
 }
 
-func UploadPackedFile(bucket string, jobName string) error {
-	return storage.UploadFileToOSS(bucket, jobName, config.PACK_FILE_NAME, config.MODELUPLOADER_PVC_MOUNT_PATH)
+func UploadPackedFile(bucket string, userID, modelstorage string) error {
+	return storage.UploadFileToOSS(bucket, userID, modelstorage, config.MODELUPLOADER_PVC_MOUNT_PATH, config.MODELUPLOADER_PVC_MOUNT_PATH)
 }
 
 // 标记上传开始
