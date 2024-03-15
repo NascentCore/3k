@@ -2,6 +2,7 @@ package storage
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -74,20 +75,41 @@ func GetUploaded(dir string) (map[string]struct{}, error) {
 }
 
 // 上传文件到OSS，开启断点续传
-func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
-	logfilePath := path.Join(dir, config.FILE_UPLOAD_LOG_FILE)
-	signedUrlPath := path.Join(dir, config.PRESIGNED_URL_FILE)
-	ossPath := path.Join(pathPrefix, filePath)
+func UploadFileToOSS(bucketName, userID, jobName, modelPath, statePath string) error {
+	logfilePath := path.Join(statePath, config.FILE_UPLOAD_LOG_FILE)
+	signedUrlPath := path.Join(statePath, config.PRESIGNED_URL_FILE)
+	objectKey := path.Join("models", userID, jobName)
 	bucket, err := client.Bucket(bucketName)
 	if err != nil {
 		return err
 	}
-	err = bucket.UploadFile(ossPath, path.Join(dir, filePath), 100*1024, oss.Routines(3), oss.Checkpoint(true, ""))
+
+	err = filepath.Walk(path.Join(modelPath), func(subPath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() || !strings.HasSuffix(info.Name(), ".md") {
+			return nil
+		}
+		relativePath, err := filepath.Rel(path.Join(modelPath), subPath)
+		if err != nil {
+			return err
+		}
+
+		// 指定上传选项，启用断点续传功能
+		err = bucket.UploadFile(filepath.Join(objectKey, relativePath), subPath, 100*1024, oss.Routines(3), oss.Checkpoint(true, ""))
+		if err != nil {
+			return fmt.Errorf("failed to upload file %v", err)
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
+
 	// 获取 presigned url
-	signedURL, err := bucket.SignURL(ossPath, oss.HTTPGet, int64(config.OSS_URL_EXPIRED_SECOND))
+	signedURL, err := bucket.SignURL(objectKey, oss.HTTPGet, int64(config.OSS_URL_EXPIRED_SECOND))
 	if err != nil {
 		return err
 	}
@@ -95,7 +117,7 @@ func UploadFileToOSS(bucketName, pathPrefix, filePath, dir string) error {
 	if err != nil {
 		return err
 	}
-	err = WriteFile(logfilePath, filePath)
+	err = WriteFile(logfilePath, jobName)
 	if err != nil {
 		return err
 	}
@@ -129,7 +151,7 @@ func UploadDirToOSS(bucket, prefix, dir string) (int64, error) {
 		}
 		// do upload
 		log.SLogger.Infow("start uploading", "file", file)
-		err := UploadFileToOSS(bucket, prefix, file, dir)
+		err := UploadFileToOSS(bucket, prefix, file, dir, "")
 		if err != nil {
 			log.SLogger.Errorw("upload to oss err", "error", err)
 			return 0, err
