@@ -114,6 +114,10 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      job.JobName,
 					Namespace: v1beta1.CPOD_NAMESPACE,
+					Labels: map[string]string{
+						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+						v1beta1.CPodUserIDLabel:    job.UserID,
+					},
 				},
 				Spec: v1beta1.FineTuneSpec{
 					Model:          job.PretrainModelName,
@@ -309,7 +313,10 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					// TODO: create namespace for different tenant
 					Namespace: v1beta1.CPOD_NAMESPACE,
 					Name:      job.JobName,
-					Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+					Labels: map[string]string{
+						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+						v1beta1.CPodUserIDLabel:    job.UserID,
+					},
 				},
 
 				Spec: v1beta1.CPodJobSpec{
@@ -385,13 +392,20 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 			}
 		}
 		if !exists {
+			template := job.Template
+			if template == "" {
+				template = "default"
+			}
 			//create
 			newJob := v1beta1.Inference{
 				ObjectMeta: metav1.ObjectMeta{
 					// TODO: create namespace for different tenant
 					Namespace: v1beta1.CPOD_NAMESPACE,
 					Name:      job.ServiceName,
-					Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+					Labels: map[string]string{
+						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+						v1beta1.CPodUserIDLabel:    job.UserID,
+					},
 				},
 				// TODO: fill PredictorSpec with infomation provided by portaljob
 				Spec: v1beta1.InferenceSpec{
@@ -400,14 +414,14 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 							Containers: []v1.Container{
 								{
 									Name:  "kserve-container",
-									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:latest",
+									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
 									Command: []string{
 										"python",
 										"src/api_demo.py",
 										"--model_name_or_path",
 										"/mnt/models",
 										"--template",
-										"default",
+										template,
 									},
 									Env: []v1.EnvVar{
 										{

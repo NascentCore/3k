@@ -40,6 +40,7 @@ type PortalTrainningJob struct {
 	Epochs            string `json:"epochs"`
 	LearningRate      string `json:"learningRate"`
 	BatchSize         string `json:"batchSize"`
+	UserID            string `json:"userId"`
 }
 
 type PortalInferenceJob struct {
@@ -47,6 +48,8 @@ type PortalInferenceJob struct {
 	Status      string `json:"status"`
 	ModelId     string `json:"model_id"`
 	CpodId      string `json:"cpod_id"`
+	Template    string `json:"template,omitempty"`
+	UserID      string `json:"userId"`
 }
 
 type TrainningJobState struct {

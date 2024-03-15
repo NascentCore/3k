@@ -119,7 +119,8 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 			}, &modelstorage); err != nil {
 				if apierrors.IsNotFound(err) {
 					// TODO: 更新condition
-					return nil
+					i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetModelstorageFailed", "modelstorage not found")
+					return err
 				}
 				return err
 			}
