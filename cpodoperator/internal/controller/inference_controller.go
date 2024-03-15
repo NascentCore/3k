@@ -8,6 +8,7 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -15,7 +16,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/utils/pointer"
 	"knative.dev/pkg/apis"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -24,7 +27,8 @@ import (
 
 type InferenceOptions struct {
 	// IngressClass string
-	Domain string
+	Domain              string
+	InferenceWebuiImage string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -69,6 +73,21 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", createErr.Error())
 				return ctrl.Result{}, createErr
 			}
+
+			// 推理服务创建成功后，部署Web UI
+			webUIErr := i.DeployWebUI(ctx, inference)
+			if webUIErr != nil {
+				logger.Error(webUIErr, "unable to deploy Web UI")
+				return ctrl.Result{}, webUIErr
+			}
+
+			// Web UI部署成功后，创建Ingress
+			ingressErr := i.DeployWebUIIngress(ctx, inference)
+			if ingressErr != nil {
+				logger.Error(ingressErr, "unable to deploy Web UI Ingress")
+				return ctrl.Result{}, ingressErr
+			}
+
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, err
@@ -271,4 +290,126 @@ func parseModelStorageURI(srcURI string) (modelStorageName string, err error) {
 		return "", fmt.Errorf("Invalid URI must be modelstorage://<modelstorage-name>: %s", srcURI)
 	}
 	return parts[0], nil
+}
+
+func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	webUISvc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name + "-web-ui",
+			Namespace: inference.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"app": inference.Name + "-web-ui",
+			},
+			Ports: []corev1.ServicePort{
+				{
+					Port:       8000,
+					TargetPort: intstr.FromInt(8000),
+				},
+			},
+		},
+	}
+
+	webUIDeployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name + "-web-ui",
+			Namespace: inference.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: pointer.Int32Ptr(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": inference.Name + "-web-ui",
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"app": inference.Name + "-web-ui",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  inference.Name + "-web-ui",
+							Image: i.Options.InferenceWebuiImage,
+							Ports: []corev1.ContainerPort{
+								{
+									ContainerPort: 8000,
+								},
+							},
+							Env: []corev1.EnvVar{
+								{
+									Name:  "API_URL",
+									Value: fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", i.getInferenceServiceName(inference), inference.Namespace),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if err := i.Client.Create(ctx, webUISvc); err != nil {
+		return err
+	}
+	if err := i.Client.Create(ctx, webUIDeployment); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	webUIIngressName := inference.Name + "-web-ui-ingress"
+	webUISvcName := inference.Name + "-web-ui"
+	webUIPort := int32(8000)
+
+	ingress := &netv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      webUIIngressName,
+			Namespace: inference.Namespace,
+			Annotations: map[string]string{
+				"kubernetes.io/ingress.class": "nginx",
+			},
+		},
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{
+				{
+					Host: fmt.Sprintf("%s.%s", webUIIngressName, i.Options.Domain),
+					IngressRuleValue: netv1.IngressRuleValue{
+						HTTP: &netv1.HTTPIngressRuleValue{
+							Paths: []netv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: pointerTo(netv1.PathTypePrefix),
+									Backend: netv1.IngressBackend{
+										Service: &netv1.IngressServiceBackend{
+											Name: webUISvcName,
+											Port: netv1.ServiceBackendPort{
+												Number: webUIPort,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if err := i.Client.Create(ctx, ingress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// pointerTo returns a pointer to the provided PathType
+func pointerTo(pt netv1.PathType) *netv1.PathType {
+	return &pt
 }
