@@ -25,6 +25,14 @@ export async function apiResourceModels(options?: { [key: string]: any }) {
   });
 }
 
+export const useApiResourceModels = (options?: { [key: string]: any }) =>
+  useSWR(['/api/resource/models', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
+
 export async function apiResourceDatasets(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/resource/datasets', {
     method: 'GET',
