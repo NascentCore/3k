@@ -69,14 +69,16 @@ const Welcome: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <Button
-                    type={'link'}
-                    onClick={() => {
-                      console.log('打开聊天页面');
-                    }}
-                  >
-                    启动聊天
-                  </Button>
+                  {record.status === 'deployed' && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        window.open(record?.url);
+                      }}
+                    >
+                      启动聊天
+                    </Button>
+                  )}
 
                   <Popconfirm
                     title="提示"
