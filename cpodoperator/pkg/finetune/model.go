@@ -45,7 +45,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, confi
 		res += v + " "
 	}
 
-	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template)
+	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
 }
 
 var SupportModels = []Model{

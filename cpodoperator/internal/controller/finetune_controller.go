@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/NascentCore/cpodoperator/internal/synchronizer"
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
 	"github.com/NascentCore/cpodoperator/pkg/util"
 	v1 "k8s.io/api/core/v1"
@@ -32,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
+	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 )
 
@@ -106,6 +108,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: finetune.Namespace,
 					Name:      r.CPodJobName(finetune),
+					Labels:    map[string]string{},
 					OwnerReferences: []metav1.OwnerReference{
 						r.generateOwnerRefInference(finetune),
 					},
@@ -129,6 +132,10 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				},
 			}
 
+			if userID, ok := finetune.Labels[v1beta1.CPodUserIDLabel]; ok {
+				finetunCPodJob.Labels[v1beta1.CPodUserIDLabel] = userID
+			}
+
 			if err := r.Create(ctx, &finetunCPodJob); err != nil {
 				logger.Error(err, "create cpodjob error")
 				return ctrl.Result{}, err
@@ -141,7 +148,11 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if util.IsFinshed(cpodjob.Status) {
 		if util.IsSucceeded(cpodjob.Status) {
 			finetune.Status.Phase = cpodv1beta1.PhaseSucceeded
-			finetune.Status.ModelStorage = finetune.Name + "-cpodjob-modelsavestorage"
+			modelstorageName := cpodjob.Name + "-modelsavestorage"
+			if userId, ok := finetune.Labels[v1beta1.CPodUserIDLabel]; ok {
+				modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, userId+"/"+finetune.Name))
+			}
+			finetune.Status.ModelStorage = modelstorageName
 		} else {
 			finetune.Status.Phase = cpodv1beta1.PhaseFailed
 			finetune.Status.FailureMessage = util.GetCondition(cpodjob.Status, cpodv1beta1.JobFailed).Message

@@ -116,7 +116,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 					Namespace: v1beta1.CPOD_NAMESPACE,
 					Labels: map[string]string{
 						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-						v1beta1.CPodUserIDLabel:    job.UserID,
+						v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 					},
 				},
 				Spec: v1beta1.FineTuneSpec{
@@ -315,7 +315,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					Name:      job.JobName,
 					Labels: map[string]string{
 						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-						v1beta1.CPodUserIDLabel:    job.UserID,
+						v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 					},
 				},
 
@@ -404,7 +404,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 					Name:      job.ServiceName,
 					Labels: map[string]string{
 						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-						v1beta1.CPodUserIDLabel:    job.UserID,
+						v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 					},
 				},
 				// TODO: fill PredictorSpec with infomation provided by portaljob
