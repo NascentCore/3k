@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"regexp"
 	"strings"
 	"sxwl/3k/pkg/consts"
 )
@@ -64,14 +63,14 @@ func hash(data string) string {
 }
 
 func ExtractTemplate(filename string) string {
-	// Compile the regular expression to match the pattern
-	// This pattern assumes the target substring is between the last "-" and "."
-	regex := regexp.MustCompile(`-(\w+)\.`)
-	// Find the first match in the provided filename
-	match := regex.FindStringSubmatch(filename)
-	if len(match) > 1 {
-		// The first captured group (\w+) is at index 1
-		return match[1]
-	}
-	return ""
+	// Split the filename by "/"
+	parts := strings.Split(filename, "/")
+	// Get the last part of the split, which should be "<template>-<name>.<extension>"
+	lastPart := parts[len(parts)-1]
+	// Now split the last part by "-" and get the second to last element, which is assumed to be the template name
+	nameParts := strings.Split(lastPart, "-")
+	// Before extracting the name, we split the last part of nameParts by "." to remove the file extension
+	templateWithExtension := nameParts[len(nameParts)-1]
+	template := strings.Split(templateWithExtension, ".")[0]
+	return template
 }

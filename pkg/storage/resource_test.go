@@ -37,8 +37,12 @@ func TestExtractTemplate(t *testing.T) {
 		want string
 	}{
 		{
-			args: args{filename: "sxwl-infer-template-gema.md"},
+			args: args{filename: "models/public/google/gemma-2b-it/sxwl-infer-template-gema.md"},
 			want: "gema",
+		},
+		{
+			args: args{filename: "models/public/mistralai/Mistral-7B-v0.1/sxwl-infer-template-mistral.md"},
+			want: "mistral",
 		},
 	}
 	for _, tt := range tests {
