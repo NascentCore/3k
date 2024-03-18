@@ -118,7 +118,7 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 	// Parse the token with the specified key function
 	token, err := jwt.Parse(tokenString, keyFunc)
 	if err != nil {
-		log.Printf("auth jwt parse host: %s path: %s err: %s", r.Host, r.URL.Path, err)
+		log.Printf("auth jwt parse token=%s secret=%s host: %s path: %s err: %s", tokenString, h.authSecret, r.Host, r.URL.Path, err)
 		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
 		return false
 	}
