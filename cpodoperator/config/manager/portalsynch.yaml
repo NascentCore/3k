@@ -16,6 +16,7 @@ rules:
   - inferences
   - datasetstorages  
   - modelstorages
+  - finetunes
   verbs:
   - create
   - delete
