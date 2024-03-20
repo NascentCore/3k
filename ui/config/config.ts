@@ -78,7 +78,7 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: 'Ant Design Pro',
+  title: '算想云',
   layout: {
     locale: true,
     ...defaultSettings,
