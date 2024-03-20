@@ -37,6 +37,8 @@ const RegistrationForm: React.FC = ({ setType }) => {
       console.log('发送验证码', email);
       setCountdown(60); // 设置倒计时初始值为60秒
       apiCodeSendEmail(email);
+    } else {
+      message.error('请输入邮箱');
     }
   };
 
@@ -103,7 +105,7 @@ const RegistrationForm: React.FC = ({ setType }) => {
           rules={[
             {
               validator: (_, value) =>
-                value ? Promise.resolve() : Promise.reject('请同意用户协议'),
+                value ? Promise.resolve() : Promise.reject('请同意算想未来隐私政策'),
             },
           ]}
         >
