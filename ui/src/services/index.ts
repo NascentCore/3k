@@ -17,6 +17,21 @@ export async function apiAuthInfo(options?: { [key: string]: any }) {
   });
 }
 
+// 发送验证码
+export async function apiCodeSendEmail(email: string) {
+  return request<API.NoticeIconList>('/api/code/sendEmail?email=' + email, {
+    method: 'POST',
+  });
+}
+
+// 注册
+export async function apiUsersRegisterUser(codemes: string, options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/users/registerUser/' + codemes, {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 // 2.1 查询模型和数据集
 export async function apiResourceModels(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/resource/models', {
