@@ -22,6 +22,8 @@ func main() {
 		configFile = "etc/scheduler-api_prod.yaml"
 	case "test":
 		configFile = "etc/scheduler-api_test.yaml"
+	case "k8s":
+		configFile = "etc/scheduler-api_k8s.yaml"
 	case "dev":
 		configFile = "etc/scheduler-api.yaml"
 	default:
@@ -50,6 +52,12 @@ func main() {
 	}
 	c.OSSAccess.AdminAccessID = adminAccessID
 	c.OSSAccess.AdminAccessKey = adminAccessKey
+
+	// insert inference url format
+	inferenceUrlFormat := os.Getenv("INFERENCE_URL_FORMAT")
+	if inferenceUrlFormat != "" {
+		c.Inference.UrlFormat = inferenceUrlFormat
+	}
 
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)

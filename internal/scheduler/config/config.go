@@ -29,7 +29,7 @@ type Config struct {
 		AdminAccessKey  string
 	} `json:"-"`
 	FinetuneModel map[string]string `json:"FinetuneModel"`
-	Inference     map[string]struct {
-		UrlFormat string `json:"url_format"`
-	} `json:"inference"`
+	Inference     struct {
+		UrlFormat string
+	} `json:"Inference"`
 }

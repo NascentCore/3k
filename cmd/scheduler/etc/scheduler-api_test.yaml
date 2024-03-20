@@ -34,5 +34,4 @@ FinetuneModel:
   baichuan-inc/Baichuan2-7B-Chat: ""
 
 Inference:
-  model-storage-8bfc0ffceca0f0ce:
-    url_format: 'http://%s:30005/v1/chat/completions'
+  UrlFormat: "http://%s-web-ui-ingress.llm.nascentcore.net:30005/"
