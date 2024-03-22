@@ -12,7 +12,7 @@ export default {
   'menu.Grafana': 'Grafana',
   'menu.Tensorboard': 'Tensorboard',
   'menu.Jupyterlalb': 'Jupyterlalb',
-
+  'pages.global.header.logout': 'Log Out',
   'pages.global.confirm.title': 'Prompt',
   'pages.global.confirm.okText': 'Yes',
   'pages.global.confirm.cancelText': 'No',

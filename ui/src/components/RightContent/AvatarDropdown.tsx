@@ -8,6 +8,7 @@ import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
 import { removeToken } from '@/utils';
+import { useIntl } from '@umijs/max';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -39,6 +40,7 @@ const useStyles = createStyles(({ token }) => {
 });
 
 export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, children }) => {
+  const intl = useIntl();
   /**
    * 退出登录，并且将当前的 url 保存
    */
@@ -120,7 +122,10 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: intl.formatMessage({
+        id: 'pages.global.header.logout',
+        defaultMessage: '退出登录',
+      }),
     },
   ];
 
