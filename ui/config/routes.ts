@@ -12,6 +12,10 @@
  */
 export default [
   {
+    path: '/',
+    redirect: '/ModelRepository',
+  },
+  {
     path: '/user',
     layout: false,
     routes: [
@@ -22,33 +26,41 @@ export default [
       },
     ],
   },
-  // {
-  //   path: '/welcome',
-  //   name: 'welcome',
-  //   icon: 'smile',
-  //   component: './Welcome',
-  // },
   {
     path: '/ModelRepository',
     name: 'ModelRepository',
-    icon: 'HddOutlined',
+    icon: 'DatabaseOutlined',
     component: './ModelRepository',
   },
   {
     path: '/UserJob',
     name: 'UserJob',
-    icon: 'SolutionOutlined',
+    icon: 'ProfileOutlined',
     component: './UserJob',
   },
   {
     path: '/InferenceState',
     name: 'InferenceState',
-    icon: 'SolutionOutlined',
+    icon: 'CheckCircleOutlined',
     component: './InferenceState',
   },
   {
-    path: '/',
-    redirect: '/ModelRepository',
+    path: '/Grafana',
+    name: 'Grafana',
+    icon: 'BarChartOutlined',
+    component: './Grafana',
+  },
+  {
+    path: '/Tensorboard',
+    name: 'Tensorboard',
+    icon: 'DashboardOutlined',
+    component: './Tensorboard',
+  },
+  {
+    path: '/Jupyterlalb',
+    name: 'Jupyterlalb',
+    icon: 'CodeOutlined',
+    component: './Jupyterlalb',
   },
   {
     path: '*',
