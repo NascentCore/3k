@@ -32,6 +32,7 @@ const (
 	JobStatusModelUploading JobStatus = "modeluploading" // 模型文件（训练结果）正在上传
 	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
 	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
+	JobStatusInvalid        JobStatus = "invalid"        // finetune的failed
 	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
 	JobStatusPreparing      JobStatus = "preparing"      // 正在准备任务所需资源
 )
@@ -341,6 +342,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 var statusToDBMap = map[string]int{
 	string(JobStatusCreateFailed):  model.JobStatusWorkerFail,
 	string(JobStatusFailed):        model.JobStatusWorkerFail,
+	string(JobStatusInvalid):       model.JobStatusWorkerFail,
 	string(JobStatusSucceed):       model.JobStatusWorkerSuccess,
 	string(JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
 	string(JobStatusPreparing):     model.JobStatusWorkerPreparing,

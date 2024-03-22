@@ -74,8 +74,16 @@ func (co *CPodObserver) Start(ctx context.Context) {
 			JobStatus: "preparing",
 		})
 	}
+	// combine with finetune jobs
+	fs, err := co.getFinetuneStates(ctx)
+	if err != nil {
+		co.logger.Error(err, "get finetune job state error")
+		return
+	}
+	js = append(js, fs...)
+
 	co.logger.Info("jobstates to upload", "js", js)
-	//inferencejobs
+	// inferencejobs
 	ijs, err := co.getInferenceJobStates(ctx)
 	if err != nil {
 		co.logger.Error(err, "get inference job state error")
@@ -173,6 +181,28 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 	return stats, nil
 }
 
+func (co *CPodObserver) getFinetuneStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
+	var finetunes v1beta1.FineTuneList
+	err := co.kubeClient.List(ctx, &finetunes, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	})
+	if err != nil {
+		co.logger.Error(err, "failed to list finetunejob")
+	}
+
+	var stats []sxwl.TrainningJobState
+	for _, finetuneJob := range finetunes.Items {
+		stats = append(stats, sxwl.TrainningJobState{
+			Name:      finetuneJob.Name,
+			Namespace: finetuneJob.Namespace,
+			JobType:   "Codeless",
+			JobStatus: v1beta1.JobConditionType(strings.ToLower(string(finetuneJob.Status.Phase))),
+			Info:      finetuneJob.Status.FailureMessage,
+		})
+	}
+	return stats, nil
+}
+
 func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.InferenceJobState, error) {
 	var inferenceJobs v1beta1.InferenceList
 	err := co.kubeClient.List(ctx, &inferenceJobs, &client.MatchingLabels{
@@ -234,7 +264,7 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 			if node.Labels[v1beta1.K8S_LABEL_NV_GPU_PRESENT] == "true" {
 				t.GPUInfo.Status = "normal"
 			}
-			//init GPUState Array , accordding to nvidia.com/gpu.count label
+			// init GPUState Array , accordding to nvidia.com/gpu.count label
 			t.GPUState = []resource.GPUState{}
 			gpuCnt, _ := strconv.Atoi(node.Labels["nvidia.com/gpu.count"])
 			t.GPUTotal = gpuCnt
@@ -249,7 +279,7 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 		t.MemInfo.Size = int(node.Status.Capacity.Memory().Value() / 1024 / 1024)
 		info.Nodes = append(info.Nodes, t)
 	}
-	//stat gpus in cpod
+	// stat gpus in cpod
 	statTotal := map[[2]string]int{}
 	statAlloc := map[[2]string]int{}
 	statMemSize := map[[2]string]int{}
