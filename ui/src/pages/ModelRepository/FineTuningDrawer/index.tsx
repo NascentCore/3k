@@ -6,8 +6,11 @@ import { apiFinetunes, apiResourceDatasets } from '@/services';
 import { Button, Col, Drawer, Form, Input, Row, Select, Space, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
+import { useIntl } from '@umijs/max';
 
 const Content = ({ record, onCancel }) => {
+  const intl = useIntl();
+
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     model: record?.id,
@@ -37,18 +40,42 @@ const Content = ({ record, onCancel }) => {
           console.log('Form values:', values);
           setFormValues(values);
           apiFinetunes({ data: values }).then((res) => {
-            message.success('微调任务创建成功');
+            message.success(
+              intl.formatMessage({
+                id: 'pages.modelRepository.fineTuningDrawer.submit.success',
+                // defaultMessage: '微调任务创建成功',
+              }),
+            );
             onCancel();
             history.push('/UserJob');
           });
         }}
       >
-        <Form.Item name="model" label="模型名称">
+        <Form.Item
+          name="model"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.model',
+            // defaultMessage: '模型名称',
+          })}
+        >
           {/* <Input placeholder="请输入" allowClear readOnly /> */}
           {formValues.model}
         </Form.Item>
-        <Form.Item name="training_file" label="数据集">
-          <Select allowClear options={resourceDatasetsOption} placeholder="请选择" />
+        <Form.Item
+          name=""
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.training_file',
+            // defaultMessage: '数据集',
+          })}
+        >
+          <Select
+            allowClear
+            options={resourceDatasetsOption}
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder',
+              // defaultMessage: '请选择',
+            })}
+          />
         </Form.Item>
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
@@ -58,21 +85,45 @@ const Content = ({ record, onCancel }) => {
         </Row>
 
         <Form.Item name={['hyperparameters', 'n_epochs']} label="epochs">
-          <Input placeholder="请输入" allowClear />
+          <Input
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
+              // defaultMessage: '请输入',
+            })}
+            allowClear
+          />
         </Form.Item>
         <Form.Item name={['hyperparameters', 'batch_size']} label="batch_size">
-          <Input placeholder="请输入" allowClear />
+          <Input
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
+              // defaultMessage: '请输入',
+            })}
+            allowClear
+          />
         </Form.Item>
         <Form.Item name={['hyperparameters', 'learning_rate_multiplier']} label="Learning rate">
-          <Input placeholder="请输入" allowClear />
+          <Input
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
+              // defaultMessage: '请输入',
+            })}
+            allowClear
+          />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space>
             <Button type="primary" htmlType="submit">
-              微调
+              {intl.formatMessage({
+                id: 'pages.modelRepository.fineTuningDrawer.title',
+                // defaultMessage: '微调',
+              })}
             </Button>
             <Button type="default" onClick={() => onCancel()}>
-              取消
+              {intl.formatMessage({
+                id: 'pages.modelRepository.fineTuningDrawer.cancel',
+                // defaultMessage: '取消',
+              })}
             </Button>
           </Space>
         </Form.Item>
@@ -82,6 +133,8 @@ const Content = ({ record, onCancel }) => {
 };
 
 const Index = ({ record }) => {
+  const intl = useIntl();
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -92,11 +145,17 @@ const Index = ({ record }) => {
           setOpen(true);
         }}
       >
-        微调
+        {intl.formatMessage({
+          id: 'pages.modelRepository.fineTuningDrawer.title',
+          // defaultMessage: '微调',
+        })}
       </Button>
       <Drawer
         width={1000}
-        title="微调"
+        title={intl.formatMessage({
+          id: 'pages.modelRepository.fineTuningDrawer.title',
+          // defaultMessage: '微调',
+        })}
         placement="right"
         onClose={() => setOpen(false)}
         open={open}

@@ -4,8 +4,10 @@ import { useModel } from '@umijs/max';
 import { Button, Popconfirm, Space, Table, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 import DetailModel from './DetailModel';
+import { useIntl } from '@umijs/max';
 
 const Welcome: React.FC = () => {
+  const intl = useIntl();
   const {
     data: userJobList,
     mutate,
@@ -22,21 +24,30 @@ const Welcome: React.FC = () => {
       <Table
         columns={[
           {
-            title: '任务名称',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.jobName',
+              // defaultMessage: '任务名称',
+            }),
             dataIndex: 'jobName',
             key: 'jobName',
             align: 'center',
             width: 150,
           },
           {
-            title: 'GPU数量',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.gpuNumber',
+              // defaultMessage: 'GPU数量',
+            }),
             dataIndex: 'gpuNumber',
             key: 'gpuNumber',
             align: 'center',
             width: 100,
           },
           {
-            title: 'GPU型号',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.gpuType',
+              // defaultMessage: 'GPU型号',
+            }),
             dataIndex: 'gpuType',
             key: 'gpuType',
             align: 'center',
@@ -78,37 +89,70 @@ const Welcome: React.FC = () => {
           //   width: 150,
           // },
           {
-            title: '任务类型',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.jobType',
+              // defaultMessage: '任务类型',
+            }),
             dataIndex: 'jobType',
             key: 'jobType',
             align: 'center',
             width: 100,
           },
           {
-            title: '运行状态',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.workStatus',
+              // defaultMessage: '运行状态',
+            }),
             dataIndex: 'workStatus',
             key: 'workStatus',
             align: 'center',
             width: 100,
             render: (text) => {
               if (text === 1) {
-                return <>{'运行失败'}</>;
+                return (
+                  <>
+                    {intl.formatMessage({
+                      id: 'pages.userJob.table.column.workStatus.status.1',
+                      // defaultMessage: '运行失败',
+                    })}
+                  </>
+                );
               } else if (text === 2) {
-                return <>{'运行成功'}</>;
+                return (
+                  <>
+                    {intl.formatMessage({
+                      id: 'pages.userJob.table.column.workStatus.status.2',
+                      // defaultMessage: '运行成功',
+                    })}
+                  </>
+                );
               } else {
-                return <>{'运行中'}</>;
+                return (
+                  <>
+                    {intl.formatMessage({
+                      id: 'pages.userJob.table.column.workStatus.status.3',
+                      // defaultMessage: '运行中',
+                    })}
+                  </>
+                );
               }
             },
           },
           {
-            title: '创建时间',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.createTime',
+              // defaultMessage: '创建时间',
+            }),
             dataIndex: 'createTime',
             key: 'createTime',
             align: 'center',
             width: 150,
           },
           {
-            title: '操作',
+            title: intl.formatMessage({
+              id: 'pages.userJob.table.column.action',
+              // defaultMessage: '操作',
+            }),
             fixed: 'right',
             dataIndex: 'action',
             key: 'action',
@@ -119,18 +163,30 @@ const Welcome: React.FC = () => {
                 <Space>
                   <DetailModel />
                   <Popconfirm
-                    title="提示"
-                    description="确认删除?"
+                    title={intl.formatMessage({
+                      id: 'pages.global.confirm.title',
+                    })}
+                    description={intl.formatMessage({
+                      id: 'pages.global.confirm.delete.description',
+                    })}
                     onConfirm={() => {
                       apiDeleteUserJob({ data: [record?.id] }).then(() => {
                         mutate();
                       });
                     }}
                     onCancel={() => {}}
-                    okText="是"
-                    cancelText="否"
+                    okText={intl.formatMessage({
+                      id: 'pages.global.confirm.okText',
+                    })}
+                    cancelText={intl.formatMessage({
+                      id: 'pages.global.confirm.cancelText',
+                    })}
                   >
-                    <Button type="link">删除</Button>
+                    <Button type="link">
+                      {intl.formatMessage({
+                        id: 'pages.global.confirm.delete.button',
+                      })}
+                    </Button>
                   </Popconfirm>
                 </Space>
               </>

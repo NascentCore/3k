@@ -1,10 +1,26 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { SelectLang as UmiSelectLang } from '@umijs/max';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useIntl } from '@umijs/max';
 
 export type SiderTheme = 'light' | 'dark';
 
 export const SelectLang = () => {
+  const intl = useIntl();
+
+  const title = intl.formatMessage({
+    id: 'app.title',
+    defaultMessage: '算想云',
+  });
+
+  useEffect(() => {
+    try {
+      (document as any).querySelector('div.ant-pro-global-header-logo > a > h1').innerText = title;
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   return (
     <UmiSelectLang
       style={{

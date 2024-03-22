@@ -1,6 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
-import { history, useModel } from '@umijs/max';
+import { history, useModel, useIntl } from '@umijs/max';
 
 import React from 'react';
 import { flushSync } from 'react-dom';
@@ -15,6 +15,7 @@ import AsyncButton from '@/components/AsyncButton';
 const { Title, Text } = Typography;
 
 const Login: React.FC = ({ setType }) => {
+  const intl = useIntl();
   const { initialState, setInitialState } = useModel('@@initialState');
   const [form] = Form.useForm();
 
@@ -54,7 +55,10 @@ const Login: React.FC = ({ setType }) => {
     <>
       <div style={{ width: 330, margin: 'auto' }}>
         <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
-          算想云
+          {intl.formatMessage({
+            id: 'pages.login.title',
+            // defaultMessage: '算想云',
+          })}
         </Title>
         <Form
           name="registration_form"
@@ -63,35 +67,93 @@ const Login: React.FC = ({ setType }) => {
           initialValues={{ remember: true }}
           size={'large'}
         >
-          <Form.Item name="username" rules={[{ required: true, message: '请输入邮箱' }]}>
-            <Input prefix={<UserOutlined />} placeholder="请输入邮箱" allowClear />
+          <Form.Item
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: 'pages.login.username',
+                  // defaultMessage: '请输入邮箱',
+                }),
+              },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              placeholder={intl.formatMessage({
+                id: 'pages.login.username',
+                // defaultMessage: '请输入邮箱',
+              })}
+              allowClear
+            />
           </Form.Item>
 
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="请输入密码" />
+          <Form.Item
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: 'pages.login.password',
+                  // defaultMessage: '请输入密码',
+                }),
+              },
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder={intl.formatMessage({
+                id: 'pages.login.password',
+                // defaultMessage: '请输入密码',
+              })}
+            />
           </Form.Item>
 
-          <Form.Item name="agree_terms" valuePropName="checked">
-            <Checkbox>记住我</Checkbox>
+          <Form.Item name="rememberMe" valuePropName="checked">
+            <Checkbox>
+              {intl.formatMessage({
+                id: 'pages.login.rememberMe',
+                // defaultMessage: '记住我',
+              })}
+            </Checkbox>
           </Form.Item>
 
           <Form.Item>
             <div style={{ display: 'flex', gap: 10 }}>
               <AsyncButton type="primary" block onClick={handleSubmit}>
-                登录
+                {intl.formatMessage({
+                  id: 'pages.login.submit',
+                  // defaultMessage: '登录',
+                })}
               </AsyncButton>
               <Button block onClick={() => setType('regist')}>
-                注册
+                {intl.formatMessage({
+                  id: 'pages.login.regist',
+                  // defaultMessage: '注册',
+                })}
               </Button>
             </div>
           </Form.Item>
 
           <Form.Item style={{ paddingLeft: 80 }}>
             <div style={{ paddingTop: 10 }}>
-              <Text type="secondary">客服电话：15910236560</Text>
+              <Text type="secondary">
+                {intl.formatMessage({
+                  id: 'pages.login.servicePhone',
+                  // defaultMessage: '客服电话',
+                })}
+                ：15910236560
+              </Text>
             </div>
             <div>
-              <Text type="secondary">客服邮箱：help@sxwl.ai</Text>
+              <Text type="secondary">
+                {intl.formatMessage({
+                  id: 'pages.login.serviceEmail',
+                  // defaultMessage: '客服邮箱',
+                })}
+                ：help@sxwl.ai
+              </Text>
             </div>
           </Form.Item>
         </Form>
