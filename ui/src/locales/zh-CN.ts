@@ -4,6 +4,6 @@ export default {
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理服务状态',
   'menu.Grafana': 'Grafana',
-  'menu.Tensorboard': 'Tensorboard',
-  'menu.Jupyterlalb': 'Jupyterlalb',
+  'menu.Tensorboard': 'TensorBoard',
+  'menu.Jupyterlalb': 'JupyterLab',
 };
