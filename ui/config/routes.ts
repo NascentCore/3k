@@ -45,22 +45,22 @@ export default [
     component: './InferenceState',
   },
   {
-    path: '/Grafana',
-    name: 'Grafana',
-    icon: 'BarChartOutlined',
-    component: './Grafana',
-  },
-  {
     path: '/Tensorboard',
     name: 'Tensorboard',
     icon: 'DashboardOutlined',
     component: './Tensorboard',
   },
   {
+    path: '/Grafana',
+    name: 'Grafana',
+    icon: 'BarChartOutlined',
+    component: './Welcome',
+  },
+  {
     path: '/Jupyterlalb',
     name: 'Jupyterlalb',
     icon: 'CodeOutlined',
-    component: './Jupyterlalb',
+    component: './Welcome',
   },
   {
     path: '*',
