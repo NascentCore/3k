@@ -4,7 +4,7 @@ import userJob from './en-US/userJob';
 import inferenceState from './en-US/inferenceState';
 
 export default {
-  'app.title': 'NascentCore.AI Cloud',
+  'app.title': 'NascentCore Cloud',
   'menu.welcome': 'Welcome',
   'menu.ModelRepository': 'Model Repository',
   'menu.UserJob': 'Job Details',

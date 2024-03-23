@@ -20,7 +20,8 @@ const useStyles = createStyles(({ token }) => {
       backgroundImage:
         "url('https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr')",
       backgroundSize: '100% 100%',
-      paddingTop: 100,
+      // paddingTop: 100,
+      justifyContent: 'center',
     },
     lang: {
       width: 42,
@@ -53,12 +54,7 @@ const Login: React.FC = () => {
     <>
       <Lang />
       <div className={styles.container}>
-        <div
-          style={{
-            flex: '1',
-            padding: '32px 0',
-          }}
-        >
+        <div>
           {type === 'login' && <LoginForm setType={setType} />}
           {type === 'regist' && <RegistrationForm setType={setType} />}
         </div>
