@@ -54,7 +54,7 @@ export default [
     path: '/Tensorboard',
     name: 'Tensorboard',
     icon: 'DashboardOutlined',
-    component: './Welcome',
+    component: './Tensorboard',
   },
   {
     path: '/Jupyterlalb',
