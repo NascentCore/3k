@@ -6,8 +6,10 @@ import { apiGetInference, apiInference } from '@/services';
 import { Button, Drawer, Form, Select, Space, Table, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
+import { useIntl } from '@umijs/max';
 
 const Content = ({ record, onCancel }) => {
+  const intl = useIntl();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({ model_name: record.id });
 
@@ -22,20 +24,34 @@ const Content = ({ record, onCancel }) => {
         onFinish={(values) => {
           console.log('Form values:', values);
           apiInference({ data: { model_name: values.model_name } }).then((res) => {
-            message.success('部署任务创建成功');
+            message.success(
+              intl.formatMessage({
+                id: 'pages.modelRepository.InferenceDrawer.submit.success',
+                // defaultMessage: '部署任务创建成功',
+              }),
+            );
             onCancel();
             history.push('/InferenceState');
           });
         }}
       >
-        <Form.Item name="model_name" label="模型名称">
+        <Form.Item
+          name="model_name"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.InferenceDrawer.form.model_name',
+            // defaultMessage: '模型名称',
+          })}
+        >
           {formValues.model_name}
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space>
             <Button type="primary" htmlType="submit">
-              部署
+              {intl.formatMessage({
+                id: 'pages.modelRepository.InferenceDrawer.submit',
+                // defaultMessage: '部署',
+              })}
             </Button>
           </Space>
         </Form.Item>
@@ -45,6 +61,7 @@ const Content = ({ record, onCancel }) => {
 };
 
 const Index = ({ record }) => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -54,11 +71,17 @@ const Index = ({ record }) => {
           setOpen(true);
         }}
       >
-        推理
+        {intl.formatMessage({
+          id: 'pages.modelRepository.InferenceDrawer.title',
+          // defaultMessage: '推理',
+        })}
       </Button>
       <Drawer
         width={1000}
-        title="推理"
+        title={intl.formatMessage({
+          id: 'pages.modelRepository.InferenceDrawer.title',
+          // defaultMessage: '推理',
+        })}
         placement="right"
         onClose={() => setOpen(false)}
         open={open}
