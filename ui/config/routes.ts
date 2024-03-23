@@ -48,19 +48,19 @@ export default [
     path: '/Grafana',
     name: 'Grafana',
     icon: 'BarChartOutlined',
-    component: './Grafana',
+    component: './Welcome',
   },
   {
     path: '/Tensorboard',
     name: 'Tensorboard',
     icon: 'DashboardOutlined',
-    component: './Tensorboard',
+    component: './Welcome',
   },
   {
     path: '/Jupyterlalb',
     name: 'Jupyterlalb',
     icon: 'CodeOutlined',
-    component: './Jupyterlalb',
+    component: './Welcome',
   },
   {
     path: '*',

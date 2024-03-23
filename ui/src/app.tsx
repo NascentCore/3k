@@ -126,3 +126,20 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 export const request = {
   ...errorConfig,
 };
+
+export function onRouteChange({ location }) {
+  if (location.pathname === '/Grafana') {
+    const url = `${window.location.protocol}//${window.location.hostname}:30006`;
+    window.open(url);
+  }
+
+  if (location.pathname === '/Tensorboard') {
+    const url = `${window.location.protocol}//${window.location.hostname}:30003`;
+    window.open(url);
+  }
+
+  if (location.pathname === '/Jupyterlalb') {
+    const url = `${window.location.protocol}//${window.location.hostname}:30002`;
+    window.open(url);
+  }
+}
