@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sxwl/3k/pkg/storage"
@@ -60,6 +61,14 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 			Size:   size,
 		})
 	}
+
+	sort.Slice(resp, func(i, j int) bool {
+		if resp[i].Owner != resp[j].Owner {
+			return resp[i].Owner < resp[j].Owner
+		}
+
+		return resp[i].ID < resp[j].ID
+	})
 
 	return
 }

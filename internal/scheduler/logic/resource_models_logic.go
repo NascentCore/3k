@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 	"sxwl/3k/pkg/storage"
@@ -37,6 +38,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		return nil, err
 	}
 
+	var validModels, otherModels []types.Resource
+
 	for dir, size := range dirs {
 		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
 			path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
@@ -49,7 +52,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			return nil, err
 		}
 
-		tag := []string{}
+		var tag []string
 		if canFinetune {
 			tag = append(tag, "finetune")
 		}
@@ -57,14 +60,32 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			tag = append(tag, "inference")
 		}
 
-		resp = append(resp, types.Resource{
-			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir),
+		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir)
+		model := types.Resource{
+			ID:     modelName,
 			Object: "model",
 			Owner:  "public",
 			Size:   size,
 			Tag:    tag,
-		})
+		}
+		_, ok := l.svcCtx.Config.FinetuneModel[modelName]
+		if ok {
+			validModels = append(validModels, model)
+		} else {
+			otherModels = append(otherModels, model)
+		}
 	}
+
+	sort.Slice(validModels, func(i, j int) bool {
+		return validModels[i].ID < validModels[j].ID
+	})
+
+	sort.Slice(otherModels, func(i, j int) bool {
+		return otherModels[i].ID < otherModels[j].ID
+	})
+
+	resp = append(resp, validModels...)
+	resp = append(resp, otherModels...)
 
 	dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
 		fmt.Sprintf(l.svcCtx.Config.OSS.UserModelDir, req.UserID), 1)
@@ -84,7 +105,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			return nil, err
 		}
 
-		tag := []string{}
+		var tag []string
 		if canFinetune {
 			tag = append(tag, "finetune")
 		}
