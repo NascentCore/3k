@@ -146,7 +146,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	if util.IsFinshed(cpodjob.Status) {
-		if util.IsSucceeded(cpodjob.Status) {
+		if util.IsSucceeded(cpodjob.Status) && (!finetune.Spec.Upload || (finetune.Spec.Upload && util.IsModelUploaded(cpodjob.Status))) {
 			finetune.Status.Phase = cpodv1beta1.PhaseSucceeded
 			modelstorageName := cpodjob.Name + "-modelsavestorage"
 			if userId, ok := finetune.Labels[v1beta1.CPodUserIDLabel]; ok {

@@ -477,6 +477,12 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 					},
 				},
 			}
+		}
+
+		if cpodjob.Spec.GPURequiredPerReplica > 1 {
+			targetJobSpec := targetJob.(*tov1.PyTorchJob)
+			workerSpec := targetJobSpec.Spec.PyTorchReplicaSpecs[tov1.PaddleJobReplicaTypeWorker].Template.Spec
+
 			volumes := workerSpec.Volumes
 			volumes = append(volumes, corev1.Volume{
 				Name: "shm",
