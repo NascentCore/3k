@@ -137,7 +137,7 @@ const Login: React.FC = ({ setType }) => {
             </div>
           </Form.Item>
 
-          <Form.Item style={{ paddingLeft: 80 }}>
+          {/* <Form.Item style={{ paddingLeft: 80 }}>
             <div style={{ paddingTop: 10 }}>
               <Text type="secondary">
                 {intl.formatMessage({
@@ -156,7 +156,7 @@ const Login: React.FC = ({ setType }) => {
                 ：help@sxwl.ai
               </Text>
             </div>
-          </Form.Item>
+          </Form.Item> */}
         </Form>
       </div>
     </>
