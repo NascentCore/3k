@@ -4,14 +4,14 @@ import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
 
 export default {
-  'app.title': '中科苏州',
+  'app.title': '中科苏州 智能计算技术研究院',
   'menu.welcome': '欢迎',
   'menu.ModelRepository': '模型仓库',
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理服务状态',
-  'menu.Grafana': 'Grafana',
-  'menu.Tensorboard': 'TensorBoard',
-  'menu.Jupyterlalb': 'JupyterLab',
+  'menu.Grafana': '系统资源看板',
+  'menu.Tensorboard': 'AI训练看板(TensorBoard)',
+  'menu.Jupyterlalb': '开发实验室(JupyterLab)',
   'pages.global.header.logout': '退出登录',
   'pages.global.confirm.title': '提示',
   'pages.global.confirm.okText': '是',

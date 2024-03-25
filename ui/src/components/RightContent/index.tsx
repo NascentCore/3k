@@ -15,9 +15,7 @@ export const SelectLang = () => {
 
   useEffect(() => {
     try {
-      (document as any).querySelector('div.ant-pro-global-header-logo').innerHTML = `
-      <img style="margin-left: 10px" src="/icons/zksz.jpg"></img>
-       `;
+      (document as any).querySelector('div.ant-pro-global-header-logo > a > h1').innerText = title;
     } catch (error) {
       console.log(error);
     }

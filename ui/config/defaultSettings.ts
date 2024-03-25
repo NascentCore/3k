@@ -15,9 +15,9 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '中科苏州',
+  title: '中科苏州 智能计算技术研究院',
   pwa: true,
-  logo: 'https://sxwl.ai/img/favicon.ico',
+  logo: '/icons/logo.jpg',
   iconfontUrl: '',
   token: {
     // 参见ts声明，demo 见文档，通过token 修改样式
