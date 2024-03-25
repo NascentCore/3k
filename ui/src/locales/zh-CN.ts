@@ -4,7 +4,7 @@ import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
 
 export default {
-  'app.title': '算想云',
+  'app.title': '中科苏州',
   'menu.welcome': '欢迎',
   'menu.ModelRepository': '模型仓库',
   'menu.UserJob': '任务详情',

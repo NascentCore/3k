@@ -1,6 +1,6 @@
 {
-  "name": "算想云",
-  "short_name": "算想未来-算想云",
+  "name": "中科苏州",
+  "short_name": "算想未来-中科苏州",
   "display": "standalone",
   "start_url": "./?utm_source=homescreen",
   "theme_color": "#002140",

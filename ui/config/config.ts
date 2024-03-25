@@ -78,7 +78,7 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: '算想云',
+  title: '中科苏州',
   layout: {
     locale: true,
     ...defaultSettings,

@@ -6,7 +6,7 @@ import React from 'react';
 import { flushSync } from 'react-dom';
 import { apiAuthLogin } from '@/services';
 import { saveToken } from '@/utils';
-import { Form, Input, Button, Checkbox, Space, Typography } from 'antd';
+import { Form, Input, Button, Checkbox, Space, Typography, Image } from 'antd';
 import { Store } from 'antd/lib/form/interface';
 import { apiUsersRegisterUser } from '@/services';
 import { encrypt } from '@/utils/rsaEncrypt';
@@ -54,12 +54,13 @@ const Login: React.FC = ({ setType }) => {
   return (
     <>
       <div style={{ width: 330, margin: 'auto' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
+        {/* <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
           {intl.formatMessage({
             id: 'pages.login.title',
-            // defaultMessage: '算想云',
+            // defaultMessage: '中科苏州',
           })}
-        </Title>
+        </Title> */}
+        <img style={{ width: '100%', marginBottom: 40 }} src="/icons/zksz.jpg"></img>
         <Form
           name="registration_form"
           form={form}

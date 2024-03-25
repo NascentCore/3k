@@ -2,7 +2,7 @@
  * 登录页面 国际化配置
  */
 export default {
-  'pages.login.title': '算想云',
+  'pages.login.title': '中科苏州',
   'pages.login.username': '请输入邮箱',
   'pages.login.password': '请输入密码',
   'pages.login.rememberMe': '记住我',

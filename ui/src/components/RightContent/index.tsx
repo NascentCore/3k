@@ -10,12 +10,14 @@ export const SelectLang = () => {
 
   const title = intl.formatMessage({
     id: 'app.title',
-    defaultMessage: '算想云',
+    defaultMessage: '中科苏州',
   });
 
   useEffect(() => {
     try {
-      (document as any).querySelector('div.ant-pro-global-header-logo > a > h1').innerText = title;
+      (document as any).querySelector('div.ant-pro-global-header-logo').innerHTML = `
+      <img style="margin-left: 10px" src="/icons/zksz.jpg"></img>
+       `;
     } catch (error) {
       console.log(error);
     }

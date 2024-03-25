@@ -15,7 +15,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: '算想云',
+  title: '中科苏州',
   pwa: true,
   logo: 'https://sxwl.ai/img/favicon.ico',
   iconfontUrl: '',
