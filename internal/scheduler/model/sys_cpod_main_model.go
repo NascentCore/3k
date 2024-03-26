@@ -43,8 +43,9 @@ type (
 	}
 
 	GPUTypePrice struct {
-		GPUProd string  `json:"gpu_prod" db:"gpu_prod"`
-		Amount  float64 `json:"amount" db:"amount"`
+		GPUProd        string  `json:"gpu_prod" db:"gpu_prod"`
+		GPUAllocatable int64   `json:"gpu_allocatable" db:"gpu_allocatable"`
+		Amount         float64 `json:"amount" db:"amount"`
 	}
 )
 
@@ -168,7 +169,7 @@ func (m *defaultSysCpodMainModel) UpdateColsByCond(ctx context.Context, updateBu
 
 func (m *defaultSysCpodMainModel) GpuTypeAndPrice(ctx context.Context) ([]*GPUTypePrice, error) {
 	gpuPrices := make([]*GPUTypePrice, 0)
-	err := m.conn.QueryRowsCtx(ctx, &gpuPrices, `select distinct c.gpu_prod, p.amount
+	err := m.conn.QueryRowsCtx(ctx, &gpuPrices, `select distinct c.gpu_prod, c.gpu_allocatable, p.amount
 		from sys_cpod_main c,
 		sys_price p
 		where c.gpu_prod != ''
