@@ -20,6 +20,7 @@ type Config struct {
 		UserDatasetPrefix string
 		FinetuneTagFile   string
 		InferenceTagFile  string
+		LocalMode         bool
 	} `json:"OSS"`
 	BannedCpod map[string]string `json:"BannedCpod"`
 	OSSAccess  struct {

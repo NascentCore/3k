@@ -23,6 +23,8 @@ type Cache struct {
 	DataType   string `json:"data_type"`
 	DataName   string `json:"data_name"`
 	DataId     string `json:"data_id"`
+	DataSize   int64  `json:"data_size"`
+	Template   string `json:"template"`
 	DataSource string `json:"data_source"`
 }
 

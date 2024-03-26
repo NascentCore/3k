@@ -21,6 +21,7 @@ OSS:
   UserDatasetPrefix: "datasets/"
   FinetuneTagFile: "sxwl-can-fine-tune.md"
   InferenceTagFile: "sxwl-can-inference.md"
+  LocalMode: Yes
 
 BannedCpod:
   9943a3c744bbb47e3a553d46559aea49: ""

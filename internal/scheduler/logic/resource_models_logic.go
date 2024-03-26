@@ -7,11 +7,13 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/storage"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -30,8 +32,10 @@ func NewResourceModelsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 }
 
 func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp []types.Resource, err error) {
+	CpodCacheModel := l.svcCtx.CpodCacheModel
 	resp = []types.Resource{}
 
+	// public models
 	// ListDir 只能查询1000个匹配前缀的文件，小批量数据ok，更完善还是需要有db来存储模型元数据
 	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket, l.svcCtx.Config.OSS.PublicModelDir, 2)
 	if err != nil {
@@ -61,7 +65,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		}
 
 		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir)
-		model := types.Resource{
+		m := types.Resource{
 			ID:     modelName,
 			Object: "model",
 			Owner:  "public",
@@ -70,9 +74,9 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		}
 		_, ok := l.svcCtx.Config.FinetuneModel[modelName]
 		if ok {
-			validModels = append(validModels, model)
+			validModels = append(validModels, m)
 		} else {
-			otherModels = append(otherModels, model)
+			otherModels = append(otherModels, m)
 		}
 	}
 
@@ -87,39 +91,60 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 	resp = append(resp, validModels...)
 	resp = append(resp, otherModels...)
 
-	dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
-		fmt.Sprintf(l.svcCtx.Config.OSS.UserModelDir, req.UserID), 1)
-	if err != nil {
-		return nil, err
-	}
-
-	for dir, size := range dirs {
-		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
-			path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
-		if err != nil {
-			return nil, err
-		}
-		canInference, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
-			path.Join(dir, l.svcCtx.Config.OSS.InferenceTagFile))
+	// user models
+	if l.svcCtx.Config.OSS.LocalMode {
+		models, err := CpodCacheModel.Find(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
+			squirrel.Eq{"data_type": model.CacheModel},
+		))
 		if err != nil {
 			return nil, err
 		}
 
-		var tag []string
-		if canFinetune {
-			tag = append(tag, "finetune")
+		for _, m := range models {
+			tag := []string{"finetune", "inference"} // TODO 根据其他元信息来判断是否能微调和推理
+			resp = append(resp, types.Resource{
+				ID:     strings.TrimPrefix(strings.TrimSuffix(m.DataName, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
+				Object: "model",
+				Owner:  "user",
+				Size:   m.DataSize,
+				Tag:    tag,
+			})
 		}
-		if canInference {
-			tag = append(tag, "inference")
+	} else {
+		dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
+			fmt.Sprintf(l.svcCtx.Config.OSS.UserModelDir, req.UserID), 1)
+		if err != nil {
+			return nil, err
 		}
 
-		resp = append(resp, types.Resource{
-			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
-			Object: "model",
-			Owner:  fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
-			Size:   size,
-			Tag:    tag,
-		})
+		for dir, size := range dirs {
+			canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+				path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
+			if err != nil {
+				return nil, err
+			}
+			canInference, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
+				path.Join(dir, l.svcCtx.Config.OSS.InferenceTagFile))
+			if err != nil {
+				return nil, err
+			}
+
+			var tag []string
+			if canFinetune {
+				tag = append(tag, "finetune")
+			}
+			if canInference {
+				tag = append(tag, "inference")
+			}
+
+			resp = append(resp, types.Resource{
+				ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
+				Object: "model",
+				Owner:  fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
+				Size:   size,
+				Tag:    tag,
+			})
+		}
 	}
 
 	return
