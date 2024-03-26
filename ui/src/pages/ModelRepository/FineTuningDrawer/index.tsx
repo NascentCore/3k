@@ -7,6 +7,7 @@ import { Button, Col, Drawer, Form, Input, Row, Select, Space, message } from 'a
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
 import { useIntl } from '@umijs/max';
+import AsyncButton from '@/components/AsyncButton';
 
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();
@@ -34,6 +35,24 @@ const Content = ({ record, onCancel }) => {
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
 
+  const onFinish = () => {
+    return form.validateFields().then(() => {
+      const values = form.getFieldsValue();
+      setFormValues(values);
+      console.log('Form values:', values);
+      return apiFinetunes({ data: values }).then((res) => {
+        message.success(
+          intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.submit.success',
+            // defaultMessage: '微调任务创建成功',
+          }),
+        );
+        onCancel();
+        history.push('/UserJob');
+      });
+    });
+  };
+
   return (
     <>
       <Form
@@ -42,21 +61,6 @@ const Content = ({ record, onCancel }) => {
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 600 }}
-        onFinish={(values) => {
-          console.log('Form values:', values);
-          setFormValues(values);
-          // return;
-          apiFinetunes({ data: values }).then((res) => {
-            message.success(
-              intl.formatMessage({
-                id: 'pages.modelRepository.fineTuningDrawer.submit.success',
-                // defaultMessage: '微调任务创建成功',
-              }),
-            );
-            onCancel();
-            history.push('/UserJob');
-          });
-        }}
       >
         <Form.Item
           name="model"
@@ -104,7 +108,9 @@ const Content = ({ record, onCancel }) => {
         >
           <Select
             allowClear
-            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
+            options={
+              gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
+            }
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',
@@ -199,20 +205,20 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Space>
-            <Button type="primary" htmlType="submit">
+          <div style={{ display: 'flex', gap: 10 }}>
+            <AsyncButton type="primary" block onClick={onFinish}>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.title',
                 // defaultMessage: '微调',
               })}
-            </Button>
-            <Button type="default" onClick={() => onCancel()}>
+            </AsyncButton>
+            <Button type="default" onClick={() => onCancel()} block>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.cancel',
                 // defaultMessage: '取消',
               })}
             </Button>
-          </Space>
+          </div>
         </Form.Item>
       </Form>
     </>

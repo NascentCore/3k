@@ -2,6 +2,7 @@ import login from './zh-CN/login';
 import modelRepository from './zh-CN/modelRepository';
 import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
+import userJobCommit from './zh-CN/userJobCommit';
 
 export default {
   'app.title': '算想云',
@@ -23,4 +24,5 @@ export default {
   ...modelRepository,
   ...userJob,
   ...inferenceState,
+  ...userJobCommit,
 };

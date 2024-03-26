@@ -7,6 +7,7 @@ import { Button, Drawer, Form, Input, Select, Space, Table, message } from 'antd
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
 import { useIntl } from '@umijs/max';
+import AsyncButton from '@/components/AsyncButton';
 
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();
@@ -21,6 +22,26 @@ const Content = ({ record, onCancel }) => {
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
 
+  const onFinish = () => {
+    return form.validateFields().then(() => {
+      const values = form.getFieldsValue();
+      setFormValues(values);
+      console.log('Form values:', values);
+      return apiInference({ data: { model_name: values.model_name } }).then((res) => {
+        message.success(
+          intl.formatMessage({
+            id: 'pages.modelRepository.InferenceDrawer.submit.success',
+            // defaultMessage: '部署任务创建成功',
+          }),
+        );
+        onCancel();
+        history.push('/InferenceState');
+      });
+    });
+
+    // return;
+  };
+
   return (
     <>
       <Form
@@ -29,20 +50,6 @@ const Content = ({ record, onCancel }) => {
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 600 }}
-        onFinish={(values) => {
-          console.log('Form values:', values);
-          // return;
-          apiInference({ data: { model_name: values.model_name } }).then((res) => {
-            message.success(
-              intl.formatMessage({
-                id: 'pages.modelRepository.InferenceDrawer.submit.success',
-                // defaultMessage: '部署任务创建成功',
-              }),
-            );
-            onCancel();
-            history.push('/InferenceState');
-          });
-        }}
       >
         <Form.Item
           name="model_name"
@@ -105,20 +112,20 @@ const Content = ({ record, onCancel }) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Space>
-            <Button type="primary" htmlType="submit">
+          <div style={{ display: 'flex', gap: 10 }}>
+            <AsyncButton type="primary" block onClick={onFinish}>
               {intl.formatMessage({
                 id: 'pages.modelRepository.InferenceDrawer.submit',
                 // defaultMessage: '部署',
               })}
-            </Button>
-            <Button type="default" onClick={() => onCancel()}>
+            </AsyncButton>
+            <Button type="default" onClick={() => onCancel()} block>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.cancel',
                 // defaultMessage: '取消',
               })}
             </Button>
-          </Space>
+          </div>
         </Form.Item>
       </Form>
     </>

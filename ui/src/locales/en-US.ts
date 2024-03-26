@@ -2,6 +2,7 @@ import login from './en-US/login';
 import modelRepository from './en-US/modelRepository';
 import userJob from './en-US/userJob';
 import inferenceState from './en-US/inferenceState';
+import userJobCommit from './en-US/userJobCommit';
 
 export default {
   'app.title': 'NascentCore Cloud',
@@ -23,4 +24,5 @@ export default {
   ...modelRepository,
   ...userJob,
   ...inferenceState,
+  ...userJobCommit,
 };
