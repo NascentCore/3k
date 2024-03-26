@@ -319,6 +319,8 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 			DataType:   resource.CacheModel,
 			DataName:   model.Spec.ModelName,
 			DataId:     model.Name,
+			DataSize:   model.Status.Size,
+			Template:   model.Spec.Template,
 			DataSource: model.Spec.ModelType,
 		})
 	}
@@ -332,6 +334,7 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 			DataType:   resource.CacheDataSet,
 			DataName:   dataset.Spec.DatasetName,
 			DataId:     dataset.Name,
+			DataSize:   dataset.Status.Size,
 			DataSource: dataset.Spec.DatasetType,
 		})
 	}
