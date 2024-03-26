@@ -8,6 +8,7 @@ export default {
   'menu.welcome': 'Welcome',
   'menu.ModelRepository': 'Model Repository',
   'menu.UserJob': 'Job Details',
+  'menu.UserJobCommit': ' Job Submission',
   'menu.InferenceState': 'Inference Service State',
   'menu.Grafana': 'Grafana',
   'menu.Tensorboard': 'TensorBoard',

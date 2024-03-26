@@ -13,6 +13,8 @@ export default {
   'pages.modelRepository.fineTuningDrawer.submit.success': '微调任务创建成功',
   'pages.modelRepository.fineTuningDrawer.form.model': '模型名称',
   'pages.modelRepository.fineTuningDrawer.form.training_file': '数据集',
+  'pages.modelRepository.fineTuningDrawer.form.gpuProd': 'GPU型号',
+  'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable': 'GPU数量',
   'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder': '数据集',
   'pages.modelRepository.fineTuningDrawer.form.input.placeholder': '请输入',
 

@@ -7,6 +7,7 @@ export default {
   'app.title': '算想云',
   'menu.welcome': '欢迎',
   'menu.ModelRepository': '模型仓库',
+  'menu.UserJobCommit': '任务提交',
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理服务状态',
   'menu.Grafana': 'Grafana',

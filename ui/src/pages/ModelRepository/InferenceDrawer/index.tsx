@@ -2,8 +2,8 @@
  * @name 推理
  * @description 推理
  */
-import { apiGetInference, apiInference } from '@/services';
-import { Button, Drawer, Form, Select, Space, Table, message } from 'antd';
+import { apiGetInference, apiInference, useApiGetGpuType } from '@/services';
+import { Button, Drawer, Form, Input, Select, Space, Table, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
 import { useIntl } from '@umijs/max';
@@ -11,7 +11,15 @@ import { useIntl } from '@umijs/max';
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState({ model_name: record.id });
+  const [formValues, setFormValues] = useState({
+    model_name: record.id,
+    gpuProd: '',
+    gpuAllocatable: 1,
+  });
+
+  const { data: gpuTypeOptions } = useApiGetGpuType({});
+
+  const gpuProdValue = Form.useWatch('gpuProd', form);
 
   return (
     <>
@@ -23,6 +31,7 @@ const Content = ({ record, onCancel }) => {
         style={{ maxWidth: 600 }}
         onFinish={(values) => {
           console.log('Form values:', values);
+          return;
           apiInference({ data: { model_name: values.model_name } }).then((res) => {
             message.success(
               intl.formatMessage({
@@ -45,12 +54,68 @@ const Content = ({ record, onCancel }) => {
           {formValues.model_name}
         </Form.Item>
 
+        <Form.Item
+          name="gpuProd"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
+            defaultMessage: 'GPU型号',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Select
+            allowClear
+            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
+              defaultMessage: '请选择',
+            })}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="gpuAllocatable"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
+            defaultMessage: 'GPU数量',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input
+            type="number"
+            min={1}
+            max={
+              gpuProdValue
+                ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
+                : 1
+            }
+            placeholder={intl.formatMessage({
+              id: 'aa',
+              defaultMessage: 'GPU数量',
+            })}
+            allowClear
+          />
+        </Form.Item>
+
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space>
             <Button type="primary" htmlType="submit">
               {intl.formatMessage({
                 id: 'pages.modelRepository.InferenceDrawer.submit',
                 // defaultMessage: '部署',
+              })}
+            </Button>
+            <Button type="default" onClick={() => onCancel()}>
+              {intl.formatMessage({
+                id: 'pages.modelRepository.fineTuningDrawer.cancel',
+                // defaultMessage: '取消',
               })}
             </Button>
           </Space>

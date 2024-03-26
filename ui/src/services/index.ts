@@ -111,6 +111,14 @@ export async function apiGetUserJob(options?: { [key: string]: any }) {
   });
 }
 
+// 任务提交  /api/userJob
+export async function apiPostUserJob(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/userJob', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 export const useApiGetUserJob = (options?: { [key: string]: any }) =>
   useSWR(['/api/userJob', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -126,3 +134,12 @@ export async function apiDeleteUserJob(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// /api/userJob/getGpuType
+export const useApiGetGpuType = (options?: { [key: string]: any }) =>
+  useSWR(['/api/userJob/getGpuType', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
