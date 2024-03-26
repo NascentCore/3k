@@ -30,6 +30,7 @@ type ModelStorageSpec struct {
 	ModelType             string `json:"modeltype,omitempty"`
 	ModelName             string `json:"modelname,omitempty"`
 	PVC                   string `json:"pvc,omitempty"`
+	Template              string `json:"template,omitempty"`
 	ConvertTensorRTEngine bool   `json:"converttensortrengine,omitempty"`
 }
 
@@ -45,6 +46,7 @@ const (
 type ModelStorageStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Size                        int64                       `json:"size,omitempty"`
 	Phase                       string                      `json:"phase,omitempty"`
 	ConvertTensorRTEngineStatus ConvertTensorRTEngineStatus `json:"converttensortrenginestatus,omitempty"`
 }

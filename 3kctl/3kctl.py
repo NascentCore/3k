@@ -2,6 +2,7 @@
 from plumbum import cli, colors
 from deploy.deploy import Deploy
 from download.download import Download
+from upload.upload import Upload
 
 
 class MainApp(cli.Application):
@@ -13,4 +14,5 @@ class MainApp(cli.Application):
 if __name__ == '__main__':
     MainApp.subcommand("deploy", Deploy)
     MainApp.subcommand("download", Download)
+    MainApp.subcommand("upload", Upload)
     MainApp.run()
