@@ -13,7 +13,7 @@ const Content = ({ record, onCancel }) => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     model_name: record.id,
-    gpuProd: '',
+    // gpuProd: '',
     gpuAllocatable: 1,
   });
 

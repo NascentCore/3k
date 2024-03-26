@@ -14,7 +14,7 @@ const Content = ({ record, onCancel }) => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     model: record?.id,
-    gpuProd: '',
+    // gpuProd: '',
     gpuAllocatable: 1,
     hyperparameters: {
       n_epochs: '3.0',
