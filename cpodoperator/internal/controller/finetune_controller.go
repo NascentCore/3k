@@ -94,6 +94,16 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, recoverableErr
 	}
 
+	gpuCount := finetune.Spec.GPUCount
+	if gpuCount == 0 {
+		gpuCount = 1
+	}
+
+	gpuProduct := finetune.Spec.GPUProduct
+	if gpuProduct == "" {
+		gpuProduct = r.Option.GPUProduct
+	}
+
 	cpodjob := &cpodv1beta1.CPodJob{}
 	if err := r.Get(ctx, types.NamespacedName{Namespace: finetune.Namespace, Name: r.CPodJobName(finetune)}, cpodjob); err != nil {
 		if apierrors.IsNotFound(err) {
@@ -102,7 +112,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				logger.Error(fmt.Errorf("model not support"), "model not support")
 				return ctrl.Result{}, nil
 			}
-			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
+			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, gpuCount, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
 
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
@@ -118,8 +128,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					JobType:               "pytorch",
 					DatasetName:           finetune.Spec.DatasetStorage,
 					DatasetPath:           "/data/dataset/custom",
-					GPUType:               r.Option.GPUProduct,
-					GPURequiredPerReplica: 1,
+					GPUType:               gpuProduct,
+					GPURequiredPerReplica: gpuCount,
 					ModelSavePath:         "/data/save",
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),
 					PretrainModelName:     modelConfig.ModelStorageName,
