@@ -34,8 +34,9 @@ func (l *GpuTypeLogic) GpuType(req *types.GPUTypeReq) (resp []types.GPUTypeResp,
 	resp = []types.GPUTypeResp{}
 	for _, gpuPrice := range gpuPrices {
 		resp = append(resp, types.GPUTypeResp{
-			Amount:  gpuPrice.Amount,
-			GPUProd: gpuPrice.GPUProd,
+			Amount:         gpuPrice.Amount,
+			GPUAllocatable: gpuPrice.GPUAllocatable,
+			GPUProd:        gpuPrice.GPUProd,
 		})
 	}
 

@@ -43,23 +43,11 @@ type DiskInfo struct {
 type FinetuneReq struct {
 	TrainingFile    string                 `json:"training_file"`
 	Model           string                 `json:"model"`
+	GpuModel        string                 `json:"gpu_model,optional"`
+	GpuCount        int64                  `json:"gpu_count,optional"`
 	Hyperparameters map[string]interface{} `json:"hyperparameters,optional,omitempty"`
 	Config          map[string]interface{} `json:"config,optional,omitempty"`
 	UserID          int64                  `header:"Sx-User" json:"-"`
-}
-
-type FinetuneReqBak struct {
-	GpuNumber         int64                  `json:"gpuNumber"`
-	GpuType           string                 `json:"gpuType"`
-	PretrainedModelId string                 `json:"pretrainedModelId"`
-	DatasetId         string                 `json:"datasetId,optional"`
-	DatasetPath       string                 `json:"datasetPath,optional"`
-	CallbackUrl       string                 `json:"callbackUrl,optional,omitempty"`
-	TrainingFile      string                 `json:"training_file"`
-	Model             string                 `json:"model"`
-	Hyperparameters   map[string]interface{} `json:"hyperparameters,optional,omitempty"`
-	Config            map[string]interface{} `json:"config,optional,omitempty"`
-	UserID            int64                  `header:"Sx-User" json:"-"`
 }
 
 type FinetuneResp struct {
@@ -96,8 +84,9 @@ type GPUTypeReq struct {
 }
 
 type GPUTypeResp struct {
-	Amount  float64 `json:"amount"`
-	GPUProd string  `json:"gpuProd"`
+	Amount         float64 `json:"amount"`
+	GPUProd        string  `json:"gpuProd"`
+	GPUAllocatable int64   `json:"gpuAllocatable"`
 }
 
 type InferenceDeleteReq struct {
@@ -111,6 +100,8 @@ type InferenceDeleteResp struct {
 
 type InferenceDeployReq struct {
 	ModelName string `json:"model_name"`
+	GpuModel  string `json:"gpu_model,optional"`
+	GpuCount  int64  `json:"gpu_count,optional"`
 	UserID    int64  `header:"Sx-User"`
 }
 
@@ -133,6 +124,8 @@ type InferenceService struct {
 	ModelName   string `json:"model_name"`
 	ModelId     string `json:"model_id"`
 	ModelSize   int64  `json:"model_size"`
+	GpuType     string `json:"gpu_type"`
+	GpuNumber   int64  `json:"gpu_number"`
 	Template    string `json:"template"`
 	CpodId      string `json:"cpod_id"`
 	UserId      int64  `json:"user_id"`

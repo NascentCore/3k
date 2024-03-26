@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -109,7 +110,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 			}
 		}
 		if !exists {
-			//create
+			// create
 			newJob := v1beta1.FineTune{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      job.JobName,
@@ -191,7 +192,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 			}
 
 			if job.PretrainModelId != "" {
-				//判断指定的预训练模型是否存在
+				// 判断指定的预训练模型是否存在
 				exists, done, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
 					s.logger.Error(err, "failed to check model existence", "modelid", job.PretrainModelId)
@@ -207,15 +208,15 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						"jobname", job.JobName, "modelid", job.PretrainModelId)
 					// return preparing status during the downloader task.
 					s.addPreparingTrainningJob(job)
-					//create PVC
+					// create PVC
 					ossAK := os.Getenv("AK")
 					ossSK := os.Getenv("AS")
 					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
 					pvcName := ModelPVCName(ossPath)
-					//storageName := ModelCRDName(ossPath)
+					// storageName := ModelCRDName(ossPath)
 					modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
-					//pvcsize is 1.2 * modelsize
+					// pvcsize is 1.2 * modelsize
 					pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
@@ -224,7 +225,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					} else {
 						s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
-					//create ModelStorage
+					// create ModelStorage
 					err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
 					if err != nil {
 						s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
@@ -232,7 +233,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					} else {
 						s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 					}
-					//create DownloaderJob
+					// create DownloaderJob
 					err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
@@ -244,7 +245,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				}
 			}
 			if job.DatasetId != "" {
-				//判断指定的预训练模型是否存在
+				// 判断指定的预训练模型是否存在
 				exists, done, err := s.checkDatasetExistence(ctx, v1beta1.CPOD_NAMESPACE, job.DatasetId)
 				if err != nil {
 					s.logger.Error(err, "failed to check dataset existence", "datasetid", job.DatasetId)
@@ -260,14 +261,14 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 						"jobname", job.JobName, "datasetid", job.DatasetId)
 					// return preparing status during the downloader task.
 					s.addPreparingTrainningJob(job)
-					//create PVC
+					// create PVC
 					ossAK := os.Getenv("AK")
 					ossSK := os.Getenv("AS")
 					storageClassName := os.Getenv("STORAGECLASS")
 					ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
 					pvcName := DatasetPVCName(ossPath)
 					datasetSize := fmt.Sprintf("%d", job.DatasetSize)
-					//pvcsize is 1.2 * datasetsize
+					// pvcsize is 1.2 * datasetsize
 					pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
 					err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
 					if err != nil {
@@ -276,7 +277,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					} else {
 						s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
 					}
-					//create DatasetStorage
+					// create DatasetStorage
 					err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
 					if err != nil {
 						s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
@@ -284,7 +285,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					} else {
 						s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
 					}
-					//create DownloaderJob
+					// create DownloaderJob
 					err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
 					if err != nil {
 						s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
@@ -398,7 +399,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 			if template == "" {
 				template = "default"
 			}
-			//create
+			// create
 			newJob := v1beta1.Inference{
 				ObjectMeta: metav1.ObjectMeta{
 					// TODO: create namespace for different tenant
@@ -439,15 +440,18 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 										Limits: map[v1.ResourceName]resource.Quantity{
 											v1.ResourceCPU:    resource.MustParse("4"),
 											v1.ResourceMemory: resource.MustParse("50Gi"),
-											"nvidia.com/gpu":  resource.MustParse("1"),
+											"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
 										},
 										Requests: map[v1.ResourceName]resource.Quantity{
 											v1.ResourceCPU:    resource.MustParse("4"),
 											v1.ResourceMemory: resource.MustParse("50Gi"),
-											"nvidia.com/gpu":  resource.MustParse("1"),
+											"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
 										},
 									},
 								},
+							},
+							NodeSelector: map[string]string{
+								"nvidia.com/gpu.product": job.GpuType,
 							},
 						},
 					},

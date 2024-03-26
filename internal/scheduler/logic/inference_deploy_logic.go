@@ -73,6 +73,8 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		ModelName:   orm.NullString(req.ModelName),
 		ModelId:     orm.NullString(storage.ModelCRDName(modelOSSPath)),
 		ModelSize:   orm.NullInt64(modelSize),
+		GpuType:     orm.NullString(req.GpuModel),
+		GpuNumber:   orm.NullInt64(req.GpuCount),
 		Template:    orm.NullString(template),
 	}
 

@@ -47,6 +47,8 @@ type PortalInferenceJob struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
 	ModelId     string `json:"model_id"`
+	GpuType     string `json:"gpu_type"`
+	GpuNumber   int64  `json:"gpu_number"`
 	CpodId      string `json:"cpod_id"`
 	Template    string `json:"template,omitempty"`
 	UserID      int64  `json:"user_id"`
