@@ -18,6 +18,10 @@ func IsSucceeded(status v1beta1.CPodJobStatus) bool {
 	return isStatusConditionTrue(status, v1beta1.JobSucceeded)
 }
 
+func IsModelUploaded(status v1beta1.CPodJobStatus) bool {
+	return isStatusConditionTrue(status, v1beta1.JobModelUploaded)
+}
+
 // IsFailed checks if the given CPodJobStatus is in a failed state.
 // It returns true if the status has a condition with the type JobFailed and the condition is true.
 func IsFailed(status v1beta1.CPodJobStatus) bool {
