@@ -207,7 +207,7 @@ const Welcome: React.FC = () => {
           </Form.Item>
 
           <Form.Item label={'GPU'} style={{ marginBottom: 0 }}>
-            <Space>
+            <div style={{ display: 'flex', gap: 10 }}>
               <Form.Item
                 name="gpuNumber"
                 rules={[
@@ -235,7 +235,7 @@ const Welcome: React.FC = () => {
                 ]}
               >
                 <Select
-                  style={{ width: 200 }}
+                  style={{ width: 220 }}
                   allowClear
                   options={
                     gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
@@ -246,7 +246,7 @@ const Welcome: React.FC = () => {
                   })}
                 />
               </Form.Item>
-            </Space>
+            </div>
           </Form.Item>
           <Form.Item
             name="imagePath"
