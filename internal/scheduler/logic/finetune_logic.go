@@ -77,7 +77,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.JobType = orm.NullString(consts.JobTypeCodeless)
 
 	// fill gpu
-	if req.Model == "" {
+	if req.GpuModel == "" {
 		cpodMain, err := CpodMainModel.FindOneByQuery(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.And{
 			squirrel.GtOrEq{
 				"update_time": orm.NullTime(time.Now().Add(-30 * time.Minute)),

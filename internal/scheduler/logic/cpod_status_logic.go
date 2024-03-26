@@ -315,6 +315,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				DataType:    int64(dataType),
 				DataName:    cache.DataName,
 				DataId:      cache.DataId,
+				DataSize:    cache.DataSize,
 				DataSource:  cache.DataSource,
 			})
 			if err != nil {
