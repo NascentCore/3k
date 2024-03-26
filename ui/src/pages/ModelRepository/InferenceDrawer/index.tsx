@@ -31,7 +31,7 @@ const Content = ({ record, onCancel }) => {
         style={{ maxWidth: 600 }}
         onFinish={(values) => {
           console.log('Form values:', values);
-          return;
+          // return;
           apiInference({ data: { model_name: values.model_name } }).then((res) => {
             message.success(
               intl.formatMessage({

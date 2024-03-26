@@ -45,7 +45,7 @@ const Content = ({ record, onCancel }) => {
         onFinish={(values) => {
           console.log('Form values:', values);
           setFormValues(values);
-          return;
+          // return;
           apiFinetunes({ data: values }).then((res) => {
             message.success(
               intl.formatMessage({
