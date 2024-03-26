@@ -36,6 +36,7 @@ type DataSetStorageSpec struct {
 type DataSetStorageStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Size  int64  `json:"size,omitempty"`
 	Phase string `json:"phase,omitempty"`
 }
 
