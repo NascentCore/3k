@@ -14,10 +14,32 @@ type Model struct {
 }
 
 func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, hyperparameters, configs []string) string {
-	baseParam := []string{
+
+	trainStrings := []string{
 		"accelerate",
 		"launch",
-		fmt.Sprintf("--num_processes=%v", gpuCount),
+	}
+
+	if gpuCount > 1 {
+		accelerateConfig := []string{
+			"--use_deepspeed",
+			fmt.Sprintf("--num_processes=%v", gpuCount),
+			"--zero_stage=3",
+			"--zero3_save_16bit_model=true",
+			"--offload_optimizer_device=cpu",
+			"--offload_param_device=cpu",
+			"--zero3_init_flag=true",
+			"--gradient_accumulation_steps=4",
+			"--machine_rank=0",
+			"--num_machines=1",
+			"--main_training_function=main",
+			"--rdzv_backend=static",
+		}
+
+		trainStrings = append(trainStrings, accelerateConfig...)
+	}
+
+	baseParam := []string{
 		"src/train_bash.py",
 		"--do_train=True",
 		"--model_name_or_path=/data/model",
@@ -38,8 +60,10 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, hyperp
 		fmt.Sprintf("--template=%v", m.Template),
 		fmt.Sprintf("--lora_target=%v", m.LoRATarget),
 	}
+	trainStrings = append(trainStrings, baseParam...)
+	trainStrings = append(trainStrings, hyperparameters...)
+	trainStrings = append(trainStrings, configs...)
 
-	trainStrings := append(append(baseParam, hyperparameters...), configs...)
 	var res string
 	for _, v := range trainStrings {
 		res += v + " "
@@ -79,7 +103,7 @@ var SupportModels = []Model{
 	{
 		Name:             "IDEA-CCNL/Ziya-LLaMA-13B-v1",
 		ModelStorageName: "model-storage-3f7baf1d50fdab32",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v2",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
