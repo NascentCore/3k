@@ -13,5 +13,5 @@ export default {
   'pages.userJob.table.column.workStatus.status.3': '运行中',
   'pages.userJob.table.column.createTime': '创建时间',
   'pages.userJob.table.column.action': '详情',
-  'pages.userJob.table.column.action.detail': '操作',
+  'pages.userJob.table.column.action.detail': '详情',
 };
