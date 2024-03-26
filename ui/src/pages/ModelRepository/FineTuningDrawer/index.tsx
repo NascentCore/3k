@@ -15,7 +15,7 @@ const Content = ({ record, onCancel }) => {
   const [formValues, setFormValues] = useState({
     model: record?.id,
     // gpuProd: '',
-    gpuAllocatable: 1,
+    gpu_count: 1,
     hyperparameters: {
       n_epochs: '3.0',
       batch_size: '4',
@@ -32,7 +32,7 @@ const Content = ({ record, onCancel }) => {
 
   const { data: gpuTypeOptions } = useApiGetGpuType({});
 
-  const gpuProdValue = Form.useWatch('gpuProd', form);
+  const gpuProdValue = Form.useWatch('gpu_model', form);
 
   return (
     <>
@@ -91,7 +91,7 @@ const Content = ({ record, onCancel }) => {
         </Form.Item>
 
         <Form.Item
-          name="gpuProd"
+          name="gpu_model"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
             defaultMessage: 'GPU型号',
@@ -113,7 +113,7 @@ const Content = ({ record, onCancel }) => {
         </Form.Item>
 
         <Form.Item
-          name="gpuAllocatable"
+          name="gpu_count"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
             defaultMessage: 'GPU数量',
