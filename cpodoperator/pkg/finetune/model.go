@@ -13,11 +13,11 @@ type Model struct {
 	RequireGPUType  string
 }
 
-func (m *Model) ConstructCommandArgs(finetuneName string, hyperparameters, configs []string) string {
+func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, hyperparameters, configs []string) string {
 	baseParam := []string{
 		"accelerate",
 		"launch",
-		"--num_processes=1",
+		fmt.Sprintf("--num_processes=%v", gpuCount),
 		"src/train_bash.py",
 		"--do_train=True",
 		"--model_name_or_path=/data/model",

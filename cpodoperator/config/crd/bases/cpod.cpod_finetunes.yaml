@@ -42,6 +42,10 @@ spec:
                 type: object
               dataset:
                 type: string
+              gpuCount:
+                type: integer
+              gpuProduct:
+                type: string
               hyperParameters:
                 additionalProperties:
                   type: string

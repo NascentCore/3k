@@ -34,6 +34,8 @@ type FineTuneSpec struct {
 	HyperParameters map[string]string `json:"hyperParameters,omitempty"`
 	Config          map[string]string `json:"config,omitempty"`
 	Upload          bool              `json:"upload,omitempty"`
+	GPUCount        int32             `json:"gpuCount,omitempty"`
+	GPUProduct      string            `json:"gpuProduct,omitempty"`
 }
 
 type Phase string

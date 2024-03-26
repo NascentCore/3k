@@ -128,6 +128,8 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 						"learning_rate_multiplier": job.LearningRate,
 						"batch_size":               job.BatchSize,
 					},
+					GPUCount:   int32(job.GpuNumber),
+					GPUProduct: job.GpuType,
 				},
 			}
 
