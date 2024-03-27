@@ -36,15 +36,16 @@ type jobBuffer struct {
 }
 
 type SyncJob struct {
-	kubeClient         client.Client
-	scheduler          sxwl.Scheduler
-	createFailedJobs   jobBuffer
-	preparingJobs      jobBuffer
-	logger             logr.Logger
-	uploadTrainedModel bool
+	kubeClient           client.Client
+	scheduler            sxwl.Scheduler
+	createFailedJobs     jobBuffer
+	preparingJobs        jobBuffer
+	logger               logr.Logger
+	uploadTrainedModel   bool
+	autoDownloadResource bool
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel bool) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -58,8 +59,9 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 			mij: map[string]sxwl.PortalInferenceJob{},
 			mu:  new(sync.RWMutex),
 		},
-		logger:             logger,
-		uploadTrainedModel: uploadTrainedModel,
+		logger:               logger,
+		uploadTrainedModel:   uploadTrainedModel,
+		autoDownloadResource: autoDownloadReource,
 	}
 }
 
@@ -193,7 +195,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 				duration = job.StopTime
 			}
 
-			if job.PretrainModelId != "" {
+			if job.PretrainModelId != "" && s.autoDownloadResource {
 				// 判断指定的预训练模型是否存在
 				exists, done, err := s.checkModelExistence(ctx, v1beta1.CPOD_NAMESPACE, job.PretrainModelId)
 				if err != nil {
@@ -246,7 +248,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					continue
 				}
 			}
-			if job.DatasetId != "" {
+			if job.DatasetId != "" && s.autoDownloadResource {
 				// 判断指定的预训练模型是否存在
 				exists, done, err := s.checkDatasetExistence(ctx, v1beta1.CPOD_NAMESPACE, job.DatasetId)
 				if err != nil {

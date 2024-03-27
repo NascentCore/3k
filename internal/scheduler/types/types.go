@@ -182,7 +182,7 @@ type JobCreateReq struct {
 	ModelVol            string            `json:"modelVol"`
 	ImagePath           string            `json:"imagePath"`
 	JobType             string            `json:"jobType"`
-	StopType            string            `json:"stopType"`
+	StopType            int64             `json:"stopType"`
 	StopTime            int64             `json:"stopTime,optional"`
 	PretrainedModelId   string            `json:"pretrainedModelId,optional"`
 	PretrainedModelPath string            `json:"pretrainedModelPath,optional"`

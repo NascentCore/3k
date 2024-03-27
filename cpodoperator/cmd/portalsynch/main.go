@@ -51,19 +51,22 @@ func init() {
 func main() {
 	var syncPeriod int
 	var uploadTrainedModel bool
+	var autoDownloadResource bool
 	flag.IntVar(&syncPeriod, "sync-period", 10, "the period of every run of synchronizer, unit is second")
 	flag.BoolVar(&uploadTrainedModel, "upload-trained-model", true, "whether to upload trained model to sxwl or not")
+	flag.BoolVar(&autoDownloadResource, "auto-download-resource", false, "whether download model or dataset when not exists")
 	flag.Parse()
-	sxwlBaseUrl := os.Getenv("API_ADDRESS") //from configmap provided by cairong
-	accessKey := os.Getenv("ACCESS_KEY")    //from configmap provided by cairong
-	cpodId := os.Getenv("CPOD_ID")          //from configmap provided by cairong
+	sxwlBaseUrl := os.Getenv("API_ADDRESS") // from configmap provided by cairong
+	accessKey := os.Getenv("ACCESS_KEY")    // from configmap provided by cairong
+	cpodId := os.Getenv("CPOD_ID")          // from configmap provided by cairong
 
 	cli, err := client.New(clientconfig.GetClientConfig(), client.Options{Scheme: scheme})
 	if err != nil {
 		panic(err)
 	}
 	ctx := context.TODO()
-	syncManager := synchronizer.NewManager(cpodId, uploadTrainedModel, cli, sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
+	syncManager := synchronizer.NewManager(cpodId, uploadTrainedModel, autoDownloadResource, cli,
+		sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
 		time.Duration(syncPeriod)*time.Second, zapr.NewLogger(zap.NewRaw()))
 	syncManager.Start(ctx)
 	<-ctx.Done()
