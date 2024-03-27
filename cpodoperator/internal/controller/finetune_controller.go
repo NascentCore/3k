@@ -163,7 +163,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, userId+"/"+finetune.Name))
 			}
 			finetune.Status.ModelStorage = modelstorageName
-		} else {
+		} else if util.IsFailed(cpodjob.Status) {
 			finetune.Status.Phase = cpodv1beta1.PhaseFailed
 			finetune.Status.FailureMessage = util.GetCondition(cpodjob.Status, cpodv1beta1.JobFailed).Message
 		}
