@@ -26,4 +26,9 @@ export default {
   'pages.UserJobCommit.form.stopTime.unit': '分钟',
   'pages.UserJobCommit.form.submit': '提交',
   'pages.UserJobCommit.form.submit.success': '提交成功',
+  'pages.UserJobCommit.form.pretrainedModelId': '基座模型',
+  'pages.UserJobCommit.form.pretrainedModelPath': '挂载路径',
+  'pages.UserJobCommit.form.datasetId': '数据集',
+  'pages.UserJobCommit.form.datasetPath': '挂载路径',
+  'pages.UserJobCommit.form.runCommand': '启动命令',
 };

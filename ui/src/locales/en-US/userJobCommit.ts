@@ -27,4 +27,9 @@ export default {
   'pages.UserJobCommit.form.stopTime.unit': 'Minutes',
   'pages.UserJobCommit.form.submit': 'Submit',
   'pages.UserJobCommit.form.submit.success': 'success',
+  'pages.UserJobCommit.form.pretrainedModelId': 'Pretrained Model',
+  'pages.UserJobCommit.form.pretrainedModelPath': 'Mount Path',
+  'pages.UserJobCommit.form.datasetId': 'Dataset',
+  'pages.UserJobCommit.form.datasetPath': 'Mount Path',
+  'pages.UserJobCommit.form.runCommand': 'Run Command',
 };

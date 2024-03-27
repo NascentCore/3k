@@ -1,25 +1,85 @@
-import { apiPostUserJob, useApiGetGpuType } from '@/services';
+import {
+  apiPostUserJob,
+  useApiGetGpuType,
+  useApiResourceDatasets,
+  useApiResourceModels,
+} from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
-import { Form, Input, Radio, Select, Space, Tooltip, message } from 'antd';
+import { Flex, Form, Input, Radio, Select, Space, Tooltip, message } from 'antd';
 import React, { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import { QuestionCircleFilled } from '@ant-design/icons';
 import AsyncButton from '@/components/AsyncButton';
+import { formatFileSize } from '@/utils';
 
 const Welcome: React.FC = () => {
   const intl = useIntl();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
-    stopType: '1',
+    stopType: 0,
     gpuNumber: 1,
-    stopTime: 5,
+    stopTime: 0,
   });
-  const { data: gpuTypeOptions } = useApiGetGpuType({});
+  const { data: gpuTypeOptions } = useApiGetGpuType();
+  const { data: resourceModels }: any = useApiResourceModels();
+  const { data: resourceDatasets }: any = useApiResourceDatasets();
+
+  const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
+    ...x,
+    label: (
+      <>
+        <span style={{ marginRight: 20 }}>{x.gpuProd}</span>
+        <span>{x.amount}元/时/个</span>
+      </>
+    ),
+    value: x.gpuProd,
+  }));
+  const resourceModelsList = resourceModels?.map((x) => ({
+    ...x,
+    label: (
+      <>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+          }}
+        >
+          <span style={{ marginRight: 20 }}>{x.id}</span>
+          {/* <span>{formatFileSize(x.size)}</span> */}
+        </div>
+      </>
+    ),
+    value: x.id,
+    key: x.id + Math.random(),
+  }));
+  const resourceDatasetsList = resourceDatasets?.map((x) => ({
+    ...x,
+    label: (
+      <>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+          }}
+        >
+          <span style={{ marginRight: 20 }}>{x.id}</span>
+          {/* <span>{formatFileSize(x.size)}</span> */}
+        </div>
+      </>
+    ),
+    value: x.id,
+  }));
+
+  const gpuProdValue = Form.useWatch('gpuType', form);
+  console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
 
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
+      setFormValues(values);
       console.log(values);
       return apiPostUserJob({
         data: {
@@ -42,14 +102,15 @@ const Welcome: React.FC = () => {
         <Form
           form={form}
           initialValues={formValues}
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 600 }}
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+          style={{ maxWidth: 800 }}
         >
           <Form.Item
             style={{ marginBottom: 0 }}
             label={
               <>
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.ckptPath',
                   defaultMessage: 'CKPT 路径',
@@ -65,8 +126,9 @@ const Welcome: React.FC = () => {
               </>
             }
           >
-            <Space align={'baseline'}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Form.Item
+                style={{ flex: 1 }}
                 name="ckptPath"
                 rules={[
                   {
@@ -87,6 +149,7 @@ const Welcome: React.FC = () => {
                 />
               </Form.Item>
               <Form.Item
+                style={{ flex: 1 }}
                 name="ckptVol"
                 label={
                   <>
@@ -120,16 +183,17 @@ const Welcome: React.FC = () => {
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',
                   })}
+                  suffix="MB"
                 />
               </Form.Item>
-              MB
-            </Space>
+            </div>
           </Form.Item>
 
           <Form.Item
             style={{ marginBottom: 0 }}
             label={
               <>
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.modelPath',
                   defaultMessage: '模型保存路径',
@@ -145,8 +209,9 @@ const Welcome: React.FC = () => {
               </>
             }
           >
-            <Space align={'baseline'}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Form.Item
+                style={{ flex: 1 }}
                 name="modelPath"
                 rules={[
                   {
@@ -167,6 +232,7 @@ const Welcome: React.FC = () => {
                 />
               </Form.Item>
               <Form.Item
+                style={{ flex: 1 }}
                 name="modelVol"
                 label={
                   <>
@@ -200,15 +266,23 @@ const Welcome: React.FC = () => {
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',
                   })}
+                  suffix="MB"
                 />
               </Form.Item>
-              MB
-            </Space>
+            </div>
           </Form.Item>
 
-          <Form.Item label={'GPU'} style={{ marginBottom: 0 }}>
+          <Form.Item
+            label={
+              <>
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>GPU
+              </>
+            }
+            style={{ marginBottom: 0 }}
+          >
             <div style={{ display: 'flex', gap: 10 }}>
               <Form.Item
+                style={{ flex: '0 0 100px' }}
                 name="gpuNumber"
                 rules={[
                   {
@@ -220,9 +294,18 @@ const Welcome: React.FC = () => {
                   },
                 ]}
               >
-                <Input disabled type="number" />
+                <Input
+                  type="number"
+                  min={1}
+                  max={
+                    gpuProdValue
+                      ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
+                      : 1
+                  }
+                />
               </Form.Item>
               <Form.Item
+                style={{ flex: 1 }}
                 name="gpuType"
                 rules={[
                   {
@@ -235,11 +318,8 @@ const Welcome: React.FC = () => {
                 ]}
               >
                 <Select
-                  style={{ width: 220 }}
                   allowClear
-                  options={
-                    gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
-                  }
+                  options={gpuTypeOptionsList}
                   placeholder={intl.formatMessage({
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',
@@ -315,7 +395,7 @@ const Welcome: React.FC = () => {
             />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label={
               <>
                 {intl.formatMessage({
@@ -377,6 +457,166 @@ const Welcome: React.FC = () => {
                 })}
               </div>
             </Space>
+          </Form.Item> */}
+
+          <Form.Item
+            style={{ marginBottom: 0 }}
+            label={
+              <>
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
+                {intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.pretrainedModelId',
+                  defaultMessage: '基座模型',
+                })}
+              </>
+            }
+          >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Form.Item
+                style={{ flex: 1 }}
+                name="pretrainedModelId"
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.placeholder',
+                      defaultMessage: '请输入',
+                    }),
+                  },
+                ]}
+              >
+                <Select
+                  allowClear
+                  options={resourceModelsList}
+                  placeholder={intl.formatMessage({
+                    id: 'pages.UserJobCommit.form.placeholder',
+                    defaultMessage: '请输入',
+                  })}
+                />
+              </Form.Item>
+              <Form.Item
+                style={{ flex: 1 }}
+                name="pretrainedModelPath"
+                label={
+                  <>
+                    {intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.pretrainedModelPath',
+                      defaultMessage: '挂载路径',
+                    })}
+                  </>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.placeholder',
+                      defaultMessage: '请输入',
+                    }),
+                  },
+                ]}
+              >
+                <Input
+                  placeholder={intl.formatMessage({
+                    id: 'pages.UserJobCommit.form.placeholder',
+                    defaultMessage: '请输入',
+                  })}
+                />
+              </Form.Item>
+            </div>
+          </Form.Item>
+
+          <Form.Item
+            style={{ marginBottom: 0 }}
+            label={
+              <>
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
+                {intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.datasetId',
+                  defaultMessage: '数据集',
+                })}
+              </>
+            }
+          >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Form.Item
+                style={{ flex: 1 }}
+                name="datasetId"
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.placeholder',
+                      defaultMessage: '请输入',
+                    }),
+                  },
+                ]}
+              >
+                <Select
+                  allowClear
+                  options={resourceDatasetsList}
+                  placeholder={intl.formatMessage({
+                    id: 'pages.UserJobCommit.form.placeholder',
+                    defaultMessage: '请输入',
+                  })}
+                />
+              </Form.Item>
+              <Form.Item
+                style={{ flex: 1 }}
+                name="datasetPath"
+                label={
+                  <>
+                    {intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.datasetPath',
+                      defaultMessage: '挂载路径',
+                    })}
+                  </>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.placeholder',
+                      defaultMessage: '请输入',
+                    }),
+                  },
+                ]}
+              >
+                <Input
+                  placeholder={intl.formatMessage({
+                    id: 'pages.UserJobCommit.form.placeholder',
+                    defaultMessage: '请输入',
+                  })}
+                />
+              </Form.Item>
+            </div>
+          </Form.Item>
+
+          <Form.Item
+            name="runCommand"
+            label={
+              <>
+                {intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.runCommand',
+                  defaultMessage: '启动命令',
+                })}
+              </>
+            }
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.placeholder',
+                  defaultMessage: '请输入',
+                }),
+              },
+            ]}
+          >
+            <Input
+              placeholder={intl.formatMessage({
+                id: 'pages.UserJobCommit.form.placeholder',
+                defaultMessage: '请输入',
+              })}
+            />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
