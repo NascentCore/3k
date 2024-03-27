@@ -36,14 +36,15 @@ type jobBuffer struct {
 }
 
 type SyncJob struct {
-	kubeClient       client.Client
-	scheduler        sxwl.Scheduler
-	createFailedJobs jobBuffer
-	preparingJobs    jobBuffer
-	logger           logr.Logger
+	kubeClient         client.Client
+	scheduler          sxwl.Scheduler
+	createFailedJobs   jobBuffer
+	preparingJobs      jobBuffer
+	logger             logr.Logger
+	uploadTrainedModel bool
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel bool) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -57,7 +58,8 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 			mij: map[string]sxwl.PortalInferenceJob{},
 			mu:  new(sync.RWMutex),
 		},
-		logger: logger,
+		logger:             logger,
+		uploadTrainedModel: uploadTrainedModel,
 	}
 }
 
@@ -123,7 +125,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 				Spec: v1beta1.FineTuneSpec{
 					Model:          job.PretrainModelName,
 					DatasetStorage: job.DatasetId,
-					Upload:         true,
+					Upload:         s.uploadTrainedModel,
 					HyperParameters: map[string]string{
 						"n_epochs":                 job.Epochs,
 						"learning_rate_multiplier": job.LearningRate,

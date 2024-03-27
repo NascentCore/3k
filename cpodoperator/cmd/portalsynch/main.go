@@ -50,7 +50,9 @@ func init() {
 
 func main() {
 	var syncPeriod int
+	var uploadTrainedModel bool
 	flag.IntVar(&syncPeriod, "sync-period", 10, "the period of every run of synchronizer, unit is second")
+	flag.BoolVar(&uploadTrainedModel, "upload-trained-model", true, "whether to upload trained model to sxwl or not")
 	flag.Parse()
 	sxwlBaseUrl := os.Getenv("API_ADDRESS") //from configmap provided by cairong
 	accessKey := os.Getenv("ACCESS_KEY")    //from configmap provided by cairong
