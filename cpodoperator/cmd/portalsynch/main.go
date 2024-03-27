@@ -63,7 +63,7 @@ func main() {
 		panic(err)
 	}
 	ctx := context.TODO()
-	syncManager := synchronizer.NewManager(cpodId, cli, sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
+	syncManager := synchronizer.NewManager(cpodId, uploadTrainedModel, cli, sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
 		time.Duration(syncPeriod)*time.Second, zapr.NewLogger(zap.NewRaw()))
 	syncManager.Start(ctx)
 	<-ctx.Done()
