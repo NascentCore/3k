@@ -45,12 +45,6 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	_ = copier.Copy(userJob, req)
 	userJob.UserId = req.UserID
 	userJob.JobName = sql.NullString{String: "ai" + newUUID.String(), Valid: true}
-	stopType, err := strconv.Atoi(req.StopType)
-	if err != nil {
-		l.Errorf("stopType convert userId: %d stopType: %s err: %s", req.UserID, req.StopType, err)
-		return nil, err
-	}
-	userJob.StopType = sql.NullInt64{Int64: int64(stopType), Valid: true}
 	if req.PretrainedModelId != "" {
 		userJob.PretrainedModelName = sql.NullString{String: req.PretrainedModelId, Valid: true}
 	}
@@ -73,6 +67,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		return nil, err
 	}
 
+	jsonAll["userId"] = req.UserID
 	jsonAll["jobName"] = userJob.JobName.String
 	jsonAll["modelVol"], err = strconv.Atoi(userJob.ModelVol.String)
 	if err != nil {

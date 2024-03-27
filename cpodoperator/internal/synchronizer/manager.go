@@ -27,9 +27,9 @@ type Manager struct {
 	period time.Duration
 }
 
-func NewManager(cpodId string, uploadTrainedModel bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
+func NewManager(cpodId string, uploadTrainedModel, autoDownloadResource bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
 	ch := make(chan sxwl.HeartBeatPayload, 1)
-	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel)
+	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel, autoDownloadResource)
 	uploader := NewUploader(ch, scheduler, period, logger.WithName("uploader"))
 	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch,
 		syncJob.getCreateFailedTrainningJobs, syncJob.getPreparingTrainningJobs, syncJob.getCreateFailedInferenceJobs,
