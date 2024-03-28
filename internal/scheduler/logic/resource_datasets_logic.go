@@ -6,11 +6,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/storage"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,6 +32,7 @@ func NewResourceDatasetsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq) (resp []types.Resource, err error) {
+	CpodCacheModel := l.svcCtx.CpodCacheModel
 	resp = []types.Resource{}
 
 	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket, l.svcCtx.Config.OSS.PublicDatasetDir, 2)
@@ -37,8 +41,10 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 	}
 
 	for dir, size := range dirs {
+		datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir)
 		resp = append(resp, types.Resource{
-			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir),
+			ID:     storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
+			Name:   datasetName,
 			Object: "dataset",
 			Owner:  "public",
 			Tag:    []string{},
@@ -46,29 +52,52 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 		})
 	}
 
-	dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
-		fmt.Sprintf(l.svcCtx.Config.OSS.UserDatasetDir, req.UserID), 1)
-	if err != nil {
-		return nil, err
-	}
-
-	for dir, size := range dirs {
-		resp = append(resp, types.Resource{
-			ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix),
-			Object: "dataset",
-			Owner:  strconv.FormatInt(req.UserID, 10),
-			Tag:    []string{},
-			Size:   size,
-		})
-	}
-
-	sort.Slice(resp, func(i, j int) bool {
-		if resp[i].Owner != resp[j].Owner {
-			return resp[i].Owner < resp[j].Owner
+	if l.svcCtx.Config.OSS.LocalMode {
+		datasets, err := CpodCacheModel.Find(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
+			squirrel.Eq{"data_type": model.CacheDataset},
+		))
+		if err != nil {
+			return nil, err
 		}
 
-		return resp[i].ID < resp[j].ID
-	})
+		for _, dataset := range datasets {
+			datasetName := strings.TrimPrefix(strings.TrimSuffix(dataset.DataName, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
+			resp = append(resp, types.Resource{
+				ID:     dataset.DataId,
+				Name:   datasetName,
+				Object: "dataset",
+				Owner:  "user",
+				Tag:    []string{},
+				Size:   dataset.DataSize,
+			})
+		}
+	} else {
+		dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
+			fmt.Sprintf(l.svcCtx.Config.OSS.UserDatasetDir, req.UserID), 1)
+		if err != nil {
+			return nil, err
+		}
+
+		for dir, size := range dirs {
+			datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
+			resp = append(resp, types.Resource{
+				ID:     storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
+				Name:   datasetName,
+				Object: "dataset",
+				Owner:  strconv.FormatInt(req.UserID, 10),
+				Tag:    []string{},
+				Size:   size,
+			})
+		}
+
+		sort.Slice(resp, func(i, j int) bool {
+			if resp[i].Owner != resp[j].Owner {
+				return resp[i].Owner < resp[j].Owner
+			}
+
+			return resp[i].ID < resp[j].ID
+		})
+	}
 
 	return
 }

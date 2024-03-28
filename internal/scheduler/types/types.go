@@ -185,8 +185,10 @@ type JobCreateReq struct {
 	StopType            int64             `json:"stopType,optional"`
 	StopTime            int64             `json:"stopTime,optional"`
 	PretrainedModelId   string            `json:"pretrainedModelId,optional"`
+	PretrainedModelName string            `json:"pretrainedModelName,optional"`
 	PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
 	DatasetId           string            `json:"datasetId,optional"`
+	DatasetName         string            `json:"datasetName,optional"`
 	DatasetPath         string            `json:"datasetPath,optional"`
 	RunCommand          string            `json:"runCommand,optional"`
 	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
@@ -270,6 +272,7 @@ type NodeInfo struct {
 
 type Resource struct {
 	ID     string   `json:"id"`
+	Name   string   `json:"name"`
 	Object string   `json:"object"`
 	Owner  string   `json:"owner"`
 	Size   int64    `json:"size"`

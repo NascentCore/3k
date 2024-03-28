@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/storage"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -66,7 +67,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir)
 		m := types.Resource{
-			ID:     modelName,
+			ID:     storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
+			Name:   modelName,
 			Object: "model",
 			Owner:  "public",
 			Size:   size,
@@ -102,8 +104,10 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 		for _, m := range models {
 			tag := []string{"finetune", "inference"} // TODO 根据其他元信息来判断是否能微调和推理
+			modelName := strings.TrimPrefix(strings.TrimSuffix(m.DataName, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
 			resp = append(resp, types.Resource{
-				ID:     strings.TrimPrefix(strings.TrimSuffix(m.DataName, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
+				ID:     m.DataId,
+				Name:   modelName,
 				Object: "model",
 				Owner:  "user",
 				Size:   m.DataSize,
@@ -137,8 +141,10 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				tag = append(tag, "inference")
 			}
 
+			modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
 			resp = append(resp, types.Resource{
-				ID:     strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix),
+				ID:     storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
+				Name:   modelName,
 				Object: "model",
 				Owner:  fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
 				Size:   size,
