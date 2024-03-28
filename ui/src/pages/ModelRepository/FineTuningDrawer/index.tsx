@@ -27,7 +27,7 @@ const Content = ({ record, onCancel }) => {
   const [resourceDatasetsOption, setResourceDatasets] = useState([]);
   useEffect(() => {
     apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.id })));
+      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.name })));
     });
   }, []);
 

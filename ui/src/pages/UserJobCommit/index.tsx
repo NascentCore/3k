@@ -52,7 +52,7 @@ const Welcome: React.FC = () => {
       </>
     ),
     value: x.id,
-    key: x.id + Math.random(),
+    key: x.id,
   }));
   const resourceDatasetsList = resourceDatasets?.map((x) => ({
     ...x,
@@ -466,7 +466,6 @@ const Welcome: React.FC = () => {
             style={{ marginBottom: 0 }}
             label={
               <>
-                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.pretrainedModelId',
                   defaultMessage: '基座模型',
@@ -475,19 +474,7 @@ const Welcome: React.FC = () => {
             }
           >
             <div style={{ display: 'flex', gap: 10 }}>
-              <Form.Item
-                style={{ flex: 1 }}
-                name="pretrainedModelId"
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
-              >
+              <Form.Item style={{ flex: 1 }} name="pretrainedModelId">
                 <Select
                   allowClear
                   options={resourceModelsList}
@@ -508,15 +495,6 @@ const Welcome: React.FC = () => {
                     })}
                   </>
                 }
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
               >
                 <Input
                   placeholder={intl.formatMessage({
@@ -532,7 +510,6 @@ const Welcome: React.FC = () => {
             style={{ marginBottom: 0 }}
             label={
               <>
-                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.datasetId',
                   defaultMessage: '数据集',
@@ -541,19 +518,7 @@ const Welcome: React.FC = () => {
             }
           >
             <div style={{ display: 'flex', gap: 10 }}>
-              <Form.Item
-                style={{ flex: 1 }}
-                name="datasetId"
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
-              >
+              <Form.Item style={{ flex: 1 }} name="datasetId">
                 <Select
                   allowClear
                   options={resourceDatasetsList}
@@ -574,15 +539,6 @@ const Welcome: React.FC = () => {
                     })}
                   </>
                 }
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
               >
                 <Input
                   placeholder={intl.formatMessage({
