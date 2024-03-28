@@ -177,9 +177,9 @@ type JobCreateReq struct {
 	GpuNumber           int64             `json:"gpuNumber"`
 	GpuType             string            `json:"gpuType"`
 	CkptPath            string            `json:"ckptPath"`
-	CkptVol             string            `json:"ckptVol"`
+	CkptVol             int64             `json:"ckptVol"`
 	ModelPath           string            `json:"modelPath"`
-	ModelVol            string            `json:"modelVol"`
+	ModelVol            int64             `json:"modelVol"`
 	ImagePath           string            `json:"imagePath"`
 	JobType             string            `json:"jobType"`
 	StopType            int64             `json:"stopType,optional"`

@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"strconv"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/orm"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -46,13 +46,13 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	userJob.UserId = req.UserID
 	userJob.JobName = sql.NullString{String: "ai" + newUUID.String(), Valid: true}
 	if req.PretrainedModelId != "" {
-		userJob.PretrainedModelName = sql.NullString{String: req.PretrainedModelId, Valid: true}
+		userJob.PretrainedModelName = orm.NullString(req.PretrainedModelId)
 	}
 	if req.DatasetId != "" {
-		userJob.DatasetName = sql.NullString{String: req.DatasetId, Valid: true}
+		userJob.DatasetName = orm.NullString(req.DatasetId)
 	}
-	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
-	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
+	userJob.CreateTime = orm.NullTime(time.Now())
+	userJob.UpdateTime = orm.NullTime(time.Now())
 
 	jsonAll := make(map[string]any)
 	bytes, err := json.Marshal(req)
@@ -69,17 +69,6 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 
 	jsonAll["userId"] = req.UserID
 	jsonAll["jobName"] = userJob.JobName.String
-	jsonAll["modelVol"], err = strconv.Atoi(userJob.ModelVol.String)
-	if err != nil {
-		l.Errorf("modelVol convert userId: %d modelVol: %s err: %s", req.UserID, userJob.ModelVol.String, err)
-		return nil, err
-	}
-	jsonAll["ckptVol"], err = strconv.Atoi(userJob.CkptVol.String)
-	if err != nil {
-		l.Errorf("ckptVol convert userId: %d ckptVol: %s err: %s", req.UserID, userJob.CkptVol.String, err)
-		return nil, err
-	}
-	jsonAll["stopType"] = userJob.StopType.Int64
 	jsonAll["backoffLimit"] = 1
 
 	bytes, err = json.Marshal(jsonAll)
