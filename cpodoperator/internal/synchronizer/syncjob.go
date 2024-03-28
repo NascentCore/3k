@@ -123,6 +123,9 @@ func (s *SyncJob) processFinetune(ctx context.Context, portaljobs []sxwl.PortalT
 						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 						v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 					},
+					Annotations: map[string]string{
+						v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
+					},
 				},
 				Spec: v1beta1.FineTuneSpec{
 					Model:          job.PretrainModelName,
@@ -323,6 +326,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, portaljobs []sxwl.Po
 					Labels: map[string]string{
 						v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 						v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+					},
+					Annotations: map[string]string{
+						v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
 					},
 				},
 
