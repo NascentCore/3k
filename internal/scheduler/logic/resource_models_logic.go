@@ -14,7 +14,6 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -95,9 +94,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 	// user models
 	if l.svcCtx.Config.OSS.LocalMode {
-		models, err := CpodCacheModel.Find(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
-			squirrel.Eq{"data_type": model.CacheModel},
-		))
+		models, err := CpodCacheModel.FindActive(l.ctx, model.CacheModel, 30)
 		if err != nil {
 			return nil, err
 		}

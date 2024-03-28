@@ -13,7 +13,6 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -53,9 +52,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 	}
 
 	if l.svcCtx.Config.OSS.LocalMode {
-		datasets, err := CpodCacheModel.Find(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
-			squirrel.Eq{"data_type": model.CacheDataset},
-		))
+		datasets, err := CpodCacheModel.FindActive(l.ctx, model.CacheDataset, 30)
 		if err != nil {
 			return nil, err
 		}
