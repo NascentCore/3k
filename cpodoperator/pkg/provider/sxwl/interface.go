@@ -41,6 +41,7 @@ type PortalTrainningJob struct {
 	LearningRate      string `json:"learningRate"`
 	BatchSize         string `json:"batchSize"`
 	UserID            int64  `json:"userId"`
+	TrainedModelName  string `json:"trainedModelName,optional"`
 }
 
 type PortalInferenceJob struct {

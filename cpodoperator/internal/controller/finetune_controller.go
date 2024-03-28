@@ -116,9 +116,10 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
-					Namespace: finetune.Namespace,
-					Name:      r.CPodJobName(finetune),
-					Labels:    map[string]string{},
+					Namespace:   finetune.Namespace,
+					Name:        r.CPodJobName(finetune),
+					Labels:      map[string]string{},
+					Annotations: finetune.Annotations,
 					OwnerReferences: []metav1.OwnerReference{
 						r.generateOwnerRefInference(finetune),
 					},

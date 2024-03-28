@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -864,15 +865,24 @@ func (c *CPodJobReconciler) releaseSavedModel(ctx context.Context, cpodjob *v1be
 }
 
 func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.ModelStorage, cpodjob *v1beta1.CPodJob) *cpodv1.ModelStorage {
+	readableModelstorageName := preTrainModelStoreage.Spec.ModelName + "-" + time.Now().String()
+	if cpodjob.Annotations == nil {
+		if name, ok := cpodjob.Annotations[v1beta1.CPodModelstorageNameAnno]; ok && name != "" {
+			readableModelstorageName = name
+		}
+	}
 	return &cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      generateModelstorageName(cpodjob),
 			Namespace: cpodjob.Namespace,
 			Labels:    cpodjob.Labels,
+			Annotations: map[string]string{
+				v1beta1.CPodModelstorageBaseNameAnno: preTrainModelStoreage.Spec.ModelName,
+			},
 		},
 		Spec: cpodv1.ModelStorageSpec{
 			ModelType: "trained",
-			ModelName: preTrainModelStoreage.Spec.ModelName,
+			ModelName: readableModelstorageName,
 			PVC:       c.GetModelSavePVCName(cpodjob),
 		},
 	}
