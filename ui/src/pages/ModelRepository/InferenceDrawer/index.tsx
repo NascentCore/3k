@@ -13,7 +13,7 @@ const Content = ({ record, onCancel }) => {
   const intl = useIntl();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
-    model_name: record.id,
+    model_name: record.name,
     // gpuProd: '',
     gpu_count: 1,
   });

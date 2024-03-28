@@ -14,7 +14,7 @@ const Content = ({ record, onCancel }) => {
 
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
-    model: record?.id,
+    model: record?.name,
     // gpuProd: '',
     gpu_count: 1,
     hyperparameters: {
@@ -27,7 +27,7 @@ const Content = ({ record, onCancel }) => {
   const [resourceDatasetsOption, setResourceDatasets] = useState([]);
   useEffect(() => {
     apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.id })));
+      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.name })));
     });
   }, []);
 
@@ -71,7 +71,6 @@ const Content = ({ record, onCancel }) => {
             // defaultMessage: '模型名称',
           })}
         >
-          {/* <Input placeholder="请输入" allowClear readOnly /> */}
           {formValues.model}
         </Form.Item>
         <Form.Item
