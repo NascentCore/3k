@@ -3,9 +3,9 @@
  * @description 微调
  */
 import { apiFinetunes, apiResourceDatasets, useApiGetGpuType } from '@/services';
-import { Button, Col, Drawer, Form, Input, Row, Select, Space, message } from 'antd';
+import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { history, Link } from '@umijs/max';
+import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -27,7 +27,7 @@ const Content = ({ record, onCancel }) => {
   const [resourceDatasetsOption, setResourceDatasets] = useState([]);
   useEffect(() => {
     apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.id, value: x.id })));
+      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.id })));
     });
   }, []);
 

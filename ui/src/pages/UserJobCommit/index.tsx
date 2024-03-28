@@ -46,7 +46,7 @@ const Welcome: React.FC = () => {
             fontSize: 12,
           }}
         >
-          <span style={{ marginRight: 20 }}>{x.id}</span>
+          <span style={{ marginRight: 20 }}>{x.name}</span>
           {/* <span>{formatFileSize(x.size)}</span> */}
         </div>
       </>
@@ -65,7 +65,7 @@ const Welcome: React.FC = () => {
             fontSize: 12,
           }}
         >
-          <span style={{ marginRight: 20 }}>{x.id}</span>
+          <span style={{ marginRight: 20 }}>{x.name}</span>
           {/* <span>{formatFileSize(x.size)}</span> */}
         </div>
       </>
