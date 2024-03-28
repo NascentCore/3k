@@ -40,7 +40,9 @@ const Content = ({ record, onCancel }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiFinetunes({ data: values }).then((res) => {
+      return apiFinetunes({
+        data: { ...values, gpu_count: Number(values.gpu_count) },
+      }).then((res) => {
         message.success(
           intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.submit.success',

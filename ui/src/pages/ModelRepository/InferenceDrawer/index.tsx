@@ -27,7 +27,13 @@ const Content = ({ record, onCancel }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiInference({ data: { model_name: values.model_name } }).then((res) => {
+      return apiInference({
+        data: {
+          model_name: values.model_name,
+          gpu_model: values.gpu_model,
+          gpu_count: Number(values.gpu_count),
+        },
+      }).then((res) => {
         message.success(
           intl.formatMessage({
             id: 'pages.modelRepository.InferenceDrawer.submit.success',
