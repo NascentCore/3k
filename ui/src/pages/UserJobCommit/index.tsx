@@ -84,6 +84,9 @@ const Welcome: React.FC = () => {
       return apiPostUserJob({
         data: {
           ...values,
+          ckptVol: Number(values.ckptVol),
+          gpuNumber: Number(values.gpuNumber),
+          modelVol: Number(values.modelVol),
         },
       }).then(() => {
         message.success(
