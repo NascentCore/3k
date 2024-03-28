@@ -43,13 +43,14 @@ type DiskInfo struct {
 }
 
 type FinetuneReq struct {
-	TrainingFile    string                 `json:"training_file"`
-	Model           string                 `json:"model"`
-	GpuModel        string                 `json:"gpu_model,optional"`
-	GpuCount        int64                  `json:"gpu_count,optional"`
-	Hyperparameters map[string]interface{} `json:"hyperparameters,optional,omitempty"`
-	Config          map[string]interface{} `json:"config,optional,omitempty"`
-	UserID          int64                  `header:"Sx-User" json:"-"`
+	TrainingFile     string                 `json:"training_file"`
+	Model            string                 `json:"model"`
+	GpuModel         string                 `json:"gpu_model,optional"`
+	GpuCount         int64                  `json:"gpu_count,optional"`
+	TrainedModelName string                 `json:"trainedModelName,optional"`
+	Hyperparameters  map[string]interface{} `json:"hyperparameters,optional,omitempty"`
+	Config           map[string]interface{} `json:"config,optional,omitempty"`
+	UserID           int64                  `header:"Sx-User" json:"-"`
 }
 
 type FinetuneResp struct {
@@ -190,6 +191,7 @@ type JobCreateReq struct {
 	DatasetId           string            `json:"datasetId,optional"`
 	DatasetName         string            `json:"datasetName,optional"`
 	DatasetPath         string            `json:"datasetPath,optional"`
+	TrainedModelName    string            `json:"trainedModelName,optional"`
 	RunCommand          string            `json:"runCommand,optional"`
 	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
 	Env                 map[string]string `json:"env,optional,omitempty"`
