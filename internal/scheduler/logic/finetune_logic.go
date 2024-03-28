@@ -94,6 +94,11 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		userJob.GpuNumber = orm.NullInt64(req.GpuCount)
 	}
 
+	// trainedModelName
+	if req.TrainedModelName == "" {
+		req.TrainedModelName = fmt.Sprintf("%s-%s", req.Model, time.Now().Format(consts.JobTimestampFormat))
+	}
+
 	// time
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
@@ -138,6 +143,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
 	jsonAll["datasetSize"] = datasetSize
 	jsonAll["pretrainedModelName"] = req.Model
+	jsonAll["trainedModelName"] = req.TrainedModelName
 	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
 	jsonAll["ckptVol"] = 0      // 改为数值型默认值
 	jsonAll["modelVol"] = 0     // 改为数值型默认值

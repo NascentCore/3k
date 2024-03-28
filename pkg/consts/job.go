@@ -25,3 +25,7 @@ const (
 	OSSPublicDatasetPath = "datasets/public/%s"
 	OSSUserDatasetPath   = "datasets/%s"
 )
+
+const (
+	JobTimestampFormat = "20060102-150405"
+)
