@@ -2,11 +2,12 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, apiResourceDatasets } from '@/services';
+import { apiFinetunes, apiResourceDatasets, useApiGetGpuType } from '@/services';
 import { Button, Col, Drawer, Form, Input, Row, Select, Space, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history, Link } from '@umijs/max';
 import { useIntl } from '@umijs/max';
+import AsyncButton from '@/components/AsyncButton';
 
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();
@@ -14,6 +15,8 @@ const Content = ({ record, onCancel }) => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     model: record?.id,
+    // gpuProd: '',
+    gpu_count: 1,
     hyperparameters: {
       n_epochs: '3.0',
       batch_size: '4',
@@ -28,6 +31,28 @@ const Content = ({ record, onCancel }) => {
     });
   }, []);
 
+  const { data: gpuTypeOptions } = useApiGetGpuType({});
+
+  const gpuProdValue = Form.useWatch('gpu_model', form);
+
+  const onFinish = () => {
+    return form.validateFields().then(() => {
+      const values = form.getFieldsValue();
+      setFormValues(values);
+      console.log('Form values:', values);
+      return apiFinetunes({ data: values }).then((res) => {
+        message.success(
+          intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.submit.success',
+            // defaultMessage: '微调任务创建成功',
+          }),
+        );
+        onCancel();
+        history.push('/UserJob');
+      });
+    });
+  };
+
   return (
     <>
       <Form
@@ -36,20 +61,6 @@ const Content = ({ record, onCancel }) => {
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 600 }}
-        onFinish={(values) => {
-          console.log('Form values:', values);
-          setFormValues(values);
-          apiFinetunes({ data: values }).then((res) => {
-            message.success(
-              intl.formatMessage({
-                id: 'pages.modelRepository.fineTuningDrawer.submit.success',
-                // defaultMessage: '微调任务创建成功',
-              }),
-            );
-            onCancel();
-            history.push('/UserJob');
-          });
-        }}
       >
         <Form.Item
           name="model"
@@ -62,11 +73,16 @@ const Content = ({ record, onCancel }) => {
           {formValues.model}
         </Form.Item>
         <Form.Item
-          name=""
+          name="training_file"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.training_file',
             // defaultMessage: '数据集',
           })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
         >
           <Select
             allowClear
@@ -77,6 +93,59 @@ const Content = ({ record, onCancel }) => {
             })}
           />
         </Form.Item>
+
+        <Form.Item
+          name="gpu_model"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
+            defaultMessage: 'GPU型号',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Select
+            allowClear
+            options={
+              gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
+            }
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
+              defaultMessage: '请选择',
+            })}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="gpu_count"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
+            defaultMessage: 'GPU数量',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Input
+            type="number"
+            min={1}
+            max={
+              gpuProdValue
+                ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
+                : 1
+            }
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
+              defaultMessage: 'GPU数量',
+            })}
+            allowClear
+          />
+        </Form.Item>
+
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
             Hyperparameters
@@ -84,7 +153,15 @@ const Content = ({ record, onCancel }) => {
           <Col span={16}></Col>
         </Row>
 
-        <Form.Item name={['hyperparameters', 'n_epochs']} label="epochs">
+        <Form.Item
+          name={['hyperparameters', 'n_epochs']}
+          label="epochs"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
@@ -93,7 +170,15 @@ const Content = ({ record, onCancel }) => {
             allowClear
           />
         </Form.Item>
-        <Form.Item name={['hyperparameters', 'batch_size']} label="batch_size">
+        <Form.Item
+          name={['hyperparameters', 'batch_size']}
+          label="batch_size"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
@@ -102,7 +187,15 @@ const Content = ({ record, onCancel }) => {
             allowClear
           />
         </Form.Item>
-        <Form.Item name={['hyperparameters', 'learning_rate_multiplier']} label="Learning rate">
+        <Form.Item
+          name={['hyperparameters', 'learning_rate_multiplier']}
+          label="Learning rate"
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
@@ -112,20 +205,20 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Space>
-            <Button type="primary" htmlType="submit">
+          <div style={{ display: 'flex', gap: 10 }}>
+            <AsyncButton type="primary" block onClick={onFinish}>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.title',
                 // defaultMessage: '微调',
               })}
-            </Button>
-            <Button type="default" onClick={() => onCancel()}>
+            </AsyncButton>
+            <Button type="default" onClick={() => onCancel()} block>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.cancel',
                 // defaultMessage: '取消',
               })}
             </Button>
-          </Space>
+          </div>
         </Form.Item>
       </Form>
     </>

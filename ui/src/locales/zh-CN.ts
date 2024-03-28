@@ -2,11 +2,13 @@ import login from './zh-CN/login';
 import modelRepository from './zh-CN/modelRepository';
 import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
+import userJobCommit from './zh-CN/userJobCommit';
 
 export default {
   'app.title': '算想云',
   'menu.welcome': '欢迎',
   'menu.ModelRepository': '模型仓库',
+  'menu.UserJobCommit': '任务提交',
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理服务状态',
   'menu.Grafana': 'Grafana',
@@ -22,4 +24,5 @@ export default {
   ...modelRepository,
   ...userJob,
   ...inferenceState,
+  ...userJobCommit,
 };

@@ -33,6 +33,12 @@ export default [
     component: './ModelRepository',
   },
   {
+    path: '/UserJobCommit',
+    name: 'UserJobCommit',
+    icon: 'ProfileOutlined',
+    component: './UserJobCommit',
+  },
+  {
     path: '/UserJob',
     name: 'UserJob',
     icon: 'ProfileOutlined',
