@@ -427,7 +427,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 							Containers: []v1.Container{
 								{
 									Name:  "kserve-container",
-									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1",
+									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v2",
 									Command: []string{
 										"python",
 										"src/api_demo.py",
