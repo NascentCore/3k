@@ -20,6 +20,7 @@ export default {
   'pages.global.confirm.cancelText': '否',
   'pages.global.confirm.delete.button': '删除',
   'pages.global.confirm.delete.description': '确认删除?',
+  'pages.global.confirm.delete.success': '删除成功',
   ...login,
   ...modelRepository,
   ...userJob,

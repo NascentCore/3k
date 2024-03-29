@@ -1,7 +1,7 @@
 import { apiDeleteUserJob, useApiGetUserJob } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Popconfirm, Space, Table, theme } from 'antd';
+import { Button, Popconfirm, Space, Table, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 import DetailModel from './DetailModel';
 import { useIntl } from '@umijs/max';
@@ -170,7 +170,13 @@ const Welcome: React.FC = () => {
                       id: 'pages.global.confirm.delete.description',
                     })}
                     onConfirm={() => {
-                      apiDeleteUserJob({ data: [record?.id] }).then(() => {
+                      apiDeleteUserJob({ data: { job_id: record?.jobName } }).then(() => {
+                        message.success(
+                          intl.formatMessage({
+                            id: 'pages.global.confirm.delete.success',
+                            defaultMessage: '删除成功',
+                          }),
+                        );
                         mutate();
                       });
                     }}
