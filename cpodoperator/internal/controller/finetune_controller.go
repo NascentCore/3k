@@ -167,6 +167,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		} else if util.IsFailed(cpodjob.Status) {
 			finetune.Status.Phase = cpodv1beta1.PhaseFailed
 			finetune.Status.FailureMessage = util.GetCondition(cpodjob.Status, cpodv1beta1.JobFailed).Message
+		} else {
+			return ctrl.Result{Requeue: true}, nil
 		}
 		if err := r.Client.Status().Update(ctx, finetune); err != nil {
 			return ctrl.Result{}, err

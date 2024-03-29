@@ -866,7 +866,7 @@ func (c *CPodJobReconciler) releaseSavedModel(ctx context.Context, cpodjob *v1be
 
 func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.ModelStorage, cpodjob *v1beta1.CPodJob) *cpodv1.ModelStorage {
 	readableModelstorageName := preTrainModelStoreage.Spec.ModelName + "-" + time.Now().String()
-	if cpodjob.Annotations == nil {
+	if cpodjob.Annotations != nil {
 		if name, ok := cpodjob.Annotations[v1beta1.CPodModelstorageNameAnno]; ok && name != "" {
 			readableModelstorageName = name
 		}
