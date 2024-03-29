@@ -129,8 +129,8 @@ export const useApiGetUserJob = (options?: { [key: string]: any }) =>
 
 // 删除任务
 export async function apiDeleteUserJob(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/userJob', {
-    method: 'DELETE',
+  return request<API.NoticeIconList>('/api/userJob/job_del', {
+    method: 'POST',
     ...(options || {}),
   });
 }

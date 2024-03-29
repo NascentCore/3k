@@ -20,6 +20,7 @@ export default {
   'pages.global.confirm.cancelText': 'No',
   'pages.global.confirm.delete.button': 'Delete',
   'pages.global.confirm.delete.description': 'Confirm deletion?',
+  'pages.global.confirm.delete.success': 'Delete Success',
   ...login,
   ...modelRepository,
   ...userJob,
