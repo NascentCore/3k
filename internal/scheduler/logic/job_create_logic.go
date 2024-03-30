@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/orm"
 	"time"
@@ -39,6 +40,10 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	if err != nil {
 		l.Errorf("new uuid userId: %d err: %s", req.UserID, err)
 		return nil, err
+	}
+
+	if req.TrainedModelName == "" {
+		req.TrainedModelName = fmt.Sprintf("model-%s", newUUID.String())
 	}
 
 	userJob := &model.SysUserJob{}
