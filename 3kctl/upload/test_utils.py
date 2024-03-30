@@ -18,9 +18,11 @@ class TestKubernetesOperations(unittest.TestCase):
 
         create_pvc(namespace, pvc_name, size_in_bytes)
 
-        mock_api().create_namespaced_persistent_volume_claim.assert_called_once()
-        args, kwargs = mock_api().create_namespaced_persistent_volume_claim.call_args
-        self.assertEqual(kwargs['namespace'], namespace)
+        mock_api().create_namespaced_persistent_volume_claim.assert_called_once_with(
+            namespace=namespace,
+            body=mock.ANY
+        )
+        _, kwargs = mock_api().create_namespaced_persistent_volume_claim.call_args
         self.assertEqual(kwargs['body'].metadata.name, pvc_name)
         self.assertIn('1Gi', kwargs['body'].spec.resources.requests['storage'])
 
@@ -32,9 +34,11 @@ class TestKubernetesOperations(unittest.TestCase):
 
         create_pod_with_pvc(namespace, pod_name, pvc_name)
 
-        mock_api().create_namespaced_pod.assert_called_once()
-        args, kwargs = mock_api().create_namespaced_pod.call_args
-        self.assertEqual(kwargs['namespace'], namespace)
+        mock_api().create_namespaced_pod.assert_called_once_with(
+            namespace=namespace,
+            body=mock.ANY
+        )
+        _, kwargs = mock_api().create_namespaced_pod.call_args
         self.assertEqual(kwargs['body'].metadata.name, pod_name)
         self.assertEqual(kwargs['body'].spec.volumes[0].persistent_volume_claim.claim_name, pvc_name)
 
@@ -48,9 +52,9 @@ class TestKubernetesOperations(unittest.TestCase):
 
         copy_to_pvc(namespace, pod_name, src_dir)
 
-        mock_subprocess_run.assert_called()
         mock_listdir.assert_called_with(src_dir)
-        self.assertTrue(mock_subprocess_run.call_count, 2)  # Assuming there are two items to copy
+        # Check if subprocess.run is called for each file/directory
+        self.assertEqual(mock_subprocess_run.call_count, len(mock_listdir.return_value))
 
     @patch('kubernetes.client.CoreV1Api')
     def test_wait_for_pod_ready(self, mock_api):
