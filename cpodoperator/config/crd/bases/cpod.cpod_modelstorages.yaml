@@ -21,8 +21,14 @@ spec:
     - jsonPath: .spec.modelname
       name: ModelName
       type: string
+    - jsonPath: .spec.template
+      name: Template
+      type: string
     - jsonPath: .status.phase
       name: Phase
+      type: string
+    - jsonPath: .status.size
+      name: Size
       type: string
     name: v1
     schema:

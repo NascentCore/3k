@@ -52,9 +52,11 @@ func main() {
 	var syncPeriod int
 	var uploadTrainedModel bool
 	var autoDownloadResource bool
+	var inferImage string
 	flag.IntVar(&syncPeriod, "sync-period", 10, "the period of every run of synchronizer, unit is second")
 	flag.BoolVar(&uploadTrainedModel, "upload-trained-model", true, "whether to upload trained model to sxwl or not")
 	flag.BoolVar(&autoDownloadResource, "auto-download-resource", false, "whether download model or dataset when not exists")
+	flag.StringVar(&inferImage, "infer-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v1", "the image for inference")
 	flag.Parse()
 	sxwlBaseUrl := os.Getenv("API_ADDRESS") // from configmap provided by cairong
 	accessKey := os.Getenv("ACCESS_KEY")    // from configmap provided by cairong
@@ -65,7 +67,7 @@ func main() {
 		panic(err)
 	}
 	ctx := context.TODO()
-	syncManager := synchronizer.NewManager(cpodId, uploadTrainedModel, autoDownloadResource, cli,
+	syncManager := synchronizer.NewManager(cpodId, inferImage, uploadTrainedModel, autoDownloadResource, cli,
 		sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
 		time.Duration(syncPeriod)*time.Second, zapr.NewLogger(zap.NewRaw()))
 	syncManager.Start(ctx)
