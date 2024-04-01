@@ -317,6 +317,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				DataId:      cache.DataId,
 				DataSize:    cache.DataSize,
 				DataSource:  cache.DataSource,
+				Template:    cache.Template,
 			})
 			if err != nil {
 				l.Logger.Errorf("cpod_cache insert cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
