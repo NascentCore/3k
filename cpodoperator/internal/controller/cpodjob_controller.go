@@ -884,6 +884,7 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 			ModelType: "trained",
 			ModelName: readableModelstorageName,
 			PVC:       c.GetModelSavePVCName(cpodjob),
+			Template:  preTrainModelStoreage.Spec.Template,
 		},
 	}
 }
@@ -912,6 +913,7 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1b
 
 	if modelstorage.Status.Phase != "done" {
 		modelstorage.Status.Phase = "done"
+		modelstorage.Status.Size = preTrainModelStoreage.Status.Size
 		return c.Client.Status().Update(ctx, &modelstorage)
 	}
 
