@@ -43,9 +43,10 @@ type SyncJob struct {
 	logger               logr.Logger
 	uploadTrainedModel   bool
 	autoDownloadResource bool
+	inferImage           string
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage string) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -62,6 +63,7 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		logger:               logger,
 		uploadTrainedModel:   uploadTrainedModel,
 		autoDownloadResource: autoDownloadReource,
+		inferImage:           inferImage,
 	}
 }
 
@@ -427,7 +429,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 							Containers: []v1.Container{
 								{
 									Name:  "kserve-container",
-									Image: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v2",
+									Image: s.inferImage,
 									Command: []string{
 										"python",
 										"src/api_demo.py",
