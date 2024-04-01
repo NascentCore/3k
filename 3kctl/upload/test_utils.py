@@ -1,6 +1,6 @@
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from upload.utils import get_hashed_name, create_pvc, create_pod_with_pvc, copy_to_pvc, wait_for_pod_ready
 
 class TestKubernetesOperations(unittest.TestCase):
@@ -10,8 +10,11 @@ class TestKubernetesOperations(unittest.TestCase):
         self.assertEqual(len(hashed), 16)
         self.assertIsInstance(hashed, str)
         
+    @patch('upload.utils.config.load_kube_config')
     @patch('kubernetes.client.CoreV1Api')
-    def test_create_pvc(self, mock_api):
+    def test_create_pvc(self, mock_api, mock_load_kube_config):
+        mock_load_kube_config.return_value = None  # 模拟 load_kube_config 方法
+
         namespace = 'default'
         pvc_name = 'test-pvc'
         size_in_bytes = 1024 ** 3  # 1 GiB
@@ -24,8 +27,12 @@ class TestKubernetesOperations(unittest.TestCase):
         self.assertEqual(kwargs['body'].metadata.name, pvc_name)
         self.assertIn('1Gi', kwargs['body'].spec.resources.requests['storage'])
 
+
+    @patch('upload.utils.config.load_kube_config')
     @patch('kubernetes.client.CoreV1Api')
-    def test_create_pod_with_pvc(self, mock_api):
+    def test_create_pod_with_pvc(self, mock_api, mock_load_kube_config):
+        mock_load_kube_config.return_value = None  # 模拟 load_kube_config 方法
+
         namespace = 'default'
         pod_name = 'test-pod'
         pvc_name = 'test-pvc'
@@ -48,18 +55,21 @@ class TestKubernetesOperations(unittest.TestCase):
 
         copy_to_pvc(namespace, pod_name, src_dir)
 
-        mock_subprocess_run.assert_called()
         mock_listdir.assert_called_with(src_dir)
-        self.assertTrue(mock_subprocess_run.call_count, 2)  # Assuming there are two items to copy
+        # Check if subprocess.run is called for each file/directory
+        self.assertEqual(mock_subprocess_run.call_count, len(mock_listdir.return_value))
 
+    @patch('upload.utils.config.load_kube_config')
     @patch('kubernetes.client.CoreV1Api')
-    def test_wait_for_pod_ready(self, mock_api):
+    def test_wait_for_pod_ready(self, mock_api, mock_load_kube_config):
+        mock_load_kube_config.return_value = None  # 模拟 load_kube_config 方法
+
         namespace = 'default'
         pod_name = 'test-pod'
         timeout = 30
 
-        mock_api().read_namespaced_pod.return_value = mock.Mock(
-            status=mock.Mock(phase="Running")
+        mock_api().read_namespaced_pod.return_value = Mock(
+            status=Mock(phase="Running")
         )
 
         wait_for_pod_ready(namespace, pod_name, timeout)

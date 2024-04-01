@@ -16,7 +16,7 @@ class UploadBase(cli.Application):
     def execute(self, data_type):
         print(self.name, self.dir, self.delete_existing, data_type)
         namespace = 'cpod'
-        hashed_name = get_hashed_name(f"{data_type}s/user-/{self.name}")
+        hashed_name = get_hashed_name(f"{data_type}s/public/{self.name}")
         pvc_name = f'pvc-{data_type}-{hashed_name}'
         pod_name = f'{data_type}-copy-pod'
         crd_name = f'{data_type}-storage-{hashed_name}'

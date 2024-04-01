@@ -40,19 +40,31 @@ def get_dir_size(path):
                 total_size += os.path.getsize(fp)
     return total_size
 
+# 获取 storage_class
+def get_storage_class_from_configmap(namespace):
+    api_instance = client.CoreV1Api()
+    configmap = api_instance.read_namespaced_config_map(name="cpod-info", namespace=namespace)
+    return configmap.data.get("storage_class", "ceph-filesystem")
+
 # 创建PVC
 def create_pvc(namespace, name, size_in_bytes):
     size_in_gib = max(1, math.ceil(size_in_bytes / (1024**3)))
     config.load_kube_config()
-    pvc = client.V1PersistentVolumeClaim(
-        metadata=client.V1ObjectMeta(name=name),
-        spec=client.V1PersistentVolumeClaimSpec(
-            access_modes=["ReadWriteMany"],
-            resources=client.V1ResourceRequirements(
-                requests={"storage": f"{size_in_gib}Gi"}
-            )
+    storage_class = get_storage_class_from_configmap(namespace)
+
+    pvc_spec = client.V1PersistentVolumeClaimSpec(
+        access_modes=["ReadWriteMany"],
+        resources=client.V1ResourceRequirements(
+            requests={"storage": f"{size_in_gib}Gi"}
         )
     )
+    pvc_spec.storage_class_name = storage_class
+
+    pvc = client.V1PersistentVolumeClaim(
+        metadata=client.V1ObjectMeta(name=name),
+        spec=pvc_spec
+    )
+    
     api_instance = client.CoreV1Api()
     api_instance.create_namespaced_persistent_volume_claim(namespace=namespace, body=pvc)
     print(f"PVC {name} created in namespace {namespace}, size {size_in_gib} Gi")
@@ -66,9 +78,9 @@ def create_pod_with_pvc(namespace, pod_name, pvc_name):
             containers=[
                 client.V1Container(
                     name="busybox",
-                    image="busybox",
+                    image="dockerhub.kubekey.local/kubesphereio/plugins:v1.2.0-amd64",
                     volume_mounts=[client.V1VolumeMount(mount_path="/workspace", name="storage")],
-                    command=["sleep", "3600"]
+                    command=["sleep", "inf"]
                 )
             ],
             volumes=[
@@ -92,7 +104,7 @@ def copy_to_pvc(namespace, pod_name, src_dir, target_dir='/workspace'):
             target = f"{namespace}/{pod_name}:{target_dir}/{item}"
         else:
             target = f"{namespace}/{pod_name}:{target_dir}"
-        cmd = f"kubectl cp {full_path} {target}"
+        cmd = f"kubectl cp '{full_path}' {target}"
         subprocess.run(cmd, shell=True, check=True)
         print(f"Content from {full_path} copied to PVC mounted on {pod_name}")
 
