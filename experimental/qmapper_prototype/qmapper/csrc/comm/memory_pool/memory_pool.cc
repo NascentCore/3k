@@ -98,7 +98,7 @@ memory_pool::CommMemoryPool::init(size_t priv_size, size_t elem_size,
                                   size_t align_offset, size_t alignment, 
                                   unsigned int elems_per_chunk, 
                                   unsigned int max_elems, 
-                                  thread_mode_t thread_mode, std::string &name) {
+                                  thread_mode_t thread_mode, const std::string &name) {
     std::lock_guard<utils::SpinLock> lock_guard(this->lock);
     ucs_mpool_ops_t *ucs_ops = (ucs_mpool_ops_t *)calloc(1, sizeof(ucs_mpool_ops_t));
     if (! ucs_ops) {
@@ -152,10 +152,10 @@ memory_pool::CommMemoryPool::mpool_put(void *obj) {
 // memory pool contexts
 
 comm_status_t memory_pool::CommMemoryPoolContext::check_available(comm_memory_type_t mem_type) {
-    if(ucs_unlikely(memory_contexts[mem_type] == nullptr)) {
-        LOG(ERROR) << "not supported memory type: " << memory_type_names[mem_type]; 
-        return COMM_ERROR;
-    }
+    // if(ucs_unlikely(memory_contexts[mem_type] == nullptr)) {
+    //     LOG(ERROR) << "not supported memory type: " << memory_type_names[mem_type]; 
+    //     return COMM_ERROR;
+    // }
     return COMM_OK;
 }
 
@@ -163,17 +163,17 @@ comm_status_t memory_pool::CommMemoryPoolContext::global_init(std::map<std::stri
     int n_mcs;
     memory_pool::CommMemoryPoolContext *memory_context;
     comm_status_t status;
-    n_mcs = CommConfig::mc_libs.size();
-    for (int i = 0; i < n_mcs; i++) {
-        memory_context = reinterpret_cast<memory_pool::CommMemoryPoolContext *>(&CommConfig::mc_libs[i]);
-        status = memory_context->init(params);
-        if (COMM_OK != status) {
-            LOG(ERROR) << "failed to init memory context: " << memory_context->name;
-            continue;
-        }
-        memory_context->ref_cnt ++;
-        memory_contexts[i] = memory_context;
-    }
+    // n_mcs = CommConfig::mc_libs.size();
+    // for (int i = 0; i < n_mcs; i++) {
+    //     memory_context = reinterpret_cast<memory_pool::CommMemoryPoolContext *>(&CommConfig::mc_libs[i]);
+    //     status = memory_context->init(params);
+    //     if (COMM_OK != status) {
+    //         LOG(ERROR) << "failed to init memory context: " << memory_context->name;
+    //         continue;
+    //     }
+    //     memory_context->ref_cnt ++;
+    //     memory_contexts[i] = memory_context;
+    // }
     return COMM_OK;
 }
 

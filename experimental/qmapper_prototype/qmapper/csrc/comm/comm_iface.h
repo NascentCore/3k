@@ -9,9 +9,6 @@
 #include <vector>
 #include <ucs/type/status.h>
 
-#ifndef QMAP_COMM_IFACE_H
-#define QMAP_COMM_IFACE_H
-
 #define GET_BIT(i) (1ul <<(i))
 #define GET_MSK(i) (GET_BIT(i)-1)
 #define PTR_OFFSET(_ptr, _offset) ((void *)((ptrdiff_t)(_ptr) + (size_t)(_offset)))
@@ -78,10 +75,44 @@ typedef enum {
 } comm_reduction_op_t;
 
 typedef enum {
-    THREAD_SINGLE       = 0,
-    THREAD_FUNNELED     = 1,
-    THREAD_MULTIPLE     = 2
+    THREAD_SINGLE       = 0,   // tasks will only be posted by one thread
+    THREAD_FUNNELED     = 1,   // tasks may be posted by multiple threads
+    THREAD_MULTIPLE     = 2    // tasks will be posted by multiple threads
 } thread_mode_t;
+
+typedef enum {
+    COLL_TYPE_ALLGATHER          = GET_BIT(0),
+    COLL_TYPE_ALLGATHERV         = GET_BIT(1),
+    COLL_TYPE_ALLREDUCE          = GET_BIT(2),
+    COLL_TYPE_ALLTOALL           = GET_BIT(3),
+    COLL_TYPE_ALLTOALLV          = GET_BIT(4),
+    COLL_TYPE_BARRIER            = GET_BIT(5),
+    COLL_TYPE_BCAST              = GET_BIT(6),
+    COLL_TYPE_FANIN              = GET_BIT(7),
+    COLL_TYPE_FANOUT             = GET_BIT(8),
+    COLL_TYPE_GATHER             = GET_BIT(9),
+    COLL_TYPE_GATHERV            = GET_BIT(10),
+    COLL_TYPE_REDUCE             = GET_BIT(11),
+    COLL_TYPE_REDUCE_SCATTER     = GET_BIT(12),
+    COLL_TYPE_REDUCE_SCATTERV    = GET_BIT(13),
+    COLL_TYPE_SCATTER            = GET_BIT(14),
+    COLL_TYPE_SCATTERV           = GET_BIT(15),
+    COLL_TYPE_INFERED            = GET_BIT(16),
+    COLL_TYPE_LAST
+} coll_type_t;
+
+enum coll_args_field {
+    COLL_ARGS_FIELD_FLAGS                           = GET_BIT(0),
+    COLL_ARGS_FIELD_TAG                             = GET_BIT(1),
+    COLL_ARGS_FIELD_CB                              = GET_BIT(2),
+    COLL_ARGS_FIELD_GLOBAL_WORK_BUFFER              = GET_BIT(3),
+    COLL_ARGS_FIELD_ACTIVE_SET                      = GET_BIT(4)
+};
+
+typedef enum {
+    ERROR_LOCAL = 0,
+    ERROR_GLOBAL = 1,
+} error_type_t;
 
 typedef struct comm_addr_storage {
     void     *storage;
@@ -97,9 +128,9 @@ typedef struct comm_eps_storage {
 } comm_eps_storage_t;
 
 typedef struct comm_buffer_info {
-    void     *buf;
-    uint64_t count;
-    comm_datatype_t datatype;
+    void               *buf;
+    uint64_t           count;
+    comm_datatype_t    datatype;
     comm_memory_type_t memory_type;
 } comm_buffer_info_t;
 
@@ -122,17 +153,13 @@ namespace memory_pool {
 comm_status_t ucs_status_to_qmap_status(ucs_status_t status);
 ucs_status_t qmap_status_to_ucs_status(comm_status_t status);
 
-
-
 class CommIface {
 public:
-    CommIface() {}
-    ~CommIface() {}
-    virtual comm_status_t init(std::map<std::string, uint64_t> &params);
-    virtual comm_status_t finialize();
-    virtual std::map<std::string, uint64_t> &get_params();
-    virtual CommContext &create_context();
-    virtual comm_status_t    destory_context(CommContext *ctx);
+    virtual comm_status_t init(std::map<std::string, uint64_t> &params) = 0;
+    virtual comm_status_t finialize() = 0;
+    virtual std::map<std::string, uint64_t> &get_params() = 0;
+    virtual CommContext &create_context() = 0;
+    virtual comm_status_t    destory_context(CommContext *ctx) = 0;
 
 public:
     CommIface                       *super;
@@ -186,7 +213,7 @@ public:
     CommContext                     *service_ctx;
     std::map<std::string, uint64_t> params;
     CommTopo                        context_topo;
-    comm_addr_storage_t                  addr_storage;
+    comm_addr_storage_t             addr_storage;
 };
 
 
@@ -211,7 +238,7 @@ public:
     std::vector<CommTeam>          transport_teams;
     CommTopo                       topo;
     std::vector<uint32_t>          ctx_ranks;
-    comm_eps_storage_t                  ep_storage;
+    comm_eps_storage_t             ep_storage;
     CommOOBIface                   oob;
     CommTeam                       *service_team;
     uint64_t                       ep;
@@ -225,65 +252,30 @@ public:
 
 };
 
-typedef enum {
-    COLL_TYPE_ALLGATHER          = GET_BIT(0),
-    COLL_TYPE_ALLGATHERV         = GET_BIT(1),
-    COLL_TYPE_ALLREDUCE          = GET_BIT(2),
-    COLL_TYPE_ALLTOALL           = GET_BIT(3),
-    COLL_TYPE_ALLTOALLV          = GET_BIT(4),
-    COLL_TYPE_BARRIER            = GET_BIT(5),
-    COLL_TYPE_BCAST              = GET_BIT(6),
-    COLL_TYPE_FANIN              = GET_BIT(7),
-    COLL_TYPE_FANOUT             = GET_BIT(8),
-    COLL_TYPE_GATHER             = GET_BIT(9),
-    COLL_TYPE_GATHERV            = GET_BIT(10),
-    COLL_TYPE_REDUCE             = GET_BIT(11),
-    COLL_TYPE_REDUCE_SCATTER     = GET_BIT(12),
-    COLL_TYPE_REDUCE_SCATTERV    = GET_BIT(13),
-    COLL_TYPE_SCATTER            = GET_BIT(14),
-    COLL_TYPE_SCATTERV           = GET_BIT(15),
-    COLL_TYPE_LAST
-} coll_type_t;
-
-typedef enum {
-    ERROR_LOCAL = 0,
-    ERROR_GLOBAL = 1,
-} error_type_t;
-
 typedef struct coll_callback {
     void (*cb)(void *data, comm_status_t status);
     void  *data;
 } coll_callback_t;
 
 typedef struct coll_args {
-    uint64_t           mask;
-    coll_type_t        coll_type;
-    comm_buffer_info_t      src_buf_info;
-    comm_buffer_info_t      dst_buf_info;
-    comm_reduction_op_t     op; 
-    uint64_t           flags; 
-    uint64_t           root; 
-    error_type_t       error_type;
-    uint16_t           tag; 
-    void               *global_work_buffer;
-    coll_callback_t    cb;
-    double             timeout;
+    uint64_t             mask;
+    coll_type_t          coll_type;
+    comm_buffer_info_t   src_buf_info;
+    comm_buffer_info_t   dst_buf_info;
+    comm_reduction_op_t  op; 
+    uint64_t             flags; 
+    uint64_t             root; 
+    error_type_t         error_type;
+    uint16_t             tag; 
+    void                 *global_work_buffer;
+    coll_callback_t      cb;
+    double               timeout;
     struct {
         uint64_t start;
         int64_t  stride;
         uint64_t size;
-    } active_set;
+    }                    active_set;
 } coll_args_t;
-
-enum coll_args_field {
-    COLL_ARGS_FIELD_FLAGS                           = GET_BIT(0),
-    COLL_ARGS_FIELD_TAG                             = GET_BIT(1),
-    COLL_ARGS_FIELD_CB                              = GET_BIT(2),
-    COLL_ARGS_FIELD_GLOBAL_WORK_BUFFER              = GET_BIT(3),
-    COLL_ARGS_FIELD_ACTIVE_SET                      = GET_BIT(4)
-};
-
-
 
 class CommTask {
 public:
@@ -297,7 +289,7 @@ public:
 public:
     std::string                    name;
     std::string                    type;
-    comm_status_t                       status;
+    comm_status_t                  status;
     coll_args_t                    args;
     CommTeam                       *team;
     uint64_t                       root_ep;
@@ -308,5 +300,3 @@ public:
 
 }; // namespace comm
 }; // namespace qmap
-
-#endif

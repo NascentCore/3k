@@ -17,7 +17,6 @@ typedef struct register_info {
 class CommConfig {
 public:
     static std::vector<register_info_t> mc_libs;
-
 };
 
 }; // namespace comm
