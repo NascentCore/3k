@@ -83,6 +83,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: JobStopHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPost,
+				Path:    "/node",
+				Handler: NodeAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/node",
+				Handler: NodeListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/resource/datasets",
 				Handler: ResourceDatasetsHandler(serverCtx),

@@ -324,6 +324,33 @@ type (
 	}
 )
 
+type (
+	ClusterNode {
+		NodeRole    string `json:"node_role"`
+		NodeName    string `json:"node_name"`
+		NodeIP      string `json:"node_ip"`
+		SSHPort     int    `json:"ssh_port"`
+		SSHUser     string `json:"ssh_user"`
+		SSHPassword string `json:"ssh_password"`
+	}
+	ClusterNodeInfo {
+		GpuCount   int      `json:"gpu_count"`
+		GpuProduct string   `json:"gpu_product"`
+		Name       string   `json:"name"`
+		Role       []string `json:"role"`
+	}
+	NodeAddReq {
+		ClusterNode
+	}
+	NodeAddResp {
+		Message string `json:"message"`
+	}
+	NodeListReq  {}
+	NodeListResp {
+		Data []ClusterNodeInfo `json:"data"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
@@ -375,5 +402,11 @@ service scheduler-api {
 
 	@handler InferenceDeleteHandler
 	delete /inference (InferenceDeleteReq) returns (InferenceDeleteResp)
+
+	@handler NodeAddHandler
+	post /node (NodeAddReq) returns (NodeAddResp)
+
+	@handler NodeListHandler
+	get /node (NodeListReq) returns (NodeListResp)
 }
 

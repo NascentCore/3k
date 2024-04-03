@@ -28,6 +28,22 @@ type Cache struct {
 	DataSource string `json:"data_source"`
 }
 
+type ClusterNode struct {
+	NodeRole    string `json:"node_role"`
+	NodeName    string `json:"node_name"`
+	NodeIP      string `json:"node_ip"`
+	SSHPort     int    `json:"ssh_port"`
+	SSHUser     string `json:"ssh_user"`
+	SSHPassword string `json:"ssh_password"`
+}
+
+type ClusterNodeInfo struct {
+	GpuCount   int      `json:"gpu_count"`
+	GpuProduct string   `json:"gpu_product"`
+	Name       string   `json:"name"`
+	Role       []string `json:"role"`
+}
+
 type CpodJobReq struct {
 	CpodId string `form:"cpodid"`
 }
@@ -256,6 +272,14 @@ type NetworkInfo struct {
 	Type       string `json:"type"`
 }
 
+type NodeAddReq struct {
+	ClusterNode
+}
+
+type NodeAddResp struct {
+	Message string `json:"message"`
+}
+
 type NodeInfo struct {
 	CPUInfo        CPUInfo        `json:"cpu_info"`
 	LinuxDist      string         `json:"linux_dist"`
@@ -270,6 +294,13 @@ type NodeInfo struct {
 	MemInfo        MemInfo        `json:"mem_info"`
 	Arch           string         `json:"arch"`
 	Status         string         `json:"status"`
+}
+
+type NodeListReq struct {
+}
+
+type NodeListResp struct {
+	Data []ClusterNodeInfo `json:"data"`
 }
 
 type Resource struct {

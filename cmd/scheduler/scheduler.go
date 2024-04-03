@@ -59,6 +59,9 @@ func main() {
 		c.Inference.UrlFormat = inferenceUrlFormat
 	}
 
+	// insert k8s config
+	c.K8S.BaseApi = os.Getenv("K8S_BASH_API")
+
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)
 
