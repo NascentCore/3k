@@ -15,8 +15,19 @@ class UploadBase(cli.Application):
 
     def execute(self, data_type):
         print(self.name, self.dir, self.delete_existing, data_type)
+        models = {
+            "ZhipuAI/chatglm3-6b": "alpaca",
+            "meta-llama/Llama-2-7b": "alpaca",
+            "baichuan-inc/Baichuan2-7B-Chat": "alpaca",
+            "IDEA-CCNL/Ziya-LLaMA-13B-v1": "alpaca",
+            "google/gemma-2b-it": "gemma",
+            "mistralai/Mistral-7B-v0.1": "mistral",
+            "mistralai/Mistral-7B-Instruct-v0.1": "mistral"
+        } 
+            
         namespace = 'cpod'
-        hashed_name = get_hashed_name(f"{data_type}s/public/{self.name}")
+        model_type = "public" if self.name in models else "user-"
+        hashed_name = get_hashed_name(f"{data_type}s/{model_type}/{self.name}")
         pvc_name = f'pvc-{data_type}-{hashed_name}'
         pod_name = f'{data_type}-copy-pod'
         crd_name = f'{data_type}-storage-{hashed_name}'
@@ -53,7 +64,7 @@ class UploadBase(cli.Application):
         copy_to_pvc(namespace, pod_name, self.dir)
         create_crd(namespace, data_type, self.name, crd_name, pvc_name, api_version)
         delete_pod(namespace, pod_name)
-        update_crd_status(namespace, crd_name, data_type, api_version, dir_size, 'done')
+        update_crd_status(namespace, crd_name, data_type, api_version, dir_size, 'done', models.get(self.name, ""))
 
 
 @Upload.subcommand("model")
