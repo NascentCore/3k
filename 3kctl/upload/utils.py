@@ -174,7 +174,7 @@ def wait_for_pod_ready(namespace, pod_name, timeout=300):
     raise Exception(f"Pod {pod_name} is not in Running state after {timeout} seconds")
 
 # 更新CRD状态
-def update_crd_status(namespace, crd_name, data_type, api_version, dir_size, status):
+def update_crd_status(namespace, crd_name, data_type, api_version, dir_size, status, template):
     config.load_kube_config()
     api_instance = client.CustomObjectsApi()
     plural = f"{data_type}storages"
@@ -192,6 +192,8 @@ def update_crd_status(namespace, crd_name, data_type, api_version, dir_size, sta
             "phase": status
         }
     }
+    if data_type == 'model':
+        status_update['spec'] = {"template": template}
 
     # 更新CRD状态
     api_instance.patch_namespaced_custom_object_status(

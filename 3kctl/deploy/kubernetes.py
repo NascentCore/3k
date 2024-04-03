@@ -2,6 +2,7 @@
 import sys
 import time
 import hashlib
+import subprocess
 from plumbum import colors, local, RETCODE, TF
 from plumbum.cmd import grep, ssh, awk, ls, scp, sed
 from .utils import kk_run, Conf, helm_run, kubectl_run, is_true
@@ -98,6 +99,7 @@ def install_dependent_packages(node):
             retcode += local["sshpass"][pass_info + ["ssh"] + args + cmd] & RETCODE
         else:
             retcode += ssh[args + cmd] & RETCODE
+    # subprocess.run(["sudo", "apt-get", "install", "-y", "socat", "conntrack", "ebtables", "ipset", "ipvsadm"])
 
     return retcode
 
