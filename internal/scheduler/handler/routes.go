@@ -93,6 +93,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: NodeListHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPost,
+				Path:    "/quota",
+				Handler: QuotaAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/quota",
+				Handler: QuotaListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/resource/datasets",
 				Handler: ResourceDatasetsHandler(serverCtx),
@@ -106,6 +116,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/resource/uploader_access",
 				Handler: UploaderAccessHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/user",
+				Handler: UserListHandler(serverCtx),
 			},
 		},
 	)
