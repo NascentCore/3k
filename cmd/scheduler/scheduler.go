@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// insert k8s config
-	c.K8S.BaseApi = os.Getenv("K8S_BASH_API")
+	c.K8S.BaseApi = os.Getenv("K8S_BASE_API")
 
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)
