@@ -35,7 +35,7 @@ func (l *NodeListLogic) NodeList(req *types.NodeListReq) (resp *types.NodeListRe
 	}
 
 	var nodes []types.ClusterNodeInfo
-	err = httpc.Parse(nodesResp, &nodes)
+	err = httpc.ParseJsonBody(nodesResp, &nodes)
 	if err != nil {
 		l.Errorf("NodeList parse err=%s", err)
 		return nil, err
