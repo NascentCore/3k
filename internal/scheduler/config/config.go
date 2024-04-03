@@ -33,4 +33,7 @@ type Config struct {
 	Inference     struct {
 		UrlFormat string
 	} `json:"Inference"`
+	K8S struct {
+		BaseApi string
+	} `json:"-"`
 }
