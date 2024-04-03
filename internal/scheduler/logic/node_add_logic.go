@@ -43,13 +43,14 @@ func (l *NodeAddLogic) NodeAdd(req *types.NodeAddReq) (resp *types.NodeAddResp, 
 	}
 
 	url := fmt.Sprintf("%s/add-node", l.svcCtx.Config.K8S.BaseApi)
-	addNodeResp, err := httpc.Do(context.Background(), http.MethodPost, url, req)
+	addNodeResp, err := httpc.Do(context.Background(), http.MethodPost, url, req.ClusterNode)
 	if err != nil {
 		l.Errorf("NodeAdd http request url=%s err=%s", url, err)
 		return
 	}
 
-	err = httpc.Parse(addNodeResp, resp)
+	resp = &types.NodeAddResp{}
+	err = httpc.ParseJsonBody(addNodeResp, resp)
 	if err != nil {
 		l.Errorf("NodeAdd http parse url=%s err=%s", url, err)
 		return
