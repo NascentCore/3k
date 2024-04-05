@@ -143,3 +143,35 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
       ...(data || {}),
     });
   });
+
+// 集群信息
+
+export async function apiPostApiNode(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/node', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+export const useGetApiNode = (options?: { [key: string]: any }) =>
+  useSWR(['/api/node', options], ([url, data]) => {
+    return new Promise((resolve, reject) => {
+      resolve([
+        {
+          gpu_count: 8,
+          gpu_product: 'NVIDIA-GeForce-RTX-3090',
+          name: 'master',
+          role: ['control-plane'],
+        },
+        {
+          gpu_count: 8,
+          gpu_product: 'NVIDIA-GeForce-RTX-3090',
+          name: 'worker1',
+          role: ['worker'],
+        },
+      ]);
+    });
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });

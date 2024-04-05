@@ -69,6 +69,18 @@ export default [
   //   component: './Welcome',
   // },
   {
+    path: '/ClusterInformation',
+    name: 'ClusterInformation',
+    icon: 'DatabaseOutlined',
+    component: './ClusterInformation',
+  },
+  {
+    path: '/UserQuota',
+    name: 'UserQuota',
+    icon: 'DatabaseOutlined',
+    component: './UserQuota',
+  },
+  {
     path: '*',
     layout: false,
     component: './404',
