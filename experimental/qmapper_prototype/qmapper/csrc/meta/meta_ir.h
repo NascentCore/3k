@@ -27,15 +27,6 @@ typedef enum {
     COMPLEX64,
 } tensor_dtype_t;
 
-typedef struct tensor_info {
-    uint32_t shape[MAX_TENSOR_SHAPE_LENGTH];
-    tensor_dtype_t dtype;
-} tensor_info_t;
-
-typedef struct pyobj_info {
-
-} pyobj_info_t;
-
 class MetaEdge {
 
 public:
@@ -45,6 +36,10 @@ public:
     int index_in_up_node;
     std::vector<MetaNode *> down_nodes;
     std::vector<int> indice_in_down_nodes;
+
+    std::vector<int> shape;
+    std::string dtype;
+    
 };
 
 class MetaNode {

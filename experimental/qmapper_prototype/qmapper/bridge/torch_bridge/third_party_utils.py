@@ -7,7 +7,7 @@ from functools import partial
 
 import torch
 from torch._decomp.decompositions import mse_loss, mse_loss_backward
-from torch.optim.optimizer import (Optimizer, params_t, _use_grad_for_differentiable, _get_value,
+from torch.optim.optimizer import (Optimizer, _use_grad_for_differentiable, _get_value,
                                    _stack_if_compiling, _dispatch_sqrt, _default_to_fused_or_foreach,
                                    _capturable_doc, _differentiable_doc, _foreach_doc, _fused_doc,
                                    _maximize_doc)

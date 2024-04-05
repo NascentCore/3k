@@ -5,6 +5,7 @@ from .meta_ir.visual import visual_meta
 
 def to_meta(func, *args, **kwargs):
     traced_graph, state_tensor_num, named_params, named_buffers, named_states, args, kwargs = export_graph(func, *args, **kwargs)
+    # print(traced_graph)
     meta_nodes, meta_vars = trace_meta_graph(traced_graph, named_params, named_buffers, named_states, args, kwargs)
     visual_meta(meta_nodes)
 
@@ -31,5 +32,18 @@ class JitCompiledFunc:
         else:
             self.compiled_func(*args, **kwargs)
     
+class TrainerWrapper:
+    def __init__(self, func):
+        self.func = func
+        self.compiled_func = None
+        self.input_signatures = {}
+        self.output_signatures = {} 
+
+    def initialize(self, model, optimizer, *args, **kwargs):
+        pass
+
+    def train_step(self, *args, **kwargs):
+        pass
+
 def qmapper_compile(func: Callable):
     return JitCompiledFunc(func)

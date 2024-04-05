@@ -3,9 +3,8 @@
 #include "comm_iface.h"
 #include <glog/logging.h>
 
-#ifndef QMAP_CUDA_IFACE_H
-#define QMAP_CUDA_IFACE_H
 #if USE_CUDA
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -43,8 +42,8 @@ static inline comm_status_t cuda_error_to_qmap_status(cudaError_t cuda_status) {
         comm_status_t qmap_status = COMM_OK;\
         do {\
             CUresult qmap_result = (_func);\
-            char *cu_err_str;\
-            if(cudaSuccess != qmap_result) {\
+            const char *cu_err_str;\
+            if(CUDA_SUCCESS != qmap_result) {\
                 cuGetErrorString(qmap_result, &cu_err_str);\
                 LOG(ERROR) << #_func << " failed " << cu_err_str;\
                 qmap_status = COMM_ERROR;\
@@ -53,5 +52,4 @@ static inline comm_status_t cuda_error_to_qmap_status(cudaError_t cuda_status) {
         qmap_status;\
     })
 
-#endif
 #endif

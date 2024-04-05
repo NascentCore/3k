@@ -6,13 +6,14 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <ucs/datastruct/mpool.h>
+
 #include "comm_iface.h"
 #include "qmap_locks.h"
 #include "execute_context/execute_engine.h"
-#include <ucs/datastruct/mpool.h>
 
-#ifndef QMAP_COMM_MEMORY_CONTEXT_H
-#define QMAP_COMM_MEMORY_CONTEXT_H
+#ifndef QMAP_COMM_MEMORY_POOL_H
+#define QMAP_COMM_MEMORY_POOL_H
 
 typedef struct mem_attr {
     uint64_t field_mask;
@@ -33,6 +34,13 @@ typedef enum mem_attr_field {
     MEM_ATTR_FIELD_ALLOC_LENGTH = GET_BIT(2),
 } mem_attr_field_t;
 
+typedef enum {
+    MC_CPU,
+    MC_CUDA,
+    MC_ROCM,
+    MC_LAST,
+} support_mc_type;
+
 namespace qmap {
 namespace comm {
 namespace memory_pool {
@@ -47,18 +55,17 @@ static void mpool_obj_cleanup_wrapper(ucs_mpool_t *mp, void *obj);
 
 class CommMemoryPool {
 public:
-    CommMemoryPool();
-    ~CommMemoryPool();
     comm_status_t init(size_t priv_size, size_t elem_size, 
                   size_t align_offset, size_t alignment, 
                   unsigned int elems_per_chunk, unsigned int max_elems,
-                  thread_mode_t thread_mode, std::string &name
+                  thread_mode_t thread_mode, const std::string &name
                   );
     void cleanup();
     comm_status_t hugetlb_malloc(size_t *size_p, void **chunk_p);
     void hugetlb_free(void *chunk);
     void *mpool_get();
     void mpool_put(void *obj);
+
     virtual comm_status_t chunk_alloc(size_t *size_p, void **chunk_p);
     virtual void chunk_release(void *chunk);
     virtual void obj_init(void *obj, void *chunk);
@@ -79,24 +86,20 @@ public:
     comm_status_t global_finialize();
     comm_status_t available(comm_memory_type_t mem_type);
 
-    virtual comm_status_t init(std::map<std::string, uint64_t> &params);
-    virtual comm_status_t finialize();
-    virtual comm_status_t memory_query(const void* ptr, mem_attr_t *attr);
-    virtual comm_status_t mem_alloc(buffer_header_t **header_ptr, size_t size, comm_memory_type_t mem_type);
-    virtual comm_status_t mem_free(buffer_header_t *buffer_header);
-    virtual comm_status_t memset(void *dst, int value, size_t len);
-    virtual comm_status_t memcpy(void *dst, int value, size_t len);
-    virtual comm_status_t flush();
+    virtual comm_status_t init(std::map<std::string, uint64_t> &params) = 0;
+    virtual comm_status_t finialize() = 0;
+    virtual comm_status_t memory_query(const void* ptr, mem_attr_t *attr) = 0;
+    virtual comm_status_t mem_alloc(buffer_header_t **header_ptr, size_t size, comm_memory_type_t mem_type) = 0;
+    virtual comm_status_t mem_free(buffer_header_t *buffer_header) = 0;
+    virtual comm_status_t memset(void *dst, int value, size_t len) = 0;
+    virtual comm_status_t memcpy(void *dst, void *src, size_t len, comm_memory_type_t dst_mem_type, comm_memory_type_t src_mem_type) = 0;
+    virtual comm_status_t flush() = 0;
     
 
 public:
-    static std::vector<CommMemoryPoolContext *> memory_contexts;
+    static std::array<CommMemoryPoolContext *, MC_LAST> memory_contexts;
     std::string name;
     uint32_t ref_cnt;
-    utils::SpinLock lock;
-    ee_type_t ee_type;
-    comm_memory_type_t memory_type;
-    std::map<std::string, uint64_t> params;
 };
 
 }; // namespace memory_pool

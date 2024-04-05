@@ -18,20 +18,21 @@ def operator_export(op_name: str, args, target: tvm.target.Target):
     task = auto_scheduler.SearchTask(operator_func, args, target=target)
     log_file = "./operator_trails.json"
     tune_option = auto_scheduler.TuningOptions(
-        num_measure_trials=100,
+        num_measure_trials=10,
         measure_callbacks=[auto_scheduler.RecordToFile(log_file)],
         verbose=2,
     ) 
     task.tune(tune_option)
     sch, args = task.apply_best(log_file)
     f = tvm.build(sch, args, target=target, name=op_name)
-    os.mkdir("./tmp_operator_dir")
+    if not os.path.exists('./tmp_operator_dir'):
+        os.mkdir("./tmp_operator_dir", exist_ok= True)
     f.save(f"./tmp_operator_dir/{op_name}.o")
     if target.kind.name == "cuda":
         f.imported_modules[0].save(f"./tmp_operator_dir/{op_name}.cubin")
     if target.kind.name == "rocm":
         f.imported_modules[0].save(f"./tmp_operator_dir/{op_name}.hsaco")
-    cc.create_shared("./tmp_operator_dir/{op_name}.so", [f"./tmp_operator_dir/{op_name}.o"])
+    cc.create_shared(f"./tmp_operator_dir/{op_name}.so", [f"./tmp_operator_dir/{op_name}.o"])
 
 def operator_load(op_name: str, target: tvm.target.Target):
     operator_func = tvm.runtime.load_module(f"./tmp_operator_dir/{op_name}.so")

@@ -106,18 +106,8 @@ public:
     virtual comm_status_t finialize();
     virtual comm_status_t test();
     virtual std::vector<CommEvent *> get_events();
-    // An event acknowledged by the user is destroyed by
-    // the library. Any triggered operations on the event 
-    // should be completed before calling this interface. 
     virtual comm_status_t ack_event(CommEvent *event);
-    // ucc_ee_set_event sets the event on the execution engine.
-    // If the operations are waiting on the event when the 
-    // user sets the event, the operations are launched.
-    // The events created by the user need to be destroyed
-    // by the user.
     virtual comm_status_t set_event(CommEvent *event);
-    // The user thread will be blocked until an event is posted 
-    // to the execution engine.
     virtual comm_status_t wait_event(CommEvent *event);
 
     virtual comm_status_t status();
