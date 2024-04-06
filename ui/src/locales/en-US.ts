@@ -3,6 +3,8 @@ import modelRepository from './en-US/modelRepository';
 import userJob from './en-US/userJob';
 import inferenceState from './en-US/inferenceState';
 import userJobCommit from './en-US/userJobCommit';
+import clusterInformation from './en-US/clusterInformation';
+import userQuota from './en-US/userQuota'
 
 export default {
   'app.title': 'NascentCore Cloud',
@@ -14,6 +16,8 @@ export default {
   'menu.Grafana': 'Grafana',
   'menu.Tensorboard': 'TensorBoard',
   'menu.Jupyterlalb': 'JupyterLab',
+  'menu.ClusterInformation': 'ClusterInformation',
+  'menu.UserQuota': 'UserQuota',
   'pages.global.header.logout': 'Log Out',
   'pages.global.confirm.title': 'Prompt',
   'pages.global.confirm.okText': 'Yes',
@@ -26,4 +30,7 @@ export default {
   ...userJob,
   ...inferenceState,
   ...userJobCommit,
+  ...clusterInformation,
+  ...userQuota
+
 };

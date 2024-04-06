@@ -3,6 +3,8 @@ import modelRepository from './zh-CN/modelRepository';
 import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
 import userJobCommit from './zh-CN/userJobCommit';
+import clusterInformation from './zh-CN/clusterInformation';
+import userQuota from './zh-CN/userQuota'
 
 export default {
   'app.title': '算想云',
@@ -14,6 +16,8 @@ export default {
   'menu.Grafana': '系统资源看板',
   'menu.Tensorboard': 'AI训练看板(TensorBoard)',
   'menu.Jupyterlalb': '开发实验室(JupyterLab)',
+  'menu.ClusterInformation': '集群信息',
+  'menu.UserQuota': '用户配额',
   'pages.global.header.logout': '退出登录',
   'pages.global.confirm.title': '提示',
   'pages.global.confirm.okText': '是',
@@ -26,4 +30,6 @@ export default {
   ...userJob,
   ...inferenceState,
   ...userJobCommit,
+  ...clusterInformation,
+  ...userQuota
 };
