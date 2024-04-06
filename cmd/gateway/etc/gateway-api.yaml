@@ -65,6 +65,14 @@ Gateway:
       ToPath: "/node"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/user"
+      ToPath: "/user"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/quota"
+      ToPath: "/quota"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api"
       Server: java
     - Path: "/auth"
