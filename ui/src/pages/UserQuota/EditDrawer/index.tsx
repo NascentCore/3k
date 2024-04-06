@@ -12,6 +12,8 @@ import AsyncButton from '@/components/AsyncButton';
 const Content = ({ type, record, onCancel }) => {
   const intl = useIntl();
 
+  const { data: gpuTypeOptions } = useApiGetGpuType({});
+
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
 
@@ -56,9 +58,20 @@ const Content = ({ type, record, onCancel }) => {
             id: 'pages.userQuota.edit.form.name',
             defaultMessage: '用户',
           })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
         >
-          <Input
-            type="text"
+          <Select
+            allowClear
+            options={[
+              {
+                label: 'test',
+                value: 'test',
+              },
+            ]}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.name',
               defaultMessage: '用户',
@@ -80,12 +93,7 @@ const Content = ({ type, record, onCancel }) => {
         >
           <Select
             allowClear
-            options={[
-              {
-                label: 'worker',
-                value: 'worker',
-              },
-            ]}
+            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.role',
               defaultMessage: '资源类型',
@@ -106,7 +114,8 @@ const Content = ({ type, record, onCancel }) => {
           ]}
         >
           <Input
-            type="text"
+            type="number"
+            min={1}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.gpu_product',
               defaultMessage: '资源配额',

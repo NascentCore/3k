@@ -27,7 +27,9 @@ const Content = ({ onCancel }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiPostApiNode(values).then(() => {
+      return apiPostApiNode({
+        data: values,
+      }).then(() => {
         message.success(
           intl.formatMessage({
             id: 'pages.clusterInformation.add.form.success',
