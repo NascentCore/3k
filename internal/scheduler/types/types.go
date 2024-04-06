@@ -303,6 +303,34 @@ type NodeListResp struct {
 	Data []ClusterNodeInfo `json:"data"`
 }
 
+type Quota struct {
+	UserId   int64  `json:"user_id"`
+	Resource string `json:"resource"`
+	Quota    int64  `json:"quota"`
+}
+
+type QuotaAddReq struct {
+	Quota
+	UserID int64 `header:"Sx-User"`
+}
+
+type QuotaAddResp struct {
+	Message string `json:"message"`
+}
+
+type QuotaListReq struct {
+	UserId int64 `json:"user_id"`
+}
+
+type QuotaListResp struct {
+	Data []QuotaResp `json:"data"`
+}
+
+type QuotaResp struct {
+	Id int64 `json:"id"`
+	Quota
+}
+
 type Resource struct {
 	ID     string   `json:"id"`
 	Name   string   `json:"name"`
@@ -357,4 +385,13 @@ type UploaderAccessResp struct {
 	AccessID  string `json:"access_id"`
 	AccessKey string `json:"access_key"`
 	UserID    int64  `json:"user_id"`
+}
+
+type User struct {
+	UserId   int64  `json:"user_id"`
+	UserName string `json:"user_name"`
+}
+
+type UserListResp struct {
+	Data []User `json:"data"`
 }

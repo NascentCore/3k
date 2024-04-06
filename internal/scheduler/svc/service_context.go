@@ -14,6 +14,8 @@ type ServiceContext struct {
 	FileURLModel   model.SysFileurlModel
 	CpodCacheModel model.SysCpodCacheModel
 	InferenceModel model.SysInferenceModel
+	QuotaModel     model.SysQuotaModel
+	UserModel      model.SysUserModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -25,5 +27,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		FileURLModel:   model.NewSysFileurlModel(conn),
 		CpodCacheModel: model.NewSysCpodCacheModel(conn),
 		InferenceModel: model.NewSysInferenceModel(conn),
+		QuotaModel:     model.NewSysQuotaModel(conn),
+		UserModel:      model.NewSysUserModel(conn),
 	}
 }

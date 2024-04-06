@@ -351,6 +351,41 @@ type (
 	}
 )
 
+type (
+	Quota {
+		UserId   int64  `json:"user_id"`
+		Resource string `json:"resource"`
+		Quota    int64  `json:"quota"`
+	}
+	QuotaAddReq {
+		Quota
+		UserID int64 `header:"Sx-User"`
+	}
+	QuotaAddResp {
+		Message string `json:"message"`
+	}
+	QuotaResp {
+		Id int64 `json:"id"`
+		Quota
+	}
+	QuotaListReq {
+		UserId int64 `json:"user_id"`
+	}
+	QuotaListResp {
+		Data []QuotaResp `json:"data"`
+	}
+)
+
+type (
+	User {
+		UserId   int64  `json:"user_id"`
+		UserName string `json:"user_name"`
+	}
+	UserListResp {
+		Data []User `json:"data"`
+	}
+)
+
 service scheduler-api {
 	@handler CpodStatusHandler
 	post /cpod/status (CPODStatusReq) returns (CPODStatusResp)
@@ -408,5 +443,14 @@ service scheduler-api {
 
 	@handler NodeListHandler
 	get /node (NodeListReq) returns (NodeListResp)
+
+	@handler QuotaAddHandler
+	post /quota (QuotaAddReq) returns (QuotaAddResp)
+
+	@handler QuotaListHandler
+	get /quota (QuotaListReq) returns (QuotaListResp)
+
+	@handler UserListHandler
+	get /user returns (UserListResp)
 }
 
