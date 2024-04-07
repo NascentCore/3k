@@ -28,7 +28,7 @@ const Content = ({ onCancel, onChange }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiPostQuota({ data: values }).then(() => {
+      return apiPostQuota({ data: { ...values, quota: Number(values.quota) } }).then(() => {
         onChange();
         message.success(
           intl.formatMessage({
