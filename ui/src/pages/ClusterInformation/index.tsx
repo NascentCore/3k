@@ -104,7 +104,7 @@ const Admin: React.FC = () => {
           //   ),
           // },
         ]}
-        dataSource={apiNodeRes?.res || []}
+        dataSource={apiNodeRes?.data || []}
         loading={isLoading}
         scroll={{ y: 'calc(100vh - 300px)' }}
       />
