@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -47,6 +48,19 @@ func (l *NodeAddLogic) NodeAdd(req *types.NodeAddReq) (resp *types.NodeAddResp, 
 	if err != nil {
 		l.Errorf("NodeAdd http request url=%s err=%s", url, err)
 		return
+	}
+
+	if addNodeResp.StatusCode != http.StatusOK {
+		// Read the response body
+		body, err := io.ReadAll(addNodeResp.Body)
+		if err != nil {
+			l.Errorf("NodeAdd reading body err=%s", err)
+			addNodeResp.Body.Close()
+			return nil, err
+		}
+
+		addNodeResp.Body.Close()
+		return nil, fmt.Errorf("%s", body)
 	}
 
 	resp = &types.NodeAddResp{}
