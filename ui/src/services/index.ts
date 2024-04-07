@@ -170,11 +170,6 @@ export const useGetApiNode = (options?: { [key: string]: any }) =>
 // 用户配额 列表接口 /api/quota
 export const useGetApiQuota = (options?: { [key: string]: any }) =>
   useSWR(['/api/quota', options], ([url, data]) => {
-    return Promise.resolve().then(() => {
-      return {
-        data: [{ id: 1, user_id: 176, quota: '1', resource: 'NVIDIA-GeForce-RTX-3090' }],
-      };
-    });
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
