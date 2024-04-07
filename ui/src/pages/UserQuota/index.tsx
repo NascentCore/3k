@@ -7,7 +7,7 @@ import EditDrawer from './EditDrawer';
 
 const Admin: React.FC = () => {
   const intl = useIntl();
-  const { data: resourceModels, mutate, isLoading }: any = useGetApiQuota();
+  const { data: quotaRes, mutate, isLoading }: any = useGetApiQuota();
 
   return (
     <PageContainer>
@@ -58,7 +58,7 @@ const Admin: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <EditDrawer record={record} type="edit" />
+                  <EditDrawer record={record} type="edit" onChange={() => mutate()} />
 
                   <Popconfirm
                     title={intl.formatMessage({
@@ -95,7 +95,7 @@ const Admin: React.FC = () => {
             ),
           },
         ]}
-        dataSource={resourceModels || []}
+        dataSource={quotaRes?.data || []}
         loading={isLoading}
         scroll={{ y: 'calc(100vh - 300px)' }}
       />

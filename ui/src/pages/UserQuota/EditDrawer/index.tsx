@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
-const Content = ({ onCancel }) => {
+const Content = ({ onCancel, onChange }) => {
   const intl = useIntl();
 
   const { data: gpuTypeOptions } = useApiGetGpuType({});
@@ -29,6 +29,7 @@ const Content = ({ onCancel }) => {
       setFormValues(values);
       console.log('Form values:', values);
       return apiPostQuota({ data: values }).then(() => {
+        onChange();
         message.success(
           intl.formatMessage({
             id: 'pages.userQuota.edit.form.success',
@@ -137,7 +138,7 @@ const Content = ({ onCancel }) => {
   );
 };
 
-const Index = ({ type, record }) => {
+const Index = ({ type, record, onChange }) => {
   const intl = useIntl();
 
   const [open, setOpen] = useState(false);
@@ -170,7 +171,14 @@ const Index = ({ type, record }) => {
         onClose={() => setOpen(false)}
         open={open}
       >
-        {open && <Content type={type} record={record} onCancel={() => setOpen(false)} />}
+        {open && (
+          <Content
+            type={type}
+            record={record}
+            onCancel={() => setOpen(false)}
+            onChange={onChange}
+          />
+        )}
       </Drawer>
     </>
   );

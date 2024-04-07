@@ -7,12 +7,12 @@ import AddNodeDrawer from './AddNodeDrawer';
 
 const Admin: React.FC = () => {
   const intl = useIntl();
-  const { data: resourceModels, isLoading }: any = useGetApiNode();
+  const { data: apiNodeRes, isLoading,mutate }: any = useGetApiNode();
 
   return (
     <PageContainer>
       <div style={{ marginBottom: 20, textAlign: 'right' }}>
-        <AddNodeDrawer type={'add'} />
+        <AddNodeDrawer type={'add'} onChange={() => mutate()} />
       </div>
       <Table
         columns={[
@@ -104,7 +104,7 @@ const Admin: React.FC = () => {
           //   ),
           // },
         ]}
-        dataSource={resourceModels || []}
+        dataSource={apiNodeRes?.res || []}
         loading={isLoading}
         scroll={{ y: 'calc(100vh - 300px)' }}
       />
