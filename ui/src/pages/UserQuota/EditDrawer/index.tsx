@@ -2,34 +2,33 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, apiResourceDatasets, useApiGetGpuType } from '@/services';
-import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
-import { useEffect, useState } from 'react';
-import { history } from '@umijs/max';
+import { apiPostQuota, useApiGetGpuType, useGetApiUser } from '@/services';
+import { Button, Drawer, Form, Input, Select, message } from 'antd';
+import { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
-const Content = ({ type, record, onCancel }) => {
+const Content = ({ onCancel }) => {
   const intl = useIntl();
+
+  const { data: gpuTypeOptions } = useApiGetGpuType({});
 
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
 
-  const [resourceDatasetsOption, setResourceDatasets] = useState([]);
-  useEffect(() => {
-    apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.name })));
-    });
-  }, []);
+  const { data: userListData } = useGetApiUser();
+  const userOptions = userListData?.data?.map((x) => ({
+    ...x,
+    label: x.user_name,
+    value: x.user_id,
+  }));
 
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return Promise.resolve({
-        data: { ...values },
-      }).then((res) => {
+      return apiPostQuota({ data: values }).then(() => {
         message.success(
           intl.formatMessage({
             id: 'pages.userQuota.edit.form.success',
@@ -51,14 +50,20 @@ const Content = ({ type, record, onCancel }) => {
         style={{ maxWidth: 600 }}
       >
         <Form.Item
-          name="name"
+          name="user_id"
           label={intl.formatMessage({
             id: 'pages.userQuota.edit.form.name',
             defaultMessage: '用户',
           })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
         >
-          <Input
-            type="text"
+          <Select
+            allowClear
+            options={userOptions}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.name',
               defaultMessage: '用户',
@@ -67,7 +72,7 @@ const Content = ({ type, record, onCancel }) => {
           />
         </Form.Item>
         <Form.Item
-          name="node_role"
+          name="resource"
           label={intl.formatMessage({
             id: 'pages.userQuota.edit.form.role',
             defaultMessage: '资源类型',
@@ -80,12 +85,7 @@ const Content = ({ type, record, onCancel }) => {
         >
           <Select
             allowClear
-            options={[
-              {
-                label: 'worker',
-                value: 'worker',
-              },
-            ]}
+            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.role',
               defaultMessage: '资源类型',
@@ -94,7 +94,7 @@ const Content = ({ type, record, onCancel }) => {
         </Form.Item>
 
         <Form.Item
-          name="gpu_product"
+          name="quota"
           label={intl.formatMessage({
             id: 'pages.userQuota.edit.form.gpu_product',
             defaultMessage: '资源配额',
@@ -106,7 +106,8 @@ const Content = ({ type, record, onCancel }) => {
           ]}
         >
           <Input
-            type="text"
+            type="number"
+            min={1}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.gpu_product',
               defaultMessage: '资源配额',

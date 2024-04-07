@@ -1,7 +1,7 @@
 import { request } from '@umijs/max';
 import useSWR from 'swr';
 
-// /auth/login
+// 登录接了 /auth/login
 export async function apiAuthLogin(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/auth/login', {
     method: 'POST',
@@ -9,7 +9,7 @@ export async function apiAuthLogin(options?: { [key: string]: any }) {
   });
 }
 
-// /auth/info
+// 获取用户信息 /auth/info
 export async function apiAuthInfo(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/auth/info', {
     method: 'GET',
@@ -32,7 +32,7 @@ export async function apiUsersRegisterUser(codemes: string, options?: { [key: st
   });
 }
 
-// 2.1 查询模型和数据集
+// 模型列表
 export async function apiResourceModels(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/resource/models', {
     method: 'GET',
@@ -40,6 +40,7 @@ export async function apiResourceModels(options?: { [key: string]: any }) {
   });
 }
 
+// 模型列表
 export const useApiResourceModels = (options?: { [key: string]: any }) =>
   useSWR(['/api/resource/models', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -48,13 +49,14 @@ export const useApiResourceModels = (options?: { [key: string]: any }) =>
     });
   });
 
+// 数据集列表
 export async function apiResourceDatasets(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/resource/datasets', {
     method: 'GET',
     ...(options || {}),
   });
 }
-
+// 数据集列表
 export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
   useSWR(['/api/resource/datasets', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -88,6 +90,7 @@ export async function apiGetInference(options?: { [key: string]: any }) {
   });
 }
 
+// 推理服务列表
 export const useApiGetInference = (options?: { [key: string]: any }) =>
   useSWR(['/api/inference', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -96,6 +99,7 @@ export const useApiGetInference = (options?: { [key: string]: any }) =>
     });
   });
 
+// 推理服务删除
 export async function apiDeleteInference(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/inference', {
     method: 'DELETE',
@@ -119,6 +123,7 @@ export async function apiPostUserJob(options?: { [key: string]: any }) {
   });
 }
 
+// 任务列表
 export const useApiGetUserJob = (options?: { [key: string]: any }) =>
   useSWR(['/api/userJob', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -135,7 +140,7 @@ export async function apiDeleteUserJob(options?: { [key: string]: any }) {
   });
 }
 
-// /api/userJob/getGpuType
+// GPU 列表查询
 export const useApiGetGpuType = (options?: { [key: string]: any }) =>
   useSWR(['/api/userJob/getGpuType', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
@@ -144,32 +149,43 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
     });
   });
 
-// 集群信息
-
+// 集群信息 新增
 export async function apiPostApiNode(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/node', {
     method: 'POST',
     ...(options || {}),
   });
 }
+
+// 集群信息 列表
 export const useGetApiNode = (options?: { [key: string]: any }) =>
   useSWR(['/api/node', options], ([url, data]) => {
-    return new Promise((resolve, reject) => {
-      resolve([
-        {
-          gpu_count: 8,
-          gpu_product: 'NVIDIA-GeForce-RTX-3090',
-          name: 'master',
-          role: ['control-plane'],
-        },
-        {
-          gpu_count: 8,
-          gpu_product: 'NVIDIA-GeForce-RTX-3090',
-          name: 'worker1',
-          role: ['worker'],
-        },
-      ]);
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
     });
+  });
+
+// 用户配额 列表接口 /api/quota
+export const useGetApiQuota = (options?: { [key: string]: any }) =>
+  useSWR(['/api/quota', options], ([url, data]) => {
+    return request<API.NoticeIconList>(url, {
+      method: 'GET',
+      ...(data || {}),
+    });
+  });
+
+// 用户配额新增接口 /quota
+export async function apiPostQuota(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/quota', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+// 用户列表查询 /api/user
+export const useGetApiUser = (options?: { [key: string]: any }) =>
+  useSWR(['/api/user', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),

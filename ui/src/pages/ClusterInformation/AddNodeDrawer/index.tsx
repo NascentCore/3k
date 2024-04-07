@@ -2,10 +2,9 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, apiPostApiNode, apiResourceDatasets, useApiGetGpuType } from '@/services';
-import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
-import { useEffect, useState } from 'react';
-import { history } from '@umijs/max';
+import { apiPostApiNode } from '@/services';
+import { Button, Drawer, Form, Input, Select, message } from 'antd';
+import { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -15,19 +14,14 @@ const Content = ({ onCancel }) => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({});
 
-  const [resourceDatasetsOption, setResourceDatasets] = useState([]);
-  useEffect(() => {
-    apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.name })));
-    });
-  }, []);
-
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiPostApiNode(values).then(() => {
+      return apiPostApiNode({
+        data: values,
+      }).then(() => {
         message.success(
           intl.formatMessage({
             id: 'pages.clusterInformation.add.form.success',
