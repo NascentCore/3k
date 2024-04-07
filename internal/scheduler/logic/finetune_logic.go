@@ -94,6 +94,18 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		userJob.GpuNumber = orm.NullInt64(req.GpuCount)
 	}
 
+	// check gpu quota
+	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, userJob.GpuType.String, userJob.GpuNumber.Int64)
+	if err != nil {
+		l.Errorf("finetune CheckQuota userId: %d GpuType: %s err: %s", req.UserID, userJob.GpuType.String, err)
+		return nil, err
+	}
+	if !ok {
+		err = fmt.Errorf("finetune CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, userJob.GpuType.String, left, userJob.GpuNumber.Int64)
+		l.Error(err)
+		return nil, err
+	}
+
 	// trainedModelName
 	if req.TrainedModelName == "" {
 		req.TrainedModelName = fmt.Sprintf("%s-%s", req.Model, time.Now().Format(consts.JobTimestampFormat))

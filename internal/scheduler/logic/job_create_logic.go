@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/orm"
 	"time"
@@ -35,6 +36,18 @@ func NewJobCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JobCrea
 
 func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCreateResp, err error) {
 	UserJobModel := l.svcCtx.UserJobModel
+
+	// check quota
+	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GpuType, req.GpuNumber)
+	if err != nil {
+		l.Errorf("JobCreate CheckQuota userId: %d GpuType: %s err: %s", req.UserID, req.GpuType, err)
+		return nil, err
+	}
+	if !ok {
+		err = fmt.Errorf("JobCreate CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, req.GpuType, left, req.GpuNumber)
+		l.Error(err)
+		return nil, err
+	}
 
 	newUUID, err := uuid.NewRandom()
 	if err != nil {

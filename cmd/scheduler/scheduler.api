@@ -374,6 +374,21 @@ type (
 	QuotaListResp {
 		Data []QuotaResp `json:"data"`
 	}
+	QuotaUpdateReq {
+		Id     int64 `json:"id"`
+		Quota  int64 `json:"quota"`
+		UserID int64 `header:"Sx-User"`
+	}
+	QuotaUpdateResp {
+		Message string `json:"message"`
+	}
+	QuotaDeleteReq {
+		Id     int64 `json:"id"`
+		UserID int64 `header:"Sx-User"`
+	}
+	QuotaDeleteResp {
+		Message string `json:"message"`
+	}
 )
 
 type (
@@ -449,6 +464,12 @@ service scheduler-api {
 
 	@handler QuotaListHandler
 	get /quota (QuotaListReq) returns (QuotaListResp)
+
+	@handler QuotaUpdateHandler
+	put /quota (QuotaUpdateReq) returns (QuotaUpdateResp)
+
+	@handler QuotaDeleteHandler
+	delete /quota (QuotaDeleteReq) returns (QuotaDeleteResp)
 
 	@handler UserListHandler
 	get /user returns (UserListResp)

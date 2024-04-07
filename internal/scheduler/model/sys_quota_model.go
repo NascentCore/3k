@@ -82,7 +82,7 @@ func (m *defaultSysQuotaModel) UpdateBuilder() squirrel.UpdateBuilder {
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultSysQuotaModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysQuota, error) {
-	selectBuilder = selectBuilder.Where("deleted_at is null").Limit(1)
+	selectBuilder = selectBuilder.Limit(1)
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
