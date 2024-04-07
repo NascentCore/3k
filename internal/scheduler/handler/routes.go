@@ -103,6 +103,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: QuotaListHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPut,
+				Path:    "/quota",
+				Handler: QuotaUpdateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/quota",
+				Handler: QuotaDeleteHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/resource/datasets",
 				Handler: ResourceDatasetsHandler(serverCtx),

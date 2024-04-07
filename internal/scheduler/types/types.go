@@ -318,6 +318,15 @@ type QuotaAddResp struct {
 	Message string `json:"message"`
 }
 
+type QuotaDeleteReq struct {
+	Id     int64 `json:"id"`
+	UserID int64 `header:"Sx-User"`
+}
+
+type QuotaDeleteResp struct {
+	Message string `json:"message"`
+}
+
 type QuotaListReq struct {
 	UserId int64 `json:"user_id,optional"`
 }
@@ -329,6 +338,16 @@ type QuotaListResp struct {
 type QuotaResp struct {
 	Id int64 `json:"id"`
 	Quota
+}
+
+type QuotaUpdateReq struct {
+	Id     int64 `json:"id"`
+	Quota  int64 `json:"quota"`
+	UserID int64 `header:"Sx-User"`
+}
+
+type QuotaUpdateResp struct {
+	Message string `json:"message"`
 }
 
 type Resource struct {
