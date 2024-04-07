@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
-const Content = ({ onCancel }) => {
+const Content = ({ onCancel, onChange }) => {
   const intl = useIntl();
 
   const [form] = Form.useForm();
@@ -22,6 +22,7 @@ const Content = ({ onCancel }) => {
       return apiPostApiNode({
         data: values,
       }).then(() => {
+        onChange();
         message.success(
           intl.formatMessage({
             id: 'pages.clusterInformation.add.form.success',
@@ -201,7 +202,7 @@ const Content = ({ onCancel }) => {
   );
 };
 
-const Index = ({ type }) => {
+const Index = ({ type, onChange }) => {
   const intl = useIntl();
 
   const [open, setOpen] = useState(false);
@@ -229,7 +230,7 @@ const Index = ({ type }) => {
         onClose={() => setOpen(false)}
         open={open}
       >
-        {open && <Content onCancel={() => setOpen(false)} />}
+        {open && <Content onCancel={() => setOpen(false)} onChange={onChange} />}
       </Drawer>
     </>
   );
