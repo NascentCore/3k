@@ -1,14 +1,13 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space, Table, message } from 'antd';
 import React from 'react';
-import { useGetApiNode } from '@/services';
-import { formatFileSize } from '@/utils';
+import { useGetApiQuota } from '@/services';
 import { useIntl } from '@umijs/max';
 import EditDrawer from './EditDrawer';
 
 const Admin: React.FC = () => {
   const intl = useIntl();
-  const { data: resourceModels, mutate, isLoading }: any = useGetApiNode();
+  const { data: resourceModels, mutate, isLoading }: any = useGetApiQuota();
 
   return (
     <PageContainer>
@@ -22,8 +21,8 @@ const Admin: React.FC = () => {
               id: 'pages.userQuota.table.column.name',
               defaultMessage: '用户',
             }),
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'user_id',
+            key: 'user_id',
             align: 'center',
             width: 150,
           },
@@ -32,8 +31,8 @@ const Admin: React.FC = () => {
               id: 'pages.userQuota.table.column.role',
               defaultMessage: '资源类型',
             }),
-            dataIndex: 'role',
-            key: 'role',
+            dataIndex: 'resource',
+            key: 'resource',
             align: 'center',
             width: 150,
           },
@@ -42,8 +41,8 @@ const Admin: React.FC = () => {
               id: 'pages.userQuota.table.column.gpu_product',
               defaultMessage: '资源配额',
             }),
-            dataIndex: 'gpu_product',
-            key: 'gpu_product',
+            dataIndex: 'quota',
+            key: 'quota',
             align: 'center',
             width: 150,
           },

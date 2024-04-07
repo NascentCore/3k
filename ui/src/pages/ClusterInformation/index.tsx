@@ -1,14 +1,13 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Button, Popconfirm, Space, Table, message } from 'antd';
+import { Table } from 'antd';
 import React from 'react';
 import { useGetApiNode } from '@/services';
-import { formatFileSize } from '@/utils';
 import { useIntl } from '@umijs/max';
 import AddNodeDrawer from './AddNodeDrawer';
 
 const Admin: React.FC = () => {
   const intl = useIntl();
-  const { data: resourceModels, mutate, isLoading }: any = useGetApiNode();
+  const { data: resourceModels, isLoading }: any = useGetApiNode();
 
   return (
     <PageContainer>
@@ -60,50 +59,50 @@ const Admin: React.FC = () => {
             align: 'center',
             width: 150,
           },
-          {
-            title: intl.formatMessage({
-              id: 'pages.clusterInformation.table.column.action',
-              defaultMessage: '操作',
-            }),
-            dataIndex: 'action',
-            key: 'action',
-            width: 200,
-            align: 'center',
-            render: (_, record) => (
-              <>
-                <Popconfirm
-                  title={intl.formatMessage({
-                    id: 'pages.global.confirm.title',
-                  })}
-                  description={intl.formatMessage({
-                    id: 'pages.global.confirm.delete.description',
-                  })}
-                  onConfirm={() => {
-                    message.success(
-                      intl.formatMessage({
-                        id: 'pages.global.confirm.delete.success',
-                        defaultMessage: '删除成功',
-                      }),
-                    );
-                    mutate();
-                  }}
-                  onCancel={() => {}}
-                  okText={intl.formatMessage({
-                    id: 'pages.global.confirm.okText',
-                  })}
-                  cancelText={intl.formatMessage({
-                    id: 'pages.global.confirm.cancelText',
-                  })}
-                >
-                  <Button type="link">
-                    {intl.formatMessage({
-                      id: 'pages.global.confirm.delete.button',
-                    })}
-                  </Button>
-                </Popconfirm>
-              </>
-            ),
-          },
+          // {
+          //   title: intl.formatMessage({
+          //     id: 'pages.clusterInformation.table.column.action',
+          //     defaultMessage: '操作',
+          //   }),
+          //   dataIndex: 'action',
+          //   key: 'action',
+          //   width: 200,
+          //   align: 'center',
+          //   render: (_, record) => (
+          //     <>
+          //       <Popconfirm
+          //         title={intl.formatMessage({
+          //           id: 'pages.global.confirm.title',
+          //         })}
+          //         description={intl.formatMessage({
+          //           id: 'pages.global.confirm.delete.description',
+          //         })}
+          //         onConfirm={() => {
+          //           message.success(
+          //             intl.formatMessage({
+          //               id: 'pages.global.confirm.delete.success',
+          //               defaultMessage: '删除成功',
+          //             }),
+          //           );
+          //           mutate();
+          //         }}
+          //         onCancel={() => {}}
+          //         okText={intl.formatMessage({
+          //           id: 'pages.global.confirm.okText',
+          //         })}
+          //         cancelText={intl.formatMessage({
+          //           id: 'pages.global.confirm.cancelText',
+          //         })}
+          //       >
+          //         <Button type="link">
+          //           {intl.formatMessage({
+          //             id: 'pages.global.confirm.delete.button',
+          //           })}
+          //         </Button>
+          //       </Popconfirm>
+          //     </>
+          //   ),
+          // },
         ]}
         dataSource={resourceModels || []}
         loading={isLoading}
