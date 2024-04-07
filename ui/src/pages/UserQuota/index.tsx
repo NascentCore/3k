@@ -1,18 +1,19 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space, Table, message } from 'antd';
 import React from 'react';
-import { useGetApiQuota } from '@/services';
+import { apiDeleteQuota, useGetApiQuota, useGetApiUser } from '@/services';
 import { useIntl } from '@umijs/max';
 import EditDrawer from './EditDrawer';
 
 const Admin: React.FC = () => {
   const intl = useIntl();
   const { data: quotaRes, mutate, isLoading }: any = useGetApiQuota();
+  const { data: userListData } = useGetApiUser();
 
   return (
     <PageContainer>
       <div style={{ marginBottom: 20, textAlign: 'right' }}>
-        <EditDrawer type="add" />
+        <EditDrawer type="add" onChange={() => mutate()} />
       </div>
       <Table
         columns={[
@@ -25,6 +26,10 @@ const Admin: React.FC = () => {
             key: 'user_id',
             align: 'center',
             width: 150,
+            render: (_, record) => {
+              return userListData?.data?.find((item: any) => item.user_id === record.user_id)
+                ?.user_name;
+            },
           },
           {
             title: intl.formatMessage({
@@ -68,13 +73,19 @@ const Admin: React.FC = () => {
                       id: 'pages.global.confirm.delete.description',
                     })}
                     onConfirm={() => {
-                      message.success(
-                        intl.formatMessage({
-                          id: 'pages.global.confirm.delete.success',
-                          defaultMessage: '删除成功',
-                        }),
-                      );
-                      mutate();
+                      apiDeleteQuota({
+                        data: {
+                          id: record.id,
+                        },
+                      }).then(() => {
+                        message.success(
+                          intl.formatMessage({
+                            id: 'pages.global.confirm.delete.success',
+                            defaultMessage: '删除成功',
+                          }),
+                        );
+                        mutate();
+                      });
                     }}
                     onCancel={() => {}}
                     okText={intl.formatMessage({

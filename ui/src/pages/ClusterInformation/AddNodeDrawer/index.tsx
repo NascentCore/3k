@@ -4,7 +4,7 @@
  */
 import { apiPostApiNode } from '@/services';
 import { Button, Drawer, Form, Input, Select, message } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -12,15 +12,19 @@ const Content = ({ onCancel, onChange }) => {
   const intl = useIntl();
 
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState({});
+  useEffect(() => {
+    form.setFieldsValue({
+      node_role: 'worker',
+      ssh_port: 22,
+    });
+  }, []);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
-      setFormValues(values);
       console.log('Form values:', values);
       return apiPostApiNode({
-        data: values,
+        data: { values, ssh_port: Number(values.ssh_port) },
       }).then(() => {
         onChange();
         message.success(
@@ -36,13 +40,7 @@ const Content = ({ onCancel, onChange }) => {
 
   return (
     <>
-      <Form
-        form={form}
-        initialValues={formValues}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-      >
+      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} style={{ maxWidth: 600 }}>
         <Form.Item
           name="node_name"
           label={intl.formatMessage({
@@ -116,7 +114,7 @@ const Content = ({ onCancel, onChange }) => {
         <Form.Item
           name="ssh_port"
           label={intl.formatMessage({
-            id: 'pages.clusterInformation.add.form.node_ip',
+            id: 'pages.clusterInformation.add.form.ssh_port',
             defaultMessage: 'SSH 端口',
           })}
           rules={[
@@ -130,7 +128,7 @@ const Content = ({ onCancel, onChange }) => {
             min={1}
             max={65535}
             placeholder={intl.formatMessage({
-              id: 'pages.clusterInformation.add.form.node_ip',
+              id: 'pages.clusterInformation.add.form.ssh_port',
               defaultMessage: 'SSH 端口',
             })}
             allowClear
