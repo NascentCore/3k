@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -19,7 +18,7 @@ type (
 		AllFieldsBuilder() squirrel.SelectBuilder
 		UpdateBuilder() squirrel.UpdateBuilder
 
-		DeleteSoft(ctx context.Context, data *SysQuota) error
+		// DeleteSoft(ctx context.Context, data *SysQuota) error
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysQuota, error)
 		FindOneById(ctx context.Context, data *SysQuota) (*SysQuota, error)
 		FindAll(ctx context.Context, orderBy string) ([]*SysQuota, error)
@@ -62,24 +61,24 @@ func (m *defaultSysQuotaModel) UpdateBuilder() squirrel.UpdateBuilder {
 	return squirrel.Update(m.table)
 }
 
-// DeleteSoft set deleted_at with CURRENT_TIMESTAMP
-func (m *defaultSysQuotaModel) DeleteSoft(ctx context.Context, data *SysQuota) error {
-	builder := squirrel.Update(m.table)
-	builder = builder.Set("deleted_at", sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	})
-	builder = builder.Where("id = ?", data.Id)
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return err
-	}
-
-	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
-		return err
-	}
-	return nil
-}
+// // DeleteSoft set deleted_at with CURRENT_TIMESTAMP
+// func (m *defaultSysQuotaModel) DeleteSoft(ctx context.Context, data *SysQuota) error {
+// 	builder := squirrel.Update(m.table)
+// 	builder = builder.Set("deleted_at", sql.NullTime{
+// 		Time:  time.Now(),
+// 		Valid: true,
+// 	})
+// 	builder = builder.Where("id = ?", data.Id)
+// 	query, args, err := builder.ToSql()
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultSysQuotaModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*SysQuota, error) {
@@ -113,7 +112,7 @@ func (m *defaultSysQuotaModel) FindAll(ctx context.Context, orderBy string) ([]*
 		selectBuilder = selectBuilder.OrderBy(orderBy)
 	}
 
-	query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}

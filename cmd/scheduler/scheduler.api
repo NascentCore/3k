@@ -369,7 +369,7 @@ type (
 		Quota
 	}
 	QuotaListReq {
-		UserId int64 `json:"user_id"`
+		UserId int64 `json:"user_id,optional"`
 	}
 	QuotaListResp {
 		Data []QuotaResp `json:"data"`

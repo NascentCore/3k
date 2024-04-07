@@ -319,7 +319,7 @@ type QuotaAddResp struct {
 }
 
 type QuotaListReq struct {
-	UserId int64 `json:"user_id"`
+	UserId int64 `json:"user_id,optional"`
 }
 
 type QuotaListResp struct {
