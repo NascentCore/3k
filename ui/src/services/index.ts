@@ -151,6 +151,7 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
 
 // 集群信息 新增
 export async function apiPostApiNode(options?: { [key: string]: any }) {
+  // return Promise.resolve();
   return request<API.NoticeIconList>('/api/node', {
     method: 'POST',
     ...(options || {}),
@@ -179,6 +180,22 @@ export const useGetApiQuota = (options?: { [key: string]: any }) =>
 export async function apiPostQuota(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/quota', {
     method: 'POST',
+    ...(options || {}),
+  });
+}
+
+// 修改配额
+export async function apiPutQuota(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/quota', {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}
+
+// 删除配额 
+export async function apiDeleteQuota(options?: { [key: string]: any }) {
+  return request<API.NoticeIconList>('/api/quota', {
+    method: 'DELETE',
     ...(options || {}),
   });
 }

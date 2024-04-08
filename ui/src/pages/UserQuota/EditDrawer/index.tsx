@@ -2,19 +2,24 @@
  * @name 微调
  * @description 微调
  */
-import { apiPostQuota, useApiGetGpuType, useGetApiUser } from '@/services';
+import { apiPostQuota, apiPutQuota, useApiGetGpuType, useGetApiUser } from '@/services';
 import { Button, Drawer, Form, Input, Select, message } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
-const Content = ({ onCancel, onChange }) => {
+const Content = ({ type, record, onCancel, onChange }) => {
   const intl = useIntl();
 
   const { data: gpuTypeOptions } = useApiGetGpuType({});
 
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState({});
+
+  useEffect(() => {
+    if (type === 'edit') {
+      record && form.setFieldsValue(record);
+    }
+  }, [record]);
 
   const { data: userListData } = useGetApiUser();
   const userOptions = userListData?.data?.map((x) => ({
@@ -26,30 +31,39 @@ const Content = ({ onCancel, onChange }) => {
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
-      setFormValues(values);
       console.log('Form values:', values);
-      return apiPostQuota({ data: { ...values, quota: Number(values.quota) } }).then(() => {
-        onChange();
-        message.success(
-          intl.formatMessage({
-            id: 'pages.userQuota.edit.form.success',
-            defaultMessage: '操作成功',
-          }),
-        );
-        onCancel();
-      });
+      if (type === 'add') {
+        return apiPostQuota({ data: { ...values, quota: Number(values.quota) } }).then(() => {
+          onChange();
+          message.success(
+            intl.formatMessage({
+              id: 'pages.userQuota.edit.form.success',
+              defaultMessage: '操作成功',
+            }),
+          );
+          onCancel();
+        });
+      }
+      if (type === 'edit') {
+        return apiPutQuota({
+          data: { ...values, id: record.id, quota: Number(values.quota) },
+        }).then(() => {
+          onChange();
+          message.success(
+            intl.formatMessage({
+              id: 'pages.userQuota.edit.form.success',
+              defaultMessage: '操作成功',
+            }),
+          );
+          onCancel();
+        });
+      }
     });
   };
 
   return (
     <>
-      <Form
-        form={form}
-        initialValues={formValues}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-      >
+      <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} style={{ maxWidth: 600 }}>
         <Form.Item
           name="user_id"
           label={intl.formatMessage({
@@ -69,7 +83,7 @@ const Content = ({ onCancel, onChange }) => {
               id: 'pages.userQuota.edit.form.name',
               defaultMessage: '用户',
             })}
-            allowClear
+            disabled={type === 'edit'}
           />
         </Form.Item>
         <Form.Item
@@ -91,6 +105,7 @@ const Content = ({ onCancel, onChange }) => {
               id: 'pages.userQuota.edit.form.role',
               defaultMessage: '资源类型',
             })}
+            disabled={type === 'edit'}
           />
         </Form.Item>
 
