@@ -65,6 +65,9 @@ func main() {
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)
 
+	// error handler
+	handler.InitErrorHandler()
+
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
