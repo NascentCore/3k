@@ -24,7 +24,7 @@ const Content = ({ onCancel, onChange }) => {
       const values = form.getFieldsValue();
       console.log('Form values:', values);
       return apiPostApiNode({
-        data: { values, ssh_port: Number(values.ssh_port) },
+        data: { ...values, ssh_port: Number(values.ssh_port) },
       }).then(() => {
         onChange();
         message.success(
@@ -170,7 +170,7 @@ const Content = ({ onCancel, onChange }) => {
           ]}
         >
           <Input
-            type="text"
+            type="password"
             placeholder={intl.formatMessage({
               id: 'pages.clusterInformation.add.form.ssh_password',
               defaultMessage: 'SSH 密码',
