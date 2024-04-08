@@ -135,6 +135,7 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 
 		// Set header
 		r.Header.Set("Sx-User", strconv.FormatInt(user.UserId, 10))
+		r.Header.Set("Sx-Admin", strconv.FormatInt(user.Admin, 10))
 		return true
 	} else {
 		log.Printf("auth jwt valid host: %s path: %s", r.Host, r.URL.Path)
