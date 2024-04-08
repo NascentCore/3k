@@ -17,8 +17,8 @@ import (
 var (
 	sysUserFieldNames          = builder.RawFieldNames(&SysUser{})
 	sysUserRows                = strings.Join(sysUserFieldNames, ",")
-	sysUserRowsExpectAutoSet   = strings.Join(stringx.Remove(sysUserFieldNames, "`user_id`", "`[create_at]`"), ",")
-	sysUserRowsWithPlaceHolder = strings.Join(stringx.Remove(sysUserFieldNames, "`user_id`", "`[create_at]`"), "=?,") + "=?"
+	sysUserRowsExpectAutoSet   = strings.Join(stringx.Remove(sysUserFieldNames, "`user_id`", "`create_at`"), ",")
+	sysUserRowsWithPlaceHolder = strings.Join(stringx.Remove(sysUserFieldNames, "`user_id`", "`create_at`"), "=?,") + "=?"
 )
 
 type (
@@ -47,6 +47,7 @@ type (
 		AvatarPath   sql.NullString `db:"avatar_path"`    // 头像真实路径
 		Password     sql.NullString `db:"password"`       // 密码
 		IsAdmin      sql.NullString `db:"is_admin"`       // 是否为admin账号
+		Admin        int64          `db:"admin"`          // 管理员标志，0普通用户 1管理员 2超级管理员
 		Enabled      sql.NullInt64  `db:"enabled"`        // 状态：1启用、0禁用
 		CreateBy     sql.NullString `db:"create_by"`      // 创建者
 		UpdateBy     sql.NullString `db:"update_by"`      // 更新者
@@ -117,14 +118,14 @@ func (m *defaultSysUserModel) FindOneByUsername(ctx context.Context, username sq
 }
 
 func (m *defaultSysUserModel) Insert(ctx context.Context, data *SysUser) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.NickName, data.Gender, data.Phone, data.Email, data.AvatarName, data.AvatarPath, data.Password, data.IsAdmin, data.Enabled, data.CreateBy, data.UpdateBy, data.PwdResetTime, data.CreateTime, data.UpdateTime, data.UserType, data.CompanyName, data.CompanyPhone, data.CompanyOther, data.CompanyId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.NickName, data.Gender, data.Phone, data.Email, data.AvatarName, data.AvatarPath, data.Password, data.IsAdmin, data.Admin, data.Enabled, data.CreateBy, data.UpdateBy, data.PwdResetTime, data.CreateTime, data.UpdateTime, data.UserType, data.CompanyName, data.CompanyPhone, data.CompanyOther, data.CompanyId)
 	return ret, err
 }
 
 func (m *defaultSysUserModel) Update(ctx context.Context, newData *SysUser) error {
 	query := fmt.Sprintf("update %s set %s where `user_id` = ?", m.table, sysUserRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.NickName, newData.Gender, newData.Phone, newData.Email, newData.AvatarName, newData.AvatarPath, newData.Password, newData.IsAdmin, newData.Enabled, newData.CreateBy, newData.UpdateBy, newData.PwdResetTime, newData.CreateTime, newData.UpdateTime, newData.UserType, newData.CompanyName, newData.CompanyPhone, newData.CompanyOther, newData.CompanyId, newData.UserId)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.NickName, newData.Gender, newData.Phone, newData.Email, newData.AvatarName, newData.AvatarPath, newData.Password, newData.IsAdmin, newData.Admin, newData.Enabled, newData.CreateBy, newData.UpdateBy, newData.PwdResetTime, newData.CreateTime, newData.UpdateTime, newData.UserType, newData.CompanyName, newData.CompanyPhone, newData.CompanyOther, newData.CompanyId, newData.UserId)
 	return err
 }
 
