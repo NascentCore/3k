@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
@@ -35,6 +36,18 @@ func NewInferenceDeployLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (resp *types.InferenceDeployResp, err error) {
 	InferenceModel := l.svcCtx.InferenceModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
+
+	// check gpu quota
+	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GpuModel, req.GpuCount)
+	if err != nil {
+		l.Errorf("InferenceDeploy CheckQuota userId: %d GpuType: %s err: %s", req.UserID, req.GpuModel, err)
+		return nil, err
+	}
+	if !ok {
+		err = fmt.Errorf("InferenceDeploy CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, req.GpuModel, left, req.GpuCount)
+		l.Error(err)
+		return nil, err
+	}
 
 	newUUID, err := uuid.NewRandom()
 	if err != nil {

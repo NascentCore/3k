@@ -12,6 +12,7 @@ import (
 func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userId int64, resource string, need int64) (ok bool, left int64, err error) {
 	QuotaModel := svx.QuotaModel
 	UserJobModel := svx.UserJobModel
+	InferenceModel := svx.InferenceModel
 
 	// check user has quota
 	quota, err := QuotaModel.FindOneByQuery(ctx, QuotaModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -37,9 +38,25 @@ func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userId int64, reso
 		return false, 0, err
 	}
 
+	infers, err := InferenceModel.FindAll(ctx, InferenceModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{
+			"user_id":  userId,
+			"gpu_type": resource,
+		},
+		squirrel.NotEq{
+			"status": model.InferStatusStopped,
+		},
+	}), "")
+	if err != nil {
+		return false, 0, err
+	}
+
 	var sum int64
 	for _, j := range jobs {
 		sum += j.GpuNumber.Int64
+	}
+	for _, i := range infers {
+		sum += i.GpuNumber.Int64
 	}
 
 	if sum+need > quota.Quota {
