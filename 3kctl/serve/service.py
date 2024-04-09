@@ -109,7 +109,7 @@ class Serve(cli.Application):
         self.action_performed = True
         print("Starting Flask server with Gunicorn...")
         subprocess.run([
-            'gunicorn',
+            '/opt/.venv/bin/gunicorn',
             '-w', '4',
             '-b', '0.0.0.0:5000',
             '--daemon',
