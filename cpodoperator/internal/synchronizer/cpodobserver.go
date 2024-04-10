@@ -14,6 +14,7 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -23,28 +24,32 @@ const (
 	InferenceJobDeploying = "deploying"
 	InferenceJobDeployed  = "deployed"
 	InferenceJobFailed    = "failed"
+	JupyterLabJobFailed   = "failed"
 )
 
 type CPodObserver struct {
-	kubeClient                      client.Client
-	logger                          logr.Logger
-	ch                              chan<- sxwl.HeartBeatPayload
-	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob
-	preparingTrainningJobsGetter    func() []sxwl.PortalTrainningJob
-	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob
-	cpodId                          string
-	cpodNamespace                   string
+	kubeClient                       client.Client
+	logger                           logr.Logger
+	ch                               chan<- sxwl.HeartBeatPayload
+	createFailedTrainningJobsGetter  func() []sxwl.PortalTrainningJob
+	preparingTrainningJobsGetter     func() []sxwl.PortalTrainningJob
+	createFailedInferenceJobsGetter  func() []sxwl.PortalInferenceJob
+	createFailedJupyterLabJobsGetter func() []sxwl.PortalJupyterLabJob
+	cpodId                           string
+	cpodNamespace                    string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
 	createFailedTrainningJobsGetter, preparingTrainningJobsGetter func() []sxwl.PortalTrainningJob,
 	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
+	createFailedJupyterLabJobsGetter func() []sxwl.PortalJupyterLabJob,
 	logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
-		createFailedTrainningJobsGetter: createFailedTrainningJobsGetter,
-		preparingTrainningJobsGetter:    preparingTrainningJobsGetter,
-		createFailedInferenceJobsGetter: createFailedInferenceJobsGetter,
-		cpodId:                          cpodId, cpodNamespace: cpodNamespace}
+		createFailedTrainningJobsGetter:  createFailedTrainningJobsGetter,
+		preparingTrainningJobsGetter:     preparingTrainningJobsGetter,
+		createFailedInferenceJobsGetter:  createFailedInferenceJobsGetter,
+		createFailedJupyterLabJobsGetter: createFailedJupyterLabJobsGetter,
+		cpodId:                           cpodId, cpodNamespace: cpodNamespace}
 }
 
 func (co *CPodObserver) Start(ctx context.Context) {
@@ -102,12 +107,26 @@ func (co *CPodObserver) Start(ctx context.Context) {
 		co.logger.Error(err, "get resource error")
 		return
 	}
+	// jupyterlab jobs
+	jjs, err := co.getJupyterLabJobStates(ctx)
+	if err != nil {
+		co.logger.Error(err, "get jupyterlab job state error")
+		return
+	}
+	// combine with jupyterlab jobs
+	for _, j := range co.createFailedJupyterLabJobsGetter() {
+		jjs = append(jjs, sxwl.JupyterLabJobState{
+			Name:   j.Name,
+			Status: JupyterLabJobFailed,
+		})
+	}
 	co.ch <- sxwl.HeartBeatPayload{
-		CPodID:              co.cpodId,
-		ResourceInfo:        resourceInfo,
-		TrainningJobsStatus: js,
-		InferenceJobsStatus: ijs,
-		UpdateTime:          time.Now(),
+		CPodID:               co.cpodId,
+		ResourceInfo:         resourceInfo,
+		TrainningJobsStatus:  js,
+		InferenceJobsStatus:  ijs,
+		JupyterLabJobsStatus: jjs,
+		UpdateTime:           time.Now(),
 	}
 	co.logger.Info("upload payload refreshed")
 }
@@ -179,6 +198,30 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 		})
 	}
 	return stats, nil
+}
+
+func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.JupyterLabJobState, error) {
+	var statefulSets appsv1.StatefulSetList
+	err := co.kubeClient.List(ctx, &statefulSets, &client.MatchingLabels{
+		"app": "jupyterlab",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var states []sxwl.JupyterLabJobState
+	for _, ss := range statefulSets.Items {
+		status := "notready"
+		if ss.Status.ReadyReplicas > 0 {
+			status = "ready"
+		}
+		state := sxwl.JupyterLabJobState{
+			Name:   ss.Name,
+			Status: status,
+		}
+		states = append(states, state)
+	}
+	return states, nil
 }
 
 func (co *CPodObserver) getFinetuneStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
