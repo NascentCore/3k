@@ -15,7 +15,6 @@ func main() {
 	var configFile string
 	env := os.Getenv("GATEWAY_ENV")
 	authSecret := os.Getenv("AUTH_SECRET")
-	dsn := os.Getenv("GATEWAY_DSN")
 
 	switch env {
 	case "prod":
@@ -36,7 +35,7 @@ func main() {
 	// init matcher
 	gateway.GlobalMatcher = gateway.NewMatcher(c.Gateway)
 
-	server := rest.MustNewServer(c.RestConf, rest.WithNotFoundHandler(gateway.NewPassHandler(authSecret, dsn)))
+	server := rest.MustNewServer(c.RestConf, rest.WithNotFoundHandler(gateway.NewPassHandler(authSecret)))
 	defer server.Stop()
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
