@@ -62,6 +62,9 @@ func main() {
 	// insert k8s config
 	c.K8S.BaseApi = os.Getenv("K8S_BASE_API")
 
+	// insert auth secret
+	c.Auth.Secret = os.Getenv("AUTH_SECRET")
+
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)
 

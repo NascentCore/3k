@@ -11,6 +11,12 @@ info (
 import "client.api"
 
 type (
+	AuthReq {
+		UserID int64 `header:"Sx-User"`
+	}
+)
+
+type (
 	GPUStateInfo {
 		Temp      int    `json:"temp"`
 		MemUsage  int    `json:"mem_usage"`
@@ -473,5 +479,47 @@ service scheduler-api {
 
 	@handler UserListHandler
 	get /user returns (UserListResp)
+}
+
+type (
+	UserInfo {
+		CompanyID  string `json:"companyId"`
+		CreateBy   string `json:"createBy"`
+		CreateTime string `json:"createTime"`
+		Email      string `json:"email"`
+		Enabled    bool   `json:"enabled"`
+		ID         int    `json:"id"`
+		IsAdmin    bool   `json:"isAdmin"`
+		Password   string `json:"password"`
+		UpdateBy   string `json:"updateBy"`
+		UpdateTime string `json:"updateTime"`
+		UserType   int    `json:"userType"`
+		Username   string `json:"username"`
+	}
+	UserInfoResp {
+		User UserInfo `json:"user"`
+	}
+	LoginReq {
+		Password string `json:"password"`
+		Username string `json:"username"`
+	}
+	WrapUser {
+		User UserInfo `json:"user"`
+	}
+	LoginResp {
+		User  WrapUser `json:user` // TODO 去掉多余嵌套
+		Token string   `json:"token"`
+	}
+)
+
+@server (
+	prefix: /auth
+)
+service scheduler-api {
+	@handler userInfo
+	get /info (AuthReq) returns (UserInfoResp)
+
+	@handler userLogin
+	post /login (LoginReq) returns (LoginResp)
 }
 
