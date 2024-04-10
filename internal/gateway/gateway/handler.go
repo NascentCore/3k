@@ -2,8 +2,6 @@ package gateway
 
 import (
 	"bytes"
-	"context"
-	"database/sql"
 	"fmt"
 	"io"
 	"log"
@@ -11,24 +9,17 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sxwl/3k/internal/gateway/model"
-
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type Handler struct {
 	authSecret string
-	userModel  model.SysUserModel
 }
 
-func NewPassHandler(authSecret, dsn string) *Handler {
-	conn := sqlx.NewMysql(dsn)
-
+func NewPassHandler(authSecret string) *Handler {
 	return &Handler{
 		authSecret: authSecret,
-		userModel:  model.NewSysUserModel(conn),
 	}
 }
 
@@ -122,24 +113,30 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
 		return false
 	}
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		user, err := h.userModel.FindOneByUsername(context.Background(), sql.NullString{
-			String: claims["user"].(string),
-			Valid:  true,
-		})
-		if err != nil {
-			log.Printf("auth find user host: %s path: %s err: %s", r.Host, r.URL.Path, err)
-			http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
-			return false
-		}
 
-		// Set header
-		r.Header.Set("Sx-User", strconv.FormatInt(user.UserId, 10))
-		r.Header.Set("Sx-Admin", strconv.FormatInt(user.Admin, 10))
-		return true
-	} else {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !token.Valid || !ok {
 		log.Printf("auth jwt valid host: %s path: %s", r.Host, r.URL.Path)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return false
 	}
+
+	userId, ok := claims["userid"]
+	if !ok {
+		log.Printf("auth token without userid host: %s path: %s", r.Host, r.URL.Path)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+
+	floatUserId, ok := userId.(float64)
+	if !ok {
+		log.Printf("auth userId to float host: %s path: %s", r.Host, r.URL.Path)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+
+	// Set header
+	strUserId := strconv.FormatFloat(floatUserId, 'f', -1, 64)
+	r.Header.Set("Sx-User", strUserId)
+	return true
 }
