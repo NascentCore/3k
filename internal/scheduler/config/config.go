@@ -36,4 +36,7 @@ type Config struct {
 	K8S struct {
 		BaseApi string
 	} `json:"-"`
+	Auth struct {
+		Secret string
+	} `json:"-"`
 }
