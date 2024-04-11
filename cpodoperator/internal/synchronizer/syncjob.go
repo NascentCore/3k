@@ -469,6 +469,23 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, portaljobs []sxwl.Po
 					},
 				},
 			}
+			if job.GpuNumber > 1 {
+				cudaDevices := ""
+				for i := 0; i < int(job.GpuNumber); i++ {
+					if i == int(job.GpuNumber)-1 {
+						cudaDevices = cudaDevices + strconv.Itoa(i) + ","
+					} else {
+						cudaDevices = cudaDevices + strconv.Itoa(i) + ","
+					}
+				}
+				newJob.Spec.Predictor.PodSpec.Containers[0].Env = append(newJob.Spec.Predictor.PodSpec.Containers[0].Env, v1.EnvVar{
+					Name:  "CUDA_VISIBLE_DEVICES",
+					Value: cudaDevices,
+				})
+
+				newJob.Spec.Predictor.PodSpec.Containers[0].Command = append(newJob.Spec.Predictor.PodSpec.Containers[0].Command, "--infer_backend", "vllm", "--vllm_enforce_eager")
+			}
+
 			if err = s.kubeClient.Create(ctx, &newJob); err != nil {
 				s.addCreateFailedInferenceJob(job)
 				s.logger.Error(err, "failed to create inference job", "job", newJob)
