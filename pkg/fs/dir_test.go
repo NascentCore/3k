@@ -1,6 +1,10 @@
 package fs
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestFormatBytes(t *testing.T) {
 	type args struct {
@@ -48,5 +52,44 @@ func TestFormatBytes(t *testing.T) {
 				t.Errorf("FormatBytes() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestListFilesInDir tests the ListFilesInDir function.
+func TestListFilesInDir(t *testing.T) {
+	// Setup a temporary directory.
+	tmpDir := t.TempDir()
+
+	// Create some test files.
+	fileNames := []string{"test1.txt", "test2.txt", "example.go", "readme.md"}
+	for _, fName := range fileNames {
+		tmpFile, err := os.Create(filepath.Join(tmpDir, fName))
+		if err != nil {
+			t.Fatal(err)
+		}
+		tmpFile.Close()
+	}
+
+	// Define test cases
+	tests := []struct {
+		ext      string
+		expected int
+	}{
+		{".txt", 2},  // Expect 2 .txt files
+		{".go", 1},   // Expect 1 .go file
+		{"", 4},      // Expect all 4 files
+		{".json", 0}, // Expect no .json files
+	}
+
+	// Execute test cases
+	for _, tc := range tests {
+		result, err := ListFilesInDir(tmpDir, tc.ext)
+		if err != nil {
+			t.Errorf("Failed to list files: %v", err)
+			continue
+		}
+		if len(result) != tc.expected {
+			t.Errorf("Expected %d files for extension '%s', got %d", tc.expected, tc.ext, len(result))
+		}
 	}
 }

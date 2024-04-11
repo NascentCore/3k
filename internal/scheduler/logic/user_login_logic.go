@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/rsa"
 	"time"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -37,13 +39,23 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 
 	user, err := UserModel.FindOneByUsername(l.ctx, orm.NullString(req.Username))
 	if errors.Is(err, model.ErrNotFound) {
-		err = fmt.Errorf("用户名或密码不正确")
-		return nil, err
+		return nil, fmt.Errorf("用户名或密码不正确")
 	}
 
 	if err != nil {
 		l.Errorf("UserLogin username=%s err=%s", req.Username, err)
-		return nil, err
+		return nil, fmt.Errorf("系统错误，请联系管理员")
+	}
+
+	// check password
+	password, err := rsa.Decrypt(req.Password, l.svcCtx.Config.Rsa.PrivateKey)
+	if err != nil {
+		l.Errorf("UserLogin decrypt username=%s err=%s", req.Username, err)
+		return nil, fmt.Errorf("系统错误，请联系管理员")
+	}
+
+	if !bcrypt.CheckPasswordHash(password, user.Password.String) {
+		return nil, fmt.Errorf("用户名或密码不正确")
 	}
 
 	resp = &types.LoginResp{User: types.WrapUser{User: types.UserInfo{}}}

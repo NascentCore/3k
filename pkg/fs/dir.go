@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func IsDirExist(dir string) bool {
@@ -70,4 +71,32 @@ func FormatBytes(bytes int64) string {
 	}
 
 	return fmt.Sprintf("%.2f %s", size, unit)
+}
+
+// ListFilesInDir lists all files in the given directory that have the specified extension.
+// If ext is an empty string, it lists all files, returning their full paths.
+func ListFilesInDir(dir string, ext string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	var fileList []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue // skip directories
+		}
+
+		fileInfo, err := entry.Info() // Retrieves os.FileInfo from the DirEntry
+		if err != nil {
+			return nil, err
+		}
+
+		if ext == "" || strings.HasSuffix(fileInfo.Name(), ext) {
+			fullPath := filepath.Join(dir, fileInfo.Name())
+			fileList = append(fileList, fullPath)
+		}
+	}
+
+	return fileList, nil
 }
