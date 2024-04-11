@@ -136,6 +136,15 @@ var SupportModels = []Model{
 		Targetmodelsize:  30720,
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
+	{
+		Name:             "mistralai/Mixtral-8x7B-Instruct-v0.1",
+		ModelStorageName: "model-storage-57e056b59249bceb",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v2",
+		Template:         "mistral",
+		LoRATarget:       "q_proj,v_proj",
+		Targetmodelsize:  30720,
+		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
+	},
 }
 
 func CheckModelWhetherSupport(modelName string) *Model {
