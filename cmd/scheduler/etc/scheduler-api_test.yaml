@@ -31,6 +31,7 @@ FinetuneModel:
   google/gemma-2b-it: ""
   mistralai/Mistral-7B-v0.1: ""
   mistralai/Mistral-7B-Instruct-v0.1: ""
+  mistralai/Mixtral-8x7B-Instruct-v0.1: ""
   IDEA-CCNL/Ziya-LLaMA-13B-v1: ""
   meta-llama/Llama-2-7b: ""
   baichuan-inc/Baichuan2-7B-Chat: ""
