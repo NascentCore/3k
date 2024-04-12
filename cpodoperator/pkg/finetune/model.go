@@ -142,7 +142,7 @@ var SupportModels = []Model{
 		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v2",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
-		Targetmodelsize:  30720,
+		Targetmodelsize:  102400,
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 }
