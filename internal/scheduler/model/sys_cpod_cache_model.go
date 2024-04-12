@@ -156,10 +156,10 @@ func (m *defaultSysCpodCacheModel) FindPageListByPage(ctx context.Context, selec
 
 func (m *defaultSysCpodCacheModel) FindActive(ctx context.Context, dataType int, minutes int) ([]*SysCpodCache, error) {
 	caches := make([]*SysCpodCache, 0)
-	err := m.conn.QueryRowsCtx(ctx, &caches, fmt.Sprintf(`SELECT c.*
-	FROM sys_cpod_cache c
-	JOIN sys_cpod_main m ON c.cpod_id = m.cpod_id
-	WHERE c.data_type = %d AND m.update_time > NOW() - INTERVAL %d MINUTE;`, dataType, minutes),
+	err := m.conn.QueryRowsCtx(ctx, &caches, fmt.Sprintf(`select c.*
+	from sys_cpod_cache c
+	join (select cpod_id, max(update_time) as update_time from sys_cpod_main group by cpod_id) m on c.cpod_id = m.cpod_id
+	where c.data_type = %d and m.update_time > NOW() - INTERVAL %d MINUTE;`, dataType, minutes),
 	)
 	if err != nil {
 		return nil, err
