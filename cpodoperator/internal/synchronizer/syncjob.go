@@ -894,7 +894,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
 						{
-							Name:  "jupyterlab" + job.Name,
+							Name:  "jupyterlab-" + strconv.FormatInt(job.UserID, 10) + "-" + job.Name,
 							Image: "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5",
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{
