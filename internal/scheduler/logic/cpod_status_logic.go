@@ -327,20 +327,18 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			}
 		} else {
 			// 存在的检查下template和size是否变更
-			if currentCache[id].Template == cache.Template && currentCache[id].DataSize == cache.DataSize {
-				continue
-			}
-
-			_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
-				"id": currentCache[id].Id,
-			}).SetMap(map[string]interface{}{
-				"data_size": cache.DataSize,
-				"template":  cache.Template,
-			}))
-			if err != nil {
-				l.Logger.Errorf("cpod_cache update cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
-					req.CPODID, cache.DataType, cache.DataName, cache.DataId, cache.DataSource, err)
-				return nil, err
+			if currentCache[id].Template != cache.Template || currentCache[id].DataSize != cache.DataSize {
+				_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
+					"id": currentCache[id].Id,
+				}).SetMap(map[string]interface{}{
+					"data_size": cache.DataSize,
+					"template":  cache.Template,
+				}))
+				if err != nil {
+					l.Logger.Errorf("cpod_cache update cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
+						req.CPODID, cache.DataType, cache.DataName, cache.DataId, cache.DataSource, err)
+					return nil, err
+				}
 			}
 		}
 		delete(currentCache, id)
