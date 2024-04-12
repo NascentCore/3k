@@ -291,9 +291,9 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		return nil, err
 	}
 
-	currentCache := make(map[string]int64)
+	currentCache := make(map[string]*model.SysCpodCache)
 	for _, cache := range cacheList {
-		currentCache[cache.DataId] = cache.Id
+		currentCache[cache.DataId] = cache
 	}
 
 	reportCache := make(map[string]types.Cache)
@@ -304,6 +304,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	// update cache insert
 	for id, cache := range reportCache {
 		if _, exists := currentCache[id]; !exists {
+			// 不存在就插入记录
 			dataType, ok := cacheTypeToDBMap[cache.DataType]
 			if !ok {
 				l.Logger.Errorf("cpod_cache data_type not match cpod_id=%s data_type=%s", req.CPODID, cache.DataType)
@@ -324,15 +325,32 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 					req.CPODID, cache.DataType, cache.DataName, cache.DataId, cache.DataSource, err)
 				return nil, err
 			}
+		} else {
+			// 存在的检查下template和size是否变更
+			if currentCache[id].Template == cache.Template && currentCache[id].DataSize == cache.DataSize {
+				continue
+			}
+
+			_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
+				"id": currentCache[id].Id,
+			}).SetMap(map[string]interface{}{
+				"data_size": cache.DataSize,
+				"template":  cache.Template,
+			}))
+			if err != nil {
+				l.Logger.Errorf("cpod_cache update cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
+					req.CPODID, cache.DataType, cache.DataName, cache.DataId, cache.DataSource, err)
+				return nil, err
+			}
 		}
 		delete(currentCache, id)
 	}
 
 	// update cache delete
-	for dataId, id := range currentCache {
-		err = CpodCacheModel.Delete(l.ctx, id)
+	for dataId, cache := range currentCache {
+		err = CpodCacheModel.Delete(l.ctx, cache.Id)
 		if err != nil {
-			l.Logger.Errorf("cpod_cache delete cpod_id=%s id=%d data_id=%s err=%s", req.CPODID, id, dataId, err)
+			l.Logger.Errorf("cpod_cache delete cpod_id=%s id=%d data_id=%s err=%s", req.CPODID, cache.Id, dataId, err)
 			return nil, err
 		}
 	}
