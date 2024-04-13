@@ -75,8 +75,6 @@ Gateway:
       ToPath: "/quota"
       Auth: Yes
       Server: scheduler
-    - Path: "/auth/login"
-      Server: scheduler
     - Path: "/auth/info"
       Auth: Yes
       Server: scheduler
