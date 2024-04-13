@@ -79,6 +79,6 @@ Gateway:
       Auth: Yes
       Server: scheduler
     - Path: "/api"
-      Server: java
+      Server: scheduler
     - Path: "/auth"
-      Server: java
+      Server: scheduler
