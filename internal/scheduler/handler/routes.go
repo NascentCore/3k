@@ -150,4 +150,20 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		},
 		rest.WithPrefix("/auth"),
 	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/code/sendEmail",
+				Handler: sendEmailHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/users/registerUser/:code",
+				Handler: registerHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api"),
+	)
 }

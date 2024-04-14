@@ -14,6 +14,17 @@ import (
 	"github.com/zeromicro/go-zero/core/stringx"
 )
 
+const (
+	SysUserNormal     = 0
+	SysUserAdmin      = 1
+	SysUserSuperAdmin = 2
+)
+
+const (
+	SysUserConsumer = 2
+	SysUserSupplier = 3
+)
+
 var (
 	sysUserFieldNames          = builder.RawFieldNames(&SysUser{})
 	sysUserRows                = strings.Join(sysUserFieldNames, ",")

@@ -364,6 +364,17 @@ type QuotaUpdateResp struct {
 	Message string `json:"message"`
 }
 
+type RegisterUserReq struct {
+	Code         string `path:"code"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Enabled      int    `json:"enabled"`
+	Password     string `json:"password"`
+	UserType     int    `json:"userType"`
+	CompanyName  string `json:"companyName"`
+	CompanyPhone string `json:"companyPhone"`
+}
+
 type Resource struct {
 	ID     string   `json:"id"`
 	Name   string   `json:"name"`
@@ -397,6 +408,10 @@ type ResourceModelsReq struct {
 type ResourceModelsResp struct {
 	Total int64      `json:"total"`
 	List  []Resource `json:"list"`
+}
+
+type SendEmailReq struct {
+	Email string `form:"email"`
 }
 
 type SysInference struct {

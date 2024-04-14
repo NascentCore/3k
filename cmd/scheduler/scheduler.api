@@ -523,3 +523,32 @@ service scheduler-api {
 	post /login (LoginReq) returns (LoginResp)
 }
 
+type (
+	SendEmailReq {
+		Email string `form:"email"`
+	}
+	RegisterUserReq {
+		Code         string `path:"code"`
+		Username     string `json:"username"`
+		Email        string `json:"email"`
+		Enabled      int    `json:"enabled"`
+		Password     string `json:"password"`
+		UserType     int    `json:"userType"`
+		CompanyName  string `json:"companyName"`
+		CompanyPhone string `json:"companyPhone"`
+	}
+)
+
+@server (
+	prefix: /api
+)
+service scheduler-api {
+	@doc "发送邮件验证码"
+	@handler sendEmail
+	post /code/sendEmail (SendEmailReq)
+
+	@doc "用户注册"
+	@handler register
+	post /users/registerUser/:code (RegisterUserReq)
+}
+

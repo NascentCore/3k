@@ -1,6 +1,8 @@
 package config
 
 import (
+	"sxwl/3k/pkg/email"
+
 	"github.com/zeromicro/go-zero/rest"
 )
 
@@ -38,5 +40,9 @@ type Config struct {
 	} `json:"-"`
 	Auth struct {
 		Secret string
+	} `json:"-"`
+	Email email.Config `json:"-"`
+	Rsa   struct {
+		PrivateKey string
 	} `json:"-"`
 }

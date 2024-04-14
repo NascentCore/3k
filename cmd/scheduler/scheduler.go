@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sxwl/3k/pkg/storage"
-
+	"strconv"
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/handler"
 	"sxwl/3k/internal/scheduler/svc"
+	"sxwl/3k/pkg/storage"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -67,6 +67,16 @@ func main() {
 
 	// init oss
 	storage.InitClient(adminAccessID, adminAccessKey)
+
+	// insert email config
+	c.Email.Host = os.Getenv("EMAIL_HOST")
+	c.Email.Port, _ = strconv.Atoi(os.Getenv("EMAIL_PORT"))
+	c.Email.Username = os.Getenv("EMAIL_USERNAME")
+	c.Email.SenderName = os.Getenv("EMAIL_SENDER_NAME")
+	c.Email.Password = os.Getenv("EMAIL_PASSWORD")
+
+	// insert ras key
+	c.Rsa.PrivateKey = os.Getenv("RSA_PRIVATE_KEY")
 
 	// error handler
 	handler.InitErrorHandler()
