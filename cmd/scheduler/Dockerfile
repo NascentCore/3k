@@ -17,6 +17,7 @@ COPY cmd/scheduler cmd/scheduler
 COPY internal/scheduler internal/scheduler
 COPY pkg pkg
 COPY cmd/scheduler/etc /app/etc
+COPY cmd/scheduler/ftl /app/ftl
 RUN go build -ldflags="-s -w" -o /app/app cmd/scheduler/scheduler.go
 
 
