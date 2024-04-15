@@ -30,5 +30,6 @@ ENV TZ Asia/Shanghai
 WORKDIR /app
 COPY --from=builder /app/app /app/app
 COPY --from=builder /app/etc /app/etc
+COPY --from=builder /app/ftl /app/ftl
 
 CMD ["./app"]
