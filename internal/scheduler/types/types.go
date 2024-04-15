@@ -448,7 +448,6 @@ type UserInfo struct {
 	Enabled    bool   `json:"enabled"`
 	ID         int    `json:"id"`
 	IsAdmin    bool   `json:"isAdmin"`
-	Password   string `json:"password"`
 	UpdateBy   string `json:"updateBy"`
 	UpdateTime string `json:"updateTime"`
 	UserType   int    `json:"userType"`
