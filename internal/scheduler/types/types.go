@@ -370,9 +370,9 @@ type RegisterUserReq struct {
 	Email        string `json:"email"`
 	Enabled      int    `json:"enabled"`
 	Password     string `json:"password"`
-	UserType     int    `json:"userType"`
-	CompanyName  string `json:"companyName"`
-	CompanyPhone string `json:"companyPhone"`
+	UserType     int    `json:"userType,optional"`
+	CompanyName  string `json:"companyName,optional"`
+	CompanyPhone string `json:"companyPhone,optional"`
 }
 
 type Resource struct {
