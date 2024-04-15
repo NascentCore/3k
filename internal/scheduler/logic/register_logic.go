@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/rsa"
 	"time"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -60,11 +62,24 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 		return fmt.Errorf("此邮箱已被注册，请尝试其他邮箱。")
 	}
 
+	// password encrypt
+	password, err := rsa.Decrypt(req.Password, l.svcCtx.Config.Rsa.PrivateKey)
+	if err != nil {
+		l.Errorf("register decrypt username=%s err=%s", req.Username, err)
+		return fmt.Errorf("系统错误，请联系管理员")
+	}
+
+	passwordHash, err := bcrypt.GeneratePasswordHash(password)
+	if err != nil {
+		l.Errorf("register hash username=%s err=%s", req.Username, err)
+		return fmt.Errorf("系统错误，请联系管理员")
+	}
+
 	// create user
 	user := &model.SysUser{
 		Username:   orm.NullString(req.Username),
 		Email:      orm.NullString(req.Email),
-		Password:   orm.NullString(req.Password),
+		Password:   orm.NullString(passwordHash),
 		Enabled:    orm.NullInt64(int64(req.Enabled)),
 		CreateBy:   orm.NullString("System"),
 		UpdateBy:   orm.NullString("System"),
