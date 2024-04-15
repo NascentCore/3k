@@ -315,13 +315,28 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 	}
 	caches := []resource.Cache{}
 	for _, model := range modelList.Items {
+		FinetuneGPUCount := 1
+		InferenceGPUCount := 1
+
+		if model.Labels != nil {
+			if value, ok := model.Labels[v1beta1.CPodModelstorageDefaultFinetuneGPUCount]; ok {
+				FinetuneGPUCount, _ = strconv.Atoi(value)
+			}
+
+			if value, ok := model.Labels[v1beta1.CPodModelstorageDefaultInferenceGPUCount]; ok {
+				InferenceGPUCount, _ = strconv.Atoi(value)
+			}
+		}
+
 		caches = append(caches, resource.Cache{
-			DataType:   resource.CacheModel,
-			DataName:   model.Spec.ModelName,
-			DataId:     model.Name,
-			DataSize:   model.Status.Size,
-			Template:   model.Spec.Template,
-			DataSource: model.Spec.ModelType,
+			DataType:          resource.CacheModel,
+			DataName:          model.Spec.ModelName,
+			DataId:            model.Name,
+			DataSize:          model.Status.Size,
+			Template:          model.Spec.Template,
+			DataSource:        model.Spec.ModelType,
+			FinetuneGPUCount:  int64(FinetuneGPUCount),
+			InferenceGPUCount: int64(InferenceGPUCount),
 		})
 	}
 	var datasetList cpodv1.DataSetStorageList

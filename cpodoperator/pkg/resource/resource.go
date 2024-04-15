@@ -89,10 +89,12 @@ type CPodResourceInfo struct {
 // “缓存”在三千平台上的各类数据：开源基底模型、数据集
 // TODO：目前系统还没有考虑用户自有的模型、数据集，须注意此类设计上的安全性
 type Cache struct {
-	DataType   string `json:"data_type"`
-	DataName   string `json:"data_name"`
-	DataId     string `json:"data_id"`
-	DataSize   int64  `json:"data_size"`
-	Template   string `json:"template"`
-	DataSource string `json:"data_source"`
+	DataType          string `json:"data_type"`
+	DataName          string `json:"data_name"`
+	DataId            string `json:"data_id"`
+	DataSize          int64  `json:"data_size"`
+	Template          string `json:"template"`
+	DataSource        string `json:"data_source"`
+	FinetuneGPUCount  int64  `json:"finetune_gpu_count"`
+	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
