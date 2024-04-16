@@ -66,12 +66,14 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicModelDir)
 		m := types.Resource{
-			ID:     storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
-			Name:   modelName,
-			Object: "model",
-			Owner:  "public",
-			Size:   size,
-			Tag:    tag,
+			ID:                storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
+			Name:              modelName,
+			Object:            "model",
+			Owner:             "public",
+			Size:              size,
+			Tag:               tag,
+			FinetuneGPUCount:  1,
+			InferenceGPUCount: 1,
 		}
 		_, ok := l.svcCtx.Config.FinetuneModel[modelName]
 		if ok {
@@ -103,12 +105,14 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			tag := []string{"finetune", "inference"} // TODO 根据其他元信息来判断是否能微调和推理
 			modelName := strings.TrimPrefix(strings.TrimSuffix(m.DataName, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
 			resp = append(resp, types.Resource{
-				ID:     m.DataId,
-				Name:   modelName,
-				Object: "model",
-				Owner:  "user",
-				Size:   m.DataSize,
-				Tag:    tag,
+				ID:                m.DataId,
+				Name:              modelName,
+				Object:            "model",
+				Owner:             "user",
+				Size:              m.DataSize,
+				Tag:               tag,
+				FinetuneGPUCount:  int(m.FinetuneGpuCount),
+				InferenceGPUCount: int(m.InferenceGpuCount),
 			})
 		}
 	} else {
@@ -140,12 +144,14 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 			modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
 			resp = append(resp, types.Resource{
-				ID:     storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
-				Name:   modelName,
-				Object: "model",
-				Owner:  fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
-				Size:   size,
-				Tag:    tag,
+				ID:                storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
+				Name:              modelName,
+				Object:            "model",
+				Owner:             fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
+				Size:              size,
+				Tag:               tag,
+				FinetuneGPUCount:  1,
+				InferenceGPUCount: 1,
 			})
 		}
 	}
