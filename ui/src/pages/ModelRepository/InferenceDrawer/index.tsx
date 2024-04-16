@@ -15,7 +15,7 @@ const Content = ({ record, onCancel }) => {
   const [formValues, setFormValues] = useState({
     model_name: record.name,
     // gpuProd: '',
-    gpu_count: 1,
+    gpu_count: record?.inference_gpu_count || 1,
   });
 
   const { data: gpuTypeOptions } = useApiGetGpuType({});
