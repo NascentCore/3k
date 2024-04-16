@@ -9,6 +9,23 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 )
 
+type PortalJupyterLabJob struct {
+	Name           string            `json:"name"`
+	JobType        string            `json:"jobType"`
+	CPU            string            `json:"cpu"`
+	Memory         string            `json:"memory"`
+	GPU            int               `json:"gpu"`
+	DataVolumeSize string            `json:"dataVolumeSize"`
+	PretrainModels *[]PretrainModels `json:"pretrainModels"`
+	UserID         int64             `json:"userId"`
+}
+
+type PretrainModels struct {
+	PretrainModelId   string `json:"pretrainModelId"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelPath string `json:"pretrainedModelPath"`
+}
+
 type PortalTrainningJob struct {
 	CkptPath    string            `json:"ckptPath"`
 	CkptVol     int               `json:"ckptVol"`
@@ -67,7 +84,7 @@ type TrainningJobState struct {
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
@@ -79,12 +96,19 @@ type InferenceJobState struct {
 	URL         string `json:"url"`
 }
 
+type JupyterLabJobState struct {
+	Name   string
+	Status string
+	URL    string
+}
+
 type HeartBeatPayload struct {
-	CPodID              string                    `json:"cpod_id"`
-	TrainningJobsStatus []TrainningJobState       `json:"job_status"`
-	InferenceJobsStatus []InferenceJobState       `json:"inference_status"`
-	ResourceInfo        resource.CPodResourceInfo `json:"resource_info"`
-	UpdateTime          time.Time                 `json:"update_time"`
+	CPodID               string                    `json:"cpod_id"`
+	TrainningJobsStatus  []TrainningJobState       `json:"job_status"`
+	InferenceJobsStatus  []InferenceJobState       `json:"inference_status"`
+	JupyterLabJobsStatus []JupyterLabJobState      `json:"jupyter_status"`
+	ResourceInfo         resource.CPodResourceInfo `json:"resource_info"`
+	UpdateTime           time.Time                 `json:"update_time"`
 }
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {

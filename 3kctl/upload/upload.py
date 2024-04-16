@@ -22,7 +22,9 @@ class UploadBase(cli.Application):
             "IDEA-CCNL/Ziya-LLaMA-13B-v1": "alpaca",
             "google/gemma-2b-it": "gemma",
             "mistralai/Mistral-7B-v0.1": "mistral",
-            "mistralai/Mistral-7B-Instruct-v0.1": "mistral"
+            "mistralai/Mistral-7B-Instruct-v0.1": "mistral",
+            "mistralai/Mixtral-8x7B-v0.1": "mistral",
+            "mistralai/Mixtral-8x7B-Instruct-v0.1": "mistral"
         } 
             
         namespace = 'cpod'

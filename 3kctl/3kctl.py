@@ -1,4 +1,12 @@
 #!/opt/.venv/bin/python
+import os
+import sys
+current_file_path = os.path.realpath(__file__)
+current_dir = os.path.dirname(current_file_path)
+parent_dir = os.path.dirname(current_dir)
+os.chdir(parent_dir)
+sys.path.append(os.path.abspath(parent_dir))
+
 from plumbum import cli, colors
 from deploy.deploy import Deploy
 from download.download import Download

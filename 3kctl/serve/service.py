@@ -1,3 +1,4 @@
+from datetime import datetime
 import signal
 from flask import Flask, jsonify, request
 from plumbum import cli
@@ -7,8 +8,13 @@ import json
 import os
 import paramiko
 import threading
+import requests
+from requests.auth import HTTPBasicAuth
+from cli.deploy.utils import parse_ini
 
 app = Flask(__name__)
+
+conf = parse_ini()
 
 @app.route('/nodes', methods=['GET'])
 def get_nodes():
@@ -97,6 +103,69 @@ def add_node():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/build_image', methods=['POST'])
+def build_image():
+    try:
+        data = request.get_json()
+        base_image = data.get('base_image')
+        user_id = data.get('user_id')
+        instance_name = data.get('instance_name')
+
+        # 创建线程来异步执行镜像构建和推送
+        thread = threading.Thread(target=build_and_push_image, args=(base_image, user_id, instance_name))
+        thread.start()
+
+        return jsonify({'message': 'Image build and push initiated successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/repos', methods=['GET'])
+def get_repos():
+    try:
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+        
+        instance_name = request.args.get('instance_name')
+        if instance_name:
+            res = list_tags(user_id, instance_name)
+        else:
+            res = list_repositories(user_id)
+
+        return jsonify(res)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/base_images', methods=['GET'])
+def get_tags():
+    try:
+        images = [
+            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/torch-base:v2024-01-12-01"
+        ]
+        
+        return jsonify(images)
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_repo', methods=['DELETE'])
+def delete_repo():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        image_name = data.get('image_name')
+        tag = data.get('tag')
+        if not user_id or not image_name:
+            return jsonify({"error": "user_id, image_name are required"}), 400
+
+        delete_repository(user_id, image_name, tag)
+
+        return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 class Serve(cli.Application):
     """启动和停止 Flask 服务"""
@@ -176,3 +245,107 @@ def async_subprocess_run(command, callback=None):
     # 创建并启动后台线程来执行命令
     thread = threading.Thread(target=run_in_thread, args=(command, callback))
     thread.start()
+
+def build_and_push_image(base_image, user_id, instance_name):
+    workdir = f'/tmp/{user_id}/{instance_name}'
+    os.makedirs(workdir, exist_ok=True)
+    os.chdir(workdir)
+
+    # 复制代码到工作目录
+    code_dir = f'jupyterlab-{user_id}-{instance_name}:/workspace'
+    copy_cmd = ['kubectl', 'cp', '-n', 'cpod', code_dir, './workspace']
+    copy_cmd = ['kubectl', 'cp', code_dir, './workspace']
+    subprocess.run(copy_cmd, check=True)
+
+    # 生成Dockerfile
+    with open('Dockerfile', 'w') as f:
+        f.write(f'FROM {base_image}\n')
+        f.write('WORKDIR /workspace\n')
+        f.write(f'COPY ./workspace /workspace\n')
+        f.write('RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple\n')
+    # 构建完整的镜像标签
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    full_image_name = f'dockerhub.kubekey.local/{user_id}/{instance_name}:v{timestamp}'
+
+    # 创建项目
+    create_project(user_id)
+
+    # 构建Docker镜像
+    build_cmd = ['sudo', 'docker', 'build', '-t', full_image_name, '.']
+    subprocess.run(build_cmd, check=True)
+
+    # 推送Docker镜像
+    push_cmd = ['sudo', 'docker', 'push', full_image_name]
+    subprocess.run(push_cmd, check=True)
+
+    return full_image_name
+
+def create_project(project_name, public=True):
+    url = "https://dockerhub.kubekey.local/api/v2.0/projects"
+    data = {
+        "project_name": project_name,
+        "public": public
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(url, json=data, headers=headers, auth=HTTPBasicAuth(conf.registry.harbor_user, conf.registry.harbor_pass), verify=False)
+    
+    if response.status_code == 201:
+        print(f"Project {project_name} created successfully.")
+    else:
+        print(f"Failed to create project {project_name}. Status code: {response.status_code}, Response: {response.text}")
+
+def list_repositories(project_name):
+    hub = "dockerhub.kubekey.local"
+    url = f"https://{hub}/api/v2.0/projects/{project_name}/repositories?page=1&page_size=100"
+    response = requests.get(url, auth=HTTPBasicAuth(conf.registry.harbor_user, conf.registry.harbor_pass), verify=False)
+    if response.status_code == 200:
+        res = response.json()
+        repos = []
+        for i in res:
+            repos.append({
+                "image_name": os.path.basename(i['name']),
+                "full_name": f"{hub}/{i['name']}",
+                "created_at": i['creation_time'],
+                "updated_at": i['update_time']
+            })
+        return repos
+    else:
+        print(f"Error fetching repositories. Status code: {response.status_code}")
+        return None
+
+def list_tags(project_name, repository):
+    hub = "dockerhub.kubekey.local"
+    url = f"https://{hub}/api/v2.0/projects/{project_name}/repositories/{repository}/artifacts?page=1&page_size=100"
+    response = requests.get(url, auth=HTTPBasicAuth(conf.registry.harbor_user, conf.registry.harbor_pass), verify=False)
+    if response.status_code == 200:
+        res = response.json()
+        tags = []
+        for i in res:
+            if i['tags']:
+                tags.append({
+                    "image_name": repository,
+                    "image_size": i['size'],
+                    "tag_name": i['tags'][0]['name'],
+                    "full_name": f"{hub}/{project_name}/{repository}:{i['tags'][0]['name']}",
+                    "push_time": i['tags'][0]['push_time'],
+                })
+        return tags
+    else:
+        print(f"Error fetching tags. Status code: {response.status_code}")
+        return None
+    
+def delete_repository(project_name, repository, tag=None):
+    if project_name == "kubesphereio":
+        return None
+    hub = "dockerhub.kubekey.local"
+    url = f"https://{hub}/api/v2.0/projects/{project_name}/repositories/{repository}"
+    if tag:
+        url += f"/artifacts/{tag}"
+    response = requests.delete(url, auth=HTTPBasicAuth(conf.registry.harbor_user, conf.registry.harbor_pass), verify=False)
+    if response.status_code == 200:
+        return None
+    else:
+        raise Exception(f"Error deleting repository. Status code: {response.status_code}")

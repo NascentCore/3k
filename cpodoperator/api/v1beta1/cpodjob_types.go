@@ -65,6 +65,7 @@ const (
 	JobTypeMPI        JobType = "mpi"
 	JobTypePytorch    JobType = "pytorch"
 	JobTypeTensorFlow JobType = "tensorFlow"
+	JobTypeJupyter    JobType = "jupyter"
 )
 
 // CPodJobPhase is a label for the condition of a cpodjob at the current time.
