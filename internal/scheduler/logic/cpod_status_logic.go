@@ -336,8 +336,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
 					"id": currentCache[id].Id,
 				}).SetMap(map[string]interface{}{
-					"data_size": cache.DataSize,
-					"template":  cache.Template,
+					"data_size":           cache.DataSize,
+					"template":            cache.Template,
+					"finetune_gpu_count":  cache.FinetuneGPUCount,
+					"inference_gpu_count": cache.InferenceGPUCount,
 				}))
 				if err != nil {
 					l.Logger.Errorf("cpod_cache update cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
