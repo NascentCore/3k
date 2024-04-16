@@ -123,18 +123,30 @@ def build_image():
 @app.route('/repos', methods=['GET'])
 def get_repos():
     try:
-        project_name = request.args.get('project_name')
-        if not project_name:
-            return jsonify({"error": "project_name is required"}), 400
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
         
-        repository = request.args.get('repository')
-        if repository:
-            res = list_tags(project_name, repository)
+        instance_name = request.args.get('instance_name')
+        if instance_name:
+            res = list_tags(user_id, instance_name)
         else:
-            res = list_repositories(project_name)
+            res = list_repositories(user_id)
 
         return jsonify(res)
         
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/base_images', methods=['GET'])
+def get_tags():
+    try:
+        images = [
+            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/torch-base:v2024-01-12-01"
+        ]
+        
+        return jsonify(images)
+    
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
