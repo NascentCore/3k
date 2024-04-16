@@ -149,6 +149,23 @@ def get_tags():
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/delete_repo', methods=['DELETE'])
+def delete_repo():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        image_name = data.get('image_name')
+        tag = data.get('tag')
+        if not user_id or not image_name:
+            return jsonify({"error": "user_id, image_name are required"}), 400
+
+        delete_repository(user_id, image_name, tag)
+
+        return jsonify({"status": "success"}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 class Serve(cli.Application):
     """启动和停止 Flask 服务"""
@@ -319,3 +336,16 @@ def list_tags(project_name, repository):
     else:
         print(f"Error fetching tags. Status code: {response.status_code}")
         return None
+    
+def delete_repository(project_name, repository, tag=None):
+    if project_name == "kubesphereio":
+        return None
+    hub = "dockerhub.kubekey.local"
+    url = f"https://{hub}/api/v2.0/projects/{project_name}/repositories/{repository}"
+    if tag:
+        url += f"/artifacts/{tag}"
+    response = requests.delete(url, auth=HTTPBasicAuth(conf.registry.harbor_user, conf.registry.harbor_pass), verify=False)
+    if response.status_code == 200:
+        return None
+    else:
+        raise Exception(f"Error deleting repository. Status code: {response.status_code}")
