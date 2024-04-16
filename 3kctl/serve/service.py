@@ -288,7 +288,12 @@ def list_repositories(project_name):
         res = response.json()
         repos = []
         for i in res:
-            repos.append(f"{hub}/{i['name']}")
+            repos.append({
+                "image_name": os.path.basename(i['name']),
+                "full_name": f"{hub}/{i['name']}",
+                "created_at": i['creation_time'],
+                "updated_at": i['update_time']
+            })
         return repos
     else:
         print(f"Error fetching repositories. Status code: {response.status_code}")
@@ -303,7 +308,13 @@ def list_tags(project_name, repository):
         tags = []
         for i in res:
             if i['tags']:
-                tags.append(f"{hub}/{project_name}/{repository}:{i['tags'][0]['name']}")
+                tags.append({
+                    "image_name": repository,
+                    "image_size": i['size'],
+                    "tag_name": i['tags'][0]['name'],
+                    "full_name": f"{hub}/{project_name}/{repository}:{i['tags'][0]['name']}",
+                    "push_time": i['tags'][0]['push_time'],
+                })
         return tags
     else:
         print(f"Error fetching tags. Status code: {response.status_code}")
