@@ -16,7 +16,7 @@ const Content = ({ record, onCancel }) => {
   const [formValues, setFormValues] = useState({
     model: record?.name,
     // gpuProd: '',
-    gpu_count: 1,
+    gpu_count: record?.finetune_gpu_count || 1,
     hyperparameters: {
       n_epochs: '3.0',
       batch_size: '4',
