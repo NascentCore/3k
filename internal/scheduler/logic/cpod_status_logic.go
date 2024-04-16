@@ -311,14 +311,16 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				continue
 			}
 			_, err = CpodCacheModel.Insert(l.ctx, &model.SysCpodCache{
-				CpodId:      req.CPODID,
-				CpodVersion: req.ResourceInfo.CPODVersion,
-				DataType:    int64(dataType),
-				DataName:    cache.DataName,
-				DataId:      cache.DataId,
-				DataSize:    cache.DataSize,
-				DataSource:  cache.DataSource,
-				Template:    cache.Template,
+				CpodId:            req.CPODID,
+				CpodVersion:       req.ResourceInfo.CPODVersion,
+				DataType:          int64(dataType),
+				DataName:          cache.DataName,
+				DataId:            cache.DataId,
+				DataSize:          cache.DataSize,
+				DataSource:        cache.DataSource,
+				Template:          cache.Template,
+				FinetuneGpuCount:  cache.FinetuneGPUCount,
+				InferenceGpuCount: cache.InferenceGPUCount,
 			})
 			if err != nil {
 				l.Logger.Errorf("cpod_cache insert cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
@@ -327,7 +329,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			}
 		} else {
 			// 存在的检查下template和size是否变更
-			if currentCache[id].Template != cache.Template || currentCache[id].DataSize != cache.DataSize {
+			if currentCache[id].Template != cache.Template ||
+				currentCache[id].DataSize != cache.DataSize ||
+				currentCache[id].FinetuneGpuCount != cache.FinetuneGPUCount ||
+				currentCache[id].InferenceGpuCount != cache.InferenceGPUCount {
 				_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
 					"id": currentCache[id].Id,
 				}).SetMap(map[string]interface{}{

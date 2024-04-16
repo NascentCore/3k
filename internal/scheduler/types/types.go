@@ -24,12 +24,14 @@ type CPUInfo struct {
 }
 
 type Cache struct {
-	DataType   string `json:"data_type"`
-	DataName   string `json:"data_name"`
-	DataId     string `json:"data_id"`
-	DataSize   int64  `json:"data_size"`
-	Template   string `json:"template"`
-	DataSource string `json:"data_source"`
+	DataType          string `json:"data_type"`
+	DataName          string `json:"data_name"`
+	DataId            string `json:"data_id"`
+	DataSize          int64  `json:"data_size"`
+	Template          string `json:"template"`
+	DataSource        string `json:"data_source"`
+	FinetuneGPUCount  int64  `json:"finetune_gpu_count"`
+	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
 
 type ClusterNode struct {
@@ -376,12 +378,14 @@ type RegisterUserReq struct {
 }
 
 type Resource struct {
-	ID     string   `json:"id"`
-	Name   string   `json:"name"`
-	Object string   `json:"object"`
-	Owner  string   `json:"owner"`
-	Size   int64    `json:"size"`
-	Tag    []string `json:"tag"`
+	ID                string   `json:"id"`
+	Name              string   `json:"name"`
+	Object            string   `json:"object"`
+	Owner             string   `json:"owner"`
+	Size              int64    `json:"size"`
+	Tag               []string `json:"tag"`
+	FinetuneGPUCount  int      `json:"finetune_gpu_count"`
+	InferenceGPUCount int      `json:"inference_gpu_count"`
 }
 
 type ResourceDatasetsReq struct {
