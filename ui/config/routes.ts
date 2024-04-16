@@ -71,14 +71,16 @@ export default [
   {
     path: '/ClusterInformation',
     name: 'ClusterInformation',
-    icon: 'DatabaseOutlined',
+    icon: 'ClusterOutlined',
     component: './ClusterInformation',
+    access: 'adminRouteFilter',
   },
   {
     path: '/UserQuota',
     name: 'UserQuota',
-    icon: 'DatabaseOutlined',
+    icon: 'UserSwitchOutlined',
     component: './UserQuota',
+    access: 'adminRouteFilter',
   },
   {
     path: '*',
