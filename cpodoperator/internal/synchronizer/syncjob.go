@@ -948,6 +948,12 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 		},
 	}
 
+	if job.GPUProduct != "" {
+		ss.Spec.Template.Spec.NodeSelector = map[string]string{
+			"nvidia.com/gpu.product": job.GPUProduct,
+		}
+	}
+
 	// 3. 创建StatefulSet
 	if err := s.kubeClient.Create(ctx, ss); err != nil {
 		return nil, fmt.Errorf("failed to create StatefulSet %s: %w", statefulSetName, err)
