@@ -3,7 +3,7 @@ import useSWR from 'swr';
 
 // 登录接了 /auth/login
 export async function apiAuthLogin(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/auth/login', {
+  return request<API.NoticeIconList>('/api/user/login', {
     method: 'POST',
     ...(options || {}),
   });
@@ -11,7 +11,7 @@ export async function apiAuthLogin(options?: { [key: string]: any }) {
 
 // 获取用户信息 /auth/info
 export async function apiAuthInfo(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/auth/info', {
+  return request<API.NoticeIconList>('/api/user/info', {
     method: 'GET',
     ...(options || {}),
   });
@@ -19,14 +19,14 @@ export async function apiAuthInfo(options?: { [key: string]: any }) {
 
 // 发送验证码
 export async function apiCodeSendEmail(email: string) {
-  return request<API.NoticeIconList>('/api/code/sendEmail?email=' + email, {
+  return request<API.NoticeIconList>('/api/user/email?email=' + email, {
     method: 'POST',
   });
 }
 
 // 注册
 export async function apiUsersRegisterUser(codemes: string, options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/users/registerUser/' + codemes, {
+  return request<API.NoticeIconList>('/api/user/register' + codemes, {
     method: 'POST',
     ...(options || {}),
   });
@@ -68,7 +68,7 @@ export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
 // 2.6 无代码微调
 
 export async function apiFinetunes(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/finetune', {
+  return request<API.NoticeIconList>('/api/job/finetune', {
     method: 'POST',
     ...(options || {}),
   });
@@ -76,7 +76,7 @@ export async function apiFinetunes(options?: { [key: string]: any }) {
 
 // 2.7.1 推理服务部署 /
 export async function apiInference(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/inference', {
+  return request<API.NoticeIconList>('/api/job/inference', {
     method: 'POST',
     ...(options || {}),
   });
@@ -84,7 +84,7 @@ export async function apiInference(options?: { [key: string]: any }) {
 
 // 2.7.2 查询推理服务状态
 export async function apiGetInference(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/inference', {
+  return request<API.NoticeIconList>('/api/job/inference', {
     method: 'GET',
     ...(options || {}),
   });
@@ -92,7 +92,7 @@ export async function apiGetInference(options?: { [key: string]: any }) {
 
 // 推理服务列表
 export const useApiGetInference = (options?: { [key: string]: any }) =>
-  useSWR(['/api/inference', options], ([url, data]) => {
+  useSWR(['/api/job/inference', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
@@ -101,7 +101,7 @@ export const useApiGetInference = (options?: { [key: string]: any }) =>
 
 // 推理服务删除
 export async function apiDeleteInference(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/inference', {
+  return request<API.NoticeIconList>('/api/job/inference', {
     method: 'DELETE',
     ...(options || {}),
   });
@@ -109,7 +109,7 @@ export async function apiDeleteInference(options?: { [key: string]: any }) {
 
 // 查询任务详情 /api/userJob
 export async function apiGetUserJob(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/userJob', {
+  return request<API.NoticeIconList>('/api/job/training', {
     method: 'GET',
     ...(options || {}),
   });
@@ -117,7 +117,7 @@ export async function apiGetUserJob(options?: { [key: string]: any }) {
 
 // 任务提交  /api/userJob
 export async function apiPostUserJob(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/userJob', {
+  return request<API.NoticeIconList>('/api/job/training', {
     method: 'POST',
     ...(options || {}),
   });
@@ -125,7 +125,7 @@ export async function apiPostUserJob(options?: { [key: string]: any }) {
 
 // 任务列表
 export const useApiGetUserJob = (options?: { [key: string]: any }) =>
-  useSWR(['/api/userJob', options], ([url, data]) => {
+  useSWR(['/api/job/training', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
@@ -142,7 +142,7 @@ export async function apiDeleteUserJob(options?: { [key: string]: any }) {
 
 // GPU 列表查询
 export const useApiGetGpuType = (options?: { [key: string]: any }) =>
-  useSWR(['/api/userJob/getGpuType', options], ([url, data]) => {
+  useSWR(['/api/resource/gpus', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
@@ -152,7 +152,7 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
 // 集群信息 新增
 export async function apiPostApiNode(options?: { [key: string]: any }) {
   // return Promise.resolve();
-  return request<API.NoticeIconList>('/api/node', {
+  return request<API.NoticeIconList>('/api/cluster/node', {
     method: 'POST',
     ...(options || {}),
   });
@@ -160,7 +160,7 @@ export async function apiPostApiNode(options?: { [key: string]: any }) {
 
 // 集群信息 列表
 export const useGetApiNode = (options?: { [key: string]: any }) =>
-  useSWR(['/api/node', options], ([url, data]) => {
+  useSWR(['/api/cluster/node', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
@@ -169,7 +169,7 @@ export const useGetApiNode = (options?: { [key: string]: any }) =>
 
 // 用户配额 列表接口 /api/quota
 export const useGetApiQuota = (options?: { [key: string]: any }) =>
-  useSWR(['/api/quota', options], ([url, data]) => {
+  useSWR(['/api/resource/quota', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),
@@ -178,7 +178,7 @@ export const useGetApiQuota = (options?: { [key: string]: any }) =>
 
 // 用户配额新增接口 /quota
 export async function apiPostQuota(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/quota', {
+  return request<API.NoticeIconList>('/api/resource/quota', {
     method: 'POST',
     ...(options || {}),
   });
@@ -186,15 +186,15 @@ export async function apiPostQuota(options?: { [key: string]: any }) {
 
 // 修改配额
 export async function apiPutQuota(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/quota', {
+  return request<API.NoticeIconList>('/api/resource/quota', {
     method: 'PUT',
     ...(options || {}),
   });
 }
 
-// 删除配额 
+// 删除配额
 export async function apiDeleteQuota(options?: { [key: string]: any }) {
-  return request<API.NoticeIconList>('/api/quota', {
+  return request<API.NoticeIconList>('/api/resource/quota', {
     method: 'DELETE',
     ...(options || {}),
   });
@@ -202,7 +202,7 @@ export async function apiDeleteQuota(options?: { [key: string]: any }) {
 
 // 用户列表查询 /api/user
 export const useGetApiUser = (options?: { [key: string]: any }) =>
-  useSWR(['/api/user', options], ([url, data]) => {
+  useSWR(['/api/user/users', options], ([url, data]) => {
     return request<API.NoticeIconList>(url, {
       method: 'GET',
       ...(data || {}),

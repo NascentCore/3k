@@ -13,6 +13,59 @@ Gateway:
     scheduler: "http://127.0.0.1:80"
     java: "http://127.0.0.1:8012"
   Routers:
+    - Path: "/api/user/login"
+      ToPath: "/auth/login"
+      Server: scheduler
+    - Path: "/api/user/register"
+      ToPath: "/api/users/registerUser"
+      Server: scheduler
+    - Path: "/api/user/email"
+      ToPath: "/api/code/sendEmail"
+      Server: scheduler
+    - Path: "/api/user/info"
+      ToPath: "/auth/info"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/models"
+      ToPath: "/resource/models"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/datasets"
+      ToPath: "/resource/datasets"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/job/finetune"
+      ToPath: "/job/finetune"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/job/inference"
+      ToPath: "/inference"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/job/training"
+      ToPath: "/job/job"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/gpus"
+      ToPath: "/cpod/gpu_type"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/cluster/node"
+      ToPath: "/node"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/resource/quota"
+      ToPath: "/quota"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/user/users"
+      ToPath: "/user"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/job_del"
+      ToPath: "/job/stop"
+      Auth: Yes
+      Server: scheduler
     - Path: "/api/userJob/cpod_jobs"
       ToPath: "/cpod/job"
       Auth: Yes
@@ -25,60 +78,11 @@ Gateway:
       ToPath: "/info/upload_status"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/getGpuType"
-      ToPath: "/cpod/gpu_type"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/userJob/job_status"
       ToPath: "/job/status"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/userJob/job_del"
-      ToPath: "/job/stop"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/userJob"
-      ToPath: "/job/job"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/resource/models"
-      ToPath: "/resource/models"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/resource/datasets"
-      ToPath: "/resource/datasets"
       Auth: Yes
       Server: scheduler
     - Path: "/api/resource/uploader_access"
       ToPath: "/resource/uploader_access"
       Auth: Yes
-      Server: scheduler
-    - Path: "/api/finetune"
-      ToPath: "/job/finetune"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/inference"
-      ToPath: "/inference"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/node"
-      ToPath: "/node"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/users"
-      Server: scheduler
-    - Path: "/api/user"
-      ToPath: "/user"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/quota"
-      ToPath: "/quota"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/auth/info"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api"
-      Server: scheduler
-    - Path: "/auth"
       Server: scheduler
