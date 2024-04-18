@@ -64,19 +64,31 @@ Gateway:
       ToPath: "/user"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/job_del"
+    - Path: "/api/userJob/job_del" # TODO 参数是数组 待修改
       ToPath: "/job/stop"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/cpod_jobs"
+    - Path: "/api/userJob/cpod_jobs" # TODO 冗余配置
       ToPath: "/cpod/job"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/cpod_status"
+    - Path: "/api/cpod/jobs"
+      ToPath: "/cpod/job"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/userJob/cpod_status" # TODO 冗余配置
       ToPath: "/cpod/status"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/info/upload_status"
+    - Path: "/api/cpod/status"
+      ToPath: "/cpod/status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/info/upload_status"  # TODO 冗余配置
+      ToPath: "/info/upload_status"
+      Auth: Yes
+      Server: scheduler
+    - Path: "/api/cpod/model/url"
       ToPath: "/info/upload_status"
       Auth: Yes
       Server: scheduler
@@ -84,7 +96,7 @@ Gateway:
       ToPath: "/job/status"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/resource/uploader_access"
+    - Path: "/api/resource/uploader_access" # 模型上传工具获取oss access
       ToPath: "/resource/uploader_access"
       Auth: Yes
       Server: scheduler
