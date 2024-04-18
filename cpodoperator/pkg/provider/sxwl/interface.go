@@ -15,6 +15,7 @@ type PortalJupyterLabJob struct {
 	CPU            string            `json:"cpu"`
 	Memory         string            `json:"memory"`
 	GPU            int               `json:"gpu"`
+	GPUProduct     string            `json:"gpuProduct"`
 	DataVolumeSize string            `json:"dataVolumeSize"`
 	PretrainModels *[]PretrainModels `json:"pretrainModels"`
 	UserID         int64             `json:"userId"`
