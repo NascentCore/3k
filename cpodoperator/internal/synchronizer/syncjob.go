@@ -924,6 +924,19 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 									"nvidia.com/gpu":  *resource.NewQuantity(int64(job.GPU), resource.DecimalSI),
 								},
 							},
+							Env: []v1.EnvVar{
+								{
+									Name:  "JUPYTER_TOKEN",
+									Value: job.Name,
+								},
+							},
+							Command: []string{
+								"jupyter",
+								"lab",
+								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%d/%s/", job.UserID, job.Name),
+								"--allow-root",
+								"--ip=0.0.0.0",
+							},
 							VolumeMounts: volumeMounts,
 						},
 					},
