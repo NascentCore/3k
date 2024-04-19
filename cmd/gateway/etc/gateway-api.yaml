@@ -98,3 +98,6 @@ Gateway:
       ToPath: "/resource/uploader_access"
       Auth: Yes
       Server: scheduler
+    - Path: "/api/"
+      Auth: Yes
+      Server: scheduler
