@@ -79,8 +79,6 @@ func jobTypeCheck(jobtype string) (v1beta1.JobType, bool) {
 		return v1beta1.JobTypeMPI, true
 	case string(v1beta1.JobTypePytorch):
 		return v1beta1.JobTypePytorch, true
-	case string(v1beta1.JobTypeJupyter):
-		return v1beta1.JobTypeJupyter, true
 	}
 	return "", false
 }
@@ -789,7 +787,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 	for _, job := range portalJobs {
 		found := false
 		for _, currentJob := range currentJupyterLabJobs.Items {
-			if currentJob.Name == job.Name+"-"+strconv.FormatInt(job.UserID, 10) {
+			if currentJob.Name == job.JobName {
 				found = true
 			}
 		}
@@ -802,7 +800,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				s.logger.Error(err, "failed to create JupyterLab StatefulSet")
 				return err
 			} else {
-				s.deleteCreateFailedJupyterLabJob(job.Name + "-" + strconv.FormatInt(job.UserID, 10))
+				s.deleteCreateFailedJupyterLabJob(job.JobName)
 				s.logger.Info("JupyterLab StatefulSet created", "statefulset", ss.Name)
 			}
 
@@ -833,7 +831,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 	for _, currentJob := range currentJupyterLabJobs.Items {
 		exists := false
 		for _, job := range portalJobs {
-			if currentJob.Name == job.Name+"-"+strconv.FormatInt(job.UserID, 10) {
+			if currentJob.Name == job.JobName {
 				exists = true
 				break
 			}
@@ -851,7 +849,6 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 }
 
 func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
-	statefulSetName := job.Name + "-" + strconv.FormatInt(job.UserID, 10)
 	volumeMounts := []v1.VolumeMount{
 		{
 			Name:      "workspace",
@@ -863,7 +860,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 			Name: "workspace",
 			VolumeSource: v1.VolumeSource{
 				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-					ClaimName: statefulSetName + "-workspace",
+					ClaimName: job.JobName + "-workspace",
 				},
 			},
 		},
@@ -897,7 +894,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 	// 2. 创建StatefulSet
 	ss := &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      statefulSetName,
+			Name:      job.JobName,
 			Namespace: v1beta1.CPOD_NAMESPACE,
 		},
 		Spec: appsv1.StatefulSetSpec{
@@ -911,7 +908,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
 						{
-							Name:  "jupyterlab-" + strconv.FormatInt(job.UserID, 10) + "-" + job.Name,
+							Name:  job.JobName,
 							Image: "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5",
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{
@@ -927,13 +924,13 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 							Env: []v1.EnvVar{
 								{
 									Name:  "JUPYTER_TOKEN",
-									Value: job.Name,
+									Value: job.JobName,
 								},
 							},
 							Command: []string{
 								"jupyter",
 								"lab",
-								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%d/%s/", job.UserID, job.Name),
+								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%s/", job.JobName),
 								"--allow-root",
 								"--ip=0.0.0.0",
 							},
@@ -946,7 +943,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 			VolumeClaimTemplates: []v1.PersistentVolumeClaim{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: statefulSetName + "-workspace",
+						Name: job.JobName + "-workspace",
 					},
 					Spec: v1.PersistentVolumeClaimSpec{
 						AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
@@ -969,7 +966,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 
 	// 3. 创建StatefulSet
 	if err := s.kubeClient.Create(ctx, ss); err != nil {
-		return nil, fmt.Errorf("failed to create StatefulSet %s: %w", statefulSetName, err)
+		return nil, fmt.Errorf("failed to create StatefulSet %s: %w", job.JobName, err)
 	}
 
 	return ss, nil
@@ -978,13 +975,13 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 func (s *SyncJob) createJupyterLabService(ctx context.Context, job sxwl.PortalJupyterLabJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
 	svc := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:            job.Name + "-" + strconv.FormatInt(job.UserID, 10) + "-svc",
+			Name:            job.JobName + "-svc",
 			Namespace:       v1beta1.CPOD_NAMESPACE,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 		},
 		Spec: v1.ServiceSpec{
 			Selector: map[string]string{
-				"app": job.Name + "-" + strconv.FormatInt(job.UserID, 10),
+				"app": job.JobName,
 			},
 			Ports: []v1.ServicePort{
 				{
@@ -997,7 +994,7 @@ func (s *SyncJob) createJupyterLabService(ctx context.Context, job sxwl.PortalJu
 	}
 
 	if err := s.kubeClient.Create(ctx, svc); err != nil {
-		return nil, fmt.Errorf("failed to create service for JupyterLab %s: %v", job.Name, err)
+		return nil, fmt.Errorf("failed to create service for JupyterLab %s: %v", job.JobName, err)
 	}
 
 	return svc, nil
@@ -1007,11 +1004,11 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, job sxwl.PortalJu
 	pathType := networkingv1.PathTypeImplementationSpecific
 	ing := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:            job.Name + "-" + strconv.FormatInt(job.UserID, 10) + "-ing",
+			Name:            job.JobName + "-ing",
 			Namespace:       v1beta1.CPOD_NAMESPACE,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + strconv.FormatInt(job.UserID, 10) + "/" + job.Name + "/$2",
+				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + job.JobName + "/$2",
 			},
 		},
 		Spec: networkingv1.IngressSpec{
@@ -1023,10 +1020,10 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, job sxwl.PortalJu
 							Paths: []networkingv1.HTTPIngressPath{
 								{
 									PathType: &pathType,
-									Path:     "/jupyterlab/" + strconv.FormatInt(job.UserID, 10) + "/" + job.Name + "(/|$)(.*)",
+									Path:     "/jupyterlab/" + job.JobName + "(/|$)(.*)",
 									Backend: networkingv1.IngressBackend{
 										Service: &networkingv1.IngressServiceBackend{
-											Name: job.Name + "-" + strconv.FormatInt(job.UserID, 10) + "-svc",
+											Name: job.JobName + "-svc",
 											Port: networkingv1.ServiceBackendPort{
 												Number: 8888,
 											},
@@ -1059,12 +1056,12 @@ func (s *SyncJob) getCreateFailedJupyterLabJobs() []sxwl.PortalJupyterLabJob {
 }
 
 func (s *SyncJob) addCreateFailedJupyterLabJob(j sxwl.PortalJupyterLabJob) {
-	if _, ok := s.createFailedJobs.mjj[j.Name+"-"+strconv.FormatInt(j.UserID, 10)]; ok {
+	if _, ok := s.createFailedJobs.mjj[j.JobName]; ok {
 		return
 	}
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mjj[j.Name+"-"+strconv.FormatInt(j.UserID, 10)] = j
+	s.createFailedJobs.mjj[j.JobName] = j
 }
 
 // 如果任务创建成功了，将其从失败任务列表中删除
