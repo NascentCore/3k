@@ -103,13 +103,19 @@ type (
 		Status      string `json:"status"`
 		URL         string `json:"url"`
 	}
+	JupyterlabStatus {
+		JobName string `json:"job_name"`
+		Status  string `json:"status"`
+		URL     string `json:"url"`
+	}
 	CPODStatusReq {
-		JobStatus       []JobStatus       `json:"job_status"`
-		InferenceStatus []InferenceStatus `json:"inference_status"`
-		ResourceInfo    ResourceInfo      `json:"resource_info"`
-		UpdateTime      string            `json:"update_time"`
-		CPODID          string            `json:"cpod_id"`
-		UserID          int64             `header:"Sx-User"`
+		JobStatus        []JobStatus        `json:"job_status"`
+		InferenceStatus  []InferenceStatus  `json:"inference_status"`
+		JupyterlabStatus []JupyterlabStatus `json:"jupyter_status"`
+		ResourceInfo     ResourceInfo       `json:"resource_info"`
+		UpdateTime       string             `json:"update_time"`
+		CPODID           string             `json:"cpod_id"`
+		UserID           int64              `header:"Sx-User"`
 	}
 	CPODStatusResp {
 		Message string `json:"message"`
@@ -325,12 +331,29 @@ type (
 		CpodId      string `json:"cpod_id"`
 		UserId      int64  `json:"user_id"`
 	}
+	PretrainModels {
+		PretrainModelId   string `json:"pretrainModelId"`
+		PretrainModelName string `json:"pretrainedModelName"`
+		PretrainModelPath string `json:"pretrainedModelPath"`
+	}
+	JupyterLab {
+		JobName        string           `json:"jobName"`
+		InstanceName   string           `json:"instanceName"`
+		CPU            string           `json:"cpu"`
+		Memory         string           `json:"memory"`
+		GPU            int              `json:"gpu"`
+		GPUProduct     string           `json:"gpuProduct"`
+		DataVolumeSize string           `json:"dataVolumeSize"`
+		PretrainModels []PretrainModels `json:"pretrainModels"`
+		UserID         int64            `json:"userId"`
+	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
 	}
 	CpodJobResp {
 		JobList              []map[string]interface{} `json:"job_list"`
 		InferenceServiceList []InferenceService       `json:"inference_service_list"`
+		JupyterlabList       []JupyterLab             `json:"jupyter_lab_list"`
 	}
 )
 
@@ -510,7 +533,7 @@ type (
 		User UserInfo `json:"user"`
 	}
 	LoginResp {
-		User  WrapUser `json:user` // TODO 去掉多余嵌套
+		User  WrapUser `json:"user"` // TODO 去掉多余嵌套
 		Token string   `json:"token"`
 	}
 )
@@ -542,6 +565,99 @@ type (
 	}
 )
 
+// /job/jupyterlab
+type (
+	Jupyterlab {
+		ID             int64  `json:"id,optional"`
+		JobName        string `json:"job_name,optional"`
+		InstanceName   string `json:"instance_name"`
+		CPUCount       int64  `json:"cpu_count"`
+		Memory         int64  `json:"memory"`
+		GPUCount       int64  `json:"gpu_count,optional"`
+		GPUProduct     string `json:"gpu_product,optional"`
+		DataVolumeSize int64  `json:"data_volume_size"`
+		ModelId        string `json:"model_id,optional"`
+		ModelName      string `json:"model_name,optional"`
+		ModelPath      string `json:"model_path,optional"`
+		UserId         int64  `json:"user_id"`
+	}
+	JupyterlabCreateReq {
+		Jupyterlab
+		UserID int64 `header:"Sx-User"`
+	}
+	JupyterlabCreateResp {
+		Message string `json:"message"`
+	}
+	JupyterlabListReq {
+		UserID int64 `header:"Sx-User"`
+	}
+	JupyterlabListResp {
+		Data []Jupyterlab `json:"data"`
+	}
+	JupyterlabDeleteReq {
+		JobName string `json:"job_name"`
+		UserID  int64  `header:"Sx-User"`
+	}
+	JupyterlabDeleteResp {
+		Message string `json:"message"`
+	}
+)
+
+type (
+	JupyterlabImage {
+		ImageName string `json:"image_name"`
+		ImageSize int    `json:"image_size"`
+		TagName   string `json:"tag_name"`
+		FullName  string `json:"full_name"`
+		PushTime  string `json:"push_time"`
+	}
+	JupyterlabImageCreateReq {
+		UserID       int64  `header:"Sx-User"`
+		BaseImage    string `json:"base_image"`
+		InstanceName string `json:"instance_name"`
+	}
+	JupyterlabImageCreateResp {
+		Message string `json:"message"`
+	}
+	JupyterlabImageDelReq {
+		UserID    int64  `header:"Sx-User"`
+		ImageName string `json:"image_name"`
+		TagName   string `json:"tag_name"`
+	}
+	JupyterlabImageDelResp {
+		Message string `json:"message"`
+	}
+	JupyterlabImageListReq {
+		UserID int64 `header:"Sx-User"`
+	}
+	JupyterlabImageListResp {
+		Data []JupyterlabImage `json:"data"`
+	}
+)
+
+// python接口参数定义
+type (
+	BuildImageReq {
+		BaseImage    string `json:"base_image"`
+		UserID       string `json:"user_id"`
+		InstanceName string `json:"instance_name"`
+	}
+	ImageDelReq {
+		UserID    int    `json:"user_id"`
+		ImageName string `json:"image_name"`
+		Tag       string `json:"tag"`
+	}
+)
+
+type (
+	BaseImageListReq {
+		UserID int64 `header:"Sx-User"`
+	}
+	BaseImageListResp {
+		Data []string `json:"data"`
+	}
+)
+
 @server (
 	prefix: /api
 )
@@ -553,5 +669,33 @@ service scheduler-api {
 	@doc "用户注册"
 	@handler register
 	post /users/registerUser/:code (RegisterUserReq)
+
+	@doc "创建jupyterlab实例"
+	@handler jupyterlabCreate
+	post /job/jupyterlab (JupyterlabCreateReq) returns (JupyterlabCreateResp)
+
+	@doc "查询jupyterlab实例列表"
+	@handler jupyterlabList
+	get /job/jupyterlab (JupyterlabListReq) returns (JupyterlabListResp)
+
+	@doc "删除jupyterlab实例"
+	@handler jupyterlabDel
+	delete /job/jupyterlab (JupyterlabDeleteReq) returns (JupyterlabDeleteResp)
+
+	@doc "构建镜像"
+	@handler jupyterlabImageCreate
+	post /job/jupyter/image (JupyterlabImageCreateReq) returns (JupyterlabImageCreateResp)
+
+	@doc "镜像列表"
+	@handler jupyterlabImageList
+	get /job/jupyter/image (JupyterlabImageListReq) returns (JupyterlabImageListResp)
+
+	@doc "删除镜像"
+	@handler jupyterlabImageDel
+	delete /job/jupyter/image (JupyterlabImageDelReq) returns (JupyterlabImageDelResp)
+
+	@doc "基础镜像列表"
+	@handler baseImageList
+	get /resource/baseimages (BaseImageListReq) returns (BaseImageListResp)
 }
 

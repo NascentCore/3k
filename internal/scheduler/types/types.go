@@ -5,13 +5,28 @@ type AuthReq struct {
 	UserID int64 `header:"Sx-User"`
 }
 
+type BaseImageListReq struct {
+	UserID int64 `header:"Sx-User"`
+}
+
+type BaseImageListResp struct {
+	Data []string `json:"data"`
+}
+
+type BuildImageReq struct {
+	BaseImage    string `json:"base_image"`
+	UserID       string `json:"user_id"`
+	InstanceName string `json:"instance_name"`
+}
+
 type CPODStatusReq struct {
-	JobStatus       []JobStatus       `json:"job_status"`
-	InferenceStatus []InferenceStatus `json:"inference_status"`
-	ResourceInfo    ResourceInfo      `json:"resource_info"`
-	UpdateTime      string            `json:"update_time"`
-	CPODID          string            `json:"cpod_id"`
-	UserID          int64             `header:"Sx-User"`
+	JobStatus        []JobStatus        `json:"job_status"`
+	InferenceStatus  []InferenceStatus  `json:"inference_status"`
+	JupyterlabStatus []JupyterlabStatus `json:"jupyter_status"`
+	ResourceInfo     ResourceInfo       `json:"resource_info"`
+	UpdateTime       string             `json:"update_time"`
+	CPODID           string             `json:"cpod_id"`
+	UserID           int64              `header:"Sx-User"`
 }
 
 type CPODStatusResp struct {
@@ -57,6 +72,7 @@ type CpodJobReq struct {
 type CpodJobResp struct {
 	JobList              []map[string]interface{} `json:"job_list"`
 	InferenceServiceList []InferenceService       `json:"inference_service_list"`
+	JupyterlabList       []JupyterLab             `json:"jupyter_lab_list"`
 }
 
 type DiskInfo struct {
@@ -112,6 +128,12 @@ type GPUTypeResp struct {
 	Amount         float64 `json:"amount"`
 	GPUProd        string  `json:"gpuProd"`
 	GPUAllocatable int64   `json:"gpuAllocatable"`
+}
+
+type ImageDelReq struct {
+	UserID    int    `json:"user_id"`
+	ImageName string `json:"image_name"`
+	Tag       string `json:"tag"`
 }
 
 type InferenceDeleteReq struct {
@@ -259,13 +281,108 @@ type JobStopResp struct {
 	Message string `json:"message"`
 }
 
+type JupyterLab struct {
+	JobName        string           `json:"jobName"`
+	InstanceName   string           `json:"instanceName"`
+	CPU            string           `json:"cpu"`
+	Memory         string           `json:"memory"`
+	GPU            int              `json:"gpu"`
+	GPUProduct     string           `json:"gpuProduct"`
+	DataVolumeSize string           `json:"dataVolumeSize"`
+	PretrainModels []PretrainModels `json:"pretrainModels"`
+	UserID         int64            `json:"userId"`
+}
+
+type Jupyterlab struct {
+	ID             int64  `json:"id,optional"`
+	JobName        string `json:"job_name,optional"`
+	InstanceName   string `json:"instance_name"`
+	CPUCount       int64  `json:"cpu_count"`
+	Memory         int64  `json:"memory"`
+	GPUCount       int64  `json:"gpu_count,optional"`
+	GPUProduct     string `json:"gpu_product,optional"`
+	DataVolumeSize int64  `json:"data_volume_size"`
+	ModelId        string `json:"model_id,optional"`
+	ModelName      string `json:"model_name,optional"`
+	ModelPath      string `json:"model_path,optional"`
+	UserId         int64  `json:"user_id"`
+}
+
+type JupyterlabCreateReq struct {
+	Jupyterlab
+	UserID int64 `header:"Sx-User"`
+}
+
+type JupyterlabCreateResp struct {
+	Message string `json:"message"`
+}
+
+type JupyterlabDeleteReq struct {
+	JobName string `json:"job_name"`
+	UserID  int64  `header:"Sx-User"`
+}
+
+type JupyterlabDeleteResp struct {
+	Message string `json:"message"`
+}
+
+type JupyterlabImage struct {
+	ImageName string `json:"image_name"`
+	ImageSize int    `json:"image_size"`
+	TagName   string `json:"tag_name"`
+	FullName  string `json:"full_name"`
+	PushTime  string `json:"push_time"`
+}
+
+type JupyterlabImageCreateReq struct {
+	UserID       int64  `header:"Sx-User"`
+	BaseImage    string `json:"base_image"`
+	InstanceName string `json:"instance_name"`
+}
+
+type JupyterlabImageCreateResp struct {
+	Message string `json:"message"`
+}
+
+type JupyterlabImageDelReq struct {
+	UserID    int64  `header:"Sx-User"`
+	ImageName string `json:"image_name"`
+	TagName   string `json:"tag_name"`
+}
+
+type JupyterlabImageDelResp struct {
+	Message string `json:"message"`
+}
+
+type JupyterlabImageListReq struct {
+	UserID int64 `header:"Sx-User"`
+}
+
+type JupyterlabImageListResp struct {
+	Data []JupyterlabImage `json:"data"`
+}
+
+type JupyterlabListReq struct {
+	UserID int64 `header:"Sx-User"`
+}
+
+type JupyterlabListResp struct {
+	Data []Jupyterlab `json:"data"`
+}
+
+type JupyterlabStatus struct {
+	JobName string `json:"job_name"`
+	Status  string `json:"status"`
+	URL     string `json:"url"`
+}
+
 type LoginReq struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
 }
 
 type LoginResp struct {
-	User  WrapUser `json:user` // TODO 去掉多余嵌套
+	User  WrapUser `json:"user"` // TODO 去掉多余嵌套
 	Token string   `json:"token"`
 }
 
@@ -317,6 +434,12 @@ type NodeListReq struct {
 
 type NodeListResp struct {
 	Data []ClusterNodeInfo `json:"data"`
+}
+
+type PretrainModels struct {
+	PretrainModelId   string `json:"pretrainModelId"`
+	PretrainModelName string `json:"pretrainedModelName"`
+	PretrainModelPath string `json:"pretrainedModelPath"`
 }
 
 type Quota struct {

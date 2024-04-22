@@ -21,6 +21,7 @@ type ServiceContext struct {
 	QuotaModel      model.SysQuotaModel
 	UserModel       model.SysUserModel
 	VerifyCodeModel model.VerifyCodeModel
+	JupyterlabModel model.SysJupyterlabModel
 	EmailSender     email.Emailer
 }
 
@@ -57,6 +58,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		QuotaModel:      model.NewSysQuotaModel(conn),
 		UserModel:       model.NewSysUserModel(conn),
 		VerifyCodeModel: model.NewVerifyCodeModel(conn),
+		JupyterlabModel: model.NewSysJupyterlabModel(conn),
 		EmailSender:     emailSender,
 	}
 }

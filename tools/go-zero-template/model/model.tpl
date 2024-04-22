@@ -35,21 +35,10 @@ type (
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*{{.upperStartCamelObject}}, error)
 		FindOneById(ctx context.Context, data *{{.upperStartCamelObject}}) (*{{.upperStartCamelObject}}, error)
 		FindAll(ctx context.Context, orderBy string) ([]*{{.upperStartCamelObject}}, error)
+		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*{{.upperStartCamelObject}}, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*{{.upperStartCamelObject}}, error)
-        UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
-
+		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
         {{end}}
-		// Trans(ctx context.Context, fn func(context context.Context, session sqlx.Session) error) error
-		// RowBuilder() squirrel.SelectBuilder
-		// CountBuilder(field string) squirrel.SelectBuilder
-		// SumBuilder(field string) squirrel.SelectBuilder
-		// FindOneByQuery(ctx context.Context, rowBuilder squirrel.SelectBuilder) (*HomestayOrder, error)
-		// FindSum(ctx context.Context, sumBuilder squirrel.SelectBuilder) (float64, error)
-		// FindCount(ctx context.Context, countBuilder squirrel.SelectBuilder) (int64, error)
-		// FindAll(ctx context.Context, rowBuilder squirrel.SelectBuilder, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByPage(ctx context.Context, rowBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*HomestayOrder, error)
-		// FindPageListByIdDESC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMinId, pageSize int64) ([]*HomestayOrder, error)
-		// FindPageListByIdASC(ctx context.Context, rowBuilder squirrel.SelectBuilder, preMaxId, pageSize int64) ([]*HomestayOrder, error)
 	}
 
 	custom{{.upperStartCamelObject}}Model struct {
@@ -125,6 +114,23 @@ func (m *default{{.upperStartCamelObject}}Model) FindAll(ctx context.Context, or
         selectBuilder = selectBuilder.OrderBy(orderBy)
     }
 
+    query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+    if err != nil {
+        return nil, err
+    }
+
+    var resp []*{{.upperStartCamelObject}}
+    err = m.conn.QueryRowsCtx(ctx, &resp, query, args...)
+    switch err {
+    case nil:
+        return resp, nil
+    default:
+        return nil, err
+    }
+}
+
+// Find returns all valid rows matched in the table
+func (m *default{{.upperStartCamelObject}}Model) Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*{{.upperStartCamelObject}}, error) {
     query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
     if err != nil {
         return nil, err

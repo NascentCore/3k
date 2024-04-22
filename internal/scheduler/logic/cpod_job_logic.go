@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"sxwl/3k/internal/scheduler/model"
 	"time"
 
@@ -36,6 +37,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
 	InferenceModel := l.svcCtx.InferenceModel
+	JupyterlabModel := l.svcCtx.JupyterlabModel
 
 	// check banned
 	_, ok := l.svcCtx.Config.BannedCpod[req.CpodId]
@@ -175,6 +177,53 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 				return nil, err
 			}
 			l.Infof("inference assigned inferId=%d cpod_id=%s", service.Id, req.CpodId)
+		}
+	}
+
+	// jupyterlab
+	jupyterlabList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(
+		squirrel.Or{
+			squirrel.Eq{"status": model.JupyterStatusWaitDeploy},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.JupyterStatusStopped}},
+		},
+	))
+	if err != nil {
+		l.Errorf("JupyterlabModel.FindAll err: %s", err)
+		return nil, err
+	}
+
+	for _, jupyterlab := range jupyterlabList {
+		jupyterlabResp := types.JupyterLab{}
+		_ = copier.Copy(&jupyterlabResp, jupyterlab)
+		jupyterlabResp.CPU = strconv.FormatInt(jupyterlab.CpuCount, 10)
+		jupyterlabResp.Memory = strconv.FormatInt(jupyterlab.MemCount, 10)
+		jupyterlabResp.GPU = int(jupyterlab.GpuCount)
+		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
+		jupyterlabResp.DataVolumeSize = strconv.FormatInt(jupyterlab.DataVolumeSize, 10)
+		jupyterlabResp.PretrainModels = make([]types.PretrainModels, 0)
+		if jupyterlab.ModelId != "" {
+			jupyterlabResp.PretrainModels = append(jupyterlabResp.PretrainModels, types.PretrainModels{
+				PretrainModelId:   jupyterlab.ModelId,
+				PretrainModelName: jupyterlab.ModelName,
+				PretrainModelPath: jupyterlab.ModelPath,
+			})
+		}
+
+		resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
+
+		// 新分配的部署更新cpod_id和status
+		if jupyterlab.CpodId == "" && jupyterlab.Status == model.InferStatusWaitDeploy {
+			_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+				"id": jupyterlab.Id,
+			}).SetMap(map[string]interface{}{
+				"cpod_id": req.CpodId,
+				"status":  model.JupyterStatusDeploying,
+			}))
+			if err != nil {
+				l.Errorf("jupyterlab assigned id=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)
+				return nil, err
+			}
+			l.Infof("jupyterlab assigned id=%d cpod_id=%s", jupyterlab.Id, req.CpodId)
 		}
 	}
 
