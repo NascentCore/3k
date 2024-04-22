@@ -160,6 +160,41 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/job/jupyter/image",
+				Handler: jupyterlabImageCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/job/jupyter/image",
+				Handler: jupyterlabImageListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/job/jupyter/image",
+				Handler: jupyterlabImageDelHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/job/jupyterlab",
+				Handler: jupyterlabCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/job/jupyterlab",
+				Handler: jupyterlabListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/job/jupyterlab",
+				Handler: jupyterlabDelHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/baseimages",
+				Handler: baseImageListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/users/registerUser/:code",
 				Handler: registerHandler(serverCtx),
 			},

@@ -98,9 +98,9 @@ type InferenceJobState struct {
 }
 
 type JupyterLabJobState struct {
-	Name   string
-	Status string
-	URL    string
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	URL    string `json:"url"`
 }
 
 type HeartBeatPayload struct {

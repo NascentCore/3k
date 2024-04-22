@@ -57,6 +57,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	FileURLModel := l.svcCtx.FileURLModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	InferModel := l.svcCtx.InferenceModel
+	JupyterlabModel := l.svcCtx.JupyterlabModel
 
 	// check banned
 	_, ok := l.svcCtx.Config.BannedCpod[req.CPODID]
@@ -278,6 +279,46 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		}
 		if rows != 1 {
 			l.Logger.Errorf("inference update rows=%d cpod_id=%s service_name=%s err=%s", rows, req.CPODID, infer.ServiceName, err)
+			continue // no update
+		}
+	}
+
+	// update inference
+	for _, jupyter := range req.JupyterlabStatus {
+		updateBuilder := JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+			"job_name": jupyter.JobName,
+			"status":   model.JupyterStatusDeploying,
+		})
+
+		var setMap = map[string]interface{}{}
+		switch jupyter.Status {
+		case model.JupyterStatusDescDeployed:
+			setMap = map[string]interface{}{
+				"start_time": orm.NullTime(time.Now()),
+				"status":     model.JupyterStatusDeployed,
+				"url":        jupyter.URL,
+			}
+		case model.JupyterStatusDescFailed:
+			setMap = map[string]interface{}{
+				"status": model.JupyterStatusFailed,
+			}
+		}
+		if len(setMap) == 0 {
+			continue
+		}
+
+		result, err := JupyterlabModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
+		if err != nil {
+			l.Logger.Errorf("jupyter update cpod_id=%s name=%s err=%s", req.CPODID, jupyter.JobName, err)
+			return nil, err
+		}
+		rows, err := result.RowsAffected()
+		if err != nil {
+			l.Logger.Errorf("jupyter update cpod_id=%s name=%s RowsAffected err=%s", req.CPODID, jupyter.JobName, err)
+			return nil, err
+		}
+		if rows != 1 {
+			l.Logger.Errorf("jupyter update rows=%d cpod_id=%s name=%s err=%s", rows, req.CPODID, jupyter.JobName, err)
 			continue // no update
 		}
 	}

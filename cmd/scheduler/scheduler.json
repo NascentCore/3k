@@ -1,0 +1,3044 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "调度器服务",
+    "description": "调度器服务的接口定义",
+    "version": "v1"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/code/sendEmail": {
+      "post": {
+        "summary": "发送邮件验证码",
+        "operationId": "sendEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SendEmailReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/job/jupyter/image": {
+      "get": {
+        "summary": "镜像列表",
+        "operationId": "jupyterlabImageList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "summary": "删除镜像",
+        "operationId": "jupyterlabImageDel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageDelResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageDelReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "post": {
+        "summary": "构建镜像",
+        "operationId": "jupyterlabImageCreate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageCreateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/jupyterlab": {
+      "get": {
+        "summary": "查询jupyterlab实例列表",
+        "operationId": "jupyterlabList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "summary": "删除jupyterlab实例",
+        "operationId": "jupyterlabDel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabDeleteResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabDeleteReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "post": {
+        "summary": "创建jupyterlab实例",
+        "operationId": "jupyterlabCreate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabCreateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/resource/baseimages": {
+      "get": {
+        "summary": "基础镜像列表",
+        "operationId": "baseImageList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseImageListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/users/registerUser/{code}": {
+      "post": {
+        "summary": "用户注册",
+        "operationId": "register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RegisterUserReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/auth/info": {
+      "get": {
+        "operationId": "userInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UserInfoResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "userLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/LoginResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/cache/datasets": {
+      "get": {
+        "operationId": "DatasetsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Cache"
+              }
+            }
+          }
+        },
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/cache/models": {
+      "get": {
+        "operationId": "ModelsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Cache"
+              }
+            }
+          }
+        },
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/cpod/gpu_type": {
+      "get": {
+        "operationId": "GpuTypeHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GPUTypeResp"
+              }
+            }
+          }
+        },
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/cpod/job": {
+      "get": {
+        "operationId": "CpodJobHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CpodJobResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cpodid",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/cpod/status": {
+      "post": {
+        "operationId": "CpodStatusHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CPODStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CPODStatusReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/inference": {
+      "get": {
+        "operationId": "InferenceInfoHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceInfoResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "service_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "operationId": "InferenceDeleteHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceDeleteResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceDeleteReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "post": {
+        "operationId": "InferenceDeployHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/info/upload_status": {
+      "post": {
+        "operationId": "UploadStatusHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ModelUrlResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ModelUrlReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/job/finetune": {
+      "post": {
+        "operationId": "FinetuneHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/FinetuneResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "-",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FinetuneReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/job/job": {
+      "get": {
+        "operationId": "JobGetHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobGetResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "post": {
+        "operationId": "JobCreateHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobCreateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "-",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/job/status": {
+      "post": {
+        "operationId": "JobStatusHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobStatusReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/job/stop": {
+      "post": {
+        "operationId": "JobStopHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobStopResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobStopReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/node": {
+      "get": {
+        "operationId": "NodeListHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/NodeListResp"
+            }
+          }
+        },
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "post": {
+        "operationId": "NodeAddHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/NodeAddResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NodeAddReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/quota": {
+      "get": {
+        "operationId": "QuotaListHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/QuotaListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "operationId": "QuotaDeleteHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/QuotaDeleteResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuotaDeleteReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "post": {
+        "operationId": "QuotaAddHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/QuotaAddResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuotaAddReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "put": {
+        "operationId": "QuotaUpdateHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/QuotaUpdateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/QuotaUpdateReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/resource/datasets": {
+      "get": {
+        "operationId": "ResourceDatasetsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Resource"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "-",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/resource/models": {
+      "get": {
+        "operationId": "ResourceModelsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Resource"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "-",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/resource/uploader_access": {
+      "get": {
+        "operationId": "UploaderAccessHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UploaderAccessResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "-",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "operationId": "UserListHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UserListResp"
+            }
+          }
+        },
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AuthReq": {
+      "type": "object",
+      "title": "AuthReq"
+    },
+    "BaseImageListReq": {
+      "type": "object",
+      "title": "BaseImageListReq"
+    },
+    "BaseImageListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "BaseImageListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "BuildImageReq": {
+      "type": "object",
+      "properties": {
+        "base_image": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "instance_name": {
+          "type": "string"
+        }
+      },
+      "title": "BuildImageReq",
+      "required": [
+        "base_image",
+        "user_id",
+        "instance_name"
+      ]
+    },
+    "CPODStatusReq": {
+      "type": "object",
+      "properties": {
+        "job_status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobStatus"
+          }
+        },
+        "inference_status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InferenceStatus"
+          }
+        },
+        "jupyter_status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterlabStatus"
+          }
+        },
+        "resource_info": {
+          "$ref": "#/definitions/ResourceInfo"
+        },
+        "update_time": {
+          "type": "string"
+        },
+        "cpod_id": {
+          "type": "string"
+        }
+      },
+      "title": "CPODStatusReq",
+      "required": [
+        "job_status",
+        "inference_status",
+        "jupyter_status",
+        "resource_info",
+        "update_time",
+        "cpod_id"
+      ]
+    },
+    "CPODStatusResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CPODStatusResp",
+      "required": [
+        "message"
+      ]
+    },
+    "CPUInfo": {
+      "type": "object",
+      "properties": {
+        "cores": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "usage": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "CPUInfo",
+      "required": [
+        "cores",
+        "usage"
+      ]
+    },
+    "Cache": {
+      "type": "object",
+      "properties": {
+        "data_type": {
+          "type": "string"
+        },
+        "data_name": {
+          "type": "string"
+        },
+        "data_id": {
+          "type": "string"
+        },
+        "data_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "template": {
+          "type": "string"
+        },
+        "data_source": {
+          "type": "string"
+        },
+        "finetune_gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "inference_gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Cache",
+      "required": [
+        "data_type",
+        "data_name",
+        "data_id",
+        "data_size",
+        "template",
+        "data_source",
+        "finetune_gpu_count",
+        "inference_gpu_count"
+      ]
+    },
+    "ClusterNode": {
+      "type": "object",
+      "properties": {
+        "node_role": {
+          "type": "string"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "node_ip": {
+          "type": "string"
+        },
+        "ssh_port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ssh_user": {
+          "type": "string"
+        },
+        "ssh_password": {
+          "type": "string"
+        }
+      },
+      "title": "ClusterNode",
+      "required": [
+        "node_role",
+        "node_name",
+        "node_ip",
+        "ssh_port",
+        "ssh_user",
+        "ssh_password"
+      ]
+    },
+    "ClusterNodeInfo": {
+      "type": "object",
+      "properties": {
+        "gpu_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpu_product": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "ClusterNodeInfo",
+      "required": [
+        "gpu_count",
+        "gpu_product",
+        "name",
+        "role"
+      ]
+    },
+    "CpodJobReq": {
+      "type": "object",
+      "properties": {
+        "cpodid": {
+          "type": "string"
+        }
+      },
+      "title": "CpodJobReq",
+      "required": [
+        "cpodid"
+      ]
+    },
+    "CpodJobResp": {
+      "type": "object",
+      "properties": {
+        "job_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/map[string]interface"
+          }
+        },
+        "inference_service_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InferenceService"
+          }
+        },
+        "jupyter_lab_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterLab"
+          }
+        }
+      },
+      "title": "CpodJobResp",
+      "required": [
+        "job_list",
+        "inference_service_list",
+        "jupyter_lab_list"
+      ]
+    },
+    "DiskInfo": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "usage": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "DiskInfo",
+      "required": [
+        "size",
+        "usage"
+      ]
+    },
+    "FinetuneReq": {
+      "type": "object",
+      "properties": {
+        "training_file": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "gpu_model": {
+          "type": "string"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "trainedModelName": {
+          "type": "string"
+        },
+        "hyperparameters": {
+          "$ref": "#/definitions/mapstringinterface"
+        },
+        "config": {
+          "$ref": "#/definitions/mapstringinterface"
+        }
+      },
+      "title": "FinetuneReq",
+      "required": [
+        "training_file",
+        "model"
+      ]
+    },
+    "FinetuneResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "FinetuneResp",
+      "required": [
+        "job_id"
+      ]
+    },
+    "GPUInfo": {
+      "type": "object",
+      "properties": {
+        "cuda": {
+          "type": "string"
+        },
+        "prod": {
+          "type": "string"
+        },
+        "driver": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "string"
+        },
+        "mem_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "title": "GPUInfo",
+      "required": [
+        "cuda",
+        "prod",
+        "driver",
+        "vendor",
+        "mem_size",
+        "status"
+      ]
+    },
+    "GPUStateInfo": {
+      "type": "object",
+      "properties": {
+        "temp": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "mem_usage": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpu_usage": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "power": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        },
+        "allocated": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "GPUStateInfo",
+      "required": [
+        "temp",
+        "mem_usage",
+        "gpu_usage",
+        "power",
+        "status",
+        "allocated"
+      ]
+    },
+    "GPUSummary": {
+      "type": "object",
+      "properties": {
+        "allocatable": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "prod": {
+          "type": "string"
+        },
+        "mem_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "vendor": {
+          "type": "string"
+        }
+      },
+      "title": "GPUSummary",
+      "required": [
+        "allocatable",
+        "total",
+        "prod",
+        "mem_size",
+        "vendor"
+      ]
+    },
+    "GPUTypeReq": {
+      "type": "object",
+      "title": "GPUTypeReq"
+    },
+    "GPUTypeResp": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "gpuProd": {
+          "type": "string"
+        },
+        "gpuAllocatable": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "GPUTypeResp",
+      "required": [
+        "amount",
+        "gpuProd",
+        "gpuAllocatable"
+      ]
+    },
+    "ImageDelReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "image_name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      },
+      "title": "ImageDelReq",
+      "required": [
+        "user_id",
+        "image_name",
+        "tag"
+      ]
+    },
+    "InferenceDeleteReq": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceDeleteReq",
+      "required": [
+        "service_name"
+      ]
+    },
+    "InferenceDeleteResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceDeleteResp",
+      "required": [
+        "message"
+      ]
+    },
+    "InferenceDeployReq": {
+      "type": "object",
+      "properties": {
+        "model_name": {
+          "type": "string"
+        },
+        "gpu_model": {
+          "type": "string"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "InferenceDeployReq",
+      "required": [
+        "model_name"
+      ]
+    },
+    "InferenceDeployResp": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceDeployResp",
+      "required": [
+        "service_name"
+      ]
+    },
+    "InferenceInfoReq": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceInfoReq"
+    },
+    "InferenceInfoResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SysInference"
+          }
+        }
+      },
+      "title": "InferenceInfoResp",
+      "required": [
+        "data"
+      ]
+    },
+    "InferenceService": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_type": {
+          "type": "string"
+        },
+        "gpu_number": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "template": {
+          "type": "string"
+        },
+        "cpod_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "InferenceService",
+      "required": [
+        "service_name",
+        "status",
+        "model_name",
+        "model_id",
+        "model_size",
+        "gpu_type",
+        "gpu_number",
+        "template",
+        "cpod_id",
+        "user_id"
+      ]
+    },
+    "InferenceStatus": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceStatus",
+      "required": [
+        "service_name",
+        "status",
+        "url"
+      ]
+    },
+    "Job": {
+      "type": "object",
+      "properties": {
+        "ckptPath": {
+          "type": "string"
+        },
+        "ckptVol": {
+          "type": "string"
+        },
+        "cpodId": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string"
+        },
+        "datasetName": {
+          "type": "string"
+        },
+        "datasetPath": {
+          "type": "string"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpuNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpuType": {
+          "type": "string"
+        },
+        "imagePath": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "jobName": {
+          "type": "string"
+        },
+        "jobType": {
+          "type": "string"
+        },
+        "jsonAll": {
+          "type": "string"
+        },
+        "modelPath": {
+          "type": "string"
+        },
+        "modelVol": {
+          "type": "string"
+        },
+        "obtainStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pretrainedModelName": {
+          "type": "string"
+        },
+        "pretrainedModelPath": {
+          "type": "string"
+        },
+        "runCommand": {
+          "type": "string"
+        },
+        "stopTime": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "stopType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updateTime": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "workStatus": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Job",
+      "required": [
+        "ckptPath",
+        "ckptVol",
+        "cpodId",
+        "createTime",
+        "deleted",
+        "gpuNumber",
+        "gpuType",
+        "imagePath",
+        "jobId",
+        "jobName",
+        "jobType",
+        "jsonAll",
+        "modelPath",
+        "modelVol",
+        "obtainStatus",
+        "stopTime",
+        "stopType",
+        "updateTime",
+        "userId",
+        "workStatus"
+      ]
+    },
+    "JobCallBackReq": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "title": "JobCallBackReq",
+      "required": [
+        "status",
+        "url",
+        "jobId"
+      ]
+    },
+    "JobCreateReq": {
+      "type": "object",
+      "properties": {
+        "gpuNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpuType": {
+          "type": "string"
+        },
+        "ckptPath": {
+          "type": "string"
+        },
+        "ckptVol": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "modelPath": {
+          "type": "string"
+        },
+        "modelVol": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "imagePath": {
+          "type": "string"
+        },
+        "jobType": {
+          "type": "string"
+        },
+        "stopType": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "stopTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "pretrainedModelId": {
+          "type": "string"
+        },
+        "pretrainedModelName": {
+          "type": "string"
+        },
+        "pretrainedModelPath": {
+          "type": "string"
+        },
+        "datasetId": {
+          "type": "string"
+        },
+        "datasetName": {
+          "type": "string"
+        },
+        "datasetPath": {
+          "type": "string"
+        },
+        "trainedModelName": {
+          "type": "string"
+        },
+        "runCommand": {
+          "type": "string"
+        },
+        "callbackUrl": {
+          "type": "string"
+        },
+        "env": {
+          "type": "object"
+        }
+      },
+      "title": "JobCreateReq",
+      "required": [
+        "gpuNumber",
+        "gpuType",
+        "ckptPath",
+        "ckptVol",
+        "modelPath",
+        "modelVol",
+        "imagePath",
+        "jobType"
+      ]
+    },
+    "JobCreateResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "JobCreateResp",
+      "required": [
+        "job_id"
+      ]
+    },
+    "JobGetReq": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "JobGetReq",
+      "required": [
+        "current",
+        "size"
+      ]
+    },
+    "JobGetResp": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Job"
+          }
+        },
+        "totalElements": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JobGetResp",
+      "required": [
+        "content",
+        "totalElements"
+      ]
+    },
+    "JobStatus": {
+      "type": "object",
+      "properties": {
+        "job_status": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "jobtype": {
+          "type": "string"
+        }
+      },
+      "title": "JobStatus",
+      "required": [
+        "job_status",
+        "name",
+        "namespace",
+        "jobtype"
+      ]
+    },
+    "JobStatusReq": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "JobStatusReq",
+      "required": [
+        "job_id"
+      ]
+    },
+    "JobStatusResp": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "title": "JobStatusResp",
+      "required": [
+        "url",
+        "status"
+      ]
+    },
+    "JobStopReq": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "JobStopReq",
+      "required": [
+        "job_id"
+      ]
+    },
+    "JobStopResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JobStopResp",
+      "required": [
+        "message"
+      ]
+    },
+    "JupyterLab": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "jobType": {
+          "type": "string"
+        },
+        "cpu": {
+          "type": "string"
+        },
+        "memory": {
+          "type": "string"
+        },
+        "gpu": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpuProduct": {
+          "type": "string"
+        },
+        "dataVolumeSize": {
+          "type": "string"
+        },
+        "pretrainModels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PretrainModels"
+          }
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JupyterLab",
+      "required": [
+        "instanceName",
+        "name",
+        "jobType",
+        "cpu",
+        "memory",
+        "gpu",
+        "gpuProduct",
+        "dataVolumeSize",
+        "pretrainModels",
+        "userId"
+      ]
+    },
+    "Jupyterlab": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "instance_name": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memory": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_product": {
+          "type": "string"
+        },
+        "data_volume_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_path": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Jupyterlab",
+      "required": [
+        "instance_name",
+        "name",
+        "cpu_count",
+        "memory",
+        "data_volume_size",
+        "user_id"
+      ]
+    },
+    "JupyterlabCreateReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "instance_name": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "cpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memory": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_product": {
+          "type": "string"
+        },
+        "data_volume_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_path": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JupyterlabCreateReq"
+    },
+    "JupyterlabCreateResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabCreateResp",
+      "required": [
+        "message"
+      ]
+    },
+    "JupyterlabDeleteReq": {
+      "type": "object",
+      "properties": {
+        "instance_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabDeleteReq",
+      "required": [
+        "instance_name"
+      ]
+    },
+    "JupyterlabDeleteResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabDeleteResp",
+      "required": [
+        "message"
+      ]
+    },
+    "JupyterlabImage": {
+      "type": "object",
+      "properties": {
+        "image_name": {
+          "type": "string"
+        },
+        "image_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tag_name": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "push_time": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImage",
+      "required": [
+        "image_name",
+        "image_size",
+        "tag_name",
+        "full_name",
+        "push_time"
+      ]
+    },
+    "JupyterlabImageCreateReq": {
+      "type": "object",
+      "properties": {
+        "base_image": {
+          "type": "string"
+        },
+        "instance_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageCreateReq",
+      "required": [
+        "base_image",
+        "instance_name"
+      ]
+    },
+    "JupyterlabImageCreateResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageCreateResp",
+      "required": [
+        "message"
+      ]
+    },
+    "JupyterlabImageDelReq": {
+      "type": "object",
+      "properties": {
+        "image_name": {
+          "type": "string"
+        },
+        "tag_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageDelReq",
+      "required": [
+        "image_name",
+        "tag_name"
+      ]
+    },
+    "JupyterlabImageDelResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageDelResp",
+      "required": [
+        "message"
+      ]
+    },
+    "JupyterlabImageListReq": {
+      "type": "object",
+      "title": "JupyterlabImageListReq"
+    },
+    "JupyterlabImageListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterlabImage"
+          }
+        }
+      },
+      "title": "JupyterlabImageListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "JupyterlabListReq": {
+      "type": "object",
+      "title": "JupyterlabListReq"
+    },
+    "JupyterlabListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Jupyterlab"
+          }
+        }
+      },
+      "title": "JupyterlabListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "JupyterlabStatus": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabStatus",
+      "required": [
+        "name",
+        "status",
+        "url"
+      ]
+    },
+    "LoginReq": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "title": "LoginReq",
+      "required": [
+        "password",
+        "username"
+      ]
+    },
+    "LoginResp": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/WrapUser",
+          "description": " TODO 去掉多余嵌套"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "LoginResp",
+      "required": [
+        "user",
+        "token"
+      ]
+    },
+    "MemInfo": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "usage": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "MemInfo",
+      "required": [
+        "size",
+        "usage"
+      ]
+    },
+    "ModelUrlReq": {
+      "type": "object",
+      "properties": {
+        "download_urls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "job_name": {
+          "type": "string"
+        }
+      },
+      "title": "ModelUrlReq",
+      "required": [
+        "download_urls",
+        "job_name"
+      ]
+    },
+    "ModelUrlResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "ModelUrlResp",
+      "required": [
+        "message"
+      ]
+    },
+    "NetworkInfo": {
+      "type": "object",
+      "properties": {
+        "throughput": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "title": "NetworkInfo",
+      "required": [
+        "throughput",
+        "type"
+      ]
+    },
+    "NodeAddReq": {
+      "type": "object",
+      "properties": {
+        "node_role": {
+          "type": "string"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "node_ip": {
+          "type": "string"
+        },
+        "ssh_port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ssh_user": {
+          "type": "string"
+        },
+        "ssh_password": {
+          "type": "string"
+        }
+      },
+      "title": "NodeAddReq"
+    },
+    "NodeAddResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "NodeAddResp",
+      "required": [
+        "message"
+      ]
+    },
+    "NodeInfo": {
+      "type": "object",
+      "properties": {
+        "cpu_info": {
+          "$ref": "#/definitions/CPUInfo"
+        },
+        "linux_dist": {
+          "type": "string"
+        },
+        "gpu_info": {
+          "$ref": "#/definitions/GPUInfo"
+        },
+        "gpu_total": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpu_allocatable": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "network_info": {
+          "$ref": "#/definitions/NetworkInfo"
+        },
+        "gpu_state": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GPUStateInfo"
+          }
+        },
+        "kernel_version": {
+          "type": "string"
+        },
+        "disk_info": {
+          "$ref": "#/definitions/DiskInfo"
+        },
+        "name": {
+          "type": "string"
+        },
+        "mem_info": {
+          "$ref": "#/definitions/MemInfo"
+        },
+        "arch": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "title": "NodeInfo",
+      "required": [
+        "cpu_info",
+        "linux_dist",
+        "gpu_info",
+        "gpu_total",
+        "gpu_allocatable",
+        "network_info",
+        "gpu_state",
+        "kernel_version",
+        "disk_info",
+        "name",
+        "mem_info",
+        "arch",
+        "status"
+      ]
+    },
+    "NodeListReq": {
+      "type": "object",
+      "title": "NodeListReq"
+    },
+    "NodeListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ClusterNodeInfo"
+          }
+        }
+      },
+      "title": "NodeListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "PretrainModels": {
+      "type": "object",
+      "properties": {
+        "pretrainModelId": {
+          "type": "string"
+        },
+        "pretrainedModelName": {
+          "type": "string"
+        },
+        "pretrainedModelPath": {
+          "type": "string"
+        }
+      },
+      "title": "PretrainModels",
+      "required": [
+        "pretrainModelId",
+        "pretrainedModelName",
+        "pretrainedModelPath"
+      ]
+    },
+    "Quota": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Quota",
+      "required": [
+        "user_id",
+        "resource",
+        "quota"
+      ]
+    },
+    "QuotaAddReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuotaAddReq"
+    },
+    "QuotaAddResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "QuotaAddResp",
+      "required": [
+        "message"
+      ]
+    },
+    "QuotaDeleteReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuotaDeleteReq",
+      "required": [
+        "id"
+      ]
+    },
+    "QuotaDeleteResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "QuotaDeleteResp",
+      "required": [
+        "message"
+      ]
+    },
+    "QuotaListReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuotaListReq"
+    },
+    "QuotaListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuotaResp"
+          }
+        }
+      },
+      "title": "QuotaListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "QuotaResp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuotaResp",
+      "required": [
+        "id"
+      ]
+    },
+    "QuotaUpdateReq": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuotaUpdateReq",
+      "required": [
+        "id",
+        "quota"
+      ]
+    },
+    "QuotaUpdateResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "QuotaUpdateResp",
+      "required": [
+        "message"
+      ]
+    },
+    "RegisterUserReq": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "password": {
+          "type": "string"
+        },
+        "userType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "companyName": {
+          "type": "string"
+        },
+        "companyPhone": {
+          "type": "string"
+        }
+      },
+      "title": "RegisterUserReq",
+      "required": [
+        "username",
+        "email",
+        "enabled",
+        "password"
+      ]
+    },
+    "Resource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "finetune_gpu_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "inference_gpu_count": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Resource",
+      "required": [
+        "id",
+        "name",
+        "object",
+        "owner",
+        "size",
+        "tag",
+        "finetune_gpu_count",
+        "inference_gpu_count"
+      ]
+    },
+    "ResourceDatasetsReq": {
+      "type": "object",
+      "title": "ResourceDatasetsReq"
+    },
+    "ResourceDatasetsResp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          }
+        }
+      },
+      "title": "ResourceDatasetsResp",
+      "required": [
+        "total",
+        "list"
+      ]
+    },
+    "ResourceInfo": {
+      "type": "object",
+      "properties": {
+        "gpu_summaries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GPUSummary"
+          }
+        },
+        "cpod_version": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeInfo"
+          }
+        },
+        "cpod_id": {
+          "type": "string"
+        },
+        "caches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Cache"
+          }
+        }
+      },
+      "title": "ResourceInfo",
+      "required": [
+        "gpu_summaries",
+        "cpod_version",
+        "nodes",
+        "cpod_id",
+        "caches"
+      ]
+    },
+    "ResourceModelsReq": {
+      "type": "object",
+      "title": "ResourceModelsReq"
+    },
+    "ResourceModelsResp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          }
+        }
+      },
+      "title": "ResourceModelsResp",
+      "required": [
+        "total",
+        "list"
+      ]
+    },
+    "SendEmailReq": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "title": "SendEmailReq",
+      "required": [
+        "email"
+      ]
+    },
+    "SysInference": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "url": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string",
+          "description": " 推理服务启动时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": " 推理服务终止时间"
+        }
+      },
+      "title": "SysInference",
+      "required": [
+        "service_name",
+        "status",
+        "model_name",
+        "model_id",
+        "model_size",
+        "url",
+        "start_time",
+        "end_time"
+      ]
+    },
+    "UploaderAccessReq": {
+      "type": "object",
+      "title": "UploaderAccessReq"
+    },
+    "UploaderAccessResp": {
+      "type": "object",
+      "properties": {
+        "access_id": {
+          "type": "string"
+        },
+        "access_key": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "UploaderAccessResp",
+      "required": [
+        "access_id",
+        "access_key",
+        "user_id"
+      ]
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      },
+      "title": "User",
+      "required": [
+        "user_id",
+        "user_name"
+      ]
+    },
+    "UserInfo": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "string"
+        },
+        "createBy": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "updateBy": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string"
+        },
+        "userType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "username": {
+          "type": "string"
+        }
+      },
+      "title": "UserInfo",
+      "required": [
+        "companyId",
+        "createBy",
+        "createTime",
+        "email",
+        "enabled",
+        "id",
+        "isAdmin",
+        "updateBy",
+        "updateTime",
+        "userType",
+        "username"
+      ]
+    },
+    "UserInfoResp": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UserInfo"
+        }
+      },
+      "title": "UserInfoResp",
+      "required": [
+        "user"
+      ]
+    },
+    "UserListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      },
+      "title": "UserListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "WrapUser": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UserInfo"
+        }
+      },
+      "title": "WrapUser",
+      "required": [
+        "user"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
