@@ -11,7 +11,7 @@ import (
 
 type PortalJupyterLabJob struct {
 	Name           string            `json:"name"`
-	JobType        string            `json:"jobType"`
+	JobName        string            `json:"jobName"`
 	CPU            string            `json:"cpu"`
 	Memory         string            `json:"memory"`
 	GPU            int               `json:"gpu"`
@@ -98,9 +98,9 @@ type InferenceJobState struct {
 }
 
 type JupyterLabJobState struct {
-	Name   string
-	Status string
-	URL    string
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	URL    string `json:"url"`
 }
 
 type HeartBeatPayload struct {
