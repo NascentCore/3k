@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/utils/fs"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -195,17 +196,17 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	for _, jupyterlab := range jupyterlabList {
 		jupyterlabResp := types.JupyterLab{}
 		_ = copier.Copy(&jupyterlabResp, jupyterlab)
-		jupyterlabResp.CPU = strconv.FormatInt(jupyterlab.CpuCount, 10)
-		jupyterlabResp.Memory = strconv.FormatInt(jupyterlab.MemCount, 10)
-		jupyterlabResp.GPU = int(jupyterlab.GpuCount)
+		jupyterlabResp.CPUCount = strconv.FormatInt(jupyterlab.CpuCount, 10)
+		jupyterlabResp.Memory = fs.BytesToMi(jupyterlab.MemCount)
+		jupyterlabResp.GPUCount = int(jupyterlab.GpuCount)
 		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
-		jupyterlabResp.DataVolumeSize = strconv.FormatInt(jupyterlab.DataVolumeSize, 10)
-		jupyterlabResp.PretrainModels = make([]types.PretrainModels, 0)
+		jupyterlabResp.DataVolumeSize = fs.BytesToMi(jupyterlab.DataVolumeSize)
+		jupyterlabResp.PretrainedModels = make([]types.PretrainedModels, 0)
 		if jupyterlab.ModelId != "" {
-			jupyterlabResp.PretrainModels = append(jupyterlabResp.PretrainModels, types.PretrainModels{
-				PretrainModelId:   jupyterlab.ModelId,
-				PretrainModelName: jupyterlab.ModelName,
-				PretrainModelPath: jupyterlab.ModelPath,
+			jupyterlabResp.PretrainedModels = append(jupyterlabResp.PretrainedModels, types.PretrainedModels{
+				PretrainedModelId:   jupyterlab.ModelId,
+				PretrainedModelName: jupyterlab.ModelName,
+				PretrainedModelPath: jupyterlab.ModelPath,
 			})
 		}
 

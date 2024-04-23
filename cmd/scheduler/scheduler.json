@@ -1946,13 +1946,10 @@
     "JupyterLab": {
       "type": "object",
       "properties": {
+        "jobName": {
+          "type": "string"
+        },
         "instanceName": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "jobType": {
           "type": "string"
         },
         "cpu": {
@@ -1984,9 +1981,8 @@
       },
       "title": "JupyterLab",
       "required": [
+        "jobName",
         "instanceName",
-        "name",
-        "jobType",
         "cpu",
         "memory",
         "gpu",
@@ -2003,10 +1999,10 @@
           "type": "integer",
           "format": "int64"
         },
-        "instance_name": {
+        "job_name": {
           "type": "string"
         },
-        "name": {
+        "instance_name": {
           "type": "string"
         },
         "cpu_count": {
@@ -2045,7 +2041,6 @@
       "title": "Jupyterlab",
       "required": [
         "instance_name",
-        "name",
         "cpu_count",
         "memory",
         "data_volume_size",
@@ -2059,10 +2054,10 @@
           "type": "integer",
           "format": "int64"
         },
-        "instance_name": {
+        "job_name": {
           "type": "string"
         },
-        "name": {
+        "instance_name": {
           "type": "string"
         },
         "cpu_count": {
@@ -2115,13 +2110,13 @@
     "JupyterlabDeleteReq": {
       "type": "object",
       "properties": {
-        "instance_name": {
+        "job_name": {
           "type": "string"
         }
       },
       "title": "JupyterlabDeleteReq",
       "required": [
-        "instance_name"
+        "job_name"
       ]
     },
     "JupyterlabDeleteResp": {
@@ -2262,7 +2257,7 @@
     "JupyterlabStatus": {
       "type": "object",
       "properties": {
-        "name": {
+        "job_name": {
           "type": "string"
         },
         "status": {
@@ -2274,7 +2269,7 @@
       },
       "title": "JupyterlabStatus",
       "required": [
-        "name",
+        "job_name",
         "status",
         "url"
       ]
