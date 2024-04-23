@@ -216,8 +216,9 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 			status = "ready"
 		}
 		state := sxwl.JupyterLabJobState{
-			Name:   ss.Name,
-			Status: status,
+			JobName: ss.Name,
+			Status:  status,
+			URL:     "/jupyterlab/" + ss.Name,
 		}
 		states = append(states, state)
 	}
