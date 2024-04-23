@@ -10,7 +10,7 @@ import (
 )
 
 type PortalJupyterLabJob struct {
-	InstanceName     string              `json:"name"`
+	InstanceName     string              `json:"instanceName"`
 	JobName          string              `json:"jobName"`
 	CPUCount         string              `json:"cpuCount"`
 	Memory           string              `json:"memory"`

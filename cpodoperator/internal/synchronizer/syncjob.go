@@ -897,14 +897,15 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      job.JobName,
 			Namespace: v1beta1.CPOD_NAMESPACE,
+			Labels:    map[string]string{"app": "jupyterlab"},
 		},
 		Spec: appsv1.StatefulSetSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"app": "jupyterlab"},
+				MatchLabels: map[string]string{"app": job.JobName},
 			},
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{"app": "jupyterlab"},
+					Labels: map[string]string{"app": job.JobName},
 				},
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
