@@ -10,21 +10,21 @@ import (
 )
 
 type PortalJupyterLabJob struct {
-	Name           string            `json:"name"`
-	JobName        string            `json:"jobName"`
-	CPU            string            `json:"cpu"`
-	Memory         string            `json:"memory"`
-	GPU            int               `json:"gpu"`
-	GPUProduct     string            `json:"gpuProduct"`
-	DataVolumeSize string            `json:"dataVolumeSize"`
-	PretrainModels *[]PretrainModels `json:"pretrainModels"`
-	UserID         int64             `json:"userId"`
+	InstanceName     string              `json:"name"`
+	JobName          string              `json:"jobName"`
+	CPUCount         string              `json:"cpuCount"`
+	Memory           string              `json:"memory"`
+	GPUCount         int                 `json:"gpuCount"`
+	GPUProduct       string              `json:"gpuProduct"`
+	DataVolumeSize   string              `json:"dataVolumeSize"`
+	PretrainedModels *[]PretrainedModels `json:"pretrainedModels"`
+	UserID           int64               `json:"userId"`
 }
 
-type PretrainModels struct {
-	PretrainModelId   string `json:"pretrainModelId"`
-	PretrainModelName string `json:"pretrainedModelName"`
-	PretrainModelPath string `json:"pretrainedModelPath"`
+type PretrainedModels struct {
+	PretrainedModelId   string `json:"pretrainedModelId"`
+	PretrainedModelName string `json:"pretrainedModelName"`
+	PretrainedModelPath string `json:"pretrainedModelPath"`
 }
 
 type PortalTrainningJob struct {

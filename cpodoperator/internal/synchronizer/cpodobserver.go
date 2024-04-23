@@ -116,7 +116,7 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	// combine with jupyterlab jobs
 	for _, j := range co.createFailedJupyterLabJobsGetter() {
 		jjs = append(jjs, sxwl.JupyterLabJobState{
-			Name:   j.Name,
+			Name:   j.InstanceName,
 			Status: JupyterLabJobFailed,
 		})
 	}
