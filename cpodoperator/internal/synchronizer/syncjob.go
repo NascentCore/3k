@@ -849,6 +849,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 }
 
 func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
+	storageClassName := os.Getenv("STORAGECLASS")
 	volumeMounts := []v1.VolumeMount{
 		{
 			Name:      "workspace",
@@ -860,7 +861,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 			Name: "workspace",
 			VolumeSource: v1.VolumeSource{
 				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-					ClaimName: job.JobName + "-workspace",
+					ClaimName: "pvc-" + job.JobName + "-0",
 				},
 			},
 		},
@@ -943,10 +944,11 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 			VolumeClaimTemplates: []v1.PersistentVolumeClaim{
 				{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: job.JobName + "-workspace",
+						Name: "pvc",
 					},
 					Spec: v1.PersistentVolumeClaimSpec{
-						AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
+						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
+						StorageClassName: &storageClassName,
 						Resources: v1.ResourceRequirements{
 							Requests: v1.ResourceList{
 								v1.ResourceStorage: resource.MustParse(job.DataVolumeSize),
