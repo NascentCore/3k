@@ -282,15 +282,15 @@ type JobStopResp struct {
 }
 
 type JupyterLab struct {
-	JobName        string           `json:"jobName"`
-	InstanceName   string           `json:"instanceName"`
-	CPU            string           `json:"cpu"`
-	Memory         string           `json:"memory"`
-	GPU            int              `json:"gpu"`
-	GPUProduct     string           `json:"gpuProduct"`
-	DataVolumeSize string           `json:"dataVolumeSize"`
-	PretrainModels []PretrainModels `json:"pretrainModels"`
-	UserID         int64            `json:"userId"`
+	JobName          string             `json:"jobName"`
+	InstanceName     string             `json:"instanceName"`
+	CPUCount         string             `json:"cpuCount"`
+	Memory           string             `json:"memory"`
+	GPUCount         int                `json:"gpuCount"`
+	GPUProduct       string             `json:"gpuProduct"`
+	DataVolumeSize   string             `json:"dataVolumeSize"`
+	PretrainedModels []PretrainedModels `json:"pretrainedModels"`
+	UserID           int64              `json:"userId"`
 }
 
 type Jupyterlab struct {
@@ -436,10 +436,10 @@ type NodeListResp struct {
 	Data []ClusterNodeInfo `json:"data"`
 }
 
-type PretrainModels struct {
-	PretrainModelId   string `json:"pretrainModelId"`
-	PretrainModelName string `json:"pretrainedModelName"`
-	PretrainModelPath string `json:"pretrainedModelPath"`
+type PretrainedModels struct {
+	PretrainedModelId   string `json:"pretrainedModelId"`
+	PretrainedModelName string `json:"pretrainedModelName"`
+	PretrainedModelPath string `json:"pretrainedModelPath"`
 }
 
 type Quota struct {
