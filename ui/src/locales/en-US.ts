@@ -16,6 +16,7 @@ export default {
   'menu.Grafana': 'Grafana',
   'menu.Tensorboard': 'TensorBoard',
   'menu.Jupyterlalb': 'JupyterLab',
+  'menu.JupyterLab': 'JupyterLab',
   'menu.ClusterInformation': 'ClusterInformation',
   'menu.UserQuota': 'UserQuota',
   'pages.global.header.logout': 'Log Out',
