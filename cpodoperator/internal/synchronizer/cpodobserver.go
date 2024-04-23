@@ -116,8 +116,8 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	// combine with jupyterlab jobs
 	for _, j := range co.createFailedJupyterLabJobsGetter() {
 		jjs = append(jjs, sxwl.JupyterLabJobState{
-			Name:   j.InstanceName,
-			Status: JupyterLabJobFailed,
+			JobName: j.JobName,
+			Status:  JupyterLabJobFailed,
 		})
 	}
 	co.ch <- sxwl.HeartBeatPayload{
@@ -216,8 +216,9 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 			status = "ready"
 		}
 		state := sxwl.JupyterLabJobState{
-			Name:   ss.Name,
-			Status: status,
+			JobName: ss.Name,
+			Status:  status,
+			URL:     "/jupyterlab/" + ss.Name,
 		}
 		states = append(states, state)
 	}
