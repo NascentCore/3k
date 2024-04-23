@@ -86,6 +86,6 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		return nil, err
 	}
 
-	resp = &types.JupyterlabCreateResp{Message: "创建jupyterlab实例成功"}
+	resp = &types.JupyterlabCreateResp{Message: fmt.Sprintf("jupyterlab:%s 创建成功", jobName)}
 	return
 }

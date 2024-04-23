@@ -867,21 +867,21 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 	}
 
 	// 处理预训练模型的挂载点
-	for _, pm := range *job.PretrainModels {
+	for _, pm := range *job.PretrainedModels {
 		var modelStorage cpodv1.ModelStorage
-		if err := s.kubeClient.Get(ctx, client.ObjectKey{Name: pm.PretrainModelId, Namespace: v1beta1.CPOD_NAMESPACE}, &modelStorage); err != nil {
-			return nil, fmt.Errorf("failed to get ModelStorage %s: %w", pm.PretrainModelId, err)
+		if err := s.kubeClient.Get(ctx, client.ObjectKey{Name: pm.PretrainedModelId, Namespace: v1beta1.CPOD_NAMESPACE}, &modelStorage); err != nil {
+			return nil, fmt.Errorf("failed to get ModelStorage %s: %w", pm.PretrainedModelId, err)
 		}
 
 		// 添加挂载点
 		volumeMounts = append(volumeMounts, v1.VolumeMount{
-			Name:      pm.PretrainModelId,
-			MountPath: pm.PretrainModelPath,
+			Name:      pm.PretrainedModelId,
+			MountPath: pm.PretrainedModelPath,
 		})
 
 		// 添加对应的卷
 		volumes = append(volumes, v1.Volume{
-			Name: pm.PretrainModelId,
+			Name: pm.PretrainedModelId,
 			VolumeSource: v1.VolumeSource{
 				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
 					ClaimName: modelStorage.Spec.PVC,
@@ -912,13 +912,13 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 							Image: "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5",
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{
-									v1.ResourceCPU:    resource.MustParse(job.CPU),
+									v1.ResourceCPU:    resource.MustParse(job.CPUCount),
 									v1.ResourceMemory: resource.MustParse(job.Memory),
 								},
 								Limits: v1.ResourceList{
-									v1.ResourceCPU:    resource.MustParse(job.CPU),
+									v1.ResourceCPU:    resource.MustParse(job.CPUCount),
 									v1.ResourceMemory: resource.MustParse(job.Memory),
-									"nvidia.com/gpu":  *resource.NewQuantity(int64(job.GPU), resource.DecimalSI),
+									"nvidia.com/gpu":  *resource.NewQuantity(int64(job.GPUCount), resource.DecimalSI),
 								},
 							},
 							Env: []v1.EnvVar{
@@ -1039,7 +1039,7 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, job sxwl.PortalJu
 	}
 
 	if err := s.kubeClient.Create(ctx, ing); err != nil {
-		return nil, fmt.Errorf("failed to create ingress for JupyterLab %s: %v", job.Name, err)
+		return nil, fmt.Errorf("failed to create ingress for JupyterLab %s: %v", job.InstanceName, err)
 	}
 
 	return ing, nil
