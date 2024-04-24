@@ -8,10 +8,12 @@ const (
 	// CPodJobSourceLabel  represents the source of the cpodjob, e.g. sxwl、kubectl etc.
 	CPodJobSourceLabel                       = "cpod.cpod/cpodjob-source"
 	CPodUserIDLabel                          = "cpod.cpod/userID"
+	CPodUserNamespaceLabel                   = "cpod.cpod/userNamespace"
 	CPodModelstorageNameAnno                 = "cpod.cpod/modelstorageName"
 	CPodModelstorageBaseNameAnno             = "cpod.cpod/baseModelstorageName"
 	CPodModelstorageDefaultFinetuneGPUCount  = "cpod.cpod/modelstorageName-finetune-gpu-count"
 	CPodModelstorageDefaultInferenceGPUCount = "cpod.cpod/modelstorageName-inference-gpu-count"
+	CPODStorageCopyLable                     = "cpod.cpod/storage-copy"
 
 	CPodJobSource = "sxwl"
 )

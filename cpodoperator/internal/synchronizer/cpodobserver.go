@@ -361,7 +361,14 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 		FinetuneGPUCount := 1
 		InferenceGPUCount := 1
 
+		isPublic := false
+		if model.Namespace == "public" {
+			isPublic = true
+		}
 		if model.Labels != nil {
+			if _, ok := model.Labels[v1beta1.CPODStorageCopyLable]; ok {
+				continue
+			}
 			if value, ok := model.Labels[v1beta1.CPodModelstorageDefaultFinetuneGPUCount]; ok {
 				FinetuneGPUCount, _ = strconv.Atoi(value)
 			}
@@ -372,6 +379,8 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 		}
 
 		caches = append(caches, resource.Cache{
+			IsPublic:          isPublic,
+			UserID:            model.Name,
 			DataType:          resource.CacheModel,
 			DataName:          model.Spec.ModelName,
 			DataId:            model.Name,
@@ -388,7 +397,18 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 		return nil, err
 	}
 	for _, dataset := range datasetList.Items {
+		if dataset.Labels != nil {
+			if _, ok := dataset.Labels[v1beta1.CPODStorageCopyLable]; ok {
+				continue
+			}
+		}
+		isPublic := false
+		if dataset.Namespace == "public" {
+			isPublic = true
+		}
 		caches = append(caches, resource.Cache{
+			IsPublic:   isPublic,
+			UserID:     dataset.Name,
 			DataType:   resource.CacheDataSet,
 			DataName:   dataset.Spec.DatasetName,
 			DataId:     dataset.Name,

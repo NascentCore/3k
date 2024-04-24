@@ -89,6 +89,8 @@ type CPodResourceInfo struct {
 // “缓存”在三千平台上的各类数据：开源基底模型、数据集
 // TODO：目前系统还没有考虑用户自有的模型、数据集，须注意此类设计上的安全性
 type Cache struct {
+	IsPublic          bool   `json:"is_public"`
+	UserID            string `json:"user_id"`
 	DataType          string `json:"data_type"`
 	DataName          string `json:"data_name"`
 	DataId            string `json:"data_id"`
