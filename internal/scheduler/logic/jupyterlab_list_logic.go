@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
@@ -40,10 +41,9 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 	for _, jupyterlab := range jupyterlabs {
 		jupyterlabResp := types.Jupyterlab{}
 		_ = copier.Copy(&jupyterlabResp, &jupyterlab)
-		// TODO jupyter url
-		// if jupyterlab.Url != "" {
-		// 	jupyterlabResp.Url = fmt.Sprintf(l.svcCtx.Config.Inference.UrlFormat, jupyterlab.ServiceName)
-		// }
+		if jupyterlab.Url != "" {
+			jupyterlabResp.URL = fmt.Sprintf("%s%s?token=%s", l.svcCtx.Config.K8S.BaseUrl, jupyterlab.Url, jupyterlab.JobName)
+		}
 
 		resp.Data = append(resp.Data, jupyterlabResp)
 	}

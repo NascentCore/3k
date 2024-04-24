@@ -36,7 +36,8 @@ type Config struct {
 		UrlFormat string
 	} `json:"Inference"`
 	K8S struct {
-		BaseApi string
+		BaseApi string // k8s管理
+		BaseUrl string // 组件入口
 	} `json:"-"`
 	Auth struct {
 		Secret string
