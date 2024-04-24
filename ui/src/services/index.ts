@@ -211,24 +211,6 @@ export const useGetApiUser = (options?: { [key: string]: any }) =>
 
 // 镜像列表
 export async function apiGetJobJupyterImage(options?: { [key: string]: any }) {
-  return {
-    data: [
-      {
-        image_name: '<string>',
-        image_size: '<integer>',
-        tag_name: '<string>',
-        full_name: '<string>',
-        push_time: '<string>',
-      },
-      {
-        image_name: '<string>',
-        image_size: '<integer>',
-        tag_name: '<string>',
-        full_name: '<string>',
-        push_time: '<string>',
-      },
-    ],
-  };
   return request('/api/job/jupyter/image', {
     method: 'GET',
     ...(options || {}),
@@ -257,38 +239,6 @@ export async function apiPostJobJupyterImage(options?: { [key: string]: any }) {
 
 // 查询jupyterlab实例列表
 export async function apiGetJobJupyterlab(options?: { [key: string]: any }) {
-  return {
-    data: [
-      {
-        instance_name: '<string>',
-        cpu_count: '<long>',
-        memory: '<long>',
-        data_volume_size: '<long>',
-        user_id: '<long>',
-        id: '<long>',
-        job_name: '<string>',
-        gpu_count: '<long>',
-        gpu_product: '<string>',
-        model_id: '<string>',
-        model_name: '<string>',
-        model_path: '<string>',
-      },
-      {
-        instance_name: '<string>',
-        cpu_count: '<long>',
-        memory: '<long>',
-        data_volume_size: '<long>',
-        user_id: '<long>',
-        id: '<long>',
-        job_name: '<string>',
-        gpu_count: '<long>',
-        gpu_product: '<string>',
-        model_id: '<string>',
-        model_name: '<string>',
-        model_path: '<string>',
-      },
-    ],
-  };
   return request('/api/job/jupyterlab', {
     method: 'GET',
     ...(options || {}),
