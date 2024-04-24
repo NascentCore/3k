@@ -2,29 +2,58 @@ import { Button, Form, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
+import { apiGetResourceBaseimages, apiPostJobJupyterImage, useApiResourceModels } from '@/services';
 
 interface IProps {
+  record: any;
   onChange: () => void;
   onCancel: () => void;
 }
 
-const Index = ({ onChange, onCancel }: IProps) => {
+const Index = ({ record, onChange, onCancel }: IProps) => {
   const intl = useIntl();
 
   const [form] = Form.useForm();
   useEffect(() => {
     form.setFieldsValue({});
+    apiGetResourceBaseimages();
   }, []);
+
+  const { data: resourceModels }: any = useApiResourceModels();
+  const resourceModelsList = resourceModels?.map((x) => ({
+    ...x,
+    label: (
+      <>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: 12,
+          }}
+        >
+          <span style={{ marginRight: 20 }}>{x.name}</span>
+          {/* <span>{formatFileSize(x.size)}</span> */}
+        </div>
+      </>
+    ),
+    value: x.id,
+    key: x.id,
+  }));
 
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       console.log('Form values:', values);
-      return Promise.resolve().then(() => {
+      return apiPostJobJupyterImage({
+        data: {
+          base_image: values.base_image,
+          instance_name: record.instance_name,
+        },
+      }).then(() => {
         onChange();
         message.success(
           intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.global.form.submit.success',
             defaultMessage: '操作成功',
           }),
         );
@@ -37,28 +66,32 @@ const Index = ({ onChange, onCancel }: IProps) => {
     <>
       <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} style={{ maxWidth: 600 }}>
         <Form.Item
-          name="xxx"
+          name="base_image"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image',
             defaultMessage: '基座镜像',
           })}
+          rules={[{ required: true }]}
         >
           <Select
             allowClear
-            options={[]}
+            options={resourceModelsList}
             placeholder={intl.formatMessage({
-              id: 'xxx',
-              defaultMessage: '基座镜像',
+              id: 'pages.global.form.select.placeholder',
+              defaultMessage: '请选择',
             })}
           />
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <p>构建镜像时会执行如下逻辑：</p>
-          <p>1. 将 /workspace 目录下的内容完整复制到镜像相同路径下</p>
-          <p>2. 自动安装 /workspace 目录下的 requirements.txt</p>
-          <p>请将代码及 requirements.txt 文件放到该路径下</p>
-          <p>注：数据卷默认挂载路径为 /workspace</p>
+          {intl
+            .formatMessage({
+              id: 'pages.jupyterLab.JupyterLabTab.BuildingImage.form.tips',
+            })
+            ?.split('<br/>')
+            .map((x) => (
+              <p>{x}</p>
+            ))}
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <div style={{ display: 'flex', gap: 10 }}>

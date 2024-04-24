@@ -18,12 +18,18 @@ const Index: React.FC = () => {
   const items = [
     {
       key: '1',
-      label: 'JupyterLab实例',
+      label: intl.formatMessage({
+        id: 'pages.jupyterLab.tab.title.jupyterLabExample',
+        defaultMessage: 'JupyterLab',
+      }),
       children: <JupyterLabTab />,
     },
     {
       key: '2',
-      label: '镜像管理',
+      label: intl.formatMessage({
+        id: 'pages.jupyterLab.tab.title.imageManagement',
+        defaultMessage: '镜像管理',
+      }),
       children: <ImageManagementTab />,
     },
   ];
@@ -35,7 +41,10 @@ const Index: React.FC = () => {
             style={{ position: 'absolute', right: 0, top: 5, zIndex: 10 }}
             onClick={() => setAddJupyterLabOpen(true)}
           >
-            创建JupyterLab实例
+            {intl.formatMessage({
+              id: 'pages.jupyterLab.tab.createJupyterLabInstanceButton',
+              defaultMessage: '创建JupyterLab实例',
+            })}
           </Button>
           <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
         </div>
@@ -43,7 +52,7 @@ const Index: React.FC = () => {
       <Drawer
         width={1000}
         title={intl.formatMessage({
-          id: 'xxx',
+          id: 'pages.jupyterLab.tab.createJupyterLabInstanceButton',
           defaultMessage: '创建JupyterLab实例',
         })}
         placement="right"

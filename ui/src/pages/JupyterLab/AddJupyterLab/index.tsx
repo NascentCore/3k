@@ -1,11 +1,6 @@
-import {
-  apiPostApiNode,
-  apiPostJobJupyterlab,
-  useApiGetGpuType,
-  useApiResourceModels,
-} from '@/services';
-import { Button, Drawer, Form, Input, Select, message } from 'antd';
-import { useEffect, useState } from 'react';
+import { apiPostJobJupyterlab, useApiGetGpuType, useApiResourceModels } from '@/services';
+import { Button, Form, Input, Select, message } from 'antd';
+import { useEffect } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -86,7 +81,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="instance_name"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.instance_name',
             defaultMessage: '实例名称',
           })}
           rules={[
@@ -95,7 +90,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
             },
             {
               pattern: /^[a-zA-Z0-9_-]+$/,
-              message: '实例名称只能包含大小写字母、数字、下划线(_)和分割符(-)',
+              message: intl.formatMessage({
+                id: 'pages.jupyterLab.AddJupyterLab.form.instance_name.pattern',
+                defaultMessage: '实例名称只能包含大小写字母、数字、下划线(_)和分割符(-)',
+              }),
             },
           ]}
         >
@@ -111,14 +109,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="cpu_count"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.cpu_count',
             defaultMessage: 'CPU',
           })}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          rules={[{ required: true }]}
         >
           <Input
             type="text"
@@ -132,14 +126,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="memory"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.memory',
             defaultMessage: 'memory',
           })}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          rules={[{ required: true }]}
         >
           <Input
             type="number"
@@ -154,16 +144,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="gpu_count"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.gpu_count',
             defaultMessage: 'gpu',
           })}
-          rules={
-            gpu_product_watch && [
-              {
-                required: true,
-              },
-            ]
-          }
+          rules={gpu_product_watch && [{ required: true }]}
         >
           <Input
             type="number"
@@ -177,7 +161,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="gpu_product"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.gpu_product',
             defaultMessage: 'gpu类型',
           })}
         >
@@ -194,14 +178,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="data_volume_size"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.data_volume_size',
             defaultMessage: '数据卷大小',
           })}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+          rules={[{ required: true }]}
         >
           <Input
             type="number"
@@ -217,7 +197,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="model_id"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.model_id',
             defaultMessage: '挂载模型',
           })}
         >

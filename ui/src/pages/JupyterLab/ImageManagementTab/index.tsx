@@ -20,7 +20,7 @@ const Index: React.FC = () => {
         columns={[
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.ImageManagementTab.table.image_name',
               defaultMessage: '镜像名称',
             }),
             dataIndex: 'image_name',
@@ -30,28 +30,28 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.ImageManagementTab.table.create_time',
               defaultMessage: '创建时间',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'create_time',
+            key: 'create_time',
             align: 'center',
             width: 150,
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.ImageManagementTab.table.push_time',
               defaultMessage: '更新时间',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'push_time',
+            key: 'push_time',
             align: 'center',
             width: 150,
           },
 
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.ImageManagementTab.table.action',
               defaultMessage: '操作',
             }),
             dataIndex: 'action',
@@ -62,7 +62,10 @@ const Index: React.FC = () => {
               <>
                 <Space>
                   <Button type={'link'} onClick={() => setDetailDrawerOpen(true)}>
-                    详情
+                    {intl.formatMessage({
+                      id: 'pages.jupyterLab.ImageManagementTab.table.action.detail',
+                      defaultMessage: '详情',
+                    })}
                   </Button>
                   <Popconfirm
                     title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
@@ -92,8 +95,8 @@ const Index: React.FC = () => {
       <Drawer
         width={1000}
         title={intl.formatMessage({
-          id: 'xxx',
-          defaultMessage: '镜像详情',
+          id: 'pages.jupyterLab.ImageManagementTab.table.action.detail',
+          defaultMessage: '详情',
         })}
         placement="right"
         onClose={() => setDetailDrawerOpen(false)}

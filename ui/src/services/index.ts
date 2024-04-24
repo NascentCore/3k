@@ -256,7 +256,6 @@ export async function apiPostJobJupyterImage(options?: { [key: string]: any }) {
 }
 
 // 查询jupyterlab实例列表
-
 export async function apiGetJobJupyterlab(options?: { [key: string]: any }) {
   return {
     data: [
@@ -316,3 +315,16 @@ export async function apiPostJobJupyterlab(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// 基础镜像列表
+export async function apiGetResourceBaseimages(options?: { [key: string]: any }) {
+  return request('/api/resource/baseimages', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export const useApiGetResourceBaseimages = (options?: { [key: string]: any }) =>
+  useSWR([options], ([options]) => {
+    return apiGetResourceBaseimages(options);
+  });

@@ -3,10 +3,12 @@ import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
 import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
+import { formatFileSize, getToken } from '@/utils';
 
 const Index: React.FC = () => {
   const intl = useIntl();
   const [buildingImageOpen, setBuildingImageOpen] = React.useState(false);
+  const [buildingImageRecord, setBuildingImageRecord] = React.useState({});
 
   const { data: tableDataSourceRes, mutate } = useApiGetJobJupyterlab();
 
@@ -16,7 +18,7 @@ const Index: React.FC = () => {
         columns={[
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.instance_name',
               defaultMessage: '实例名称',
             }),
             dataIndex: 'instance_name',
@@ -26,49 +28,75 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.cpu_count',
               defaultMessage: 'CPU',
             }),
             dataIndex: 'cpu_count',
             key: 'cpu_count',
             align: 'center',
-            width: 150,
+            width: 100,
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.memory',
               defaultMessage: 'MEM',
             }),
             dataIndex: 'memory',
             key: 'memory',
             align: 'center',
-            width: 150,
+            width: 100,
+            render: (text) => {
+              return formatFileSize(text);
+            },
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.gpu_product',
               defaultMessage: 'GPU',
             }),
             dataIndex: 'gpu_product',
             key: 'gpu_product',
             align: 'center',
-            width: 150,
+            width: 100,
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.action',
               defaultMessage: '操作',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'action',
+            key: 'action',
             align: 'center',
             width: 150,
             render: (_, record) => (
               <>
                 <Space>
-                  <Button type={'link'}>进入</Button>
-                  <Button type={'link'} onClick={() => setBuildingImageOpen(true)}>
-                    构建镜像
+                  <Button
+                    type={'link'}
+                    onClick={() => {
+                      window.open(
+                        `${window.location.protocol}//${
+                          window.location.hostname
+                        }:30004/jupyterlab/${record.instance_name}?token=${getToken()}`,
+                      );
+                    }}
+                  >
+                    {intl.formatMessage({
+                      id: 'pages.jupyterLab.JupyterLabTab.table.column.action.enterBtn',
+                      defaultMessage: '进入',
+                    })}
+                  </Button>
+                  <Button
+                    type={'link'}
+                    onClick={() => {
+                      setBuildingImageOpen(true);
+                      setBuildingImageRecord(record);
+                    }}
+                  >
+                    {intl.formatMessage({
+                      id: 'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn',
+                      defaultMessage: '构建镜像',
+                    })}
                   </Button>
                   <Popconfirm
                     title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
@@ -98,7 +126,7 @@ const Index: React.FC = () => {
       <Drawer
         width={1000}
         title={intl.formatMessage({
-          id: 'xxx',
+          id: 'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn',
           defaultMessage: '构建镜像',
         })}
         placement="right"
@@ -106,6 +134,7 @@ const Index: React.FC = () => {
         open={buildingImageOpen}
       >
         <BuildingImage
+          record={buildingImageRecord}
           onChange={() => setBuildingImageOpen(false)}
           onCancel={() => setBuildingImageOpen(false)}
         />
