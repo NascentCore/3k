@@ -63,6 +63,12 @@ export default [
     component: './Welcome',
   },
   {
+    path: '/LLaMA-Factory',
+    name: 'LLaMA-Factory',
+    icon: 'DatabaseOutlined',
+    component: './LLaMAFactory',
+  },
+  {
     path: '*',
     layout: false,
     component: './404',
