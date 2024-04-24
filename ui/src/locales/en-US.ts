@@ -26,6 +26,7 @@ export default {
   'pages.global.confirm.delete.button': 'Delete',
   'pages.global.confirm.delete.description': 'Confirm deletion?',
   'pages.global.confirm.delete.success': 'Delete Success',
+  'pages.global.form.placeholder': 'Please enter',
   ...login,
   ...modelRepository,
   ...userJob,

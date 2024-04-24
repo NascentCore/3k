@@ -26,6 +26,7 @@ export default {
   'pages.global.confirm.delete.button': '删除',
   'pages.global.confirm.delete.description': '确认删除?',
   'pages.global.confirm.delete.success': '删除成功',
+  'pages.global.form.placeholder': '请输入',
   ...login,
   ...modelRepository,
   ...userJob,

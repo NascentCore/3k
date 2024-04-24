@@ -6,7 +6,7 @@ import JupyterLabTab from './JupyterLabTab';
 import ImageManagementTab from './ImageManagementTab';
 import AddJupyterLab from './AddJupyterLab';
 
-const Welcome: React.FC = () => {
+const Index: React.FC = () => {
   const intl = useIntl();
 
   const onChange = (key: string) => {
@@ -50,13 +50,15 @@ const Welcome: React.FC = () => {
         onClose={() => setAddJupyterLabOpen(false)}
         open={addJupterLabOpen}
       >
-        <AddJupyterLab
-          onChange={() => setAddJupyterLabOpen(false)}
-          onCancel={() => setAddJupyterLabOpen(false)}
-        />
+        {addJupterLabOpen && (
+          <AddJupyterLab
+            onChange={() => setAddJupyterLabOpen(false)}
+            onCancel={() => setAddJupyterLabOpen(false)}
+          />
+        )}
       </Drawer>
     </>
   );
 };
 
-export default Welcome;
+export default Index;

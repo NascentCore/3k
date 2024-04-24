@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
-import { Button, Drawer, Space, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
-import { apiGetJobJupyterlab } from '@/services';
+import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
 
-const Welcome: React.FC = () => {
+const Index: React.FC = () => {
   const intl = useIntl();
   const [buildingImageOpen, setBuildingImageOpen] = React.useState(false);
 
-  useEffect(() => {
-    apiGetJobJupyterlab();
-  }, []);
+  const { data: tableDataSourceRes, mutate } = useApiGetJobJupyterlab();
 
   return (
     <>
@@ -21,8 +19,8 @@ const Welcome: React.FC = () => {
               id: 'xxx',
               defaultMessage: '实例名称',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'instance_name',
+            key: 'instance_name',
             align: 'center',
             width: 150,
           },
@@ -31,8 +29,8 @@ const Welcome: React.FC = () => {
               id: 'xxx',
               defaultMessage: 'CPU',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'cpu_count',
+            key: 'cpu_count',
             align: 'center',
             width: 150,
           },
@@ -41,8 +39,8 @@ const Welcome: React.FC = () => {
               id: 'xxx',
               defaultMessage: 'MEM',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'memory',
+            key: 'memory',
             align: 'center',
             width: 150,
           },
@@ -51,8 +49,8 @@ const Welcome: React.FC = () => {
               id: 'xxx',
               defaultMessage: 'GPU',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'gpu_product',
+            key: 'gpu_product',
             align: 'center',
             width: 150,
           },
@@ -72,13 +70,29 @@ const Welcome: React.FC = () => {
                   <Button type={'link'} onClick={() => setBuildingImageOpen(true)}>
                     构建镜像
                   </Button>
-                  <Button type={'link'}>删除</Button>
+                  <Popconfirm
+                    title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
+                    description={intl.formatMessage({
+                      id: 'pages.global.confirm.delete.description',
+                    })}
+                    onConfirm={() => {
+                      apiDeleteJobJupyterlab({ data: { id: record?.id } }).then(() => {
+                        mutate();
+                      });
+                    }}
+                    okText={intl.formatMessage({ id: 'pages.global.confirm.okText' })}
+                    cancelText={intl.formatMessage({ id: 'pages.global.confirm.cancelText' })}
+                  >
+                    <Button type="link">
+                      {intl.formatMessage({ id: 'pages.global.confirm.delete.button' })}
+                    </Button>
+                  </Popconfirm>
                 </Space>
               </>
             ),
           },
         ]}
-        dataSource={[{ xxx: 'xxx' }]}
+        dataSource={tableDataSourceRes?.data || []}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
       <Drawer
@@ -100,4 +114,4 @@ const Welcome: React.FC = () => {
   );
 };
 
-export default Welcome;
+export default Index;
