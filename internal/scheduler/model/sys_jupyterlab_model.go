@@ -11,11 +11,9 @@ import (
 var _ SysJupyterlabModel = (*customSysJupyterlabModel)(nil)
 
 const (
-	JupyterStatusDescWaitDeploy = "waitdeploy"
-	JupyterStatusDescDeploying  = "deploying"
-	JupyterStatusDescDeployed   = "deployed"
-	JupyterStatusDescStopped    = "stopped"
-	JupyterStatusDescFailed     = "failed"
+	JupyterStatusDescReady    = "ready"
+	JupyterStatusDescNotReady = "notready"
+	JupyterStatusDescFailed   = "failed"
 )
 
 const (
