@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import ImageDetail from './ImageDetail';
-import {
-  apiDeleteJobJupyterImage,
-  apiGetJobJupyterImage,
-  useApiGetJobJupyterImage,
-} from '@/services';
+import { apiDeleteJobJupyterImage, useApiGetJobJupyterImage } from '@/services';
 
 const Index: React.FC = () => {
   const intl = useIntl();
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
+  const [detailRecord, setDetailRecord] = useState<any>(void 0);
 
   const { data: tableDataSourceRes, mutate } = useApiGetJobJupyterImage();
 
@@ -61,7 +58,13 @@ const Index: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <Button type={'link'} onClick={() => setDetailDrawerOpen(true)}>
+                  <Button
+                    type={'link'}
+                    onClick={() => {
+                      setDetailRecord(record);
+                      setDetailDrawerOpen(true);
+                    }}
+                  >
                     {intl.formatMessage({
                       id: 'pages.jupyterLab.ImageManagementTab.table.action.detail',
                       defaultMessage: '详情',
@@ -102,7 +105,7 @@ const Index: React.FC = () => {
         onClose={() => setDetailDrawerOpen(false)}
         open={detailDrawerOpen}
       >
-        <ImageDetail />
+        {detailDrawerOpen && <ImageDetail record={detailRecord} />}
       </Drawer>
     </>
   );

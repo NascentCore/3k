@@ -15,20 +15,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
   const { data: resourceModels }: any = useApiResourceModels();
   const resourceModelsList = resourceModels?.map((x) => ({
     ...x,
-    label: (
-      <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-          }}
-        >
-          <span style={{ marginRight: 20 }}>{x.name}</span>
-          {/* <span>{formatFileSize(x.size)}</span> */}
-        </div>
-      </>
-    ),
+    label: x.name,
     value: x.id,
     key: x.id,
   }));
@@ -66,7 +53,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         onChange();
         message.success(
           intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.global.form.submit.success',
             defaultMessage: '添加成功',
           }),
         );
@@ -213,7 +200,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name="model_path"
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.model_path',
             defaultMessage: '模型挂载路径',
           })}
         >

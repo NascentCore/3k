@@ -2,7 +2,12 @@ import { Button, Form, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
-import { apiGetResourceBaseimages, apiPostJobJupyterImage, useApiResourceModels } from '@/services';
+import {
+  apiGetResourceBaseimages,
+  apiPostJobJupyterImage,
+  useApiGetResourceBaseimages,
+  useApiResourceModels,
+} from '@/services';
 
 interface IProps {
   record: any;
@@ -19,25 +24,12 @@ const Index = ({ record, onChange, onCancel }: IProps) => {
     apiGetResourceBaseimages();
   }, []);
 
-  const { data: resourceModels }: any = useApiResourceModels();
+  const { data: resourceModels }: any = useApiGetResourceBaseimages();
   const resourceModelsList = resourceModels?.map((x) => ({
     ...x,
-    label: (
-      <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-          }}
-        >
-          <span style={{ marginRight: 20 }}>{x.name}</span>
-          {/* <span>{formatFileSize(x.size)}</span> */}
-        </div>
-      </>
-    ),
-    value: x.id,
-    key: x.id,
+    label: x,
+    value: x,
+    key: x,
   }));
 
   const onFinish = () => {
