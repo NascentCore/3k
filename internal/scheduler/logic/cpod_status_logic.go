@@ -292,7 +292,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 
 		var setMap = map[string]interface{}{}
 		switch jupyter.Status {
-		case model.JupyterStatusDescDeployed:
+		case model.JupyterStatusDescReady:
 			setMap = map[string]interface{}{
 				"start_time": orm.NullTime(time.Now()),
 				"status":     model.JupyterStatusDeployed,
