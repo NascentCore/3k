@@ -305,6 +305,7 @@ type Jupyterlab struct {
 	ModelId        string `json:"model_id,optional"`
 	ModelName      string `json:"model_name,optional"`
 	ModelPath      string `json:"model_path,optional"`
+	URL            string `json:"url"`
 	UserId         int64  `json:"user_id"`
 }
 
