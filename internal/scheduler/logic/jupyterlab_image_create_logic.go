@@ -34,6 +34,7 @@ func (l *JupyterlabImageCreateLogic) JupyterlabImageCreate(req *types.Jupyterlab
 		BaseImage:    req.BaseImage,
 		UserID:       strconv.FormatInt(req.UserID, 10),
 		InstanceName: req.InstanceName,
+		JobName:      req.JobName,
 	})
 
 	if err != nil {
