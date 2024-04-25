@@ -143,7 +143,6 @@ const Login: React.FC = ({ setType }) => {
                   id: 'pages.login.servicePhone',
                   // defaultMessage: '客服电话',
                 })}
-                ：15910236560
               </Text>
             </div>
             <div>
@@ -152,7 +151,6 @@ const Login: React.FC = ({ setType }) => {
                   id: 'pages.login.serviceEmail',
                   // defaultMessage: '客服邮箱',
                 })}
-                ：help@sxwl.ai
               </Text>
             </div>
           </Form.Item>

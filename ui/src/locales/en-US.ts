@@ -6,9 +6,9 @@ import userJobCommit from './en-US/userJobCommit';
 import clusterInformation from './en-US/clusterInformation';
 import userQuota from './en-US/userQuota';
 import JupyterLab from './en-US/JupyterLab';
+import oem from './en-US/oem'
 
 export default {
-  'app.title': 'NascentCore Cloud',
   'menu.welcome': 'Welcome',
   'menu.ModelRepository': 'Model Repository',
   'menu.UserJob': 'Job Details',
@@ -30,6 +30,7 @@ export default {
   'pages.global.form.submit.success': 'Success',
   'pages.global.form.placeholder': 'Please enter',
   'pages.global.form.select.placeholder': 'Please select',
+  ...oem,
   ...login,
   ...modelRepository,
   ...userJob,

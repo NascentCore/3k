@@ -2,14 +2,11 @@
  * 登录页面 国际化配置
  */
 export default {
-  'pages.login.title': 'NascentCore Cloud',
   'pages.login.username': 'Please enter your email',
   'pages.login.password': 'Please enter your password',
   'pages.login.rememberMe': 'Remember me',
   'pages.login.submit': 'Login',
   'pages.login.regist': 'Register',
-  'pages.login.servicePhone': 'Service phone',
-  'pages.login.serviceEmail': 'Service email',
 
   'pages.regist.title': 'User Registration',
   'pages.regist.type.user': 'User registration',
