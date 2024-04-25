@@ -111,9 +111,10 @@ def build_image():
         base_image = data.get('base_image')
         user_id = data.get('user_id')
         instance_name = data.get('instance_name')
+        job_name = data.get('job_name')
 
         # 创建线程来异步执行镜像构建和推送
-        thread = threading.Thread(target=build_and_push_image, args=(base_image, user_id, instance_name))
+        thread = threading.Thread(target=build_and_push_image, args=(base_image, user_id, instance_name, job_name))
         thread.start()
 
         return jsonify({'message': 'Image build and push initiated successfully'})
@@ -171,6 +172,7 @@ class Serve(cli.Application):
     """启动和停止 Flask 服务"""
 
     PID_FILE = './gunicorn.pid'
+    LOG_FILE = './gunicorn.log'
     action_performed = False
 
     @cli.switch(["start"])
@@ -183,6 +185,7 @@ class Serve(cli.Application):
             '-b', '0.0.0.0:5000',
             '--daemon',
             '--pid', self.PID_FILE,
+            '--log-file', self.LOG_FILE,
             'cli.serve.service:app'
         ])
         print("Flask server is running in the background.")
@@ -246,15 +249,14 @@ def async_subprocess_run(command, callback=None):
     thread = threading.Thread(target=run_in_thread, args=(command, callback))
     thread.start()
 
-def build_and_push_image(base_image, user_id, instance_name):
+def build_and_push_image(base_image, user_id, instance_name, job_name):
     workdir = f'/tmp/{user_id}/{instance_name}'
     os.makedirs(workdir, exist_ok=True)
     os.chdir(workdir)
 
     # 复制代码到工作目录
-    code_dir = f'jupyterlab-{user_id}-{instance_name}:/workspace'
+    code_dir = f'{job_name}-0:/workspace'
     copy_cmd = ['kubectl', 'cp', '-n', 'cpod', code_dir, './workspace']
-    copy_cmd = ['kubectl', 'cp', code_dir, './workspace']
     subprocess.run(copy_cmd, check=True)
 
     # 生成Dockerfile
@@ -314,7 +316,7 @@ def list_repositories(project_name):
         return repos
     else:
         print(f"Error fetching repositories. Status code: {response.status_code}")
-        return None
+        return []
 
 def list_tags(project_name, repository):
     hub = "dockerhub.kubekey.local"
@@ -335,7 +337,7 @@ def list_tags(project_name, repository):
         return tags
     else:
         print(f"Error fetching tags. Status code: {response.status_code}")
-        return None
+        return []
     
 def delete_repository(project_name, repository, tag=None):
     if project_name == "kubesphereio":
