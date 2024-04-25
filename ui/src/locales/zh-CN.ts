@@ -6,9 +6,9 @@ import userJobCommit from './zh-CN/userJobCommit';
 import clusterInformation from './zh-CN/clusterInformation';
 import userQuota from './zh-CN/userQuota';
 import JupyterLab from './zh-CN/JupyterLab';
+import oem from './zh-CN/oem';
 
 export default {
-  'app.title': '算想云',
   'menu.welcome': '欢迎',
   'menu.ModelRepository': '模型仓库',
   'menu.UserJobCommit': '任务提交',
@@ -30,6 +30,7 @@ export default {
   'pages.global.form.submit.success': '操作成功',
   'pages.global.form.placeholder': '请输入',
   'pages.global.form.select.placeholder': '请选择',
+  ...oem,
   ...login,
   ...modelRepository,
   ...userJob,

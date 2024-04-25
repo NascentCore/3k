@@ -4,12 +4,10 @@ import { useIntl } from '@umijs/max';
 import ImageDetail from './ImageDetail';
 import { apiDeleteJobJupyterImage, useApiGetJobJupyterImage } from '@/services';
 
-const Index: React.FC = () => {
+const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const [detailRecord, setDetailRecord] = useState<any>(void 0);
-
-  const { data: tableDataSourceRes, mutate } = useApiGetJobJupyterImage();
 
   return (
     <>
@@ -93,6 +91,7 @@ const Index: React.FC = () => {
           },
         ]}
         dataSource={tableDataSourceRes?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
       <Drawer

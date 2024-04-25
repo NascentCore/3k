@@ -2,14 +2,11 @@
  * 登录页面 国际化配置
  */
 export default {
-  'pages.login.title': '算想云',
   'pages.login.username': '请输入邮箱',
   'pages.login.password': '请输入密码',
   'pages.login.rememberMe': '记住我',
   'pages.login.submit': '登录',
   'pages.login.regist': '注册',
-  'pages.login.servicePhone': '客服电话',
-  'pages.login.serviceEmail': '客服邮箱',
 
   'pages.regist.title': '用户注册',
   'pages.regist.type.user': '算力用户注册',

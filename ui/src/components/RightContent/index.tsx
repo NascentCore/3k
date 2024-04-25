@@ -8,13 +8,17 @@ export type SiderTheme = 'light' | 'dark';
 export const SelectLang = () => {
   const intl = useIntl();
 
+  const logo = intl.formatMessage({
+    id: 'app.logo',
+  });
+
   const title = intl.formatMessage({
     id: 'app.title',
-    defaultMessage: '算想云',
   });
 
   useEffect(() => {
     try {
+      (document as any).querySelector('div.ant-pro-global-header-logo > a > img').src = logo;
       (document as any).querySelector('div.ant-pro-global-header-logo > a > h1').innerText = title;
     } catch (error) {
       console.log(error);

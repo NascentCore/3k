@@ -5,12 +5,10 @@ import BuildingImage from './BuildingImage';
 import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
 import { formatFileSize, getToken } from '@/utils';
 
-const Index: React.FC = () => {
+const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
   const [buildingImageOpen, setBuildingImageOpen] = React.useState(false);
   const [buildingImageRecord, setBuildingImageRecord] = React.useState({});
-
-  const { data: tableDataSourceRes, mutate } = useApiGetJobJupyterlab();
 
   return (
     <>
@@ -121,6 +119,7 @@ const Index: React.FC = () => {
           },
         ]}
         dataSource={tableDataSourceRes?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
       <Drawer

@@ -89,6 +89,12 @@ export default [
     component: './JupyterLab',
   },
   {
+    path: '/LLaMA-Factory',
+    name: 'LLaMA-Factory',
+    icon: 'DatabaseOutlined',
+    component: './LLaMAFactory',
+  },
+  {
     path: '*',
     layout: false,
     component: './404',

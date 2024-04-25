@@ -217,7 +217,7 @@ export async function apiGetJobJupyterImage(options?: { [key: string]: any }) {
   });
 }
 export const useApiGetJobJupyterImage = (options?: { [key: string]: any }) =>
-  useSWR([options], ([options]) => {
+  useSWR(['/api/job/jupyter/image', options], ([url, options]) => {
     return apiGetJobJupyterImage(options);
   });
 
@@ -246,7 +246,7 @@ export async function apiGetJobJupyterlab(options?: { [key: string]: any }) {
 }
 
 export const useApiGetJobJupyterlab = (options?: { [key: string]: any }) =>
-  useSWR([options], ([options]) => {
+  useSWR(['/api/job/jupyterlab', options], ([url, options]) => {
     return apiGetJobJupyterlab(options);
   });
 
