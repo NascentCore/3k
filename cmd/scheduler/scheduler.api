@@ -616,6 +616,7 @@ type (
 		UserID       int64  `header:"Sx-User"`
 		BaseImage    string `json:"base_image"`
 		InstanceName string `json:"instance_name"`
+		JobName      string `json:"job_name"`
 	}
 	JupyterlabImageCreateResp {
 		Message string `json:"message"`
@@ -642,6 +643,7 @@ type (
 		BaseImage    string `json:"base_image"`
 		UserID       string `json:"user_id"`
 		InstanceName string `json:"instance_name"`
+		JobName      string `json:"job_name"`
 	}
 	ImageDelReq {
 		UserID    int    `json:"user_id"`

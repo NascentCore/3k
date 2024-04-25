@@ -17,6 +17,7 @@ type BuildImageReq struct {
 	BaseImage    string `json:"base_image"`
 	UserID       string `json:"user_id"`
 	InstanceName string `json:"instance_name"`
+	JobName      string `json:"job_name"`
 }
 
 type CPODStatusReq struct {
@@ -339,6 +340,7 @@ type JupyterlabImageCreateReq struct {
 	UserID       int64  `header:"Sx-User"`
 	BaseImage    string `json:"base_image"`
 	InstanceName string `json:"instance_name"`
+	JobName      string `json:"job_name"`
 }
 
 type JupyterlabImageCreateResp struct {

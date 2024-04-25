@@ -41,6 +41,8 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 	for _, jupyterlab := range jupyterlabs {
 		jupyterlabResp := types.Jupyterlab{}
 		_ = copier.Copy(&jupyterlabResp, &jupyterlab)
+		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
+		jupyterlabResp.Memory = jupyterlab.MemCount
 		if jupyterlab.Url != "" {
 			jupyterlabResp.URL = fmt.Sprintf("%s%s?token=%s", l.svcCtx.Config.K8S.BaseUrl, jupyterlab.Url, jupyterlab.JobName)
 		}
