@@ -88,12 +88,12 @@ export default [
     icon: 'UserSwitchOutlined',
     component: './JupyterLab',
   },
-  {
-    path: '/LLaMA-Factory',
-    name: 'LLaMA-Factory',
-    icon: 'DatabaseOutlined',
-    component: './LLaMAFactory',
-  },
+  // {
+  //   path: '/LLaMA-Factory',
+  //   name: 'LLaMA-Factory',
+  //   icon: 'DatabaseOutlined',
+  //   component: './LLaMAFactory',
+  // },
   {
     path: '*',
     layout: false,

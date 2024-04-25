@@ -12,14 +12,16 @@ const Index: React.FC = ({ record }: IProps) => {
 
   const [dataSource, setDatasource] = useState([]);
   useEffect(() => {
-    apiGetJobJupyterImage({
-      data: {
-        image_name: record?.image_name,
-      },
-    }).then((res) => {
-      setDatasource(res?.data);
-    });
-  }, []);
+    if (record) {
+      apiGetJobJupyterImage({
+        data: {
+          instance_name: record.image_name,
+        },
+      }).then((res) => {
+        setDatasource(res?.data || []);
+      });
+    }
+  }, [record]);
 
   return (
     <>

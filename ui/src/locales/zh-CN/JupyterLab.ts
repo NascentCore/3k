@@ -12,9 +12,9 @@ export default {
   'pages.jupyterLab.JupyterLabTab.table.column.action': '操作',
   'pages.jupyterLab.JupyterLabTab.table.column.action.enterBtn': '进入',
   'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn': '构建镜像',
-  'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image': '基座镜像',
+  'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image': '基础镜像',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.tips':
-    '构建镜像时会执行如下逻辑：<br/>1. 将 /workspace 目录下的内容完整复制到镜像相同路径下<br/>2. 自动安装 /workspace 目录下的 requirements.txt<br/>请将代码及 requirements.txt 文件放到该路径下<br/>注：数据卷默认挂载路径为 /workspace</p>',
+    '构建镜像时会执行如下逻辑：<br/>1. 将 /workspace 目录下的内容完整复制到镜像相同路径下<br/>2. 自动安装 /workspace 目录下的 requirements.txt<br/>请将代码及 requirements.txt 文件放到该路径下<br/>注：数据卷默认挂载路径为 /workspace',
   'pages.jupyterLab.AddJupyterLab.form.instance_name': '实例名称',
   'pages.jupyterLab.AddJupyterLab.form.instance_name.pattern':
     '实例名称只能包含大小写字母、数字、下划线(_)和分割符(-)',

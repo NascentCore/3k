@@ -73,9 +73,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                     type={'link'}
                     onClick={() => {
                       window.open(
-                        `${window.location.protocol}//${
-                          window.location.hostname
-                        }:30004/jupyterlab/${record.instance_name}?token=${getToken()}`,
+                        `${record.url}`,
                       );
                     }}
                   >
