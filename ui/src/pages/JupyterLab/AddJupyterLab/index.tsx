@@ -1,7 +1,7 @@
 import { apiPostJobJupyterlab, useApiGetGpuType, useApiResourceModels } from '@/services';
 import { Button, Form, Input, Select, message } from 'antd';
 import { useEffect } from 'react';
-import { useIntl } from '@umijs/max';
+import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
 interface IProps {
@@ -10,6 +10,8 @@ interface IProps {
 }
 
 const Index = ({ onChange, onCancel }: IProps) => {
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
   const intl = useIntl();
 
   const { data: resourceModels }: any = useApiResourceModels();
@@ -44,10 +46,14 @@ const Index = ({ onChange, onCancel }: IProps) => {
       return apiPostJobJupyterlab({
         data: {
           ...values,
+          user_id: currentUser?.id,
           cpu_count: Number(values.cpu_count),
-          memory: Number(values.memory),
-          data_volume_size: Number(values.data_volume_size),
+          memory: Number(values.memory) * 1024 * 1024,
+          data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
           gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
+          model_name: values.model_id
+            ? resourceModelsList?.find((x: any) => x.id === values.model_id)?.label
+            : void 0,
         },
       }).then(() => {
         onChange();
@@ -142,6 +148,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            min={1}
             allowClear
           />
         </Form.Item>

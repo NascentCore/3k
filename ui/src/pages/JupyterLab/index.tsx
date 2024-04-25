@@ -5,6 +5,7 @@ import { useIntl } from '@umijs/max';
 import JupyterLabTab from './JupyterLabTab';
 import ImageManagementTab from './ImageManagementTab';
 import AddJupyterLab from './AddJupyterLab';
+import { useApiGetJobJupyterImage, useApiGetJobJupyterlab } from '@/services';
 
 const Index: React.FC = () => {
   const intl = useIntl();
@@ -14,6 +15,16 @@ const Index: React.FC = () => {
   };
 
   const [addJupterLabOpen, setAddJupyterLabOpen] = React.useState(false);
+  const {
+    data: tableDataSourceRes_1,
+    mutate: mutate_1,
+    isLoading: isLoading_1,
+  } = useApiGetJobJupyterlab();
+  const {
+    data: tableDataSourceRes_2,
+    mutate: mutate_2,
+    isLoading: isLoading_2,
+  } = useApiGetJobJupyterImage();
 
   const items = [
     {
@@ -22,7 +33,13 @@ const Index: React.FC = () => {
         id: 'pages.jupyterLab.tab.title.jupyterLabExample',
         defaultMessage: 'JupyterLab',
       }),
-      children: <JupyterLabTab />,
+      children: (
+        <JupyterLabTab
+          tableDataSourceRes={tableDataSourceRes_1}
+          mutate={mutate_1}
+          isLoading={isLoading_1}
+        />
+      ),
     },
     {
       key: '2',
@@ -30,7 +47,13 @@ const Index: React.FC = () => {
         id: 'pages.jupyterLab.tab.title.imageManagement',
         defaultMessage: '镜像管理',
       }),
-      children: <ImageManagementTab />,
+      children: (
+        <ImageManagementTab
+          tableDataSourceRes={tableDataSourceRes_2}
+          mutate={mutate_2}
+          isLoading={isLoading_2}
+        />
+      ),
     },
   ];
   return (
@@ -61,7 +84,11 @@ const Index: React.FC = () => {
       >
         {addJupterLabOpen && (
           <AddJupyterLab
-            onChange={() => setAddJupyterLabOpen(false)}
+            onChange={() => {
+              setAddJupyterLabOpen(false);
+              mutate_1();
+              mutate_2();
+            }}
             onCancel={() => setAddJupyterLabOpen(false)}
           />
         )}
