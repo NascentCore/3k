@@ -174,6 +174,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: jupyterlabImageDelHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/job/jupyter/imageversion",
+				Handler: jupyterlabImageVersionListHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/job/jupyterlab",
 				Handler: jupyterlabCreateHandler(serverCtx),
