@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Space, Table } from 'antd';
+import React from 'react';
+import { Button, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
-import { apiGetJobJupyterImage } from '@/services';
+import { apiDeleteJobJupyterImage, useApiGetJobJupyterImageversion } from '@/services';
+import { copyTextToClipboard } from '@/utils';
 
 interface IProps {
   record?: any;
@@ -10,16 +11,15 @@ interface IProps {
 const Index: React.FC = ({ record }: IProps) => {
   const intl = useIntl();
 
-  const [dataSource, setDatasource] = useState([]);
-  useEffect(() => {
-    apiGetJobJupyterImage({
-      data: {
-        image_name: record?.image_name,
-      },
-    }).then((res) => {
-      setDatasource(res?.data);
-    });
-  }, []);
+  const {
+    data: dataSourceRes,
+    mutate,
+    isLoading,
+  } = useApiGetJobJupyterImageversion({
+    params: {
+      instance_name: record?.image_name,
+    },
+  });
 
   return (
     <>
@@ -77,24 +77,44 @@ const Index: React.FC = ({ record }: IProps) => {
             render: (_, record) => (
               <>
                 <Space>
-                  <Button type={'link'}>
+                  <Button
+                    type={'link'}
+                    onClick={() => {
+                      console.log('复制镜像地址');
+                      copyTextToClipboard(record?.full_name);
+                    }}
+                  >
                     {intl.formatMessage({
                       id: 'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.copy',
                       defaultMessage: '复制镜像地址',
                     })}
                   </Button>
-                  <Button type={'link'}>
-                    {intl.formatMessage({
-                      id: 'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.delete',
-                      defaultMessage: '删除',
+                  <Popconfirm
+                    title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
+                    description={intl.formatMessage({
+                      id: 'pages.global.confirm.delete.description',
                     })}
-                  </Button>
+                    onConfirm={() => {
+                      apiDeleteJobJupyterImage({
+                        data: { image_name: record.image_name, tag_name: record.tag_name },
+                      }).then(() => {
+                        mutate();
+                      });
+                    }}
+                    okText={intl.formatMessage({ id: 'pages.global.confirm.okText' })}
+                    cancelText={intl.formatMessage({ id: 'pages.global.confirm.cancelText' })}
+                  >
+                    <Button type="link">
+                      {intl.formatMessage({ id: 'pages.global.confirm.delete.button' })}
+                    </Button>
+                  </Popconfirm>
                 </Space>
               </>
             ),
           },
         ]}
-        dataSource={dataSource || []}
+        dataSource={dataSourceRes?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
     </>

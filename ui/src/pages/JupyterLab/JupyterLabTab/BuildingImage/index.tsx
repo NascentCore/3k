@@ -39,7 +39,8 @@ const Index = ({ record, onChange, onCancel }: IProps) => {
       return apiPostJobJupyterImage({
         data: {
           base_image: values.base_image,
-          instance_name: record.instance_name,
+          instance_name: record?.instance_name,
+          job_name: record?.job_name,
         },
       }).then(() => {
         onChange();

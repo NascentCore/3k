@@ -221,6 +221,19 @@ export const useApiGetJobJupyterImage = (options?: { [key: string]: any }) =>
     return apiGetJobJupyterImage(options);
   });
 
+// 查询镜像版本
+export async function apiGetJobJupyterImageversion(options?: { [key: string]: any }) {
+  return request('/api/job/jupyter/imageversion', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export const useApiGetJobJupyterImageversion = (options?: { [key: string]: any }) =>
+  useSWR(['/api/job/jupyter/imageversion', options], ([url, options]) => {
+    return apiGetJobJupyterImageversion(options);
+  });
+
 // 镜像列表 删除
 export async function apiDeleteJobJupyterImage(options?: { [key: string]: any }) {
   return request('/api/job/jupyter/image', {
