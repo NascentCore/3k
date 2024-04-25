@@ -4,7 +4,8 @@ import userJob from './zh-CN/userJob';
 import inferenceState from './zh-CN/inferenceState';
 import userJobCommit from './zh-CN/userJobCommit';
 import clusterInformation from './zh-CN/clusterInformation';
-import userQuota from './zh-CN/userQuota'
+import userQuota from './zh-CN/userQuota';
+import JupyterLab from './zh-CN/JupyterLab';
 
 export default {
   'app.title': '算想云',
@@ -16,6 +17,7 @@ export default {
   'menu.Grafana': '系统资源看板',
   'menu.Tensorboard': 'AI训练看板(TensorBoard)',
   'menu.Jupyterlalb': '开发实验室(JupyterLab)',
+  'menu.JupyterLab': '开发实验室(JupyterLab)',
   'menu.ClusterInformation': '集群信息',
   'menu.UserQuota': '用户配额',
   'pages.global.header.logout': '退出登录',
@@ -25,11 +27,15 @@ export default {
   'pages.global.confirm.delete.button': '删除',
   'pages.global.confirm.delete.description': '确认删除?',
   'pages.global.confirm.delete.success': '删除成功',
+  'pages.global.form.submit.success': '操作成功',
+  'pages.global.form.placeholder': '请输入',
+  'pages.global.form.select.placeholder': '请选择',
   ...login,
   ...modelRepository,
   ...userJob,
   ...inferenceState,
   ...userJobCommit,
   ...clusterInformation,
-  ...userQuota
+  ...userQuota,
+  ...JupyterLab,
 };

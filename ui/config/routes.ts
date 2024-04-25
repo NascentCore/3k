@@ -83,6 +83,12 @@ export default [
     access: 'adminRouteFilter',
   },
   {
+    path: '/JupyterLab',
+    name: 'JupyterLab',
+    icon: 'UserSwitchOutlined',
+    component: './JupyterLab',
+  },
+  {
     path: '*',
     layout: false,
     component: './404',
