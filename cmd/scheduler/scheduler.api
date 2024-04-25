@@ -606,6 +606,12 @@ type (
 
 type (
 	JupyterlabImage {
+		CreatedAt string `json:"created_at"`
+		FullName  string `json:"full_name"`
+		ImageName string `json:"image_name"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	JupyterlabImageVersion {
 		ImageName string `json:"image_name"`
 		ImageSize int    `json:"image_size"`
 		TagName   string `json:"tag_name"`
@@ -634,6 +640,13 @@ type (
 	}
 	JupyterlabImageListResp {
 		Data []JupyterlabImage `json:"data"`
+	}
+	JupyterlabImageVersionListReq {
+		UserID       int64  `header:"Sx-User"`
+		InstanceName string `json:"instance_name"`
+	}
+	JupyterlabImageVersionListResp {
+		Data []JupyterlabImageVersion `json:"data"`
 	}
 )
 
@@ -692,6 +705,10 @@ service scheduler-api {
 	@doc "镜像列表"
 	@handler jupyterlabImageList
 	get /job/jupyter/image (JupyterlabImageListReq) returns (JupyterlabImageListResp)
+
+	@doc "镜像版本列表"
+	@handler jupyterlabImageVersionList
+	get /job/jupyter/imageversion (JupyterlabImageVersionListReq) returns (JupyterlabImageVersionListResp)
 
 	@doc "删除镜像"
 	@handler jupyterlabImageDel

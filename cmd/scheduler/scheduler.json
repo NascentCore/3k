@@ -134,6 +134,38 @@
         ]
       }
     },
+    "/api/job/jupyter/imageversion": {
+      "get": {
+        "summary": "镜像版本列表",
+        "operationId": "jupyterlabImageVersionList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JupyterlabImageVersionListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "instance_name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/job/jupyterlab": {
       "get": {
         "summary": "查询jupyterlab实例列表",
@@ -1020,13 +1052,17 @@
         },
         "instance_name": {
           "type": "string"
+        },
+        "job_name": {
+          "type": "string"
         }
       },
       "title": "BuildImageReq",
       "required": [
         "base_image",
         "user_id",
-        "instance_name"
+        "instance_name",
+        "job_name"
       ]
     },
     "CPODStatusReq": {
@@ -1952,13 +1988,13 @@
         "instanceName": {
           "type": "string"
         },
-        "cpu": {
+        "cpuCount": {
           "type": "string"
         },
         "memory": {
           "type": "string"
         },
-        "gpu": {
+        "gpuCount": {
           "type": "integer",
           "format": "int32"
         },
@@ -1968,10 +2004,10 @@
         "dataVolumeSize": {
           "type": "string"
         },
-        "pretrainModels": {
+        "pretrainedModels": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/PretrainModels"
+            "$ref": "#/definitions/PretrainedModels"
           }
         },
         "userId": {
@@ -1983,12 +2019,12 @@
       "required": [
         "jobName",
         "instanceName",
-        "cpu",
+        "cpuCount",
         "memory",
-        "gpu",
+        "gpuCount",
         "gpuProduct",
         "dataVolumeSize",
-        "pretrainModels",
+        "pretrainedModels",
         "userId"
       ]
     },
@@ -2031,6 +2067,9 @@
           "type": "string"
         },
         "model_path": {
+          "type": "string"
+        },
+        "url": {
           "type": "string"
         },
         "user_id": {
@@ -2088,6 +2127,9 @@
         "model_path": {
           "type": "string"
         },
+        "url": {
+          "type": "string"
+        },
         "user_id": {
           "type": "integer",
           "format": "int64"
@@ -2134,30 +2176,25 @@
     "JupyterlabImage": {
       "type": "object",
       "properties": {
-        "image_name": {
-          "type": "string"
-        },
-        "image_size": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "tag_name": {
+        "created_at": {
           "type": "string"
         },
         "full_name": {
           "type": "string"
         },
-        "push_time": {
+        "image_name": {
+          "type": "string"
+        },
+        "updated_at": {
           "type": "string"
         }
       },
       "title": "JupyterlabImage",
       "required": [
-        "image_name",
-        "image_size",
-        "tag_name",
+        "created_at",
         "full_name",
-        "push_time"
+        "image_name",
+        "updated_at"
       ]
     },
     "JupyterlabImageCreateReq": {
@@ -2168,12 +2205,16 @@
         },
         "instance_name": {
           "type": "string"
+        },
+        "job_name": {
+          "type": "string"
         }
       },
       "title": "JupyterlabImageCreateReq",
       "required": [
         "base_image",
-        "instance_name"
+        "instance_name",
+        "job_name"
       ]
     },
     "JupyterlabImageCreateResp": {
@@ -2231,6 +2272,62 @@
         }
       },
       "title": "JupyterlabImageListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "JupyterlabImageVersion": {
+      "type": "object",
+      "properties": {
+        "image_name": {
+          "type": "string"
+        },
+        "image_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tag_name": {
+          "type": "string"
+        },
+        "full_name": {
+          "type": "string"
+        },
+        "push_time": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageVersion",
+      "required": [
+        "image_name",
+        "image_size",
+        "tag_name",
+        "full_name",
+        "push_time"
+      ]
+    },
+    "JupyterlabImageVersionListReq": {
+      "type": "object",
+      "properties": {
+        "instance_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabImageVersionListReq",
+      "required": [
+        "instance_name"
+      ]
+    },
+    "JupyterlabImageVersionListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterlabImageVersion"
+          }
+        }
+      },
+      "title": "JupyterlabImageVersionListResp",
       "required": [
         "data"
       ]
@@ -2494,10 +2591,10 @@
         "data"
       ]
     },
-    "PretrainModels": {
+    "PretrainedModels": {
       "type": "object",
       "properties": {
-        "pretrainModelId": {
+        "pretrainedModelId": {
           "type": "string"
         },
         "pretrainedModelName": {
@@ -2507,9 +2604,9 @@
           "type": "string"
         }
       },
-      "title": "PretrainModels",
+      "title": "PretrainedModels",
       "required": [
-        "pretrainModelId",
+        "pretrainedModelId",
         "pretrainedModelName",
         "pretrainedModelPath"
       ]

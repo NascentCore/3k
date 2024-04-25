@@ -329,11 +329,10 @@ type JupyterlabDeleteResp struct {
 }
 
 type JupyterlabImage struct {
-	ImageName string `json:"image_name"`
-	ImageSize int    `json:"image_size"`
-	TagName   string `json:"tag_name"`
+	CreatedAt string `json:"created_at"`
 	FullName  string `json:"full_name"`
-	PushTime  string `json:"push_time"`
+	ImageName string `json:"image_name"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type JupyterlabImageCreateReq struct {
@@ -363,6 +362,23 @@ type JupyterlabImageListReq struct {
 
 type JupyterlabImageListResp struct {
 	Data []JupyterlabImage `json:"data"`
+}
+
+type JupyterlabImageVersion struct {
+	ImageName string `json:"image_name"`
+	ImageSize int    `json:"image_size"`
+	TagName   string `json:"tag_name"`
+	FullName  string `json:"full_name"`
+	PushTime  string `json:"push_time"`
+}
+
+type JupyterlabImageVersionListReq struct {
+	UserID       int64  `header:"Sx-User"`
+	InstanceName string `json:"instance_name"`
+}
+
+type JupyterlabImageVersionListResp struct {
+	Data []JupyterlabImageVersion `json:"data"`
 }
 
 type JupyterlabListReq struct {
