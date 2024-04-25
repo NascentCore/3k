@@ -100,7 +100,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       id: 'pages.global.confirm.delete.description',
                     })}
                     onConfirm={() => {
-                      apiDeleteJobJupyterlab({ data: { id: record?.id } }).then(() => {
+                      apiDeleteJobJupyterlab({ data: { job_name: record?.job_name } }).then(() => {
                         mutate();
                       });
                     }}
