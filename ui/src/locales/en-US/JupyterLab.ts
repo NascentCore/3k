@@ -2,13 +2,14 @@
  * 开发实验室 国际化
  */
 export default {
-  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab',
+  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab Instance',
   'pages.jupyterLab.tab.title.imageManagement': 'Image Management',
   'pages.jupyterLab.tab.createJupyterLabInstanceButton': 'Create JupyterLab Instance',
   'pages.jupyterLab.JupyterLabTab.table.column.instance_name': 'Instance Name',
   'pages.jupyterLab.JupyterLabTab.table.column.cpu_count': 'CPU',
   'pages.jupyterLab.JupyterLabTab.table.column.memory': 'Memory',
   'pages.jupyterLab.JupyterLabTab.table.column.gpu_product': 'GPU',
+  'pages.jupyterLab.JupyterLabTab.table.column.status': 'Status',
   'pages.jupyterLab.JupyterLabTab.table.column.action': 'Action',
   'pages.jupyterLab.JupyterLabTab.table.column.action.enterBtn': 'Enter',
   'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn': 'Build Image',

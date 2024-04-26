@@ -59,6 +59,16 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
           },
           {
             title: intl.formatMessage({
+              id: 'pages.jupyterLab.JupyterLabTab.table.column.status',
+              defaultMessage: '状态',
+            }),
+            dataIndex: 'status',
+            key: 'status',
+            align: 'center',
+            width: 100,
+          },
+          {
+            title: intl.formatMessage({
               id: 'pages.jupyterLab.JupyterLabTab.table.column.action',
               defaultMessage: '操作',
             }),
