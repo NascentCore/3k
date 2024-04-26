@@ -349,7 +349,7 @@ type JupyterlabImageCreateResp struct {
 type JupyterlabImageDelReq struct {
 	UserID    int64  `header:"Sx-User"`
 	ImageName string `json:"image_name"`
-	TagName   string `json:"tag_name"`
+	TagName   string `json:"tag_name,optional"`
 }
 
 type JupyterlabImageDelResp struct {
@@ -374,7 +374,7 @@ type JupyterlabImageVersion struct {
 
 type JupyterlabImageVersionListReq struct {
 	UserID       int64  `header:"Sx-User"`
-	InstanceName string `json:"instance_name"`
+	InstanceName string `form:"instance_name"`
 }
 
 type JupyterlabImageVersionListResp struct {
