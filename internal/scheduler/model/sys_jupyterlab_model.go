@@ -11,9 +11,13 @@ import (
 var _ SysJupyterlabModel = (*customSysJupyterlabModel)(nil)
 
 const (
-	JupyterStatusDescReady    = "ready"
-	JupyterStatusDescNotReady = "notready"
-	JupyterStatusDescFailed   = "failed"
+	JupyterStatusDescWaitDeploy = "waitdeploy"
+	JupyterStatusDescDeploying  = "deploying"
+	JupyterStatusDescDeployed   = "deployed"
+	JupyterStatusDescStopped    = "stopped"
+	JupyterStatusDescReady      = "ready"
+	JupyterStatusDescNotReady   = "notready"
+	JupyterStatusDescFailed     = "failed"
 )
 
 const (
@@ -22,6 +26,16 @@ const (
 	JupyterStatusDeployed   = 2
 	JupyterStatusStopped    = 3
 	JupyterStatusFailed     = 4
+)
+
+var (
+	JupyterStatusToDesc = map[int64]string{
+		JupyterStatusWaitDeploy: JupyterStatusDescWaitDeploy,
+		JupyterStatusDeploying:  JupyterStatusDescDeploying,
+		JupyterStatusDeployed:   JupyterStatusDescDeployed,
+		JupyterStatusStopped:    JupyterStatusDescStopped,
+		JupyterStatusFailed:     JupyterStatusDescFailed,
+	}
 )
 
 type (
