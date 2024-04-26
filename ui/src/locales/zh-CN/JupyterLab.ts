@@ -2,13 +2,14 @@
  * 开发实验室 国际化
  */
 export default {
-  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab',
+  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab实例',
   'pages.jupyterLab.tab.title.imageManagement': '镜像管理',
   'pages.jupyterLab.tab.createJupyterLabInstanceButton': '创建JupyterLab实例',
   'pages.jupyterLab.JupyterLabTab.table.column.instance_name': '实例名称',
   'pages.jupyterLab.JupyterLabTab.table.column.cpu_count': 'CPU',
   'pages.jupyterLab.JupyterLabTab.table.column.memory': 'MEM',
   'pages.jupyterLab.JupyterLabTab.table.column.gpu_product': 'GPU',
+  'pages.jupyterLab.JupyterLabTab.table.column.status': '状态',
   'pages.jupyterLab.JupyterLabTab.table.column.action': '操作',
   'pages.jupyterLab.JupyterLabTab.table.column.action.enterBtn': '进入',
   'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn': '构建镜像',

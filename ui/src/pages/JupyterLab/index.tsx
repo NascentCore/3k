@@ -31,7 +31,7 @@ const Index: React.FC = () => {
       key: '1',
       label: intl.formatMessage({
         id: 'pages.jupyterLab.tab.title.jupyterLabExample',
-        defaultMessage: 'JupyterLab',
+        defaultMessage: 'JupyterLab实例',
       }),
       children: (
         <JupyterLabTab
