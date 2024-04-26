@@ -630,7 +630,7 @@ type (
 	JupyterlabImageDelReq {
 		UserID    int64  `header:"Sx-User"`
 		ImageName string `json:"image_name"`
-		TagName   string `json:"tag_name"`
+		TagName   string `json:"tag_name,optional"`
 	}
 	JupyterlabImageDelResp {
 		Message string `json:"message"`
@@ -643,7 +643,7 @@ type (
 	}
 	JupyterlabImageVersionListReq {
 		UserID       int64  `header:"Sx-User"`
-		InstanceName string `json:"instance_name"`
+		InstanceName string `form:"instance_name"`
 	}
 	JupyterlabImageVersionListResp {
 		Data []JupyterlabImageVersion `json:"data"`
