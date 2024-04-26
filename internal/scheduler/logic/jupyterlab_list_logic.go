@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
@@ -29,7 +30,14 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 	JupyterlabModel := l.svcCtx.JupyterlabModel
 
 	selectBuilder := JupyterlabModel.AllFieldsBuilder()
-	selectBuilder = selectBuilder.Where(squirrel.Eq{"user_id": req.UserID})
+	selectBuilder = selectBuilder.Where(squirrel.And{
+		squirrel.Eq{
+			"user_id": req.UserID,
+		},
+		squirrel.NotEq{
+			"status": model.JupyterStatusStopped,
+		},
+	})
 	jupyterlabs, err := JupyterlabModel.Find(l.ctx, selectBuilder)
 	if err != nil {
 		l.Errorf("JupyterlabModel.Find user_id: %d err: %s", req.UserID, err)
@@ -45,6 +53,10 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 		jupyterlabResp.Memory = jupyterlab.MemCount
 		if jupyterlab.Url != "" {
 			jupyterlabResp.URL = fmt.Sprintf("%s%s?token=%s", l.svcCtx.Config.K8S.BaseUrl, jupyterlab.Url, jupyterlab.JobName)
+		}
+		statusDesc, ok := model.JupyterStatusToDesc[jupyterlab.Status]
+		if ok {
+			jupyterlabResp.Status = statusDesc
 		}
 
 		resp.Data = append(resp.Data, jupyterlabResp)
