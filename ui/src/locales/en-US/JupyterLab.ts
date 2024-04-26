@@ -14,7 +14,7 @@ export default {
   'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn': 'Build Image',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image': 'Base Image',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.tips':
-    'The following logic will be executed when building the image:<br/>1. The contents under the /workspace directory will be copied to the same path in the image.<br/>2. The requirements.txt file under the /workspace directory will be automatically installed.<br/>Please place your code and requirements.txt file in this directory.<br/>Note: The default mount path for data volumes is /workspace</p>',
+    'The following logic will be executed when building the image:<br/>1. The contents under the /workspace directory will be copied to the same path in the image.<br/>2. The requirements.txt file under the /workspace directory will be automatically installed.<br/>Please place your code and requirements.txt file in this directory.<br/>Note: The default mount path for data volumes is /workspace',
   'pages.jupyterLab.AddJupyterLab.form.instance_name': 'Instance Name',
   'pages.jupyterLab.AddJupyterLab.form.instance_name.pattern':
     'Instance name can only contain uppercase and lowercase letters, numbers, underscores (_), and hyphens (-)',

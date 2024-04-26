@@ -1,5 +1,5 @@
 import { Button, Form, Select, message } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 import {
@@ -19,18 +19,20 @@ const Index = ({ record, onChange, onCancel }: IProps) => {
   const intl = useIntl();
 
   const [form] = Form.useForm();
+  const [baseImagesOptions, setBaseImagesOptions] = useState([]);
+  const { data: baseImages }: any = useApiGetResourceBaseimages();
+
   useEffect(() => {
     form.setFieldsValue({});
-    apiGetResourceBaseimages();
-  }, []);
-
-  const { data: resourceModels }: any = useApiGetResourceBaseimages();
-  const resourceModelsList = resourceModels?.map((x) => ({
-    ...x,
-    label: x,
-    value: x,
-    key: x,
-  }));
+    if (Array.isArray(baseImages?.data)) {
+      const options = baseImages.data.map(image => ({
+        label: image.split('/').pop(), // 显示简化的镜像名，例如 "torch-base:v2024-01-12-01"
+        value: image,                  // 完整的镜像路径作为选项的值
+        key: image                     // 可选，如果需要特定的 key
+      }));
+      setBaseImagesOptions(options);
+    }
+  }, [baseImages]);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -62,13 +64,13 @@ const Index = ({ record, onChange, onCancel }: IProps) => {
           name="base_image"
           label={intl.formatMessage({
             id: 'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image',
-            defaultMessage: '基座镜像',
+            defaultMessage: '基础镜像',
           })}
           rules={[{ required: true }]}
         >
           <Select
             allowClear
-            options={resourceModelsList}
+            options={baseImagesOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.select.placeholder',
               defaultMessage: '请选择',
