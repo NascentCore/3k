@@ -72,11 +72,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                   <Button
                     type={'link'}
                     onClick={() => {
-                      window.open(
-                        `${window.location.protocol}//${
-                          window.location.hostname
-                        }:30004/jupyterlab/${record.instance_name}?token=${getToken()}`,
-                      );
+                      window.open(record?.url);
                     }}
                   >
                     {intl.formatMessage({
@@ -102,7 +98,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       id: 'pages.global.confirm.delete.description',
                     })}
                     onConfirm={() => {
-                      apiDeleteJobJupyterlab({ data: { id: record?.id } }).then(() => {
+                      apiDeleteJobJupyterlab({ data: { job_name: record?.job_name } }).then(() => {
                         mutate();
                       });
                     }}

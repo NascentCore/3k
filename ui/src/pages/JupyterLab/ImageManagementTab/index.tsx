@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import ImageDetail from './ImageDetail';
-import { apiDeleteJobJupyterImage, useApiGetJobJupyterImage } from '@/services';
+import { apiDeleteJobJupyterImage } from '@/services';
+import moment from 'moment';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
@@ -28,20 +29,26 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
               id: 'pages.jupyterLab.ImageManagementTab.table.create_time',
               defaultMessage: '创建时间',
             }),
-            dataIndex: 'create_time',
-            key: 'create_time',
+            dataIndex: 'created_at',
+            key: 'created_at',
             align: 'center',
             width: 150,
+            render: (text: string) => {
+              return moment(text).format('YYYY-MM-DD HH:mm:ss');
+            },
           },
           {
             title: intl.formatMessage({
               id: 'pages.jupyterLab.ImageManagementTab.table.push_time',
               defaultMessage: '更新时间',
             }),
-            dataIndex: 'push_time',
-            key: 'push_time',
+            dataIndex: 'updated_at',
+            key: 'updated_at',
             align: 'center',
             width: 150,
+            render: (text: string) => {
+              return moment(text).format('YYYY-MM-DD HH:mm:ss');
+            },
           },
 
           {
@@ -74,7 +81,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       id: 'pages.global.confirm.delete.description',
                     })}
                     onConfirm={() => {
-                      apiDeleteJobJupyterImage({ data: { id: record?.id } }).then(() => {
+                      apiDeleteJobJupyterImage({ data: { ...record } }).then(() => {
                         mutate();
                       });
                     }}
