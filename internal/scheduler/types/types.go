@@ -308,7 +308,7 @@ type Jupyterlab struct {
 	ModelPath      string `json:"model_path,optional"`
 	URL            string `json:"url,optional"`
 	UserId         int64  `json:"user_id"`
-	Status         string `json:"status"`
+	Status         string `json:"status,optional"`
 }
 
 type JupyterlabCreateReq struct {
