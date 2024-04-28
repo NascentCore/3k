@@ -66,24 +66,12 @@ Gateway:
       ToPath: "/job/stop"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/cpod_jobs" # TODO 冗余配置
-      ToPath: "/cpod/job"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/cpod/jobs"
       ToPath: "/cpod/job"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/userJob/cpod_status" # TODO 冗余配置
-      ToPath: "/cpod/status"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/cpod/status"
       ToPath: "/cpod/status"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/info/upload_status"  # TODO 冗余配置
-      ToPath: "/info/upload_status"
       Auth: Yes
       Server: scheduler
     - Path: "/api/cpod/model/url"
