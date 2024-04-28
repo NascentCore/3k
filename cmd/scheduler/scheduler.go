@@ -53,12 +53,6 @@ func main() {
 	c.OSSAccess.AdminAccessID = adminAccessID
 	c.OSSAccess.AdminAccessKey = adminAccessKey
 
-	// insert inference url format
-	inferenceUrlFormat := os.Getenv("INFERENCE_URL_FORMAT")
-	if inferenceUrlFormat != "" {
-		c.Inference.UrlFormat = inferenceUrlFormat
-	}
-
 	// insert k8s config
 	c.K8S.BaseApi = os.Getenv("K8S_BASE_API")
 	c.K8S.BaseUrl = os.Getenv("K8S_BASE_URL")

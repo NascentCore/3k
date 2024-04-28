@@ -32,10 +32,7 @@ type Config struct {
 		AdminAccessKey  string
 	} `json:"-"`
 	FinetuneModel map[string]string `json:"FinetuneModel"`
-	Inference     struct {
-		UrlFormat string
-	} `json:"Inference"`
-	K8S struct {
+	K8S           struct {
 		BaseApi string // k8s管理
 		BaseUrl string // 组件入口
 	} `json:"-"`

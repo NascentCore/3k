@@ -54,7 +54,7 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 			inferResp.Status = statusDesc
 		}
 		if infer.Url != "" {
-			inferResp.Url = fmt.Sprintf(l.svcCtx.Config.Inference.UrlFormat, infer.ServiceName)
+			inferResp.Url = fmt.Sprintf("%s%s", l.svcCtx.Config.K8S.BaseUrl, infer.Url)
 		}
 		if infer.StartTime.Valid {
 			inferResp.StartTime = infer.StartTime.Time.Format(time.DateTime)
