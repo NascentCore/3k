@@ -352,6 +352,10 @@ func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1
 									Name:  "API_URL",
 									Value: fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", PredictorServiceName(i.getInferenceServiceName(inference)), inference.Namespace),
 								},
+								{
+									Name:  "ENV_BASE_URL",
+									Value: fmt.Sprintf("/inference/%s/", inference.Name),
+								},
 							},
 						},
 					},
