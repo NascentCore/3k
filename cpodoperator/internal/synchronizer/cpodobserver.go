@@ -202,7 +202,7 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 
 func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.JupyterLabJobState, error) {
 	var statefulSets appsv1.StatefulSetList
-	var states []sxwl.JupyterLabJobState
+	states := []sxwl.JupyterLabJobState{}
 	err := co.kubeClient.List(ctx, &statefulSets, &client.MatchingLabels{
 		"app": "jupyterlab",
 	})
