@@ -371,6 +371,7 @@ func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1
 }
 
 func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	pathType := netv1.PathTypeImplementationSpecific
 	webUIIngressName := inference.Name + "-web-ui-ingress"
 	webUISvcName := inference.Name + "-web-ui"
 	webUIPort := int32(8000)
@@ -383,19 +384,19 @@ func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference 
 				i.generateOwnerRefInference(ctx, inference),
 			},
 			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "nginx",
+				"nginx.ingress.kubernetes.io/rewrite-target": "/inference/" + inference.Name + "/$2",
 			},
 		},
 		Spec: netv1.IngressSpec{
+			IngressClassName: pointer.StringPtr("nginx"),
 			Rules: []netv1.IngressRule{
 				{
-					Host: fmt.Sprintf("%s.%s", webUIIngressName, i.Options.Domain),
 					IngressRuleValue: netv1.IngressRuleValue{
 						HTTP: &netv1.HTTPIngressRuleValue{
 							Paths: []netv1.HTTPIngressPath{
 								{
-									Path:     "/",
-									PathType: pointerTo(netv1.PathTypePrefix),
+									PathType: &pathType,
+									Path:     "/inference/" + inference.Name + "(/|$)(.*)",
 									Backend: netv1.IngressBackend{
 										Service: &netv1.IngressServiceBackend{
 											Name: webUISvcName,
