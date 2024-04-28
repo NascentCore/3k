@@ -202,14 +202,14 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 
 func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.JupyterLabJobState, error) {
 	var statefulSets appsv1.StatefulSetList
+	var states []sxwl.JupyterLabJobState
 	err := co.kubeClient.List(ctx, &statefulSets, &client.MatchingLabels{
 		"app": "jupyterlab",
 	})
 	if err != nil {
-		return nil, err
+		return states, err
 	}
 
-	var states []sxwl.JupyterLabJobState
 	for _, ss := range statefulSets.Items {
 		status := "notready"
 		if ss.Status.ReadyReplicas > 0 {
@@ -262,10 +262,7 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 		if inferenceJob.Status.Ready {
 			status = InferenceJobDeployed
 		}
-		url := ""
-		if inferenceJob.Status.URL != nil {
-			url = *inferenceJob.Status.URL
-		}
+		url := "/inference/" + inferenceJob.Name
 
 		stats = append(stats, sxwl.InferenceJobState{
 			ServiceName: inferenceJob.Name,
