@@ -53,7 +53,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	}
 
 	for _, jupyterlab := range jupyterList {
-		if jupyterlab.InstanceName == req.InstanceName {
+		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.JupyterStatusStopped {
 			l.Errorf("JupyterlabCreate name duplicate userId: %d name: %s", req.UserID, req.InstanceName)
 			return nil, fmt.Errorf("实例名字重复")
 		}
