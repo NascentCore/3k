@@ -388,7 +388,7 @@ func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference 
 				i.generateOwnerRefInference(ctx, inference),
 			},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/inference/" + inference.Name + "/$2",
+				"nginx.ingress.kubernetes.io/rewrite-target": "/$2",
 			},
 		},
 		Spec: netv1.IngressSpec{
