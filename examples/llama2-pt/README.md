@@ -1,4 +1,5 @@
 # llama2-full-param-finetune
+
 为了验证3k平台支持预训练能力，我们按照如下步骤来完成验证
 
 1. llama2-7b-fine-tune-full-param(bare mental)
