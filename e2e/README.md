@@ -1,6 +1,6 @@
-# e2e 测试
+# e2e tests
 
-e2e 测试模块旨在运行 3k 平台的测试 case,基于 e2e-framework 项目。
+e2e tests is using [K8s e2e-framework](https://github.com/kubernetes-sigs/e2e-framework).
 
 ## 编译成一个 test 二进制程序
 
@@ -11,6 +11,7 @@ e2e 测试模块旨在运行 3k 平台的测试 case,基于 e2e-framework 项目
 go test ./e2e -c -o e2e-test
 
 # 将e2e目录和 e2e-test放在同一目录中
+mv e2e-test e2e
 ```
 
 ## 使用
