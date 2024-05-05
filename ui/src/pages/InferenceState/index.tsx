@@ -42,17 +42,6 @@ const Welcome: React.FC = () => {
             align: 'center',
             width: 150,
           },
-
-          {
-            title: intl.formatMessage({
-              id: 'pages.inferenceState.table.column.url',
-              // defaultMessage: 'url',
-            }),
-            dataIndex: 'url',
-            key: 'url',
-            align: 'center',
-            width: 150,
-          },
           {
             title: intl.formatMessage({
               id: 'pages.inferenceState.table.column.start_time',
