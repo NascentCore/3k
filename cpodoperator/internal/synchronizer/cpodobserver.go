@@ -376,9 +376,10 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 			}
 		}
 
+		userID, _ := strconv.Atoi(model.Namespace)
 		caches = append(caches, resource.Cache{
 			IsPublic:          isPublic,
-			UserID:            model.Name,
+			UserID:            userID,
 			DataType:          resource.CacheModel,
 			DataName:          model.Spec.ModelName,
 			DataId:            model.Name,
@@ -404,9 +405,11 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 		if dataset.Namespace == "public" {
 			isPublic = true
 		}
+
+		userID, _ := strconv.Atoi(dataset.Namespace)
 		caches = append(caches, resource.Cache{
 			IsPublic:   isPublic,
-			UserID:     dataset.Name,
+			UserID:     userID,
 			DataType:   resource.CacheDataSet,
 			DataName:   dataset.Spec.DatasetName,
 			DataId:     dataset.Name,
