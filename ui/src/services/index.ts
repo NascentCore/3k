@@ -26,7 +26,7 @@ export async function apiCodeSendEmail(email: string) {
 
 // 注册
 export async function apiUsersRegisterUser(codemes: string, options?: { [key: string]: any }) {
-  return request('/api/user/register/' + codemes, {
+  return request('/api/users/registerUser/' + codemes, {
     method: 'POST',
     ...(options || {}),
   });
