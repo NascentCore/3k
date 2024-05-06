@@ -29,18 +29,19 @@ type PretrainedModels struct {
 }
 
 type PortalTrainningJob struct {
-	CkptPath    string            `json:"ckptPath"`
-	CkptVol     int               `json:"ckptVol"`
-	Command     string            `json:"runCommand"`
-	Envs        map[string]string `json:"env"`
-	DatasetPath string            `json:"datasetPath"`
-	DatasetId   string            `json:"datasetId"`
-	DatasetName string            `json:"datasetName"`
-	DatasetUrl  string            `json:"datasetUrl"`
-	DatasetSize int               `json:"datasetSize"`
-	GpuNumber   int               `json:"gpuNumber"`
-	GpuType     string            `json:"gpuType"`
-	HfURL       string            `json:"hfUrl"`
+	CkptPath        string            `json:"ckptPath"`
+	CkptVol         int               `json:"ckptVol"`
+	Command         string            `json:"runCommand"`
+	Envs            map[string]string `json:"env"`
+	DatasetPath     string            `json:"datasetPath"`
+	DatasetId       string            `json:"datasetId"`
+	DatasetName     string            `json:"datasetName"`
+	DatasetUrl      string            `json:"datasetUrl"`
+	DatasetSize     int               `json:"datasetSize"`
+	DatasetIsPublic bool              `json:"datasetIsPublic"`
+	GpuNumber       int               `json:"gpuNumber"`
+	GpuType         string            `json:"gpuType"`
+	HfURL           string            `json:"hfUrl"`
 	// TODO: @sxwl-donggang rename to Image
 	ImagePath             string `json:"imagePath"`
 	JobID                 int    `json:"jobId"`
