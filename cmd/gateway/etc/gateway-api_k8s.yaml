@@ -19,9 +19,6 @@ Gateway:
       ToPath: "/auth/login"
       Server: scheduler
     - Path: "/api/user/register"
-      ToPath: "/api/users/registerUser"
-      Server: scheduler
-    - Path: "/api/users/registerUser"
       Server: scheduler
     - Path: "/api/user/email"
       ToPath: "/api/code/sendEmail"
