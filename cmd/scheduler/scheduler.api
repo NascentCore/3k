@@ -685,7 +685,7 @@ service scheduler-api {
 
 	@doc "用户注册"
 	@handler register
-	post /users/registerUser/:code (RegisterUserReq)
+	post /user/register/:code (RegisterUserReq)
 
 	@doc "创建jupyterlab实例"
 	@handler jupyterlabCreate
