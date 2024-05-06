@@ -94,13 +94,13 @@ func (s *SyncJob) Start(ctx context.Context) {
 		s.logger.Error(err, "failed to list job")
 		return
 	}
-	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs)
+	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs, "users", users)
 	s.logger.Info("assigned inference job", "jobs", portalInferenceJobs)
 	s.syncUsers(ctx, users)
 	s.processTrainningJobs(ctx, users, portalTrainningJobs)
 	s.processFinetune(ctx, users, portalTrainningJobs)
 	s.processInferenceJobs(ctx, users, portalInferenceJobs)
-	s.processJupyterLabJobs(ctx, portalJupyterLabJobs)
+	s.processJupyterLabJobs(ctx, portalJupyterLabJobs, users)
 
 }
 
