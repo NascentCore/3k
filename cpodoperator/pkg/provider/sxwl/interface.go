@@ -22,9 +22,10 @@ type PortalJupyterLabJob struct {
 }
 
 type PretrainedModels struct {
-	PretrainedModelId   string `json:"pretrainedModelId"`
-	PretrainedModelName string `json:"pretrainedModelName"`
-	PretrainedModelPath string `json:"pretrainedModelPath"`
+	PretrainedModelId       string `json:"pretrainedModelId"`
+	PretrainedModelName     string `json:"pretrainedModelName"`
+	PretrainedModelPath     string `json:"pretrainedModelPath"`
+	PretrainedModelIsPublic bool   `json:"pretrainedModelIsPublic"`
 }
 
 type PortalTrainningJob struct {
@@ -41,36 +42,38 @@ type PortalTrainningJob struct {
 	GpuType     string            `json:"gpuType"`
 	HfURL       string            `json:"hfUrl"`
 	// TODO: @sxwl-donggang rename to Image
-	ImagePath         string `json:"imagePath"`
-	JobID             int    `json:"jobId"`
-	JobName           string `json:"jobName"`
-	JobType           string `json:"jobType"`
-	ModelPath         string `json:"modelPath"`
-	ModelVol          int    `json:"modelVol"`
-	PretrainModelId   string `json:"pretrainedModelId"`
-	PretrainModelName string `json:"pretrainedModelName"`
-	PretrainModelUrl  string `json:"pretrainedModelUrl"`
-	PretrainModelSize int    `json:"pretrainedModelSize"`
-	PretrainModelPath string `json:"pretrainedModelPath"`
-	StopTime          int    `json:"stopTime"`
-	StopType          int    `json:"stopType"`
-	BackoffLimit      int    `json:"backoffLimit"`
-	Epochs            string `json:"epochs"`
-	LearningRate      string `json:"learningRate"`
-	BatchSize         string `json:"batchSize"`
-	UserID            int64  `json:"userId"`
-	TrainedModelName  string `json:"trainedModelName,optional"`
+	ImagePath             string `json:"imagePath"`
+	JobID                 int    `json:"jobId"`
+	JobName               string `json:"jobName"`
+	JobType               string `json:"jobType"`
+	ModelPath             string `json:"modelPath"`
+	ModelVol              int    `json:"modelVol"`
+	PretrainModelId       string `json:"pretrainedModelId"`
+	PretrainModelName     string `json:"pretrainedModelName"`
+	PretrainModelUrl      string `json:"pretrainedModelUrl"`
+	PretrainModelSize     int    `json:"pretrainedModelSize"`
+	PretrainModelPath     string `json:"pretrainedModelPath"`
+	PretrainModelIsPublic bool   `json:"pretrainModelIsPublic"`
+	StopTime              int    `json:"stopTime"`
+	StopType              int    `json:"stopType"`
+	BackoffLimit          int    `json:"backoffLimit"`
+	Epochs                string `json:"epochs"`
+	LearningRate          string `json:"learningRate"`
+	BatchSize             string `json:"batchSize"`
+	UserID                int64  `json:"userId"`
+	TrainedModelName      string `json:"trainedModelName,optional"`
 }
 
 type PortalInferenceJob struct {
-	ServiceName string `json:"service_name"`
-	Status      string `json:"status"`
-	ModelId     string `json:"model_id"`
-	GpuType     string `json:"gpu_type"`
-	GpuNumber   int64  `json:"gpu_number"`
-	CpodId      string `json:"cpod_id"`
-	Template    string `json:"template,omitempty"`
-	UserID      int64  `json:"user_id"`
+	ServiceName   string `json:"service_name"`
+	Status        string `json:"status"`
+	ModelId       string `json:"model_id"`
+	ModelIsPublic bool   `json:"model_is_public"`
+	GpuType       string `json:"gpu_type"`
+	GpuNumber     int64  `json:"gpu_number"`
+	CpodId        string `json:"cpod_id"`
+	Template      string `json:"template,omitempty"`
+	UserID        int64  `json:"user_id"`
 }
 
 type TrainningJobState struct {
@@ -81,11 +84,14 @@ type TrainningJobState struct {
 	JobStatus v1beta1.JobConditionType `json:"job_status"`
 	Info      string                   `json:"info,omitempty"` // more info about jobstatus , especially when error occured
 	Extension interface{}              `json:"extension"`
+	UserID    int64                    `json:"user_id"`
 }
+
+type UserID string // 用户ID
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, []UserID, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
