@@ -21,20 +21,21 @@ type sxwl struct {
 }
 
 type GetJobResponse struct {
-	TrainningJobs  []PortalTrainningJob  `json:"job_list"`
-	InferenceJobs  []PortalInferenceJob  `json:"inference_service_list"`
-	JupyterLabJobs []PortalJupyterLabJob `json:"jupyter_lab_list"`
+	TrainningJobs    []PortalTrainningJob              `json:"job_list"`
+	InferenceJobs    []PortalInferenceJob              `json:"inference_service_list"`
+	JupyterLabJobs   []PortalJupyterLabLlamaFactoryJob `json:"jupyter_lab_list"`
+	LlamaFactoryJobs []PortalJupyterLabLlamaFactoryJob `json:"llama_factory_list"`
 }
 
 // GetAssignedJobList implements Scheduler.
-func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, []UserID, error) {
+func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabLlamaFactoryJob, []PortalJupyterLabLlamaFactoryJob, []UserID, error) {
 	urlStr, err := url.JoinPath(s.baseURL, v1beta1.URLPATH_FETCH_JOB)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	req, err := http.NewRequest(http.MethodGet, urlStr, nil)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	q := req.URL.Query()
 	q.Add("cpodid", s.identity)
@@ -44,22 +45,22 @@ func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob,
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, nil, nil, nil, fmt.Errorf("httpcode(%d) is not 200 , resp body: %s", resp.StatusCode, string(body))
+		return nil, nil, nil, nil, nil, fmt.Errorf("httpcode(%d) is not 200 , resp body: %s", resp.StatusCode, string(body))
 	}
 
 	var res GetJobResponse
 	if err = json.Unmarshal(body, &res); err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	userIDs := []UserID{}
 	for _, v := range res.TrainningJobs {
@@ -89,7 +90,7 @@ func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob,
 			userIDs = append(userIDs, UserID(v.UserID))
 		}
 	}
-	return res.TrainningJobs, res.InferenceJobs, res.JupyterLabJobs, []UserID{}, nil
+	return res.TrainningJobs, res.InferenceJobs, res.JupyterLabJobs, res.LlamaFactoryJobs, []UserID{}, nil
 }
 
 func (s *sxwl) HeartBeat(payload HeartBeatPayload) error {

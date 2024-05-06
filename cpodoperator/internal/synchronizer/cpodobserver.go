@@ -25,31 +25,35 @@ const (
 	InferenceJobDeployed  = "deployed"
 	InferenceJobFailed    = "failed"
 	JupyterLabJobFailed   = "failed"
+	LlamaFactoryJobFailed = "failed"
 )
 
 type CPodObserver struct {
-	kubeClient                       client.Client
-	logger                           logr.Logger
-	ch                               chan<- sxwl.HeartBeatPayload
-	createFailedTrainningJobsGetter  func() []sxwl.PortalTrainningJob
-	preparingTrainningJobsGetter     func() []sxwl.PortalTrainningJob
-	createFailedInferenceJobsGetter  func() []sxwl.PortalInferenceJob
-	createFailedJupyterLabJobsGetter func() []sxwl.PortalJupyterLabJob
-	cpodId                           string
-	cpodNamespace                    string
+	kubeClient                         client.Client
+	logger                             logr.Logger
+	ch                                 chan<- sxwl.HeartBeatPayload
+	createFailedTrainningJobsGetter    func() []sxwl.PortalTrainningJob
+	preparingTrainningJobsGetter       func() []sxwl.PortalTrainningJob
+	createFailedInferenceJobsGetter    func() []sxwl.PortalInferenceJob
+	createFailedJupyterLabJobsGetter   func() []sxwl.PortalJupyterLabLlamaFactoryJob
+	createFailedLlamaFactoryJobsGetter func() []sxwl.PortalJupyterLabLlamaFactoryJob
+	cpodId                             string
+	cpodNamespace                      string
 }
 
 func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
 	createFailedTrainningJobsGetter, preparingTrainningJobsGetter func() []sxwl.PortalTrainningJob,
 	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
-	createFailedJupyterLabJobsGetter func() []sxwl.PortalJupyterLabJob,
+	createFailedJupyterLabJobsGetter func() []sxwl.PortalJupyterLabLlamaFactoryJob,
+	createFailedLlamaFactoryJobsGetter func() []sxwl.PortalJupyterLabLlamaFactoryJob,
 	logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
-		createFailedTrainningJobsGetter:  createFailedTrainningJobsGetter,
-		preparingTrainningJobsGetter:     preparingTrainningJobsGetter,
-		createFailedInferenceJobsGetter:  createFailedInferenceJobsGetter,
-		createFailedJupyterLabJobsGetter: createFailedJupyterLabJobsGetter,
-		cpodId:                           cpodId, cpodNamespace: cpodNamespace}
+		createFailedTrainningJobsGetter:    createFailedTrainningJobsGetter,
+		preparingTrainningJobsGetter:       preparingTrainningJobsGetter,
+		createFailedInferenceJobsGetter:    createFailedInferenceJobsGetter,
+		createFailedJupyterLabJobsGetter:   createFailedJupyterLabJobsGetter,
+		createFailedLlamaFactoryJobsGetter: createFailedLlamaFactoryJobsGetter,
+		cpodId:                             cpodId, cpodNamespace: cpodNamespace}
 }
 
 func (co *CPodObserver) Start(ctx context.Context) {
@@ -120,13 +124,27 @@ func (co *CPodObserver) Start(ctx context.Context) {
 			Status:  JupyterLabJobFailed,
 		})
 	}
+	// llama factory jobs
+	ljs, err := co.getLlamaFactoryJobStates(ctx)
+	if err != nil {
+		co.logger.Error(err, "get llama factory job state error")
+		return
+	}
+	// combine with llama factory jobs
+	for _, j := range co.createFailedLlamaFactoryJobsGetter() {
+		ljs = append(ljs, sxwl.LlamaFactoryJobState{
+			JobName: j.JobName,
+			Status:  LlamaFactoryJobFailed,
+		})
+	}
 	co.ch <- sxwl.HeartBeatPayload{
-		CPodID:               co.cpodId,
-		ResourceInfo:         resourceInfo,
-		TrainningJobsStatus:  js,
-		InferenceJobsStatus:  ijs,
-		JupyterLabJobsStatus: jjs,
-		UpdateTime:           time.Now(),
+		CPodID:                 co.cpodId,
+		ResourceInfo:           resourceInfo,
+		TrainningJobsStatus:    js,
+		InferenceJobsStatus:    ijs,
+		JupyterLabJobsStatus:   jjs,
+		LlamaFactoryJobsStatus: ljs,
+		UpdateTime:             time.Now(),
 	}
 	co.logger.Info("upload payload refreshed")
 }
@@ -219,6 +237,31 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 			JobName: ss.Name,
 			Status:  status,
 			URL:     "/jupyterlab/" + ss.Name,
+		}
+		states = append(states, state)
+	}
+	return states, nil
+}
+
+func (co *CPodObserver) getLlamaFactoryJobStates(ctx context.Context) ([]sxwl.LlamaFactoryJobState, error) {
+	var statefulSets appsv1.StatefulSetList
+	states := []sxwl.LlamaFactoryJobState{}
+	err := co.kubeClient.List(ctx, &statefulSets, &client.MatchingLabels{
+		"app": "llamafactory",
+	})
+	if err != nil {
+		return states, err
+	}
+
+	for _, ss := range statefulSets.Items {
+		status := "notready"
+		if ss.Status.ReadyReplicas > 0 {
+			status = "ready"
+		}
+		state := sxwl.LlamaFactoryJobState{
+			JobName: ss.Name,
+			Status:  status,
+			URL:     "/llamafactory/" + ss.Name,
 		}
 		states = append(states, state)
 	}

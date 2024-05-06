@@ -35,7 +35,8 @@ const (
 type jobBuffer struct {
 	mtj map[string]sxwl.PortalTrainningJob
 	mij map[string]sxwl.PortalInferenceJob
-	mjj map[string]sxwl.PortalJupyterLabJob
+	mjj map[string]sxwl.PortalJupyterLabLlamaFactoryJob
+	mlj map[string]sxwl.PortalJupyterLabLlamaFactoryJob
 	mu  *sync.RWMutex
 }
 
@@ -57,13 +58,15 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		createFailedJobs: jobBuffer{
 			mtj: map[string]sxwl.PortalTrainningJob{},
 			mij: map[string]sxwl.PortalInferenceJob{},
-			mjj: map[string]sxwl.PortalJupyterLabJob{},
+			mjj: map[string]sxwl.PortalJupyterLabLlamaFactoryJob{},
+			mlj: map[string]sxwl.PortalJupyterLabLlamaFactoryJob{},
 			mu:  new(sync.RWMutex),
 		},
 		preparingJobs: jobBuffer{
 			mtj: map[string]sxwl.PortalTrainningJob{},
 			mij: map[string]sxwl.PortalInferenceJob{},
-			mjj: map[string]sxwl.PortalJupyterLabJob{},
+			mjj: map[string]sxwl.PortalJupyterLabLlamaFactoryJob{},
+			mlj: map[string]sxwl.PortalJupyterLabLlamaFactoryJob{},
 			mu:  new(sync.RWMutex),
 		},
 		logger:               logger,
@@ -89,7 +92,7 @@ func jobTypeCheck(jobtype string) (v1beta1.JobType, bool) {
 func (s *SyncJob) Start(ctx context.Context) {
 	s.logger.Info("sync job")
 
-	portalTrainningJobs, portalInferenceJobs, portalJupyterLabJobs, users, err := s.scheduler.GetAssignedJobList()
+	portalTrainningJobs, portalInferenceJobs, portalJupyterLabJobs, portalLlamaFactoryJobs, users, err := s.scheduler.GetAssignedJobList()
 	if err != nil {
 		s.logger.Error(err, "failed to list job")
 		return
@@ -100,7 +103,8 @@ func (s *SyncJob) Start(ctx context.Context) {
 	s.processTrainningJobs(ctx, users, portalTrainningJobs)
 	s.processFinetune(ctx, users, portalTrainningJobs)
 	s.processInferenceJobs(ctx, users, portalInferenceJobs)
-	s.processJupyterLabJobs(ctx, portalJupyterLabJobs)
+	s.processJupyterLabLlamaFactoryJobs(ctx, "jupyterlab", portalJupyterLabJobs, users)
+	s.processJupyterLabLlamaFactoryJobs(ctx, "llamafactory", portalLlamaFactoryJobs, users)
 
 }
 
@@ -960,37 +964,74 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, tp, pvcName, download
 	return err
 }
 
-func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob, userIDs []sxwl.UserID) error {
-	// 1. 获取当前Kubernetes集群中的JupyterLab任务列表
+func (s *SyncJob) getCreateFailedJupyterLabJobs() []sxwl.PortalJupyterLabLlamaFactoryJob {
+	res := []sxwl.PortalJupyterLabLlamaFactoryJob{}
+	s.createFailedJobs.mu.RLock()
+	defer s.createFailedJobs.mu.RUnlock()
+	for _, v := range s.createFailedJobs.mjj {
+		res = append(res, v)
+	}
+	return res
+}
+
+func (s *SyncJob) addCreateFailedJupyterLabJob(j sxwl.PortalJupyterLabLlamaFactoryJob) {
+	if _, ok := s.createFailedJobs.mjj[j.JobName]; ok {
+		return
+	}
+	s.createFailedJobs.mu.Lock()
+	defer s.createFailedJobs.mu.Unlock()
+	s.createFailedJobs.mjj[j.JobName] = j
+}
+
+// 如果任务创建成功了，将其从失败任务列表中删除
+func (s *SyncJob) deleteCreateFailedJupyterLabJob(j string) {
+	if _, ok := s.createFailedJobs.mjj[j]; !ok {
+		return
+	}
+	s.createFailedJobs.mu.Lock()
+	defer s.createFailedJobs.mu.Unlock()
+	delete(s.createFailedJobs.mjj, j)
+}
+
+func (s *SyncJob) processJupyterLabLlamaFactoryJobs(ctx context.Context, jobtype string, portalJobs []sxwl.PortalJupyterLabLlamaFactoryJob, userIDs []sxwl.UserID) error {
+	// 1. 获取当前Kubernetes集群中的任务列表
 	for _, UserID := range userIDs {
-		var currentJupyterLabJobs appsv1.StatefulSetList
-		err := s.kubeClient.List(ctx, &currentJupyterLabJobs, &client.MatchingLabels{
-			"app": "jupyterlab",
+		var currentJobs appsv1.StatefulSetList
+		err := s.kubeClient.List(ctx, &currentJobs, &client.MatchingLabels{
+			"app": jobtype,
 		}, client.InNamespace(UserID))
 		if err != nil {
-			s.logger.Error(err, "failed to list JupyterLab jobs")
+			s.logger.Error(err, "failed to list %s jobs", jobtype)
 			return err
 		}
 
-		// 2. 遍历并同步JupyterLab任务
+		// 2. 遍历并同步任务
 		for _, job := range portalJobs {
 			found := false
-			for _, currentJob := range currentJupyterLabJobs.Items {
+			for _, currentJob := range currentJobs.Items {
 				if currentJob.Name == job.JobName {
 					found = true
 				}
 			}
 
 			if !found {
-				// 创建新的JupyterLab任务
-				ss, err := s.createJupyterLabStatefulSet(ctx, string(UserID), job)
+				// 创建新的任务
+				ss, err := s.createStatefulSet(ctx, jobtype, string(UserID), job)
 				if err != nil {
-					s.addCreateFailedJupyterLabJob(job)
-					s.logger.Error(err, "failed to create JupyterLab StatefulSet")
+					if jobtype == "jupyterlab" {
+						s.addCreateFailedJupyterLabJob(job)
+					} else if jobtype == "llamafactory" {
+						s.addCreateFailedLlamaFactoryJob(job)
+					}
+					s.logger.Error(err, "failed to create %s StatefulSet", jobtype)
 					return err
 				} else {
-					s.deleteCreateFailedJupyterLabJob(job.JobName)
-					s.logger.Info("JupyterLab StatefulSet created", "statefulset", ss.Name)
+					if jobtype == "jupyterlab" {
+						s.deleteCreateFailedJupyterLabJob(job.JobName)
+					} else if jobtype == "llamafactory" {
+						s.deleteCreateFailedLlamaFactoryJob(job.JobName)
+					}
+					s.logger.Info("%s StatefulSet created", jobtype, "statefulset", ss.Name)
 				}
 
 				ownerRef := metav1.OwnerReference{
@@ -1000,24 +1041,24 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 					UID:        ss.UID,
 				}
 
-				svc, err := s.createJupyterLabService(ctx, string(UserID), job, ownerRef)
+				svc, err := s.createService(ctx, jobtype, string(UserID), job, ownerRef)
 				if err != nil {
-					s.logger.Error(err, "failed to create JupyterLab service")
+					s.logger.Error(err, "failed to create %s service", jobtype)
 					return err
 				}
-				s.logger.Info("JupyterLab service created", "service", svc.Name)
+				s.logger.Info("%s service created", jobtype, "service", svc.Name)
 
-				ing, err := s.createJupyterLabIngress(ctx, string(UserID), job, svc, ownerRef)
+				ing, err := s.createIngress(ctx, jobtype, string(UserID), job, svc, ownerRef)
 				if err != nil {
-					s.logger.Error(err, "failed to create JupyterLab ingress")
+					s.logger.Error(err, "failed to create %s ingress", jobtype)
 					return err
 				}
-				s.logger.Info("JupyterLab ingress created", "ingress", ing.Name)
+				s.logger.Info("%s ingress created", jobtype, "ingress", ing.Name)
 			}
 		}
 
-		// 3. 删除不再需要的JupyterLab任务
-		for _, currentJob := range currentJupyterLabJobs.Items {
+		// 3. 删除不再需要的任务
+		for _, currentJob := range currentJobs.Items {
 			exists := false
 			for _, job := range portalJobs {
 				if currentJob.Name == job.JobName {
@@ -1027,9 +1068,9 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 			}
 
 			if !exists {
-				// 删除当前的JupyterLab任务
+				// 删除当前的任务
 				if err := s.kubeClient.Delete(ctx, &currentJob); err != nil {
-					s.logger.Error(err, "failed to delete JupyterLab job", "job", currentJob)
+					s.logger.Error(err, "failed to delete %s job", jobtype, "job", currentJob)
 				}
 			}
 		}
@@ -1038,12 +1079,34 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 	return nil
 }
 
-func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
+func (s *SyncJob) createStatefulSet(ctx context.Context, jobtype string, namespace string, job sxwl.PortalJupyterLabLlamaFactoryJob) (*appsv1.StatefulSet, error) {
+	var image string
+	var mountPath string
+	var command []string
+	switch jobtype {
+	case "jupyterlab":
+		mountPath = "/workspace"
+		image = "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5"
+		command = []string{
+			"jupyter",
+			"lab",
+			fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%s/", job.JobName),
+			"--allow-root",
+			"--ip=0.0.0.0",
+		}
+	case "llamafactory":
+		mountPath = "/workspace/data"
+		image = "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v3"
+		command = []string{
+			"python",
+			"src/train_web.py",
+		}
+	}
 	storageClassName := os.Getenv("STORAGECLASS")
 	volumeMounts := []v1.VolumeMount{
 		{
 			Name:      "workspace",
-			MountPath: "/workspace",
+			MountPath: mountPath,
 		},
 	}
 	volumes := []v1.Volume{
@@ -1100,7 +1163,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace str
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      job.JobName,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "jupyterlab"},
+			Labels:    map[string]string{"app": jobtype},
 		},
 		Spec: appsv1.StatefulSetSpec{
 			Selector: &metav1.LabelSelector{
@@ -1114,7 +1177,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace str
 					Containers: []v1.Container{
 						{
 							Name:  job.JobName,
-							Image: "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5",
+							Image: image,
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{
 									v1.ResourceCPU:    resource.MustParse(job.CPUCount),
@@ -1126,19 +1189,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace str
 									"nvidia.com/gpu":  *resource.NewQuantity(int64(job.GPUCount), resource.DecimalSI),
 								},
 							},
-							Env: []v1.EnvVar{
-								{
-									Name:  "JUPYTER_TOKEN",
-									Value: job.JobName,
-								},
-							},
-							Command: []string{
-								"jupyter",
-								"lab",
-								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%s/", job.JobName),
-								"--allow-root",
-								"--ip=0.0.0.0",
-							},
+							Command:      command,
 							VolumeMounts: volumeMounts,
 						},
 					},
@@ -1178,7 +1229,14 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace str
 	return ss, nil
 }
 
-func (s *SyncJob) createJupyterLabService(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
+func (s *SyncJob) createService(ctx context.Context, jobtype string, namespace string, job sxwl.PortalJupyterLabLlamaFactoryJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
+	var port int32
+	switch jobtype {
+	case "jupyterlab":
+		port = 8888
+	case "llamafactory":
+		port = 7860
+	}
 	svc := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            job.JobName + "-svc",
@@ -1191,8 +1249,8 @@ func (s *SyncJob) createJupyterLabService(ctx context.Context, namespace string,
 			},
 			Ports: []v1.ServicePort{
 				{
-					Port:       8888,
-					TargetPort: intstr.FromInt(8888),
+					Port:       port,
+					TargetPort: intstr.FromInt32(port),
 				},
 			},
 			Type: v1.ServiceTypeClusterIP, // 使用ClusterIP以便在集群内部访问
@@ -1200,13 +1258,20 @@ func (s *SyncJob) createJupyterLabService(ctx context.Context, namespace string,
 	}
 
 	if err := s.kubeClient.Create(ctx, svc); err != nil {
-		return nil, fmt.Errorf("failed to create service for JupyterLab %s: %v", job.JobName, err)
+		return nil, fmt.Errorf("failed to create service for %s %s: %v", jobtype, job.JobName, err)
 	}
 
 	return svc, nil
 }
 
-func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
+func (s *SyncJob) createIngress(ctx context.Context, jobtype string, namespace string, job sxwl.PortalJupyterLabLlamaFactoryJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
+	var port int32
+	switch jobtype {
+	case "jupyterlab":
+		port = 8888
+	case "llamafactory":
+		port = 7860
+	}
 	pathType := networkingv1.PathTypeImplementationSpecific
 	ing := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1214,7 +1279,7 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string,
 			Namespace:       namespace,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + job.JobName + "/$2",
+				"nginx.ingress.kubernetes.io/rewrite-target": "/" + jobtype + "/" + job.JobName + "/$2",
 			},
 		},
 		Spec: networkingv1.IngressSpec{
@@ -1226,12 +1291,12 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string,
 							Paths: []networkingv1.HTTPIngressPath{
 								{
 									PathType: &pathType,
-									Path:     "/jupyterlab/" + job.JobName + "(/|$)(.*)",
+									Path:     "/" + jobtype + "/" + job.JobName + "(/|$)(.*)",
 									Backend: networkingv1.IngressBackend{
 										Service: &networkingv1.IngressServiceBackend{
 											Name: job.JobName + "-svc",
 											Port: networkingv1.ServiceBackendPort{
-												Number: 8888,
+												Number: port,
 											},
 										},
 									},
@@ -1245,37 +1310,37 @@ func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string,
 	}
 
 	if err := s.kubeClient.Create(ctx, ing); err != nil {
-		return nil, fmt.Errorf("failed to create ingress for JupyterLab %s: %v", job.InstanceName, err)
+		return nil, fmt.Errorf("failed to create ingress for %s %s: %v", jobtype, job.InstanceName, err)
 	}
 
 	return ing, nil
 }
 
-func (s *SyncJob) getCreateFailedJupyterLabJobs() []sxwl.PortalJupyterLabJob {
-	res := []sxwl.PortalJupyterLabJob{}
+func (s *SyncJob) getCreateFailedLlamaFactoryJobs() []sxwl.PortalJupyterLabLlamaFactoryJob {
+	res := []sxwl.PortalJupyterLabLlamaFactoryJob{}
 	s.createFailedJobs.mu.RLock()
 	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mjj {
+	for _, v := range s.createFailedJobs.mlj {
 		res = append(res, v)
 	}
 	return res
 }
 
-func (s *SyncJob) addCreateFailedJupyterLabJob(j sxwl.PortalJupyterLabJob) {
-	if _, ok := s.createFailedJobs.mjj[j.JobName]; ok {
+func (s *SyncJob) addCreateFailedLlamaFactoryJob(j sxwl.PortalJupyterLabLlamaFactoryJob) {
+	if _, ok := s.createFailedJobs.mlj[j.JobName]; ok {
 		return
 	}
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mjj[j.JobName] = j
+	s.createFailedJobs.mlj[j.JobName] = j
 }
 
 // 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedJupyterLabJob(j string) {
-	if _, ok := s.createFailedJobs.mjj[j]; !ok {
+func (s *SyncJob) deleteCreateFailedLlamaFactoryJob(j string) {
+	if _, ok := s.createFailedJobs.mlj[j]; !ok {
 		return
 	}
 	s.createFailedJobs.mu.Lock()
 	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mjj, j)
+	delete(s.createFailedJobs.mlj, j)
 }

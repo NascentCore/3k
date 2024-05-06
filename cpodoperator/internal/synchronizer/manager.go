@@ -33,7 +33,7 @@ func NewManager(cpodId, inferImage string, uploadTrainedModel, autoDownloadResou
 	uploader := NewUploader(ch, scheduler, period, logger.WithName("uploader"))
 	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch,
 		syncJob.getCreateFailedTrainningJobs, syncJob.getPreparingTrainningJobs, syncJob.getCreateFailedInferenceJobs,
-		syncJob.getCreateFailedJupyterLabJobs,
+		syncJob.getCreateFailedJupyterLabJobs, syncJob.getCreateFailedLlamaFactoryJobs,
 		logger.WithName("cpodobserver"))
 	return &Manager{
 		runables: []Runnable{

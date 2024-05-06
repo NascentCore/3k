@@ -9,7 +9,7 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 )
 
-type PortalJupyterLabJob struct {
+type PortalJupyterLabLlamaFactoryJob struct {
 	InstanceName     string              `json:"instanceName"`
 	JobName          string              `json:"jobName"`
 	CPUCount         string              `json:"cpuCount"`
@@ -92,7 +92,7 @@ type UserID string // 用户ID
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, []UserID, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabLlamaFactoryJob, []PortalJupyterLabLlamaFactoryJob, []UserID, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
@@ -110,13 +110,20 @@ type JupyterLabJobState struct {
 	URL     string `json:"url"`
 }
 
+type LlamaFactoryJobState struct {
+	JobName string `json:"job_name"`
+	Status  string `json:"status"`
+	URL     string `json:"url"`
+}
+
 type HeartBeatPayload struct {
-	CPodID               string                    `json:"cpod_id"`
-	TrainningJobsStatus  []TrainningJobState       `json:"job_status"`
-	InferenceJobsStatus  []InferenceJobState       `json:"inference_status"`
-	JupyterLabJobsStatus []JupyterLabJobState      `json:"jupyter_status"`
-	ResourceInfo         resource.CPodResourceInfo `json:"resource_info"`
-	UpdateTime           time.Time                 `json:"update_time"`
+	CPodID                 string                    `json:"cpod_id"`
+	TrainningJobsStatus    []TrainningJobState       `json:"job_status"`
+	InferenceJobsStatus    []InferenceJobState       `json:"inference_status"`
+	JupyterLabJobsStatus   []JupyterLabJobState      `json:"jupyter_status"`
+	LlamaFactoryJobsStatus []LlamaFactoryJobState    `json:"llamafactory_status"`
+	ResourceInfo           resource.CPodResourceInfo `json:"resource_info"`
+	UpdateTime             time.Time                 `json:"update_time"`
 }
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {
