@@ -254,7 +254,8 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					duration = job.StopTime
 				}
 
-				if job.PretrainModelId != "" && s.autoDownloadResource {
+				modelId := job.PretrainModelId
+				if job.PretrainModelId != "" {
 					// 判断指定的预训练模型是否存在
 					exists, done, err := s.checkModelExistence(ctx, string(user), job.PretrainModelId, job.PretrainModelIsPublic)
 					if err != nil {
@@ -267,46 +268,53 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 							continue
 						}
 					} else { // modelstorage not exist
-						s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish",
-							"jobname", job.JobName, "modelid", job.PretrainModelId)
-						// return preparing status during the downloader task.
-						s.addPreparingTrainningJob(job)
-						// create PVC
-						ossAK := os.Getenv("AK")
-						ossSK := os.Getenv("AS")
-						storageClassName := os.Getenv("STORAGECLASS")
-						ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
-						pvcName := ModelPVCName(ossPath)
-						// storageName := ModelCRDName(ossPath)
-						modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
-						// pvcsize is 1.2 * modelsize
-						pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
-						err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-						if err != nil {
-							s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
+						if s.autoDownloadResource {
+							s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish",
+								"jobname", job.JobName, "modelid", job.PretrainModelId)
+							// return preparing status during the downloader task.
+							s.addPreparingTrainningJob(job)
+							// create PVC
+							ossAK := os.Getenv("AK")
+							ossSK := os.Getenv("AS")
+							storageClassName := os.Getenv("STORAGECLASS")
+							ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
+							pvcName := ModelPVCName(ossPath)
+							// storageName := ModelCRDName(ossPath)
+							modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
+							// pvcsize is 1.2 * modelsize
+							pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
+							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
+							if err != nil {
+								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
+								continue
+							} else {
+								s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
+							}
+							// create ModelStorage
+							err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
+							if err != nil {
+								s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
+								continue
+							} else {
+								s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
+							}
+							// create DownloaderJob
+							err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
+							if err != nil {
+								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
+								continue
+							} else {
+								s.logger.Info("downloader job created", "jobname", job.JobName, "modelid", job.PretrainModelId)
+							}
 							continue
-						} else {
-							s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
 						}
-						// create ModelStorage
-						err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
-						if err != nil {
-							s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							continue
-						} else {
-							s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-						}
-						// create DownloaderJob
-						err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
-						if err != nil {
-							s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							continue
-						} else {
-							s.logger.Info("downloader job created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-						}
-						continue
+
 					}
 				}
+				if job.PretrainModelIsPublic {
+					modelId = modelId + "-public"
+				}
+				datasetID := job.DatasetId
 				if job.DatasetId != "" && s.autoDownloadResource {
 					// 判断指定的预训练模型是否存在
 					exists, done, err := s.checkDatasetExistence(ctx, v1beta1.CPOD_NAMESPACE, job.DatasetId)
@@ -359,6 +367,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						continue
 					}
 				}
+				if job.DatasetId == "" {
+					datasetID = datasetID + "-public"
+				}
 				var gpuPerWorker int32 = 8
 				var replicas int32 = 1
 				if job.GpuNumber < 8 {
@@ -393,9 +404,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						GPURequiredPerReplica: gpuPerWorker,
 						GPUType:               job.GpuType,
 						DatasetPath:           job.DatasetPath,
-						DatasetName:           job.DatasetId,
+						DatasetName:           datasetID,
 						PretrainModelPath:     job.PretrainModelPath,
-						PretrainModelName:     job.PretrainModelId,
+						PretrainModelName:     modelId,
 						CKPTPath:              job.CkptPath,
 						CKPTVolumeSize:        int32(job.CkptVol),
 						ModelSavePath:         job.ModelPath,
@@ -470,6 +481,16 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				if template == "" {
 					template = "default"
 				}
+				modelID := job.ModelId
+				_, done, err := s.checkModelExistence(ctx, string(user), modelID, job.ModelIsPublic)
+				if err != nil {
+					s.logger.Error(err, "failed to check model existence", "modelid", modelID)
+					continue
+				}
+				if !done {
+					s.logger.Info("Model is preparing.", "jobname", job.ServiceName, "modelid", modelID)
+					continue
+				}
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -500,7 +521,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 										Env: []v1.EnvVar{
 											{
 												Name:  "STORAGE_URI",
-												Value: "modelstorage://" + job.ModelId,
+												Value: "modelstorage://" + modelID,
 											},
 											{
 												Name:  "API_PORT",
@@ -694,7 +715,6 @@ func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string, 
 				}
 				// 创建pvc
 				pvcCopy := publicMsPVC.DeepCopy()
-				pvcCopy.Name = pvcCopy.Name
 				pvcCopy.Namespace = namespace
 				pvcCopy.Spec.VolumeName = pvCopy.Name
 				if err := s.kubeClient.Create(ctx, pvcCopy); err != nil {
@@ -764,7 +784,6 @@ func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string
 				}
 				// 创建pvc
 				pvcCopy := publicDsPVC.DeepCopy()
-				pvcCopy.Name = pvcCopy.Name
 				pvcCopy.Namespace = namespace
 				pvcCopy.Spec.VolumeName = pvCopy.Name
 				if err := s.kubeClient.Create(ctx, pvcCopy); err != nil {
@@ -774,7 +793,7 @@ func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string
 				datasetStorageCopy := publicDs.DeepCopy()
 				datasetStorageCopy.Name = datasetStorageCopy.Name + "-public"
 				datasetStorageCopy.Namespace = namespace
-				datasetStorageCopy.Spec.PVC = pvc
+				datasetStorageCopy.Spec.PVC = pvcCopy.Name
 				datasetStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
 				if err := s.kubeClient.Create(ctx, datasetStorageCopy); err != nil {
 					return false, false, err
@@ -941,83 +960,85 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, tp, pvcName, download
 	return err
 }
 
-func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob) error {
+func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob, userIDs []sxwl.UserID) error {
 	// 1. 获取当前Kubernetes集群中的JupyterLab任务列表
-	var currentJupyterLabJobs appsv1.StatefulSetList
-	err := s.kubeClient.List(ctx, &currentJupyterLabJobs, &client.MatchingLabels{
-		"app": "jupyterlab",
-	})
-	if err != nil {
-		s.logger.Error(err, "failed to list JupyterLab jobs")
-		return err
-	}
-
-	// 2. 遍历并同步JupyterLab任务
-	for _, job := range portalJobs {
-		found := false
-		for _, currentJob := range currentJupyterLabJobs.Items {
-			if currentJob.Name == job.JobName {
-				found = true
-			}
+	for _, UserID := range userIDs {
+		var currentJupyterLabJobs appsv1.StatefulSetList
+		err := s.kubeClient.List(ctx, &currentJupyterLabJobs, &client.MatchingLabels{
+			"app": "jupyterlab",
+		}, client.InNamespace(UserID))
+		if err != nil {
+			s.logger.Error(err, "failed to list JupyterLab jobs")
+			return err
 		}
 
-		if !found {
-			// 创建新的JupyterLab任务
-			ss, err := s.createJupyterLabStatefulSet(ctx, job)
-			if err != nil {
-				s.addCreateFailedJupyterLabJob(job)
-				s.logger.Error(err, "failed to create JupyterLab StatefulSet")
-				return err
-			} else {
-				s.deleteCreateFailedJupyterLabJob(job.JobName)
-				s.logger.Info("JupyterLab StatefulSet created", "statefulset", ss.Name)
-			}
-
-			ownerRef := metav1.OwnerReference{
-				APIVersion: "apps/v1",
-				Kind:       "StatefulSet",
-				Name:       ss.Name,
-				UID:        ss.UID,
-			}
-
-			svc, err := s.createJupyterLabService(ctx, job, ownerRef)
-			if err != nil {
-				s.logger.Error(err, "failed to create JupyterLab service")
-				return err
-			}
-			s.logger.Info("JupyterLab service created", "service", svc.Name)
-
-			ing, err := s.createJupyterLabIngress(ctx, job, svc, ownerRef)
-			if err != nil {
-				s.logger.Error(err, "failed to create JupyterLab ingress")
-				return err
-			}
-			s.logger.Info("JupyterLab ingress created", "ingress", ing.Name)
-		}
-	}
-
-	// 3. 删除不再需要的JupyterLab任务
-	for _, currentJob := range currentJupyterLabJobs.Items {
-		exists := false
+		// 2. 遍历并同步JupyterLab任务
 		for _, job := range portalJobs {
-			if currentJob.Name == job.JobName {
-				exists = true
-				break
+			found := false
+			for _, currentJob := range currentJupyterLabJobs.Items {
+				if currentJob.Name == job.JobName {
+					found = true
+				}
+			}
+
+			if !found {
+				// 创建新的JupyterLab任务
+				ss, err := s.createJupyterLabStatefulSet(ctx, string(UserID), job)
+				if err != nil {
+					s.addCreateFailedJupyterLabJob(job)
+					s.logger.Error(err, "failed to create JupyterLab StatefulSet")
+					return err
+				} else {
+					s.deleteCreateFailedJupyterLabJob(job.JobName)
+					s.logger.Info("JupyterLab StatefulSet created", "statefulset", ss.Name)
+				}
+
+				ownerRef := metav1.OwnerReference{
+					APIVersion: "apps/v1",
+					Kind:       "StatefulSet",
+					Name:       ss.Name,
+					UID:        ss.UID,
+				}
+
+				svc, err := s.createJupyterLabService(ctx, string(UserID), job, ownerRef)
+				if err != nil {
+					s.logger.Error(err, "failed to create JupyterLab service")
+					return err
+				}
+				s.logger.Info("JupyterLab service created", "service", svc.Name)
+
+				ing, err := s.createJupyterLabIngress(ctx, string(UserID), job, svc, ownerRef)
+				if err != nil {
+					s.logger.Error(err, "failed to create JupyterLab ingress")
+					return err
+				}
+				s.logger.Info("JupyterLab ingress created", "ingress", ing.Name)
 			}
 		}
 
-		if !exists {
-			// 删除当前的JupyterLab任务
-			if err := s.kubeClient.Delete(ctx, &currentJob); err != nil {
-				s.logger.Error(err, "failed to delete JupyterLab job", "job", currentJob)
+		// 3. 删除不再需要的JupyterLab任务
+		for _, currentJob := range currentJupyterLabJobs.Items {
+			exists := false
+			for _, job := range portalJobs {
+				if currentJob.Name == job.JobName {
+					exists = true
+					break
+				}
+			}
+
+			if !exists {
+				// 删除当前的JupyterLab任务
+				if err := s.kubeClient.Delete(ctx, &currentJob); err != nil {
+					s.logger.Error(err, "failed to delete JupyterLab job", "job", currentJob)
+				}
 			}
 		}
+
 	}
-
 	return nil
 }
 
-func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
+func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
 	storageClassName := os.Getenv("STORAGECLASS")
 	volumeMounts := []v1.VolumeMount{
 		{
@@ -1038,20 +1059,33 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 
 	// 处理预训练模型的挂载点
 	for _, pm := range *job.PretrainedModels {
+		_, done, err := s.checkModelExistence(ctx, namespace, pm.PretrainedModelId, pm.PretrainedModelIsPublic)
+		if err != nil {
+			s.logger.Error(err, "failed to check model existence", "modelid", pm.PretrainedModelId)
+			continue
+		}
+		if !done {
+			s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", pm.PretrainedModelId)
+			continue
+		}
+		modelID := pm.PretrainedModelId
+		if pm.PretrainedModelIsPublic {
+			modelID = modelID + "-public"
+		}
 		var modelStorage cpodv1.ModelStorage
-		if err := s.kubeClient.Get(ctx, client.ObjectKey{Name: pm.PretrainedModelId, Namespace: v1beta1.CPOD_NAMESPACE}, &modelStorage); err != nil {
+		if err := s.kubeClient.Get(ctx, client.ObjectKey{Name: modelID, Namespace: namespace}, &modelStorage); err != nil {
 			return nil, fmt.Errorf("failed to get ModelStorage %s: %w", pm.PretrainedModelId, err)
 		}
 
 		// 添加挂载点
 		volumeMounts = append(volumeMounts, v1.VolumeMount{
-			Name:      pm.PretrainedModelId,
+			Name:      modelID,
 			MountPath: pm.PretrainedModelPath,
 		})
 
 		// 添加对应的卷
 		volumes = append(volumes, v1.Volume{
-			Name: pm.PretrainedModelId,
+			Name: modelID,
 			VolumeSource: v1.VolumeSource{
 				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
 					ClaimName: modelStorage.Spec.PVC,
@@ -1065,7 +1099,7 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 	ss := &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      job.JobName,
-			Namespace: v1beta1.CPOD_NAMESPACE,
+			Namespace: namespace,
 			Labels:    map[string]string{"app": "jupyterlab"},
 		},
 		Spec: appsv1.StatefulSetSpec{
@@ -1144,11 +1178,11 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, job sxwl.Port
 	return ss, nil
 }
 
-func (s *SyncJob) createJupyterLabService(ctx context.Context, job sxwl.PortalJupyterLabJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
+func (s *SyncJob) createJupyterLabService(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
 	svc := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            job.JobName + "-svc",
-			Namespace:       v1beta1.CPOD_NAMESPACE,
+			Namespace:       namespace,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 		},
 		Spec: v1.ServiceSpec{
@@ -1172,12 +1206,12 @@ func (s *SyncJob) createJupyterLabService(ctx context.Context, job sxwl.PortalJu
 	return svc, nil
 }
 
-func (s *SyncJob) createJupyterLabIngress(ctx context.Context, job sxwl.PortalJupyterLabJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
+func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
 	pathType := networkingv1.PathTypeImplementationSpecific
 	ing := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            job.JobName + "-ing",
-			Namespace:       v1beta1.CPOD_NAMESPACE,
+			Namespace:       namespace,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 			Annotations: map[string]string{
 				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + job.JobName + "/$2",
