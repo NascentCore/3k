@@ -1,0 +1,48 @@
+name: Go Service Build
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+    paths:
+      - 'cmd/gateway/**'
+      - 'internal/gateway/**'
+      - 'cmd/scheduler/**'
+      - 'internal/scheduler/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: sxwl-registry.cn-beijing.cr.aliyuncs.com
+      NAMESPACE: sxwl-ai
+      PR_TITLE: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract and Build Images
+        id: extract_and_build
+        run: |
+          if echo "$PR_TITLE" | grep -q "scheduler-build:"; then
+            SCHEDULER_VERSION=$(echo "$PR_TITLE" | grep -oP 'scheduler-build:\K\S+' || echo "")
+            echo "Building scheduler with tag $SCHEDULER_VERSION"
+            echo "SCHEDULER_VERSION=$SCHEDULER_VERSION" >> $GITHUB_ENV
+            docker build -t $DOCKER_REGISTRY/$NAMESPACE/go-scheduler:$SCHEDULER_VERSION -f ./cmd/scheduler/Dockerfile .
+            docker push $DOCKER_REGISTRY/$NAMESPACE/go-scheduler:$SCHEDULER_VERSION
+          fi
+          if echo "$PR_TITLE" | grep -q "gateway-build:"; then
+            GATEWAY_VERSION=$(echo "$PR_TITLE" | grep -oP 'gateway-build:\K\S+' || echo "")
+            echo "Building gateway with tag $GATEWAY_VERSION"
+            echo "GATEWAY_VERSION=$GATEWAY_VERSION" >> $GITHUB_ENV
+            docker build -t $DOCKER_REGISTRY/$NAMESPACE/go-gateway:$GATEWAY_VERSION -f ./cmd/gateway/Dockerfile .
+            docker push $DOCKER_REGISTRY/$NAMESPACE/go-gateway:$GATEWAY_VERSION
+          fi
