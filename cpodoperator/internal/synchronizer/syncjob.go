@@ -94,13 +94,13 @@ func (s *SyncJob) Start(ctx context.Context) {
 		s.logger.Error(err, "failed to list job")
 		return
 	}
-	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs)
+	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs, "users", users)
 	s.logger.Info("assigned inference job", "jobs", portalInferenceJobs)
 	s.syncUsers(ctx, users)
 	s.processTrainningJobs(ctx, users, portalTrainningJobs)
 	s.processFinetune(ctx, users, portalTrainningJobs)
 	s.processInferenceJobs(ctx, users, portalInferenceJobs)
-	s.processJupyterLabJobs(ctx, portalJupyterLabJobs)
+	s.processJupyterLabJobs(ctx, portalJupyterLabJobs, users)
 
 }
 
@@ -148,7 +148,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 			s.logger.Error(err, "failed to list finetunejob")
 		}
 		for _, job := range portaljobs {
-			if string(job.UserID) != string(user) {
+			if strconv.Itoa(int(job.UserID)) != string(user) {
 				continue
 			}
 			if job.JobType != "Codeless" {
@@ -163,6 +163,16 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 			}
 			if !exists {
 				// create
+				datasetID := job.DatasetId
+				if job.DatasetIsPublic {
+					datasetID = datasetID + "-public"
+				}
+				_, done, err := s.checkDatasetExistence(ctx, string(user), datasetID)
+				if err != nil || !done {
+					s.logger.Error(err, "failed to check dataset existence", "datasetid", datasetID)
+					continue
+				}
+
 				newJob := v1beta1.FineTune{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      job.JobName,
@@ -177,7 +187,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 					},
 					Spec: v1beta1.FineTuneSpec{
 						Model:          job.PretrainModelName,
-						DatasetStorage: job.DatasetId,
+						DatasetStorage: datasetID,
 						Upload:         s.uploadTrainedModel,
 						HyperParameters: map[string]string{
 							"n_epochs":                 job.Epochs,
@@ -226,7 +236,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 		}
 
 		for _, job := range portaljobs {
-			if string(job.UserID) != string(user) {
+			if strconv.Itoa(int(job.UserID)) != string(user) {
 				continue
 			}
 
@@ -241,6 +251,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 			}
 			if !exists {
+				s.logger.Info("trainning job", "trainning", job.JobName, "job", job)
 				var cmd []string
 				if job.Command != "" {
 					cmd = strings.Split(job.Command, " ")
@@ -467,7 +478,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 		}
 
 		for _, job := range portaljobs {
-			if string(job.UserID) != string(user) {
+			if strconv.Itoa(int(job.UserID)) != string(user) {
 				continue
 			}
 			exists := false
