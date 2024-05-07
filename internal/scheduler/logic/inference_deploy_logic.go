@@ -57,7 +57,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	serviceName := "infer-" + newUUID.String()
 
 	// model
-	var modelSize int64
+	var modelSize, modelPublic int64
 	var modelOSSPath, modelId, template string
 	if l.svcCtx.Config.OSS.LocalMode {
 		cacheModel, err := CpodCacheModel.FindOneByQuery(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
@@ -70,6 +70,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		modelSize = cacheModel.DataSize
 		modelId = cacheModel.DataId
 		template = cacheModel.Template
+		modelPublic = cacheModel.Public
 	} else {
 		ossPath := storage.ResourceToOSSPath(consts.Model, req.ModelName)
 		ok, size, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, ossPath)
@@ -84,6 +85,12 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		modelSize = size
 		modelOSSPath = ossPath
 		modelId = storage.ModelCRDName(ossPath)
+		isPublic := storage.ResourceIsPublic(req.ModelName)
+		if isPublic {
+			modelPublic = model.CachePublic
+		} else {
+			modelPublic = model.CachePrivate
+		}
 		// template
 		fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
 		if err != nil {
@@ -104,6 +111,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		ModelName:   orm.NullString(req.ModelName),
 		ModelId:     orm.NullString(modelId),
 		ModelSize:   orm.NullInt64(modelSize),
+		ModelPublic: orm.NullInt64(modelPublic),
 		GpuType:     orm.NullString(req.GpuModel),
 		GpuNumber:   orm.NullInt64(req.GpuCount),
 		Template:    orm.NullString(template),

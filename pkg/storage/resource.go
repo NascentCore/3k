@@ -27,6 +27,14 @@ func ResourceToOSSPath(resourceType, resource string) string {
 	return ""
 }
 
+func ResourceIsPublic(resource string) bool {
+	if strings.HasPrefix(resource, "user-") {
+		return false
+	} else {
+		return true
+	}
+}
+
 func ModelCRDName(ossPath string) string {
 	return fmt.Sprintf("model-storage-%s", hash(ossPath))
 }

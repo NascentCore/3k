@@ -70,6 +70,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			Name:              modelName,
 			Object:            "model",
 			Owner:             "public",
+			IsPublic:          true,
 			Size:              size,
 			Tag:               tag,
 			FinetuneGPUCount:  1,
@@ -96,7 +97,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 
 	// user models
 	if l.svcCtx.Config.OSS.LocalMode {
-		models, err := CpodCacheModel.FindActive(l.ctx, model.CacheModel, 30)
+		models, err := CpodCacheModel.FindActive(l.ctx, model.CacheModel, req.UserID, 30)
 		if err != nil {
 			return nil, err
 		}
@@ -110,6 +111,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				Object:            "model",
 				Owner:             "user",
 				Size:              m.DataSize,
+				IsPublic:          false,
+				UserId:            m.UserId.Int64,
 				Tag:               tag,
 				FinetuneGPUCount:  int(m.FinetuneGpuCount),
 				InferenceGPUCount: int(m.InferenceGpuCount),
@@ -149,6 +152,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				Object:            "model",
 				Owner:             fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
 				Size:              size,
+				IsPublic:          false,
+				UserId:            req.UserID,
 				Tag:               tag,
 				FinetuneGPUCount:  1,
 				InferenceGPUCount: 1,

@@ -87,6 +87,8 @@ type Cache {
 	DataSize          int64  `json:"data_size"`
 	Template          string `json:"template"`
 	DataSource        string `json:"data_source"`
+	IsPublic          bool   `json:"is_public"`
+	UserID            int64  `json:"user_id"`
 	FinetuneGPUCount  int64  `json:"finetune_gpu_count"`
 	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
@@ -162,27 +164,28 @@ type (
 
 type (
 	JobCreateReq {
-		GpuNumber           int64             `json:"gpuNumber"`
-		GpuType             string            `json:"gpuType"`
-		CkptPath            string            `json:"ckptPath"`
-		CkptVol             int64             `json:"ckptVol"`
-		ModelPath           string            `json:"modelPath"`
-		ModelVol            int64             `json:"modelVol"`
-		ImagePath           string            `json:"imagePath"`
-		JobType             string            `json:"jobType"`
-		StopType            int64             `json:"stopType,optional"`
-		StopTime            int64             `json:"stopTime,optional"`
-		PretrainedModelId   string            `json:"pretrainedModelId,optional"`
-		PretrainedModelName string            `json:"pretrainedModelName,optional"`
-		PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
-		DatasetId           string            `json:"datasetId,optional"`
-		DatasetName         string            `json:"datasetName,optional"`
-		DatasetPath         string            `json:"datasetPath,optional"`
-		TrainedModelName    string            `json:"trainedModelName,optional"`
-		RunCommand          string            `json:"runCommand,optional"`
-		CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
-		Env                 map[string]string `json:"env,optional,omitempty"`
-		UserID              int64             `header:"Sx-User" json:"-"`
+		GpuNumber               int64             `json:"gpuNumber"`
+		GpuType                 string            `json:"gpuType"`
+		CkptPath                string            `json:"ckptPath"`
+		CkptVol                 int64             `json:"ckptVol"`
+		ModelPath               string            `json:"modelPath"`
+		ModelVol                int64             `json:"modelVol"`
+		ImagePath               string            `json:"imagePath"`
+		JobType                 string            `json:"jobType"`
+		StopType                int64             `json:"stopType,optional"`
+		StopTime                int64             `json:"stopTime,optional"`
+		PretrainedModelId       string            `json:"pretrainedModelId,optional"`
+		PretrainedModelName     string            `json:"pretrainedModelName,optional"`
+		PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
+		PretrainedModelIsPublic bool              `json:"pretrainModelIsPublic,optional"`
+		DatasetId               string            `json:"datasetId,optional"`
+		DatasetName             string            `json:"datasetName,optional"`
+		DatasetPath             string            `json:"datasetPath,optional"`
+		TrainedModelName        string            `json:"trainedModelName,optional"`
+		RunCommand              string            `json:"runCommand,optional"`
+		CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
+		Env                     map[string]string `json:"env,optional,omitempty"`
+		UserID                  int64             `header:"Sx-User" json:"-"`
 	}
 	JobCreateResp {
 		JobId string `json:"job_id"`
@@ -212,6 +215,8 @@ type (
 		Object            string   `json:"object"`
 		Owner             string   `json:"owner"`
 		Size              int64    `json:"size"`
+		IsPublic          bool     `json:"is_public"`
+		UserId            int64    `json:"user_id"`
 		Tag               []string `json:"tag"`
 		FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 		InferenceGPUCount int      `json:"inference_gpu_count"`
@@ -461,12 +466,6 @@ service scheduler-api {
 
 	@handler FinetuneHandler
 	post /job/finetune (FinetuneReq) returns (FinetuneResp)
-
-	@handler ModelsHandler
-	get /cache/models returns ([]Cache) // cpod缓存的模型
-
-	@handler DatasetsHandler
-	get /cache/datasets returns ([]Cache) // cpod缓存的数据集
 
 	@handler ResourceModelsHandler
 	get /resource/models (ResourceModelsReq) returns ([]Resource) // oss上存储的模型
