@@ -42,17 +42,18 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 	for dir, size := range dirs {
 		datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir)
 		resp = append(resp, types.Resource{
-			ID:     storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
-			Name:   datasetName,
-			Object: "dataset",
-			Owner:  "public",
-			Tag:    []string{},
-			Size:   size,
+			ID:       storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
+			Name:     datasetName,
+			Object:   "dataset",
+			Owner:    "public",
+			IsPublic: true,
+			Tag:      []string{},
+			Size:     size,
 		})
 	}
 
 	if l.svcCtx.Config.OSS.LocalMode {
-		datasets, err := CpodCacheModel.FindActive(l.ctx, model.CacheDataset, 30)
+		datasets, err := CpodCacheModel.FindActive(l.ctx, model.CacheDataset, req.UserID, 30)
 		if err != nil {
 			return nil, err
 		}
@@ -60,12 +61,14 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 		for _, dataset := range datasets {
 			datasetName := strings.TrimPrefix(strings.TrimSuffix(dataset.DataName, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
 			resp = append(resp, types.Resource{
-				ID:     dataset.DataId,
-				Name:   datasetName,
-				Object: "dataset",
-				Owner:  "user",
-				Tag:    []string{},
-				Size:   dataset.DataSize,
+				ID:       dataset.DataId,
+				Name:     datasetName,
+				Object:   "dataset",
+				Owner:    "user",
+				IsPublic: false,
+				UserId:   dataset.UserId.Int64,
+				Tag:      []string{},
+				Size:     dataset.DataSize,
 			})
 		}
 	} else {
@@ -78,12 +81,14 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 		for dir, size := range dirs {
 			datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
 			resp = append(resp, types.Resource{
-				ID:     storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
-				Name:   datasetName,
-				Object: "dataset",
-				Owner:  strconv.FormatInt(req.UserID, 10),
-				Tag:    []string{},
-				Size:   size,
+				ID:       storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
+				Name:     datasetName,
+				Object:   "dataset",
+				Owner:    strconv.FormatInt(req.UserID, 10),
+				IsPublic: false,
+				UserId:   req.UserID,
+				Tag:      []string{},
+				Size:     size,
 			})
 		}
 

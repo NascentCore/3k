@@ -14,16 +14,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/cache/datasets",
-				Handler: DatasetsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/cache/models",
-				Handler: ModelsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
 				Path:    "/cpod/gpu_type",
 				Handler: GpuTypeHandler(serverCtx),
 			},

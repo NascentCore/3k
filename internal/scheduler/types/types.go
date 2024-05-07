@@ -46,6 +46,8 @@ type Cache struct {
 	DataSize          int64  `json:"data_size"`
 	Template          string `json:"template"`
 	DataSource        string `json:"data_source"`
+	IsPublic          bool   `json:"is_public"`
+	UserID            int64  `json:"user_id"`
 	FinetuneGPUCount  int64  `json:"finetune_gpu_count"`
 	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
@@ -220,27 +222,28 @@ type JobCallBackReq struct {
 }
 
 type JobCreateReq struct {
-	GpuNumber           int64             `json:"gpuNumber"`
-	GpuType             string            `json:"gpuType"`
-	CkptPath            string            `json:"ckptPath"`
-	CkptVol             int64             `json:"ckptVol"`
-	ModelPath           string            `json:"modelPath"`
-	ModelVol            int64             `json:"modelVol"`
-	ImagePath           string            `json:"imagePath"`
-	JobType             string            `json:"jobType"`
-	StopType            int64             `json:"stopType,optional"`
-	StopTime            int64             `json:"stopTime,optional"`
-	PretrainedModelId   string            `json:"pretrainedModelId,optional"`
-	PretrainedModelName string            `json:"pretrainedModelName,optional"`
-	PretrainedModelPath string            `json:"pretrainedModelPath,optional"`
-	DatasetId           string            `json:"datasetId,optional"`
-	DatasetName         string            `json:"datasetName,optional"`
-	DatasetPath         string            `json:"datasetPath,optional"`
-	TrainedModelName    string            `json:"trainedModelName,optional"`
-	RunCommand          string            `json:"runCommand,optional"`
-	CallbackUrl         string            `json:"callbackUrl,optional,omitempty"`
-	Env                 map[string]string `json:"env,optional,omitempty"`
-	UserID              int64             `header:"Sx-User" json:"-"`
+	GpuNumber               int64             `json:"gpuNumber"`
+	GpuType                 string            `json:"gpuType"`
+	CkptPath                string            `json:"ckptPath"`
+	CkptVol                 int64             `json:"ckptVol"`
+	ModelPath               string            `json:"modelPath"`
+	ModelVol                int64             `json:"modelVol"`
+	ImagePath               string            `json:"imagePath"`
+	JobType                 string            `json:"jobType"`
+	StopType                int64             `json:"stopType,optional"`
+	StopTime                int64             `json:"stopTime,optional"`
+	PretrainedModelId       string            `json:"pretrainedModelId,optional"`
+	PretrainedModelName     string            `json:"pretrainedModelName,optional"`
+	PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
+	PretrainedModelIsPublic bool              `json:"pretrainModelIsPublic,optional"`
+	DatasetId               string            `json:"datasetId,optional"`
+	DatasetName             string            `json:"datasetName,optional"`
+	DatasetPath             string            `json:"datasetPath,optional"`
+	TrainedModelName        string            `json:"trainedModelName,optional"`
+	RunCommand              string            `json:"runCommand,optional"`
+	CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
+	Env                     map[string]string `json:"env,optional,omitempty"`
+	UserID                  int64             `header:"Sx-User" json:"-"`
 }
 
 type JobCreateResp struct {
@@ -526,6 +529,8 @@ type Resource struct {
 	Object            string   `json:"object"`
 	Owner             string   `json:"owner"`
 	Size              int64    `json:"size"`
+	IsPublic          bool     `json:"is_public"`
+	UserId            int64    `json:"user_id"`
 	Tag               []string `json:"tag"`
 	FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 	InferenceGPUCount int      `json:"inference_gpu_count"`

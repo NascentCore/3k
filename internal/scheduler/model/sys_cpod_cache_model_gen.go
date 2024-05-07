@@ -36,19 +36,21 @@ type (
 	}
 
 	SysCpodCache struct {
-		Id                int64     `db:"id"`                  // 自增ID
-		CpodId            string    `db:"cpod_id"`             // cpod id
-		CpodVersion       string    `db:"cpod_version"`        // pod 版本
-		DataType          int64     `db:"data_type"`           // 缓存的数据类型
-		DataName          string    `db:"data_name"`           // 缓存的数据名字
-		DataId            string    `db:"data_id"`             // 缓存的数据id
-		DataSize          int64     `db:"data_size"`           // 资源体积(字节)
-		DataSource        string    `db:"data_source"`         // 缓存的数据来源
-		Template          string    `db:"template"`            // 模型推理模版
-		FinetuneGpuCount  int64     `db:"finetune_gpu_count"`  // 微调需要最少GPU
-		InferenceGpuCount int64     `db:"inference_gpu_count"` // 推理需要最少GPU
-		CreatedAt         time.Time `db:"created_at"`          // 创建时间
-		UpdatedAt         time.Time `db:"updated_at"`          // 更新时间
+		Id                int64         `db:"id"`                  // 自增ID
+		CpodId            string        `db:"cpod_id"`             // cpod id
+		CpodVersion       string        `db:"cpod_version"`        // pod 版本
+		DataType          int64         `db:"data_type"`           // 缓存的数据类型
+		DataName          string        `db:"data_name"`           // 缓存的数据名字
+		DataId            string        `db:"data_id"`             // 缓存的数据id
+		DataSize          int64         `db:"data_size"`           // 资源体积(字节)
+		DataSource        string        `db:"data_source"`         // 缓存的数据来源
+		Public            int64         `db:"public"`              // 资源是否公开 1 公共 2 用户私有
+		UserId            sql.NullInt64 `db:"user_id"`             // 用户ID
+		Template          string        `db:"template"`            // 模型推理模版
+		FinetuneGpuCount  int64         `db:"finetune_gpu_count"`  // 微调需要最少GPU
+		InferenceGpuCount int64         `db:"inference_gpu_count"` // 推理需要最少GPU
+		CreatedAt         time.Time     `db:"created_at"`          // 创建时间
+		UpdatedAt         time.Time     `db:"updated_at"`          // 更新时间
 	}
 )
 
@@ -80,14 +82,14 @@ func (m *defaultSysCpodCacheModel) FindOne(ctx context.Context, id int64) (*SysC
 }
 
 func (m *defaultSysCpodCacheModel) Insert(ctx context.Context, data *SysCpodCache) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodCacheRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.DataType, data.DataName, data.DataId, data.DataSize, data.DataSource, data.Template, data.FinetuneGpuCount, data.InferenceGpuCount)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodCacheRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.DataType, data.DataName, data.DataId, data.DataSize, data.DataSource, data.Public, data.UserId, data.Template, data.FinetuneGpuCount, data.InferenceGpuCount)
 	return ret, err
 }
 
 func (m *defaultSysCpodCacheModel) Update(ctx context.Context, data *SysCpodCache) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysCpodCacheRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.DataType, data.DataName, data.DataId, data.DataSize, data.DataSource, data.Template, data.FinetuneGpuCount, data.InferenceGpuCount, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.DataType, data.DataName, data.DataId, data.DataSize, data.DataSource, data.Public, data.UserId, data.Template, data.FinetuneGpuCount, data.InferenceGpuCount, data.Id)
 	return err
 }
 
