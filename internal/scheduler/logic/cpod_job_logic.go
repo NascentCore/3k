@@ -161,6 +161,11 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		}
 		serviceResp.Template = service.Template.String
 		serviceResp.UserId = service.UserId
+		if service.ModelPublic.Int64 == model.CachePrivate {
+			serviceResp.ModelIsPublic = false
+		} else {
+			serviceResp.ModelIsPublic = true
+		}
 		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 
 		// 新分配的部署更新cpod_id和status
