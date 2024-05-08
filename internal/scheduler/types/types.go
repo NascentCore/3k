@@ -242,6 +242,7 @@ type JobCreateReq struct {
 	DatasetId               string            `json:"datasetId,optional"`
 	DatasetName             string            `json:"datasetName,optional"`
 	DatasetPath             string            `json:"datasetPath,optional"`
+	DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
 	TrainedModelName        string            `json:"trainedModelName,optional"`
 	RunCommand              string            `json:"runCommand,optional"`
 	CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`

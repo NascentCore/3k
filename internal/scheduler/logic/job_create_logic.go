@@ -88,6 +88,8 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	jsonAll["userId"] = req.UserID
 	jsonAll["jobName"] = userJob.JobName.String
 	jsonAll["backoffLimit"] = 1
+	jsonAll["pretrainModelIsPublic"] = req.PretrainedModelIsPublic
+	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
