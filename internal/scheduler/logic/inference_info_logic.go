@@ -53,6 +53,11 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if ok {
 			inferResp.Status = statusDesc
 		}
+		if infer.ModelPublic.Int64 == model.CachePrivate {
+			inferResp.ModelIsPublic = false
+		} else {
+			inferResp.ModelIsPublic = true
+		}
 		if infer.Url != "" {
 			inferResp.Url = fmt.Sprintf("%s%s", l.svcCtx.Config.K8S.BaseUrl, infer.Url)
 		}

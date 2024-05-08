@@ -169,16 +169,17 @@ type InferenceInfoResp struct {
 }
 
 type InferenceService struct {
-	ServiceName string `json:"service_name"`
-	Status      string `json:"status"`
-	ModelName   string `json:"model_name"`
-	ModelId     string `json:"model_id"`
-	ModelSize   int64  `json:"model_size"`
-	GpuType     string `json:"gpu_type"`
-	GpuNumber   int64  `json:"gpu_number"`
-	Template    string `json:"template"`
-	CpodId      string `json:"cpod_id"`
-	UserId      int64  `json:"user_id"`
+	ServiceName   string `json:"service_name"`
+	Status        string `json:"status"`
+	ModelName     string `json:"model_name"`
+	ModelId       string `json:"model_id"`
+	ModelSize     int64  `json:"model_size"`
+	ModelIsPublic bool   `json:"model_is_public"`
+	GpuType       string `json:"gpu_type"`
+	GpuNumber     int64  `json:"gpu_number"`
+	Template      string `json:"template"`
+	CpodId        string `json:"cpod_id"`
+	UserId        int64  `json:"user_id"`
 }
 
 type InferenceStatus struct {
@@ -567,14 +568,15 @@ type SendEmailReq struct {
 }
 
 type SysInference struct {
-	ServiceName string `json:"service_name"`
-	Status      string `json:"status"`
-	ModelName   string `json:"model_name"`
-	ModelId     string `json:"model_id"`
-	ModelSize   int64  `json:"model_size"`
-	Url         string `json:"url"`
-	StartTime   string `json:"start_time"` // 推理服务启动时间
-	EndTime     string `json:"end_time"`   // 推理服务终止时间
+	ServiceName   string `json:"service_name"`
+	Status        string `json:"status"`
+	ModelName     string `json:"model_name"`
+	ModelId       string `json:"model_id"`
+	ModelSize     int64  `json:"model_size"`
+	ModelIsPublic bool   `json:"model_is_public"`
+	Url           string `json:"url"`
+	StartTime     string `json:"start_time"` // 推理服务启动时间
+	EndTime       string `json:"end_time"`   // 推理服务终止时间
 }
 
 type UploaderAccessReq struct {
