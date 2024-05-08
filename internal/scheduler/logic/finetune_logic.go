@@ -154,6 +154,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		l.svcCtx.Config.OSS.Bucket,
 		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
 	jsonAll["datasetSize"] = datasetSize
+	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
 	jsonAll["pretrainedModelName"] = req.Model
 	jsonAll["pretrainedModelIsPublic"] = req.ModelIsPublic
 	jsonAll["trainedModelName"] = req.TrainedModelName
