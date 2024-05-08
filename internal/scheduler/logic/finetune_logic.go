@@ -155,6 +155,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
 	jsonAll["datasetSize"] = datasetSize
 	jsonAll["pretrainedModelName"] = req.Model
+	jsonAll["pretrainedModelIsPublic"] = req.ModelIsPublic
 	jsonAll["trainedModelName"] = req.TrainedModelName
 	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
 	jsonAll["ckptVol"] = 0      // 改为数值型默认值

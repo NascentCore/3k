@@ -86,6 +86,7 @@ type DiskInfo struct {
 type FinetuneReq struct {
 	TrainingFile     string                 `json:"training_file"`
 	Model            string                 `json:"model"`
+	ModelIsPublic    bool                   `json:"model_is_public"`
 	GpuModel         string                 `json:"gpu_model,optional"`
 	GpuCount         int64                  `json:"gpu_count,optional"`
 	TrainedModelName string                 `json:"trainedModelName,optional"`
