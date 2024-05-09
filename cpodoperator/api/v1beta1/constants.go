@@ -16,6 +16,9 @@ const (
 	CPODStorageCopyLable                     = "cpod.cpod/storage-copy"
 
 	CPodJobSource = "sxwl"
+
+	CPodPublicNamespace     = "public"
+	CPodPublicStorageSuffix = "-public"
 )
 
 const (
@@ -24,19 +27,20 @@ const (
 
 const (
 	// cpod manager相关的配置
-	CPOD_NAMESPACE                 = "cpod"                   // CPod 所工作的NameSpace
-	PORTAL_JOBTYPE_MPI             = "MPI"                    // Portal中MPI JobType的表示
-	PORTAL_JOBTYPE_PYTORCH         = "Pytorch"                // Portal中对于PytorchJob类型的表示
-	PORTAL_JOBTYPE_GENERAL         = "GeneralJob"             // Portal中对于GeneralJob类型的表示
-	PORTAL_JOBTYPE_TENSORFLOW      = "TensorFlow"             // Portal中对于TensorFlowJob类型的表示
-	PORTAL_STOPTYPE_WITHLIMIT      = 1                        // 定时结束
-	PORTAL_STOPTYPE_VOLUNTARY_STOP = 0                        // 自行停止
-	URLPATH_FETCH_JOB              = "/api/cpod/jobs"         // 获取Job的Path
-	URLPATH_UPLOAD_CPOD_STATUS     = "/api/cpod/status"       // 上传信息的Path
-	CPOD_CREATED_PVC_ACCESS_MODE   = "ReadWriteMany"          // 创建PVC时所指定的Access Mode
-	OSS_ACCESS_KEY_ENV_NAME        = "AK"                     // oss access key在ModelUploader所在容器的环境中的名称，同时代表其在K8S Secret中所对应的Key的名称
-	OSS_ACCESS_SECRET_ENV_NAME     = "AS"                     // oss access secret在ModelUploader所在容器的环境中的名称，同时代表其在K8S Secret中所对应的Key的名称
-	K8S_SECRET_NAME_FOR_OSS        = "akas4oss"               // 记录K8S访问密码的K8S secret的名称（运行CpodManager之前必须已经创建好）
+	CPOD_NAMESPACE                 = "cpod"             // CPod 所工作的NameSpace
+	PORTAL_JOBTYPE_MPI             = "MPI"              // Portal中MPI JobType的表示
+	PORTAL_JOBTYPE_PYTORCH         = "Pytorch"          // Portal中对于PytorchJob类型的表示
+	PORTAL_JOBTYPE_GENERAL         = "GeneralJob"       // Portal中对于GeneralJob类型的表示
+	PORTAL_JOBTYPE_TENSORFLOW      = "TensorFlow"       // Portal中对于TensorFlowJob类型的表示
+	PORTAL_STOPTYPE_WITHLIMIT      = 1                  // 定时结束
+	PORTAL_STOPTYPE_VOLUNTARY_STOP = 0                  // 自行停止
+	URLPATH_FETCH_JOB              = "/api/cpod/jobs"   // 获取Job的Path
+	URLPATH_UPLOAD_CPOD_STATUS     = "/api/cpod/status" // 上传信息的Path
+	CPOD_CREATED_PVC_ACCESS_MODE   = "ReadWriteMany"    // 创建PVC时所指定的Access Mode
+	OSS_ACCESS_KEY_ENV_NAME        = "AK"               // oss access key在ModelUploader所在容器的环境中的名称，同时代表其在K8S Secret中所对应的Key的名称
+	OSS_ACCESS_SECRET_ENV_NAME     = "AS"               // oss access secret在ModelUploader所在容器的环境中的名称，同时代表其在K8S Secret中所对应的Key的名称
+	K8S_SECRET_NAME_FOR_OSS        = "akas4oss"         // 记录K8S访问密码的K8S secret的名称（运行CpodManager之前必须已经创建好）
+	K8S_CPOD_CM                    = "cpod-info"
 	TIME_FORMAT_FOR_K8S_LABEL      = "2006-01-02_15-04-05MST" // 用来作为K8S Labels的Time Format
 	// Model Uploader 相关的配置
 	MODELUPLOADER_PVC_MOUNT_PATH = "/data"                    // 在Pod中的PVC挂载路径

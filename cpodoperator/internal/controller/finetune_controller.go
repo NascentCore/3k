@@ -114,6 +114,11 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, gpuCount, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
 
+			if err := r.CopyPublicModelStorage(ctx, modelConfig.ModelStorageName, finetune); err != nil {
+				logger.Error(err, "copy public model storage error")
+				return ctrl.Result{}, err
+			}
+
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:   finetune.Namespace,
@@ -133,7 +138,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					GPURequiredPerReplica: gpuCount,
 					ModelSavePath:         "/data/save",
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),
-					PretrainModelName:     modelConfig.ModelStorageName,
+					PretrainModelName:     modelConfig.ModelStorageName + v1beta1.CPodPublicStorageSuffix,
 					PretrainModelPath:     "/data/model",
 					CKPTPath:              "/data/ckpt",
 					CKPTVolumeSize:        int32(modelConfig.Targetmodelsize),
@@ -261,4 +266,73 @@ func ConvertParamsMap(params map[string]string) []string {
 		result = append(result, param)
 	}
 	return result
+}
+
+func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicModelStorageName string, finetune *cpodv1beta1.FineTune) error {
+	modelStorage := &cpodv1.ModelStorage{}
+	modelStorageName := publicModelStorageName + v1beta1.CPodPublicStorageSuffix
+	publicModelStorage := &cpodv1.ModelStorage{}
+	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: finetune.Namespace, Name: modelStorageName}, modelStorage); err != nil {
+		if apierrors.IsNotFound(err) {
+			// if model storage not found, create a new one
+			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorageName}, publicModelStorage); err != nil {
+				if apierrors.IsNotFound(err) {
+					// 公共数据集不存在
+					return fmt.Errorf("public model storage not found")
+				}
+				return err
+			}
+			// 创建用户命名空间的公共数据集的拷贝
+			var publicDsPVC v1.PersistentVolumeClaim
+			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorage.Spec.PVC}, &publicDsPVC); err != nil {
+				return fmt.Errorf("cannot find public model storage pvc")
+			}
+			var publicDsPV v1.PersistentVolume
+			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDsPVC.Spec.VolumeName}, &publicDsPV); err != nil {
+				return fmt.Errorf("cannt find public model storage pv")
+			}
+			// 创建pv
+			pvCopy := publicDsPV.DeepCopy()
+			pvCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
+			pvCopy.ResourceVersion = ""
+			pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + finetune.Namespace
+			pvCopy.UID = ""
+			if err := r.Client.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+				return fmt.Errorf("failed to create pv")
+			}
+			// 创建pvc
+			pvcCopy := publicDsPVC.DeepCopy()
+			pvcCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
+			pvcCopy.Namespace = finetune.Namespace
+			pvcCopy.Spec.VolumeName = pvCopy.Name
+			pvcCopy.ResourceVersion = ""
+			pvcCopy.UID = ""
+			if err := r.Client.Create(ctx, pvcCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+				return fmt.Errorf("failed to create pvc")
+			}
+			// 创建modelstorage
+			modelStorageCopy := publicModelStorage.DeepCopy()
+			modelStorageCopy.Name = publicModelStorage.Name + v1beta1.CPodPublicStorageSuffix
+			modelStorageCopy.Namespace = finetune.Namespace
+			modelStorageCopy.Spec.PVC = pvcCopy.Name
+			modelStorageCopy.ResourceVersion = ""
+			modelStorageCopy.UID = ""
+			if modelStorageCopy.Labels == nil {
+				modelStorageCopy.Labels = map[string]string{}
+			}
+			modelStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
+			if err := r.Client.Create(ctx, modelStorageCopy); err != nil {
+				return err
+			}
+			// TODO: update modelstorage status
+			modelStorageCopy.Status.Phase = "done"
+			if err := r.Client.Status().Update(ctx, modelStorageCopy); err != nil {
+				return fmt.Errorf("failed to update model storage status")
+			}
+			return nil
+		}
+		return err
+	}
+
+	return nil
 }

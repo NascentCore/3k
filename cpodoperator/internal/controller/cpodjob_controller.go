@@ -79,6 +79,8 @@ type CPodJobReconciler struct {
 //+kubebuilder:rbac:groups=cpod.cpod,resources=modelstorages,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpod.cpod,resources=datasetstorages,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="core",resources=persistentvolumeclaims,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="core",resources=secrets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="core",resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="core",resources=events,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="core",resources=nodes,verbs=get;list;watch
 //+kubebuilder:rbac:groups=kubeflow.org,resources=mpijobs,verbs=get;list;watch;create;update;patch;delete
@@ -249,7 +251,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 		logger.Info("Warning: checking if 'logs' PVC exists: %v", err)
 	}
 	if !exists {
-		logger.Info("Warning:'logs' PVC does not exist in namespace %s", cpodjob.Namespace)
+		logger.Info("Warning:'logs' PVC does not exist in namespace %s", "namespace", cpodjob.Namespace)
 	} else {
 		addVolume("logs", "logs", "/logs")
 	}
@@ -724,6 +726,50 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 	uploadJobName := cpodjob.Name + "-upload"
 	completion := int32(1)
 	parallelism := int32(1)
+	// 拷贝secret
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: v1beta1.K8S_SECRET_NAME_FOR_OSS}, &corev1.Secret{}); err != nil {
+		if apierrors.IsNotFound(err) {
+			publicSecret := &corev1.Secret{}
+			if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: v1beta1.K8S_SECRET_NAME_FOR_OSS}, publicSecret); err != nil {
+				if apierrors.IsNotFound(err) {
+					return fmt.Errorf("public secret %s not found", v1beta1.K8S_SECRET_NAME_FOR_OSS)
+				}
+				return fmt.Errorf("failed to get public secret %s: %v", v1beta1.K8S_SECRET_NAME_FOR_OSS, err)
+			}
+			secret := publicSecret.DeepCopy()
+			secret.Namespace = cpodjob.Namespace
+			secret.ResourceVersion = ""
+			secret.UID = ""
+			if err := c.Client.Create(ctx, secret); err != nil {
+				return fmt.Errorf("failed to copy secret %s", v1beta1.K8S_SECRET_NAME_FOR_OSS)
+			}
+		} else {
+			return fmt.Errorf("failed to get secret %s", v1beta1.K8S_SECRET_NAME_FOR_OSS)
+		}
+	}
+
+	// 拷贝 cm
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: v1beta1.K8S_CPOD_CM}, &corev1.ConfigMap{}); err != nil {
+		if apierrors.IsNotFound(err) {
+			publicCm := &corev1.ConfigMap{}
+			if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: v1beta1.K8S_CPOD_CM}, publicCm); err != nil {
+				if apierrors.IsNotFound(err) {
+					return fmt.Errorf("public configmap %s not found", v1beta1.K8S_CPOD_CM)
+				}
+				return fmt.Errorf("failed to get public configmap %s: %v", v1beta1.K8S_CPOD_CM, err)
+			}
+			cm := publicCm.DeepCopy()
+			cm.Namespace = cpodjob.Namespace
+			cm.ResourceVersion = ""
+			cm.UID = ""
+			if err := c.Client.Create(ctx, cm); err != nil {
+				return fmt.Errorf("failed to copy configmap %s", v1beta1.K8S_CPOD_CM)
+			}
+		} else {
+			return fmt.Errorf("failed to get configmap %s", v1beta1.K8S_CPOD_CM)
+		}
+	}
+
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: uploadJobName}, uploadJob); err != nil {
 		if apierrors.IsNotFound(err) {
 			err := c.Client.Create(ctx, &batchv1.Job{
