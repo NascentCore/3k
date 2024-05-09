@@ -74,7 +74,7 @@ const Welcome: React.FC = () => {
   }));
 
   const gpuProdValue = Form.useWatch('gpuType', form);
-  console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
+  // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -87,6 +87,11 @@ const Welcome: React.FC = () => {
           ckptVol: Number(values.ckptVol),
           gpuNumber: Number(values.gpuNumber),
           modelVol: Number(values.modelVol),
+          // pretrainedModelId datasetId
+          model_is_public: resourceModelsList.find((x: any) => x.value === values.pretrainedModelId)
+            ?.is_public,
+          dataset_is_public: resourceDatasetsList.find((x: any) => x.value === values.datasetId)
+            ?.is_public,
         },
       }).then(() => {
         message.success(
