@@ -41,7 +41,14 @@ const Content = ({ record, onCancel }) => {
       setFormValues(values);
       console.log('Form values:', values);
       return apiFinetunes({
-        data: { ...values, gpu_count: Number(values.gpu_count) },
+        data: {
+          ...values,
+          gpu_count: Number(values.gpu_count),
+          model_is_public: record.is_public,
+          dataset_is_public: resourceDatasetsOption.find(
+            (x: any) => x.value === values.training_file,
+          )?.is_public,
+        },
       }).then((res) => {
         message.success(
           intl.formatMessage({
