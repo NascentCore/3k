@@ -28,8 +28,12 @@ import (
 )
 
 const (
-	InferenceJob = "inferencejob"
-	TrainningJob = "trainningjob"
+	InferenceJob     = "inferencejob"
+	TrainningJob     = "trainningjob"
+	JupyterLabJob    = "jupyterlab"
+	LlamaFactoryJob  = "llamafactory"
+	JupyterLabPort   = 8888
+	LlamaFactoryPort = 7860
 )
 
 type jobBuffer struct {
@@ -1018,17 +1022,17 @@ func (s *SyncJob) processJupyterLabLlamaFactoryJobs(ctx context.Context, jobtype
 				// 创建新的任务
 				ss, err := s.createStatefulSet(ctx, jobtype, string(UserID), job)
 				if err != nil {
-					if jobtype == "jupyterlab" {
+					if jobtype == JupyterLabJob {
 						s.addCreateFailedJupyterLabJob(job)
-					} else if jobtype == "llamafactory" {
+					} else if jobtype == LlamaFactoryJob {
 						s.addCreateFailedLlamaFactoryJob(job)
 					}
 					s.logger.Error(err, "failed to create %s StatefulSet", jobtype)
 					return err
 				} else {
-					if jobtype == "jupyterlab" {
+					if jobtype == JupyterLabJob {
 						s.deleteCreateFailedJupyterLabJob(job.JobName)
-					} else if jobtype == "llamafactory" {
+					} else if jobtype == LlamaFactoryJob {
 						s.deleteCreateFailedLlamaFactoryJob(job.JobName)
 					}
 					s.logger.Info("%s StatefulSet created", jobtype, "statefulset", ss.Name)
@@ -1084,7 +1088,7 @@ func (s *SyncJob) createStatefulSet(ctx context.Context, jobtype string, namespa
 	var mountPath string
 	var command []string
 	switch jobtype {
-	case "jupyterlab":
+	case JupyterLabJob:
 		mountPath = "/workspace"
 		image = "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5"
 		command = []string{
@@ -1094,7 +1098,7 @@ func (s *SyncJob) createStatefulSet(ctx context.Context, jobtype string, namespa
 			"--allow-root",
 			"--ip=0.0.0.0",
 		}
-	case "llamafactory":
+	case LlamaFactoryJob:
 		mountPath = "/workspace/data"
 		image = "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v3"
 		command = []string{
@@ -1232,10 +1236,10 @@ func (s *SyncJob) createStatefulSet(ctx context.Context, jobtype string, namespa
 func (s *SyncJob) createService(ctx context.Context, jobtype string, namespace string, job sxwl.PortalJupyterLabLlamaFactoryJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
 	var port int32
 	switch jobtype {
-	case "jupyterlab":
-		port = 8888
-	case "llamafactory":
-		port = 7860
+	case JupyterLabJob:
+		port = JupyterLabPort
+	case LlamaFactoryJob:
+		port = LlamaFactoryPort
 	}
 	svc := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1266,11 +1270,14 @@ func (s *SyncJob) createService(ctx context.Context, jobtype string, namespace s
 
 func (s *SyncJob) createIngress(ctx context.Context, jobtype string, namespace string, job sxwl.PortalJupyterLabLlamaFactoryJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
 	var port int32
+	var rewriteTarget string
 	switch jobtype {
-	case "jupyterlab":
-		port = 8888
-	case "llamafactory":
-		port = 7860
+	case JupyterLabJob:
+		port = JupyterLabPort
+		rewriteTarget = "/" + jobtype + "/" + job.JobName + "/$2"
+	case LlamaFactoryJob:
+		port = LlamaFactoryPort
+		rewriteTarget = "/$2"
 	}
 	pathType := networkingv1.PathTypeImplementationSpecific
 	ing := &networkingv1.Ingress{
@@ -1279,7 +1286,7 @@ func (s *SyncJob) createIngress(ctx context.Context, jobtype string, namespace s
 			Namespace:       namespace,
 			OwnerReferences: []metav1.OwnerReference{ownerRef},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/" + jobtype + "/" + job.JobName + "/$2",
+				"nginx.ingress.kubernetes.io/rewrite-target": rewriteTarget,
 			},
 		},
 		Spec: networkingv1.IngressSpec{
