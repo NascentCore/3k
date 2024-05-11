@@ -1024,6 +1024,9 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 
 		// 2. 遍历并同步JupyterLab任务
 		for _, job := range portalJobs {
+			if strconv.Itoa(int(job.UserID)) != string(UserID) {
+				continue
+			}
 			found := false
 			for _, currentJob := range currentJupyterLabJobs.Items {
 				if currentJob.Name == job.JobName {
