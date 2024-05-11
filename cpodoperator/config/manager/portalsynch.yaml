@@ -120,7 +120,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-amin
+  name: cluster-admin
 subjects:
 - kind: ServiceAccount
   name: sa-portalsynch
