@@ -29,20 +29,11 @@ Named after 3 major performance metrics of the system:
 tools/super_linter.sh <file-or-directory-to-be-linted>
 ```
 
-## 开源奖励计划
+## 使用手册
 
-算想未来每年提供一定数量的资金，支持首次进入开源社区的学生、工程师。
-
-### 2024 年
-
-20,000 元人民币用于支持开源社区参与算想未来三千平台的各项研发工作；包括：
-* [三千平台](https://github.com/NascentCore/3k)
-* [CPodOperator](https://github.com/NascentCore/cpodoperator)
-* [blog.sxwl.ai](https://github.com/NascentCore/blog.sxwl.ai)
-* [docs.sxwl.ai](https://github.com/NascentCore/docs.sxwl.ai)
-
-所有参与以上项目工作的社区成员都可以获得每小时 100 元人民币的资助，根据参与以上项目的实际耗时。
-请在开始工作之前与 [@yzhao-2023](https://github.com/yzhao-2023) 联系以获得指导。
+* [算想云](https://tricorder.feishu.cn/wiki/TEnFwKhJIi5mzYkcVxacToxanYb)：面向个人大模型开发者、中小大模型应用企业的无服务器（Serverless）大模型开发、训练、微调、推理云服务
+* [算力源](https://tricorder.feishu.cn/wiki/RAOEwRJ3ei4RMpkfGGCcNjCmn0f)：面向 GPU 集群产权方，通过算想云出租自有 GPU 集群的企业
+* [算想三千](https://tricorder.feishu.cn/wiki/JWutwSSKyiAVpOkH7dMcAmNEnRf)：面向企业大模型团队，私有化部署的大模型开发软件平台
 
 ## 安装 SLO
 
