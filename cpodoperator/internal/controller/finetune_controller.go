@@ -302,7 +302,7 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			}
 			// 创建pvc
 			pvcCopy := publicDsPVC.DeepCopy()
-			pvcCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
+			pvcCopy.Name = pvCopy.Name + "-" + finetune.Namespace
 			pvcCopy.Namespace = finetune.Namespace
 			pvcCopy.Spec.VolumeName = pvCopy.Name
 			pvcCopy.ResourceVersion = ""
