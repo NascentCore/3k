@@ -12,7 +12,9 @@ directories, and other details.
 2. At the moment PortalSync is thought to be live together with CPodOperator for easier development
    To avoid dependences over go mode package
 3. Then CPodOperator was merged into 3k repo for mono repo management
-   That results in awkward coupling between CPodOperator and PortalSync
+   That results in awkward coupling between CPodOperator and PortalSync, and the independent nature
+   of PortalSync and CPodOperator was compromised by the fact that PortalSync is a sub-package
+   of CPodOperator
 
 TODO: Use 1.18 multi-module workspace to refactor code file layout
 
