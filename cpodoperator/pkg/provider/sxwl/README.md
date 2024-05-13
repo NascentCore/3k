@@ -1,3 +1,3 @@
 # SXWL
 
-Fetch job assignments from Cloud
+Abstract API to communicate with `Cloud`, including fetching assigned jobs, and reporting CPod status.
