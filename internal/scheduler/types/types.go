@@ -238,11 +238,11 @@ type JobCreateReq struct {
 	PretrainedModelId       string            `json:"pretrainedModelId,optional"`
 	PretrainedModelName     string            `json:"pretrainedModelName,optional"`
 	PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
-	PretrainedModelIsPublic bool              `json:"pretrainModelIsPublic,optional"`
+	PretrainedModelIsPublic bool              `json:"model_is_public,optional"`
 	DatasetId               string            `json:"datasetId,optional"`
 	DatasetName             string            `json:"datasetName,optional"`
 	DatasetPath             string            `json:"datasetPath,optional"`
-	DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
+	DatasetIsPublic         bool              `json:"dataset_is_public,optional"`
 	TrainedModelName        string            `json:"trainedModelName,optional"`
 	RunCommand              string            `json:"runCommand,optional"`
 	CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
