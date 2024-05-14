@@ -88,9 +88,9 @@ const Welcome: React.FC = () => {
           gpuNumber: Number(values.gpuNumber),
           modelVol: Number(values.modelVol),
           // pretrainedModelId datasetId
-          model_is_public: resourceModelsList.find((x: any) => x.value === values.pretrainedModelId)
+          modelIsPublic: resourceModelsList.find((x: any) => x.value === values.pretrainedModelId)
             ?.is_public,
-          dataset_is_public: resourceDatasetsList.find((x: any) => x.value === values.datasetId)
+          datasetIsPublic: resourceDatasetsList.find((x: any) => x.value === values.datasetId)
             ?.is_public,
         },
       }).then(() => {
