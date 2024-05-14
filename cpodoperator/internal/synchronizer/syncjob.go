@@ -386,8 +386,8 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						continue
 					}
 				}
-				if job.DatasetId == "" {
-					datasetID = datasetID + "-public"
+				if job.DatasetIsPublic {
+					datasetID = datasetID + v1beta1.CPodPublicStorageSuffix
 				}
 				var gpuPerWorker int32 = 8
 				var replicas int32 = 1
