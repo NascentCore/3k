@@ -43,4 +43,9 @@ type Config struct {
 	Rsa   struct {
 		PrivateKey string
 	} `json:"-"`
+	Billing struct {
+		InitBalance float64
+		CronBilling bool
+		CronBalance bool
+	} `json:"Billing"`
 }

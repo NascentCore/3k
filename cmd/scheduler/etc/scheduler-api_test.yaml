@@ -38,3 +38,8 @@ FinetuneModel:
 
 Inference:
   UrlFormat: "http://%s-web-ui-ingress.llm.nascentcore.net:30005/"
+
+Billing:
+  InitBalance: 100.00
+  CronBilling: Yes
+  CronBalance: Yes

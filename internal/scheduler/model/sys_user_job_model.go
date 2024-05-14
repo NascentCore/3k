@@ -9,6 +9,11 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
+const (
+	JobValid   = 0
+	JobDeleted = 1
+)
+
 var _ SysUserJobModel = (*customSysUserJobModel)(nil)
 
 type (
