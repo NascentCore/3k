@@ -1,12 +1,9 @@
 package job
 
-import "github.com/google/uuid"
+import (
+	"sxwl/3k/pkg/uuid"
+)
 
 func NewJobName() (string, error) {
-	newUUID, err := uuid.NewRandom()
-	if err != nil {
-		return "", err
-	}
-
-	return "ai" + newUUID.String(), nil
+	return uuid.UUIDWithPrefix("ai")
 }

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -36,6 +37,7 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 	UserModel := l.svcCtx.UserModel
 	VerifyCodeModel := l.svcCtx.VerifyCodeModel
+	UserBalanceModel := l.svcCtx.UserBalanceModel
 
 	// check verify code is correct
 	code, err := VerifyCodeModel.FindOneByVerifyKey(l.ctx, req.Email)
@@ -94,6 +96,7 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 
 		newUUID, err := uuid.NewRandom()
 		if err != nil {
+			l.Errorf("newUUID username=%s err=%s", req.Username, err)
 			return fmt.Errorf("注册失败 err=%s", err)
 		}
 
@@ -103,6 +106,27 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 	}
 	_, err = UserModel.Insert(l.ctx, user)
 	if err != nil {
+		l.Errorf("insert user username=%s err=%s", req.Username, err)
+		return fmt.Errorf("注册失败 err=%s", err)
+	}
+
+	// 余额初始化
+	user, err = UserModel.FindOneByUsername(l.ctx, sql.NullString{
+		String: req.Username,
+		Valid:  true,
+	})
+	if err != nil {
+		l.Errorf("find user by username=%s err=%s", req.Username, err)
+		return fmt.Errorf("注册失败 err=%s", err)
+	}
+
+	balance := &model.UserBalance{
+		UserId:  user.UserId,
+		Balance: l.svcCtx.Config.Billing.InitBalance,
+	}
+	_, err = UserBalanceModel.Insert(l.ctx, balance)
+	if err != nil {
+		l.Errorf("insert balance username=%s err=%s", req.Username, err)
 		return fmt.Errorf("注册失败 err=%s", err)
 	}
 

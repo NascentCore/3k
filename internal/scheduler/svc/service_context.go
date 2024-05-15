@@ -12,17 +12,21 @@ import (
 )
 
 type ServiceContext struct {
-	Config          config.Config
-	CpodMainModel   model.SysCpodMainModel
-	UserJobModel    model.SysUserJobModel
-	FileURLModel    model.SysFileurlModel
-	CpodCacheModel  model.SysCpodCacheModel
-	InferenceModel  model.SysInferenceModel
-	QuotaModel      model.SysQuotaModel
-	UserModel       model.SysUserModel
-	VerifyCodeModel model.VerifyCodeModel
-	JupyterlabModel model.SysJupyterlabModel
-	EmailSender     email.Emailer
+	Config           config.Config
+	CpodMainModel    model.SysCpodMainModel
+	UserJobModel     model.SysUserJobModel
+	FileURLModel     model.SysFileurlModel
+	CpodCacheModel   model.SysCpodCacheModel
+	InferenceModel   model.SysInferenceModel
+	QuotaModel       model.SysQuotaModel
+	UserModel        model.SysUserModel
+	VerifyCodeModel  model.VerifyCodeModel
+	PriceModel       model.SysPriceModel
+	JupyterlabModel  model.SysJupyterlabModel
+	UserBalanceModel model.UserBalanceModel
+	UserBillingModel model.UserBillingModel
+	EmailSender      email.Emailer
+	DB               sqlx.SqlConn
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -49,16 +53,20 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	return &ServiceContext{
-		Config:          c,
-		CpodMainModel:   model.NewSysCpodMainModel(conn),
-		UserJobModel:    model.NewSysUserJobModel(conn),
-		FileURLModel:    model.NewSysFileurlModel(conn),
-		CpodCacheModel:  model.NewSysCpodCacheModel(conn),
-		InferenceModel:  model.NewSysInferenceModel(conn),
-		QuotaModel:      model.NewSysQuotaModel(conn),
-		UserModel:       model.NewSysUserModel(conn),
-		VerifyCodeModel: model.NewVerifyCodeModel(conn),
-		JupyterlabModel: model.NewSysJupyterlabModel(conn),
-		EmailSender:     emailSender,
+		Config:           c,
+		CpodMainModel:    model.NewSysCpodMainModel(conn),
+		UserJobModel:     model.NewSysUserJobModel(conn),
+		FileURLModel:     model.NewSysFileurlModel(conn),
+		CpodCacheModel:   model.NewSysCpodCacheModel(conn),
+		InferenceModel:   model.NewSysInferenceModel(conn),
+		QuotaModel:       model.NewSysQuotaModel(conn),
+		UserModel:        model.NewSysUserModel(conn),
+		VerifyCodeModel:  model.NewVerifyCodeModel(conn),
+		PriceModel:       model.NewSysPriceModel(conn),
+		JupyterlabModel:  model.NewSysJupyterlabModel(conn),
+		UserBalanceModel: model.NewUserBalanceModel(conn),
+		UserBillingModel: model.NewUserBillingModel(conn),
+		EmailSender:      emailSender,
+		DB:               conn,
 	}
 }

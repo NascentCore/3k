@@ -36,3 +36,8 @@ FinetuneModel:
 
 Inference:
   UrlFormat: "http://%s-web-ui-ingress.llm.sxwl.ai:30005/"
+
+Billing:
+  InitBalance: 100.00
+  CronBilling: Yes
+  CronBalance: Yes
