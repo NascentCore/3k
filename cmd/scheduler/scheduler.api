@@ -655,6 +655,58 @@ type (
 	}
 )
 
+// 终止任务
+type (
+	JobsDelReq {
+		UserID int64 `header:"Sx-User"`
+		ToUser int64 `json:"user_id"`
+	}
+	JobsDelResp {
+		Message string `json:"message"`
+	}
+)
+
+// 计费
+type (
+	BalanceAddReq {
+		UserID int64   `header:"Sx-User"`
+		ToUser int64   `json:"user_id"`
+		Amount float64 `json:"amount"`
+	}
+	BalanceAddResp {
+		Message string `json:"message"`
+	}
+	BalanceGetReq {
+		UserID int64 `header:"Sx-User"`
+		ToUser int64 `form:"user_id"`
+	}
+	BalanceGetResp {
+		UserID  int64   `json:"user_id"`
+		Balance float64 `json:"balance"`
+	}
+	UserBilling {
+		BillingId     string  `json:"billing_id"` // 账单ID
+		UserId        int64   `json:"user_id"` // 用户ID
+		Amount        float64 `json:"amount"` // 消费金额
+		BillingStatus int64   `json:"billing_status"` // 账单状态（0 未支付、1 已支付、2 欠费） TODO 返回字符串
+		JobId         string  `json:"job_id"` // 关联任务id
+		JobType       string  `json:"job_type"` // 关联任务类型（例如：finetune、inference）
+		BillingTime   string  `json:"billing_time"` // 账单生成时间
+		PaymentTime   string  `json:"payment_time"` // 支付时间
+		Description   string  `json:"description"` // 账单描述（可选，详细说明此次费用的具体内容）
+	}
+	BillingListReq {
+		UserID    int64  `header:"Sx-User"`
+		ToUser    int64  `form:"user_id,optional"`
+		StartTime string `form:"start_time,optional"`
+		EndTime   string `form:"end_time,optional"`
+		JobID     string `form:"job_id,optional"`
+	}
+	BillingListResp {
+		Data []UserBilling `json:"data"`
+	}
+)
+
 // python接口参数定义
 type (
 	BuildImageReq {
@@ -719,8 +771,24 @@ service scheduler-api {
 	@handler jupyterlabImageDel
 	delete /job/jupyter/image (JupyterlabImageDelReq) returns (JupyterlabImageDelResp)
 
+	@doc "终止用户所有任务"
+	@handler jobsDel
+	delete /job/jobs (JobsDelReq) returns (JobsDelResp)
+
 	@doc "基础镜像列表"
 	@handler baseImageList
 	get /resource/baseimages (BaseImageListReq) returns (BaseImageListResp)
+
+	@doc "余额充值"
+	@handler BalanceAdd
+	post /pay/balance (BalanceAddReq) returns (BalanceAddResp)
+
+	@doc "余额查询"
+	@handler BalanceGet
+	get /pay/balance (BalanceGetReq) returns (BalanceGetResp)
+
+	@doc "账单记录"
+	@handler BillingList
+	get /pay/billing (BillingListReq) returns (BillingListResp)
 }
 

@@ -29,7 +29,19 @@ func NewJupyterlabCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq) (resp *types.JupyterlabCreateResp, err error) {
+	BalanceModel := l.svcCtx.UserBalanceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
+
+	// check balance
+	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
+		"user_id": req.UserID,
+	}))
+	if err != nil {
+		return nil, err
+	}
+	if balance.Balance < 0.0 {
+		return nil, fmt.Errorf("余额不足")
+	}
 
 	// check quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GPUProduct, req.GPUCount)
@@ -65,11 +77,16 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		return nil, err
 	}
 	jobName := "jupyter-" + newUUID.String()
+	var billingStatus int64 = model.BillingStatusComplete
+	if req.GPUProduct != "" {
+		billingStatus = model.BillingStatusContinue
+	}
 
 	jupyterInstance := model.SysJupyterlab{
 		JobName:        jobName,
 		UserId:         req.UserId,
 		Status:         model.JupyterStatusWaitDeploy,
+		BillingStatus:  billingStatus,
 		InstanceName:   req.InstanceName,
 		GpuCount:       req.GPUCount,
 		GpuProd:        req.GPUProduct,

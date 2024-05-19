@@ -5,12 +5,44 @@ type AuthReq struct {
 	UserID int64 `header:"Sx-User"`
 }
 
+type BalanceAddReq struct {
+	UserID int64   `header:"Sx-User"`
+	ToUser int64   `json:"user_id"`
+	Amount float64 `json:"amount"`
+}
+
+type BalanceAddResp struct {
+	Message string `json:"message"`
+}
+
+type BalanceGetReq struct {
+	UserID int64 `header:"Sx-User"`
+	ToUser int64 `form:"user_id"`
+}
+
+type BalanceGetResp struct {
+	UserID  int64   `json:"user_id"`
+	Balance float64 `json:"balance"`
+}
+
 type BaseImageListReq struct {
 	UserID int64 `header:"Sx-User"`
 }
 
 type BaseImageListResp struct {
 	Data []string `json:"data"`
+}
+
+type BillingListReq struct {
+	UserID    int64  `header:"Sx-User"`
+	ToUser    int64  `form:"user_id,optional"`
+	StartTime string `form:"start_time,optional"`
+	EndTime   string `form:"end_time,optional"`
+	JobID     string `form:"job_id,optional"`
+}
+
+type BillingListResp struct {
+	Data []UserBilling `json:"data"`
 }
 
 type BuildImageReq struct {
@@ -286,6 +318,15 @@ type JobStopReq struct {
 }
 
 type JobStopResp struct {
+	Message string `json:"message"`
+}
+
+type JobsDelReq struct {
+	UserID int64 `header:"Sx-User"`
+	ToUser int64 `json:"user_id"`
+}
+
+type JobsDelResp struct {
 	Message string `json:"message"`
 }
 
@@ -595,6 +636,18 @@ type UploaderAccessResp struct {
 type User struct {
 	UserId   int64  `json:"user_id"`
 	UserName string `json:"user_name"`
+}
+
+type UserBilling struct {
+	BillingId     string  `json:"billing_id"`     // 账单ID
+	UserId        int64   `json:"user_id"`        // 用户ID
+	Amount        float64 `json:"amount"`         // 消费金额
+	BillingStatus int64   `json:"billing_status"` // 账单状态（0 未支付、1 已支付、2 欠费） TODO 返回字符串
+	JobId         string  `json:"job_id"`         // 关联任务id
+	JobType       string  `json:"job_type"`       // 关联任务类型（例如：finetune、inference）
+	BillingTime   string  `json:"billing_time"`   // 账单生成时间
+	PaymentTime   string  `json:"payment_time"`   // 支付时间
+	Description   string  `json:"description"`    // 账单描述（可选，详细说明此次费用的具体内容）
 }
 
 type UserInfo struct {

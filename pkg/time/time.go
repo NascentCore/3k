@@ -4,9 +4,7 @@ import (
 	"time"
 )
 
-func GetNearestMinute() time.Time {
-	now := time.Now()
-	// 将当前时间向下舍入到最近的整分钟
-	nearestMinute := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), 0, 0, now.Location())
+func GetNearestMinute(t time.Time) time.Time {
+	nearestMinute := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, t.Location())
 	return nearestMinute
 }
