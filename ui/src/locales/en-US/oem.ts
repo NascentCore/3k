@@ -3,9 +3,9 @@
  */
 
 export default {
-  'app.title': 'NascentCore Cloud',
-  'app.logo': 'https://sxwl.ai/img/favicon.ico',
-  'pages.login.title': 'NascentCore Cloud',
-  'pages.login.servicePhone': 'Service phone：15910236560',
-  'pages.login.serviceEmail': 'Service email：help@sxwl.ai',
+  'app.title': 'Suzhou Institute of Intelligent Computing Technology',
+  'app.logo': '/icons/logo.jpg',
+  'pages.login.title': ' ',
+  'pages.login.servicePhone': ' ',
+  'pages.login.serviceEmail': ' ',
 };
