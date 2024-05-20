@@ -38,8 +38,20 @@ func NewFinetuneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Finetune
 }
 
 func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneResp, err error) {
+	BalanceModel := l.svcCtx.UserBalanceModel
 	UserJobModel := l.svcCtx.UserJobModel
 	CpodMainModel := l.svcCtx.CpodMainModel
+
+	// check balance
+	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
+		"user_id": req.UserID,
+	}))
+	if err != nil {
+		return nil, err
+	}
+	if balance.Balance < 0.0 {
+		return nil, fmt.Errorf("余额不足")
+	}
 
 	// check model is in list
 	_, ok := l.svcCtx.Config.FinetuneModel[req.Model]
@@ -114,6 +126,8 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	// time
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
+	// billing_status
+	userJob.BillingStatus = model.BillingStatusContinue
 
 	// Hyperparameters
 	epochs, ok := req.Hyperparameters[config.ParamEpochs]

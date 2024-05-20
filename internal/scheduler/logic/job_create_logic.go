@@ -10,6 +10,7 @@ import (
 	"sxwl/3k/pkg/orm"
 	"time"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jinzhu/copier"
 
 	"github.com/google/uuid"
@@ -35,7 +36,19 @@ func NewJobCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JobCrea
 }
 
 func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCreateResp, err error) {
+	BalanceModel := l.svcCtx.UserBalanceModel
 	UserJobModel := l.svcCtx.UserJobModel
+
+	// check balance
+	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
+		"user_id": req.UserID,
+	}))
+	if err != nil {
+		return nil, err
+	}
+	if balance.Balance < 0.0 {
+		return nil, fmt.Errorf("余额不足")
+	}
 
 	// check quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GpuType, req.GpuNumber)
@@ -71,6 +84,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	}
 	userJob.CreateTime = orm.NullTime(time.Now())
 	userJob.UpdateTime = orm.NullTime(time.Now())
+	userJob.BillingStatus = model.BillingStatusContinue
 
 	jsonAll := make(map[string]any)
 	bytes, err := json.Marshal(req)

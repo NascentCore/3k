@@ -149,6 +149,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: sendEmailHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodDelete,
+				Path:    "/job/jobs",
+				Handler: jobsDelHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/job/jupyter/image",
 				Handler: jupyterlabImageCreateHandler(serverCtx),
@@ -182,6 +187,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodDelete,
 				Path:    "/job/jupyterlab",
 				Handler: jupyterlabDelHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/pay/balance",
+				Handler: BalanceAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/pay/balance",
+				Handler: BalanceGetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/pay/billing",
+				Handler: BillingListHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,

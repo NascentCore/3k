@@ -36,25 +36,26 @@ type (
 	}
 
 	SysInference struct {
-		Id           int64          `db:"id"`            // 自增ID
-		ServiceName  string         `db:"service_name"`  // 推理服务名
-		UserId       int64          `db:"user_id"`       // 用户ID
-		CpodId       string         `db:"cpod_id"`       // cpod id
-		Status       int64          `db:"status"`        // 状态：0等待部署、1部署中、2部署完成、3终止
-		ObtainStatus int64          `db:"obtain_status"` // 状态：1不需要下发、0需要下发
-		GpuNumber    sql.NullInt64  `db:"gpu_number"`    // GPU数量
-		GpuType      sql.NullString `db:"gpu_type"`      // GPU型号
-		ModelName    sql.NullString `db:"model_name"`    // 模型名称
-		ModelId      sql.NullString `db:"model_id"`      // modelstorage id
-		ModelSize    sql.NullInt64  `db:"model_size"`    // 模型体积(字节)
-		ModelPublic  sql.NullInt64  `db:"model_public"`  // 模型类型 1 公共 2 用户私有
-		Template     sql.NullString `db:"template"`      // 推理模板
-		Url          string         `db:"url"`           // 服务的URL
-		Metadata     sql.NullString `db:"metadata"`      // 扩展字段
-		StartTime    sql.NullTime   `db:"start_time"`    // 推理服务启动时间
-		EndTime      sql.NullTime   `db:"end_time"`      // 推理服务终止时间
-		CreatedAt    time.Time      `db:"created_at"`    // 创建时间
-		UpdatedAt    time.Time      `db:"updated_at"`    // 更新时间
+		Id            int64          `db:"id"`             // 自增ID
+		ServiceName   string         `db:"service_name"`   // 推理服务名
+		UserId        int64          `db:"user_id"`        // 用户ID
+		CpodId        string         `db:"cpod_id"`        // cpod id
+		Status        int64          `db:"status"`         // 状态：0等待部署、1部署中、2部署完成、3终止
+		ObtainStatus  int64          `db:"obtain_status"`  // 状态：1不需要下发、0需要下发
+		BillingStatus int64          `db:"billing_status"` // 账单状态（0 未结清、1 已结清）
+		GpuNumber     sql.NullInt64  `db:"gpu_number"`     // GPU数量
+		GpuType       sql.NullString `db:"gpu_type"`       // GPU型号
+		ModelName     sql.NullString `db:"model_name"`     // 模型名称
+		ModelId       sql.NullString `db:"model_id"`       // modelstorage id
+		ModelSize     sql.NullInt64  `db:"model_size"`     // 模型体积(字节)
+		ModelPublic   sql.NullInt64  `db:"model_public"`   // 模型类型 1 公共 2 用户私有
+		Template      sql.NullString `db:"template"`       // 推理模板
+		Url           string         `db:"url"`            // 服务的URL
+		Metadata      sql.NullString `db:"metadata"`       // 扩展字段
+		StartTime     sql.NullTime   `db:"start_time"`     // 推理服务启动时间
+		EndTime       sql.NullTime   `db:"end_time"`       // 推理服务终止时间
+		CreatedAt     time.Time      `db:"created_at"`     // 创建时间
+		UpdatedAt     time.Time      `db:"updated_at"`     // 更新时间
 	}
 )
 
@@ -86,14 +87,14 @@ func (m *defaultSysInferenceModel) FindOne(ctx context.Context, id int64) (*SysI
 }
 
 func (m *defaultSysInferenceModel) Insert(ctx context.Context, data *SysInference) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysInferenceRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysInferenceRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime)
 	return ret, err
 }
 
 func (m *defaultSysInferenceModel) Update(ctx context.Context, data *SysInference) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysInferenceRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime, data.Id)
 	return err
 }
 

@@ -3,16 +3,9 @@ package model
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-)
-
-const (
-	BillingStatusUnpaid = 0 // 未支付
-	BillingStatusPaid   = 1 // 已支付
-	BillingStatusDebt   = 2 // 欠费
 )
 
 const (
@@ -34,7 +27,6 @@ type (
 		UpdateBuilder() squirrel.UpdateBuilder
 		InsertBuilder() squirrel.InsertBuilder
 
-		DeleteSoft(ctx context.Context, data *UserBilling) error
 		FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*UserBilling, error)
 		FindOneById(ctx context.Context, data *UserBilling) (*UserBilling, error)
 		FindAll(ctx context.Context, orderBy string) ([]*UserBilling, error)
@@ -70,28 +62,9 @@ func (m *defaultUserBillingModel) InsertBuilder() squirrel.InsertBuilder {
 	return squirrel.Insert(m.table)
 }
 
-// DeleteSoft set deleted_at with CURRENT_TIMESTAMP
-func (m *defaultUserBillingModel) DeleteSoft(ctx context.Context, data *UserBilling) error {
-	builder := squirrel.Update(m.table)
-	builder = builder.Set("deleted_at", sql.NullTime{
-		Time:  time.Now(),
-		Valid: true,
-	})
-	builder = builder.Where("id = ?", data.Id)
-	query, args, err := builder.ToSql()
-	if err != nil {
-		return err
-	}
-
-	if _, err := m.conn.ExecCtx(ctx, query, args...); err != nil {
-		return err
-	}
-	return nil
-}
-
 // FindOneByQuery if table has deleted_at use FindOneByQuery instead of FindOne
 func (m *defaultUserBillingModel) FindOneByQuery(ctx context.Context, selectBuilder squirrel.SelectBuilder) (*UserBilling, error) {
-	selectBuilder = selectBuilder.Where("deleted_at is null").Limit(1)
+	selectBuilder = selectBuilder.Limit(1)
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
@@ -121,7 +94,7 @@ func (m *defaultUserBillingModel) FindAll(ctx context.Context, orderBy string) (
 		selectBuilder = selectBuilder.OrderBy(orderBy)
 	}
 
-	query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +111,7 @@ func (m *defaultUserBillingModel) FindAll(ctx context.Context, orderBy string) (
 
 // Find returns all valid rows matched in the table
 func (m *defaultUserBillingModel) Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*UserBilling, error) {
-	query, args, err := selectBuilder.Where("deleted_at is null").ToSql()
+	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +139,7 @@ func (m *defaultUserBillingModel) FindPageListByPage(ctx context.Context, select
 	}
 	offset := (page - 1) * pageSize
 
-	query, args, err := selectBuilder.Where("deleted_at is null").Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
+	query, args, err := selectBuilder.Offset(uint64(offset)).Limit(uint64(pageSize)).ToSql()
 	if err != nil {
 		return nil, err
 	}

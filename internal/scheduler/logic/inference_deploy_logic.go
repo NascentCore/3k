@@ -34,8 +34,20 @@ func NewInferenceDeployLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 }
 
 func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (resp *types.InferenceDeployResp, err error) {
+	BalanceModel := l.svcCtx.UserBalanceModel
 	InferenceModel := l.svcCtx.InferenceModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
+
+	// check balance
+	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
+		"user_id": req.UserID,
+	}))
+	if err != nil {
+		return nil, err
+	}
+	if balance.Balance < 0.0 {
+		return nil, fmt.Errorf("余额不足")
+	}
 
 	// check gpu quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GpuModel, req.GpuCount)
@@ -106,15 +118,16 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	}
 
 	infer := &model.SysInference{
-		ServiceName: serviceName,
-		UserId:      req.UserID,
-		ModelName:   orm.NullString(req.ModelName),
-		ModelId:     orm.NullString(modelId),
-		ModelSize:   orm.NullInt64(modelSize),
-		ModelPublic: orm.NullInt64(modelPublic),
-		GpuType:     orm.NullString(req.GpuModel),
-		GpuNumber:   orm.NullInt64(req.GpuCount),
-		Template:    orm.NullString(template),
+		ServiceName:   serviceName,
+		UserId:        req.UserID,
+		ModelName:     orm.NullString(req.ModelName),
+		ModelId:       orm.NullString(modelId),
+		ModelSize:     orm.NullInt64(modelSize),
+		ModelPublic:   orm.NullInt64(modelPublic),
+		GpuType:       orm.NullString(req.GpuModel),
+		GpuNumber:     orm.NullInt64(req.GpuCount),
+		Template:      orm.NullString(template),
+		BillingStatus: model.BillingStatusContinue,
 	}
 
 	_, err = InferenceModel.Insert(l.ctx, infer)
