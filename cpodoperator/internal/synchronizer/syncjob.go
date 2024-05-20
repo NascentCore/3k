@@ -334,7 +334,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					modelId = modelId + v1beta1.CPodPublicStorageSuffix
 				}
 				datasetID := job.DatasetId
-				if job.DatasetId != "" && s.autoDownloadResource {
+				if job.DatasetId != "" {
 					// 判断指定的预训练模型是否存在
 					exists, done, err := s.checkDatasetExistence(ctx, string(user), job.DatasetId, job.DatasetIsPublic)
 					if err != nil {
@@ -347,43 +347,45 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 							continue
 						}
 					} else { // dataset not exist
-						s.logger.Info("dataset not exists , starting downloader task , task will be started when downloader task finish",
-							"jobname", job.JobName, "datasetid", job.DatasetId)
-						// return preparing status during the downloader task.
-						s.addPreparingTrainningJob(job)
-						// create PVC
-						ossAK := os.Getenv("AK")
-						ossSK := os.Getenv("AS")
-						storageClassName := os.Getenv("STORAGECLASS")
-						ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
-						pvcName := DatasetPVCName(ossPath)
-						datasetSize := fmt.Sprintf("%d", job.DatasetSize)
-						// pvcsize is 1.2 * datasetsize
-						pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
-						err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-						if err != nil {
-							s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+						if s.autoDownloadResource {
+							s.logger.Info("dataset not exists , starting downloader task , task will be started when downloader task finish",
+								"jobname", job.JobName, "datasetid", job.DatasetId)
+							// return preparing status during the downloader task.
+							s.addPreparingTrainningJob(job)
+							// create PVC
+							ossAK := os.Getenv("AK")
+							ossSK := os.Getenv("AS")
+							storageClassName := os.Getenv("STORAGECLASS")
+							ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
+							pvcName := DatasetPVCName(ossPath)
+							datasetSize := fmt.Sprintf("%d", job.DatasetSize)
+							// pvcsize is 1.2 * datasetsize
+							pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
+							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
+							if err != nil {
+								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+								continue
+							} else {
+								s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
+							}
+							// create DatasetStorage
+							err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
+							if err != nil {
+								s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+								continue
+							} else {
+								s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
+							}
+							// create DownloaderJob
+							err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
+							if err != nil {
+								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
+								continue
+							} else {
+								s.logger.Info("downloader job created", "jobname", job.JobName, "datasetid", job.DatasetId)
+							}
 							continue
-						} else {
-							s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
 						}
-						// create DatasetStorage
-						err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
-						if err != nil {
-							s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-							continue
-						} else {
-							s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
-						}
-						// create DownloaderJob
-						err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
-						if err != nil {
-							s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-							continue
-						} else {
-							s.logger.Info("downloader job created", "jobname", job.JobName, "datasetid", job.DatasetId)
-						}
-						continue
 					}
 				}
 				if job.DatasetIsPublic {
