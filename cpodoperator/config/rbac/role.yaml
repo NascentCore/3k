@@ -201,6 +201,58 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
+  - juypterlabs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - juypterlabs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - juypterlabs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - llamafactories
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - llamafactories/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - llamafactories/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
   - modelstorages
   verbs:
   - create

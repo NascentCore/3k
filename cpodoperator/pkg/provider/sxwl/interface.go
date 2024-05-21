@@ -10,12 +10,14 @@ import (
 )
 
 type PortalJupyterLabJob struct {
-	InstanceName     string              `json:"instanceName"`
-	JobName          string              `json:"jobName"`
-	CPUCount         string              `json:"cpuCount"`
-	Memory           string              `json:"memory"`
-	GPUCount         int                 `json:"gpuCount"`
-	GPUProduct       string              `json:"gpuProduct"`
+	InstanceName string `json:"instanceName"`
+	JobName      string `json:"jobName"`
+	CPUCount     string `json:"cpuCount"`
+	// MIB
+	Memory     string `json:"memory"`
+	GPUCount   int    `json:"gpuCount"`
+	GPUProduct string `json:"gpuProduct"`
+	// MIB
 	DataVolumeSize   string              `json:"dataVolumeSize"`
 	PretrainedModels *[]PretrainedModels `json:"pretrainedModels"`
 	UserID           int64               `json:"userId"`

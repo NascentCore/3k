@@ -1,0 +1,12 @@
+apiVersion: cpod.cpod/v1beta1
+kind: JuypterLab
+metadata:
+  labels:
+    app.kubernetes.io/name: juypterlab
+    app.kubernetes.io/instance: juypterlab-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: juypterlab-sample
+spec:
+  # TODO(user): Add fields here
