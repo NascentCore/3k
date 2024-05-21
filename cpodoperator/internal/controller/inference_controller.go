@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
@@ -29,6 +30,7 @@ type InferenceOptions struct {
 	// IngressClass string
 	Domain              string
 	InferenceWebuiImage string
+	InferencePathPrefix string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -205,7 +207,7 @@ func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1b
 			// 获取对应preidector service name
 			svcName := PredictorServiceName(inferenceservice.Name)
 			// create ingress
-			path := "/"
+			path := filepath.Join(i.Options.InferencePathPrefix, inference.Name+"(/|$)(.*)")
 			var rules []netv1.IngressRule
 			rules = append(rules, i.generateRule(inference.Name, svcName, path, 80))
 			ingress := &netv1.Ingress{
@@ -213,7 +215,8 @@ func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1b
 					Name:      ingressName,
 					Namespace: inference.Namespace,
 					Annotations: map[string]string{
-						"kubernetes.io/ingress.class": "nginx",
+						"kubernetes.io/ingress.class":                "nginx",
+						"nginx.ingress.kubernetes.io/rewrite-target": "/$2",
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						i.generateOwnerRefInference(ctx, inference),
@@ -245,9 +248,8 @@ func PredictorServiceName(name string) string {
 // }
 
 func (i *InferenceReconciler) generateRule(inferenceName, componentName string, path string, port int32) netv1.IngressRule {
-	pathType := netv1.PathTypePrefix
+	pathType := netv1.PathTypeImplementationSpecific
 	rule := netv1.IngressRule{
-		Host: fmt.Sprintf("%v.%v", inferenceName, i.Options.Domain),
 		IngressRuleValue: netv1.IngressRuleValue{
 			HTTP: &netv1.HTTPIngressRuleValue{
 				Paths: []netv1.HTTPIngressPath{
