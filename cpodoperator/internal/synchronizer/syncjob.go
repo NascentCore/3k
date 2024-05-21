@@ -388,8 +388,8 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						}
 					}
 				}
-				if job.DatasetIsPublic {
-					datasetID = datasetID + v1beta1.CPodPublicStorageSuffix
+				if job.DatasetId == "" {
+					datasetID = datasetID + "-public"
 				}
 				var gpuPerWorker int32 = 8
 				var replicas int32 = 1
@@ -545,6 +545,8 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 											"src/api_demo.py",
 											"--model_name_or_path",
 											"/mnt/models",
+											"--infer_backend",
+											"vllm",
 											"--template",
 											template,
 										},

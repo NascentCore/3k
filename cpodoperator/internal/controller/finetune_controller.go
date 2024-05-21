@@ -293,7 +293,7 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			}
 			// 创建pv
 			pvCopy := publicDsPV.DeepCopy()
-			pvCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
+			pvCopy.Name = pvCopy.Name + "-" + finetune.Namespace
 			pvCopy.ResourceVersion = ""
 			pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + finetune.Namespace
 			pvCopy.UID = ""
