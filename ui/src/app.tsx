@@ -126,15 +126,15 @@ export const request = {
 };
 
 export function onRouteChange({ location }) {
-  if (location.pathname === '/Grafana') {
-    const url = `${window.location.protocol}//${window.location.hostname}:30006/d/Oxed_c6Wz/nvidia-dcgm-exporter-dashboard?orgId=1`;
-    window.open(url);
-    history.back();
-  }
+  // if (location.pathname === '/Grafana') {
+  //   const url = `${window.location.protocol}//${window.location.hostname}:30006/d/Oxed_c6Wz/nvidia-dcgm-exporter-dashboard?orgId=1`;
+  //   window.open(url);
+  //   history.back();
+  // }
 
-  if (location.pathname === '/Jupyterlalb') {
-    const url = `${window.location.protocol}//${window.location.hostname}:30002/lab?token=jupyterlab`;
-    window.open(url);
-    history.back();
-  }
+  // if (location.pathname === '/Jupyterlalb') {
+  //   const url = `${window.location.protocol}//${window.location.hostname}:30002/lab?token=jupyterlab`;
+  //   window.open(url);
+  //   history.back();
+  // }
 }

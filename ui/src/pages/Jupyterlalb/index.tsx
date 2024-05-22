@@ -1,11 +1,14 @@
 import { PageContainer } from '@ant-design/pro-components';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const Admin: React.FC = () => {
-  const url = `${window.location.protocol}//${window.location.hostname}:30002`;
+  useEffect(() => {
+    (document as any).querySelector('main.ant-layout-content').style.padding = 0;
+  }, []);
+  const url = `${window.location.protocol}//${window.location.hostname}:30002/lab?token=jupyterlab`;
   return (
     <PageContainer>
-      <iframe src={url} style={{ width: '100%', height: 'calc(100vh - 170px)', border: 'none' }} />
+      <iframe src={url} style={{ width: '100%', height: 'calc(100vh - 60px)', border: 'none' }} />
     </PageContainer>
   );
 };
