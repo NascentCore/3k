@@ -161,7 +161,7 @@ const Welcome: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  <DetailModel />
+                  <DetailModel record={record} />
                   <Popconfirm
                     title={intl.formatMessage({
                       id: 'pages.global.confirm.title',
