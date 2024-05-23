@@ -9,6 +9,7 @@ import React from 'react';
 import { apiAuthInfo } from './services';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
+let user: any = {};
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
@@ -22,6 +23,7 @@ export async function getInitialState(): Promise<{
   const fetchUserInfo = async () => {
     try {
       const res = await apiAuthInfo();
+      user = res.user;
       return res.user;
     } catch (error) {
       history.push(loginPath);
@@ -127,7 +129,7 @@ export const request = {
 
 export function onRouteChange({ location }) {
   if (location.pathname === '/Grafana') {
-    const url = `${window.location.protocol}//${window.location.hostname}:30006/d/Oxed_c6Wz/nvidia-dcgm-exporter-dashboard?orgId=1`;
+    const url = `http://grafana.llm.sxwl.ai:30003/d/85a562078cdf/user-pods?orgId=1&refresh=5s&var-datasource=default&var-cluster=&var-namespace=${user.id}&var-gpu=All`;
     window.open(url);
     history.back();
   }
