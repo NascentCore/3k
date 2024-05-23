@@ -6,11 +6,11 @@ import moment from 'moment';
 
 const App: React.FC = ({ record }: any) => {
   const intl = useIntl();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  // const showModal = () => {
+  //   setIsModalOpen(true);
+  // };
 
   const openWeb = () => {
     // 辅助函数：根据record计算from和to参数
@@ -31,9 +31,9 @@ const App: React.FC = ({ record }: any) => {
     window.open(webUrl);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  // const handleCancel = () => {
+  //   setIsModalOpen(false);
+  // };
 
   return (
     <>
@@ -43,7 +43,7 @@ const App: React.FC = ({ record }: any) => {
           // defaultMessage: '详情',
         })}
       </Button>
-      <Modal
+      {/* <Modal
         title={intl.formatMessage({
           id: 'pages.userJob.table.column.action.detail',
           // defaultMessage: '详情',
@@ -52,9 +52,7 @@ const App: React.FC = ({ record }: any) => {
         footer={null}
         width={1200}
         onCancel={handleCancel}
-      >
-        <iframe src={webUrl} style={{ width: '100%', height: 500, border: 'none' }}></iframe>
-      </Modal>
+      ></Modal> */}
     </>
   );
 };
