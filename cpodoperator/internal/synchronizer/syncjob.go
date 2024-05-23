@@ -213,22 +213,30 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 			}
 		}
 
-		for _, finetune := range finetunes.Items {
-			exists := false
-			for _, job := range portaljobs {
-				if finetune.Name == job.JobName {
-					exists = true
-				}
-			}
-			if !exists {
-				if err = s.kubeClient.Delete(ctx, &finetune); err != nil {
-					s.logger.Error(err, "failed to delete finetune")
-					return
-				}
+	}
+	var totalFinetunes v1beta1.FineTuneList
+	if err := s.kubeClient.List(ctx, &totalFinetunes, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	}); err != nil {
+		s.logger.Error(err, "failed to list all finetunes")
+		return
+	}
+
+	for _, finetune := range totalFinetunes.Items {
+		exists := false
+		for _, job := range portaljobs {
+			if finetune.Name == job.JobName {
+				exists = true
 			}
 		}
-
+		if !exists {
+			if err := s.kubeClient.Delete(ctx, &finetune); err != nil {
+				s.logger.Error(err, "failed to delete finetune")
+				return
+			}
+		}
 	}
+
 }
 
 func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserID, portaljobs []sxwl.PortalTrainningJob) {
@@ -452,26 +460,35 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 			}
 		}
 
-		for _, cpodTrainningJob := range cpodTrainningJobs.Items {
-			// do nothing if job has reached a no more change status
-			status, _ := parseStatus(cpodTrainningJob.Status)
-			if status == v1beta1.JobFailed || status == v1beta1.JobModelUploaded ||
-				status == v1beta1.JobSucceeded || status == v1beta1.JobModelUploading {
-				continue
+	}
+
+	var totalCPodJobs v1beta1.CPodJobList
+	if err := s.kubeClient.List(ctx, &totalCPodJobs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	}); err != nil {
+		s.logger.Error(err, "failed to list all cpod jobs")
+		return
+	}
+
+	for _, cpodTrainningJob := range totalCPodJobs.Items {
+		// do nothing if job has reached a no more change status
+		status, _ := parseStatus(cpodTrainningJob.Status)
+		if status == v1beta1.JobFailed || status == v1beta1.JobModelUploaded ||
+			status == v1beta1.JobSucceeded || status == v1beta1.JobModelUploading {
+			continue
+		}
+		exists := false
+		for _, job := range portaljobs {
+			if cpodTrainningJob.Name == job.JobName {
+				exists = true
 			}
-			exists := false
-			for _, job := range portaljobs {
-				if cpodTrainningJob.Name == job.JobName {
-					exists = true
-				}
+		}
+		if !exists {
+			if err := s.kubeClient.Delete(ctx, &cpodTrainningJob); err != nil {
+				s.logger.Error(err, "failed to delete trainningjob")
+				return
 			}
-			if !exists {
-				if err = s.kubeClient.Delete(ctx, &cpodTrainningJob); err != nil {
-					s.logger.Error(err, "failed to delete trainningjob")
-					return
-				}
-				s.logger.Info("trainningjob deleted", "jobid", cpodTrainningJob.Name)
-			}
+			s.logger.Info("trainningjob deleted", "jobid", cpodTrainningJob.Name)
 		}
 	}
 }
@@ -608,22 +625,30 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 			}
 		}
 
-		for _, cpodInferenceJob := range cpodInferenceJobs.Items {
-			exists := false
-			for _, job := range portaljobs {
-				if cpodInferenceJob.Name == job.ServiceName {
-					exists = true
-				}
-			}
-			if !exists {
-				if err = s.kubeClient.Delete(ctx, &cpodInferenceJob); err != nil {
-					s.logger.Error(err, "failed to delete inference job")
-					return
-				}
-				s.logger.Info("inference job deleted", "jobid", cpodInferenceJob.Name)
+	}
+
+	var totalInferencs v1beta1.InferenceList
+	if err := s.kubeClient.List(ctx, &totalInferencs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	}); err != nil {
+		s.logger.Error(err, "failed to list all inference jobs")
+		return
+	}
+
+	for _, cpodInferenceJob := range totalInferencs.Items {
+		exists := false
+		for _, job := range portaljobs {
+			if cpodInferenceJob.Name == job.ServiceName {
+				exists = true
 			}
 		}
-
+		if !exists {
+			if err := s.kubeClient.Delete(ctx, &cpodInferenceJob); err != nil {
+				s.logger.Error(err, "failed to delete inference job")
+				return
+			}
+			s.logger.Info("inference job deleted", "jobid", cpodInferenceJob.Name)
+		}
 	}
 }
 
