@@ -288,6 +288,31 @@ export async function apiGetResourceBaseimages(options?: { [key: string]: any })
 }
 
 export const useApiGetResourceBaseimages = (options?: { [key: string]: any }) =>
-  useSWR([options], ([options]) => {
+  useSWR(['/api/resource/baseimages', options], ([, options]) => {
     return apiGetResourceBaseimages(options);
+  });
+
+// 余额查询 /api/pay/balance?user_id=<long>
+export async function apiGetPayBalance(options?: { [key: string]: any }) {
+  return request('/api/pay/balance', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiGetPayBalance = (options?: { [key: string]: any }) =>
+  useSWR(['/api/pay/balance', options], ([, options]) => {
+    return apiGetPayBalance(options);
+  });
+
+// 账单查询 /api/pay/billing?user_id=
+// {{baseUrl}}/api/pay/billing?user_id=<long>&start_time=<string>&end_time=<string>&job_id=<string>
+export async function apiGetPayBilling(options?: { [key: string]: any }) {
+  return request('/api/pay/billing', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiGetPayBilling = (options?: { [key: string]: any }) =>
+  useSWR(['/api/pay/billing', options], ([, options]) => {
+    return apiGetPayBilling(options);
   });
