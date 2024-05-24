@@ -15,7 +15,7 @@ export default {
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理服务状态',
   'menu.Grafana': '系统资源看板',
-  'menu.Tensorboard': 'AI训练看板(TensorBoard)',
+  'menu.Tensorboard': '训练看板(TensorBoard)',
   'menu.Jupyterlalb': '开发实验室(JupyterLab)',
   'menu.JupyterLab': '开发实验室(JupyterLab)',
   'menu.ClusterInformation': '集群信息',
