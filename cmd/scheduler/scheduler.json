@@ -44,6 +44,40 @@
         ]
       }
     },
+    "/api/job/jobs": {
+      "delete": {
+        "summary": "终止用户所有任务",
+        "operationId": "jobsDel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobsDelResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobsDelReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/job/jupyter/image": {
       "get": {
         "summary": "镜像列表",
@@ -163,6 +197,9 @@
         ],
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -256,6 +293,128 @@
         ]
       }
     },
+    "/api/pay/balance": {
+      "get": {
+        "summary": "余额查询",
+        "operationId": "BalanceGet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BalanceGetResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "post": {
+        "summary": "余额充值",
+        "operationId": "BalanceAdd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BalanceAddResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BalanceAddReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/pay/billing": {
+      "get": {
+        "summary": "账单记录",
+        "operationId": "BillingList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BillingListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User",
+            "in": "header",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "job_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/resource/baseimages": {
       "get": {
         "summary": "基础镜像列表",
@@ -282,7 +441,7 @@
         ]
       }
     },
-    "/api/users/registerUser/{code}": {
+    "/api/user/register/{code}": {
       "post": {
         "summary": "用户注册",
         "operationId": "register",
@@ -359,44 +518,6 @@
             }
           }
         ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/cache/datasets": {
-      "get": {
-        "operationId": "DatasetsHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Cache"
-              }
-            }
-          }
-        },
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/cache/models": {
-      "get": {
-        "operationId": "ModelsHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Cache"
-              }
-            }
-          }
-        },
         "tags": [
           "scheduler-api"
         ]
@@ -1022,6 +1143,67 @@
       "type": "object",
       "title": "AuthReq"
     },
+    "BalanceAddReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "BalanceAddReq",
+      "required": [
+        "user_id",
+        "amount"
+      ]
+    },
+    "BalanceAddResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BalanceAddResp",
+      "required": [
+        "message"
+      ]
+    },
+    "BalanceGetReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "BalanceGetReq",
+      "required": [
+        "user_id"
+      ]
+    },
+    "BalanceGetResp": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "balance": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "BalanceGetResp",
+      "required": [
+        "user_id",
+        "balance"
+      ]
+    },
     "BaseImageListReq": {
       "type": "object",
       "title": "BaseImageListReq"
@@ -1037,6 +1219,40 @@
         }
       },
       "title": "BaseImageListResp",
+      "required": [
+        "data"
+      ]
+    },
+    "BillingListReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "start_time": {
+          "type": "string"
+        },
+        "end_time": {
+          "type": "string"
+        },
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "BillingListReq"
+    },
+    "BillingListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserBilling"
+          }
+        }
+      },
+      "title": "BillingListResp",
       "required": [
         "data"
       ]
@@ -1158,6 +1374,14 @@
         "data_source": {
           "type": "string"
         },
+        "is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "finetune_gpu_count": {
           "type": "integer",
           "format": "int64"
@@ -1175,6 +1399,8 @@
         "data_size",
         "template",
         "data_source",
+        "is_public",
+        "user_id",
         "finetune_gpu_count",
         "inference_gpu_count"
       ]
@@ -1305,8 +1531,16 @@
         "training_file": {
           "type": "string"
         },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "model": {
           "type": "string"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean"
         },
         "gpu_model": {
           "type": "string"
@@ -1328,7 +1562,9 @@
       "title": "FinetuneReq",
       "required": [
         "training_file",
-        "model"
+        "dataset_is_public",
+        "model",
+        "model_is_public"
       ]
     },
     "FinetuneResp": {
@@ -1589,6 +1825,10 @@
           "type": "integer",
           "format": "int64"
         },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "gpu_type": {
           "type": "string"
         },
@@ -1614,6 +1854,7 @@
         "model_name",
         "model_id",
         "model_size",
+        "model_is_public",
         "gpu_type",
         "gpu_number",
         "template",
@@ -1819,6 +2060,10 @@
         "pretrainedModelPath": {
           "type": "string"
         },
+        "modelIsPublic": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "datasetId": {
           "type": "string"
         },
@@ -1827,6 +2072,10 @@
         },
         "datasetPath": {
           "type": "string"
+        },
+        "datasetIsPublic": {
+          "type": "boolean",
+          "format": "boolean"
         },
         "trainedModelName": {
           "type": "string"
@@ -1979,6 +2228,31 @@
         "message"
       ]
     },
+    "JobsDelReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "JobsDelReq",
+      "required": [
+        "user_id"
+      ]
+    },
+    "JobsDelResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "JobsDelResp",
+      "required": [
+        "message"
+      ]
+    },
     "JupyterLab": {
       "type": "object",
       "properties": {
@@ -2075,6 +2349,9 @@
         "user_id": {
           "type": "integer",
           "format": "int64"
+        },
+        "status": {
+          "type": "string"
         }
       },
       "title": "Jupyterlab",
@@ -2133,6 +2410,9 @@
         "user_id": {
           "type": "integer",
           "format": "int64"
+        },
+        "status": {
+          "type": "string"
         }
       },
       "title": "JupyterlabCreateReq"
@@ -2241,8 +2521,7 @@
       },
       "title": "JupyterlabImageDelReq",
       "required": [
-        "image_name",
-        "tag_name"
+        "image_name"
       ]
     },
     "JupyterlabImageDelResp": {
@@ -2820,6 +3099,14 @@
           "type": "integer",
           "format": "int64"
         },
+        "is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
         "tag": {
           "type": "array",
           "items": {
@@ -2842,6 +3129,8 @@
         "object",
         "owner",
         "size",
+        "is_public",
+        "user_id",
         "tag",
         "finetune_gpu_count",
         "inference_gpu_count"
@@ -2963,6 +3252,10 @@
           "type": "integer",
           "format": "int64"
         },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "url": {
           "type": "string"
         },
@@ -2982,6 +3275,7 @@
         "model_name",
         "model_id",
         "model_size",
+        "model_is_public",
         "url",
         "start_time",
         "end_time"
@@ -3027,6 +3321,62 @@
       "required": [
         "user_id",
         "user_name"
+      ]
+    },
+    "UserBilling": {
+      "type": "object",
+      "properties": {
+        "billing_id": {
+          "type": "string",
+          "description": " 账单ID"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 用户ID"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 消费金额"
+        },
+        "billing_status": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 账单状态（0 未支付、1 已支付、2 欠费） TODO 返回字符串"
+        },
+        "job_id": {
+          "type": "string",
+          "description": " 关联任务id"
+        },
+        "job_type": {
+          "type": "string",
+          "description": " 关联任务类型（例如：finetune、inference）"
+        },
+        "billing_time": {
+          "type": "string",
+          "description": " 账单生成时间"
+        },
+        "payment_time": {
+          "type": "string",
+          "description": " 支付时间"
+        },
+        "description": {
+          "type": "string",
+          "description": " 账单描述（可选，详细说明此次费用的具体内容）"
+        }
+      },
+      "title": "UserBilling",
+      "required": [
+        "billing_id",
+        "user_id",
+        "amount",
+        "billing_status",
+        "job_id",
+        "job_type",
+        "billing_time",
+        "payment_time",
+        "description"
       ]
     },
     "UserInfo": {

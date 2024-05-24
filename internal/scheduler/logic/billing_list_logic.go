@@ -4,6 +4,7 @@ import (
     "context"
     "errors"
     "sxwl/3k/internal/scheduler/model"
+    "time"
     
     "sxwl/3k/internal/scheduler/svc"
     "sxwl/3k/internal/scheduler/types"
@@ -64,6 +65,13 @@ func (l *BillingListLogic) BillingList(req *types.BillingListReq) (resp *types.B
     
     resp = &types.BillingListResp{Data: make([]types.UserBilling, 0)}
     _ = copier.Copy(&resp.Data, billings)
+    
+    for i, billing := range billings {
+        resp.Data[i].BillingTime = billing.BillingTime.Format(time.DateTime)
+        if billing.PaymentTime.Valid {
+            resp.Data[i].PaymentTime = billing.PaymentTime.Time.Format(time.DateTime)
+        }
+    }
     
     return resp, nil
 }
