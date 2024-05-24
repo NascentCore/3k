@@ -37,7 +37,6 @@ func (bm *BalanceManager) Update() {
     
     BillingModel := bm.svcCtx.UserBillingModel
     BalanceModel := bm.svcCtx.UserBalanceModel
-    UserModel := bm.svcCtx.UserModel
     
     billingList, err := BillingModel.Find(bm.ctx, BillingModel.AllFieldsBuilder().Where(squirrel.Eq{
         "billing_status": model.BillingStatusUnpaid,
@@ -120,7 +119,7 @@ func (bm *BalanceManager) Update() {
         userIDList = append(userIDList, userID)
     }
     
-    userBalanceList, err := BalanceModel.Find(bm.ctx, UserModel.AllFieldsBuilder().Where(squirrel.Eq{
+    userBalanceList, err := BalanceModel.Find(bm.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
         "user_id": userIDList,
     }))
     if err != nil {
