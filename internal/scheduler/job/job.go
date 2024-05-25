@@ -5,5 +5,5 @@ import (
 )
 
 func NewJobName() (string, error) {
-	return uuid.UUIDWithPrefix("ai")
+	return uuid.WithPrefix("ai")
 }

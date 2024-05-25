@@ -6,7 +6,8 @@ type AuthReq struct {
 }
 
 type BalanceAddReq struct {
-	UserID int64   `header:"Sx-User"`
+	UserId int64   `header:"Sx-User"`
+	UserID string  `header:"Sx-User-ID"`
 	ToUser int64   `json:"user_id"`
 	Amount float64 `json:"amount"`
 }
@@ -16,8 +17,9 @@ type BalanceAddResp struct {
 }
 
 type BalanceGetReq struct {
-	UserID int64 `header:"Sx-User"`
-	ToUser int64 `form:"user_id"`
+	UserId int64  `header:"Sx-User"`
+	UserID string `header:"Sx-User-ID"`
+	ToUser int64  `form:"user_id"`
 }
 
 type BalanceGetResp struct {
@@ -34,7 +36,8 @@ type BaseImageListResp struct {
 }
 
 type BillingListReq struct {
-	UserID    int64  `header:"Sx-User"`
+	UserId    int64  `header:"Sx-User"`
+	UserID    string `header:"Sx-User-ID"`
 	ToUser    int64  `form:"user_id,optional"`
 	StartTime string `form:"start_time,optional"`
 	EndTime   string `form:"end_time,optional"`
@@ -657,6 +660,7 @@ type UserInfo struct {
 	Email      string `json:"email"`
 	Enabled    bool   `json:"enabled"`
 	ID         int    `json:"id"`
+	UserID     string `json:"user_id"`
 	IsAdmin    bool   `json:"isAdmin"`
 	UpdateBy   string `json:"updateBy"`
 	UpdateTime string `json:"updateTime"`

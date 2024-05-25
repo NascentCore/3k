@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
+	user2 "sxwl/3k/internal/scheduler/user"
 	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/rsa"
@@ -14,6 +15,7 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -58,6 +60,23 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 		return nil, fmt.Errorf("用户名或密码不正确")
 	}
 
+	// create user_id if not exists
+	if user.NewUserId == "" {
+		userID, err := user2.NewUserID()
+		if err != nil {
+			l.Errorf("UserLogin new user_id err=%s", err)
+		} else {
+			_, err = UserModel.UpdateColsByCond(l.ctx, UserModel.UpdateBuilder().Where(squirrel.Eq{
+				"user_id": user.UserId,
+			}).Set("new_user_id", userID))
+			if err != nil {
+				l.Errorf("UserLogin update user_id id=%d new_user_id=%s err=%s", user.UserId, userID)
+			} else {
+				user.NewUserId = userID
+			}
+		}
+	}
+
 	resp = &types.LoginResp{User: types.WrapUser{User: types.UserInfo{}}}
 	_ = copier.Copy(&resp.User.User, user)
 
@@ -71,6 +90,8 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 	}
 	// id
 	resp.User.User.ID = int(user.UserId)
+	// user_id
+	resp.User.User.UserID = user.NewUserId
 	// isAdmin
 	if user.Admin > 0 {
 		resp.User.User.IsAdmin = true
@@ -94,6 +115,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 		"jti":      formattedUUID,
 		"username": user.Username.String,
 		"userid":   user.UserId,
+		"user_id":  user.NewUserId,
 		"sub":      user.Username.String,
 	}
 

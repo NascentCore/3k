@@ -14,17 +14,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stringx"
 )
 
-const (
-	SysUserNormal     = 0
-	SysUserAdmin      = 1
-	SysUserSuperAdmin = 2
-)
-
-const (
-	SysUserConsumer = 2
-	SysUserSupplier = 3
-)
-
 var (
 	sysUserFieldNames          = builder.RawFieldNames(&SysUser{})
 	sysUserRows                = strings.Join(sysUserFieldNames, ",")
@@ -49,6 +38,7 @@ type (
 
 	SysUser struct {
 		UserId       int64          `db:"user_id"`        // ID
+		NewUserId    string         `db:"new_user_id"`    // 用户ID
 		Username     sql.NullString `db:"username"`       // 用户名
 		NickName     sql.NullString `db:"nick_name"`      // 昵称
 		Gender       sql.NullString `db:"gender"`         // 性别
@@ -129,14 +119,14 @@ func (m *defaultSysUserModel) FindOneByUsername(ctx context.Context, username sq
 }
 
 func (m *defaultSysUserModel) Insert(ctx context.Context, data *SysUser) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.NickName, data.Gender, data.Phone, data.Email, data.AvatarName, data.AvatarPath, data.Password, data.IsAdmin, data.Admin, data.Enabled, data.CreateBy, data.UpdateBy, data.PwdResetTime, data.CreateTime, data.UpdateTime, data.UserType, data.CompanyName, data.CompanyPhone, data.CompanyOther, data.CompanyId)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysUserRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.NewUserId, data.Username, data.NickName, data.Gender, data.Phone, data.Email, data.AvatarName, data.AvatarPath, data.Password, data.IsAdmin, data.Admin, data.Enabled, data.CreateBy, data.UpdateBy, data.PwdResetTime, data.CreateTime, data.UpdateTime, data.UserType, data.CompanyName, data.CompanyPhone, data.CompanyOther, data.CompanyId)
 	return ret, err
 }
 
 func (m *defaultSysUserModel) Update(ctx context.Context, newData *SysUser) error {
 	query := fmt.Sprintf("update %s set %s where `user_id` = ?", m.table, sysUserRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.NickName, newData.Gender, newData.Phone, newData.Email, newData.AvatarName, newData.AvatarPath, newData.Password, newData.IsAdmin, newData.Admin, newData.Enabled, newData.CreateBy, newData.UpdateBy, newData.PwdResetTime, newData.CreateTime, newData.UpdateTime, newData.UserType, newData.CompanyName, newData.CompanyPhone, newData.CompanyOther, newData.CompanyId, newData.UserId)
+	_, err := m.conn.ExecCtx(ctx, query, newData.NewUserId, newData.Username, newData.NickName, newData.Gender, newData.Phone, newData.Email, newData.AvatarName, newData.AvatarPath, newData.Password, newData.IsAdmin, newData.Admin, newData.Enabled, newData.CreateBy, newData.UpdateBy, newData.PwdResetTime, newData.CreateTime, newData.UpdateTime, newData.UserType, newData.CompanyName, newData.CompanyPhone, newData.CompanyOther, newData.CompanyId, newData.UserId)
 	return err
 }
 

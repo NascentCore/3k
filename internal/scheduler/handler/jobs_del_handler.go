@@ -3,10 +3,11 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"sxwl/3k/internal/scheduler/logic"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func jobsDelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

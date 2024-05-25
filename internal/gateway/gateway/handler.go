@@ -121,6 +121,7 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
+	// TODO remove userid
 	userId, ok := claims["userid"]
 	if !ok {
 		log.Printf("auth token without userid host: %s path: %s", r.Host, r.URL.Path)
@@ -135,8 +136,23 @@ func (h *Handler) auth(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
+	userID, ok := claims["user_id"]
+	if !ok {
+		log.Printf("auth token without user_id host: %s path: %s", r.Host, r.URL.Path)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+
+	strUserID, ok := userID.(string)
+	if !ok {
+		log.Printf("auth userId to string host: %s path: %s", r.Host, r.URL.Path)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return false
+	}
+
 	// Set header
 	strUserId := strconv.FormatFloat(floatUserId, 'f', -1, 64)
 	r.Header.Set("Sx-User", strUserId)
+	r.Header.Set("Sx-User-ID", strUserID)
 	return true
 }

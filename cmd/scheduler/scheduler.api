@@ -520,6 +520,7 @@ type (
 		Email      string `json:"email"`
 		Enabled    bool   `json:"enabled"`
 		ID         int    `json:"id"`
+		UserID     string `json:"user_id"`
 		IsAdmin    bool   `json:"isAdmin"`
 		UpdateBy   string `json:"updateBy"`
 		UpdateTime string `json:"updateTime"`
@@ -669,7 +670,8 @@ type (
 // 计费
 type (
 	BalanceAddReq {
-		UserID int64   `header:"Sx-User"`
+		UserId int64   `header:"Sx-User"`
+		UserID string  `header:"Sx-User-ID"`
 		ToUser int64   `json:"user_id"`
 		Amount float64 `json:"amount"`
 	}
@@ -677,8 +679,9 @@ type (
 		Message string `json:"message"`
 	}
 	BalanceGetReq {
-		UserID int64 `header:"Sx-User"`
-		ToUser int64 `form:"user_id"`
+		UserId int64  `header:"Sx-User"`
+		UserID string `header:"Sx-User-ID"`
+		ToUser int64  `form:"user_id"`
 	}
 	BalanceGetResp {
 		UserID  int64   `json:"user_id"`
@@ -696,7 +699,8 @@ type (
 		Description   string  `json:"description"` // 账单描述（可选，详细说明此次费用的具体内容）
 	}
 	BillingListReq {
-		UserID    int64  `header:"Sx-User"`
+		UserId    int64  `header:"Sx-User"`
+		UserID    string `header:"Sx-User-ID"`
 		ToUser    int64  `form:"user_id,optional"`
 		StartTime string `form:"start_time,optional"`
 		EndTime   string `form:"end_time,optional"`

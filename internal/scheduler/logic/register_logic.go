@@ -10,6 +10,7 @@ import (
 	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/rsa"
+	uuid2 "sxwl/3k/pkg/uuid"
 	"time"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -77,8 +78,16 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 		return fmt.Errorf("系统错误，请联系管理员")
 	}
 
+	// create user_id
+	userID, err := uuid2.WithPrefix("user")
+	if err != nil {
+		l.Errorf("register new user_id err=%s", err)
+		return ErrSystem
+	}
+
 	// create user
 	user := &model.SysUser{
+		NewUserId:  userID,
 		Username:   orm.NullString(req.Username),
 		Email:      orm.NullString(req.Email),
 		Password:   orm.NullString(passwordHash),
@@ -147,6 +156,7 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 		"jti":      formattedUUID,
 		"username": user.Username.String,
 		"userid":   user.UserId,
+		"user_id":  user.NewUserId,
 		"sub":      user.Username.String,
 	}
 
