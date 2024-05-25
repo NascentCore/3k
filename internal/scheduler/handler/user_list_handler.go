@@ -3,9 +3,10 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"sxwl/3k/internal/scheduler/logic"
 	"sxwl/3k/internal/scheduler/svc"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 func UserListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

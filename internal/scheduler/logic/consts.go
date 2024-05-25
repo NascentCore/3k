@@ -1,20 +1,21 @@
 package logic
 
 import (
-    "errors"
+	"errors"
 )
 
 var (
-    ErrNotAdmin = errors.New("您没有管理员权限")
-    ErrDBFind   = errors.New("数据库查询错误")
+	ErrNotAdmin = errors.New("您没有管理员权限")
+	ErrDBFind   = errors.New("数据库查询错误")
 )
 
 var (
-    ErrBalanceAddFail  = errors.New("余额充值失败")
-    ErrBalanceFindFail = errors.New("余额查询失败")
+	ErrBalanceAddFail  = errors.New("余额充值失败")
+	ErrBalanceFindFail = errors.New("余额查询失败")
+	ErrSystem          = errors.New("系统错误，请稍后再试")
 )
 
 var (
-    MsgBalanceAddSuccess = "余额充值成功"
-    MsgJobsDelSuccess    = "全部任务已终止"
+	MsgBalanceAddSuccess = "余额充值成功"
+	MsgJobsDelSuccess    = "全部任务已终止"
 )

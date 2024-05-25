@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
+	user2 "sxwl/3k/internal/scheduler/user"
 	"time"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/jinzhu/copier"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,11 +47,27 @@ func (l *UserInfoLogic) UserInfo(req *types.AuthReq) (resp *types.UserInfoResp, 
 	}
 	// id
 	resp.User.ID = int(req.UserID)
+	// user_id
+	resp.User.UserID = user.NewUserId
 	// isAdmin
 	if user.Admin > 0 {
 		resp.User.IsAdmin = true
 	}
-	// TODO remove password
+
+	// 如果用户没有user_id，生成一个
+	if user.NewUserId == "" {
+		userID, err := user2.NewUserID()
+		if err != nil {
+			l.Errorf("new user_id err=%s", err)
+		} else {
+			_, err = UserModel.UpdateColsByCond(l.ctx, UserModel.UpdateBuilder().Where(squirrel.Eq{
+				"user_id": user.UserId,
+			}).Set("new_user_id", userID))
+			if err != nil {
+				l.Errorf("update user_id id=%d new_user_id=%s err=%s", user.UserId, userID)
+			}
+		}
+	}
 
 	return
 }

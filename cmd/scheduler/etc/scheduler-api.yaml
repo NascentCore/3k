@@ -39,5 +39,5 @@ Inference:
 
 Billing:
   InitBalance: 100.00
-  CronBilling: Yes
-  CronBalance: Yes
+  CronBilling: No
+  CronBalance: No

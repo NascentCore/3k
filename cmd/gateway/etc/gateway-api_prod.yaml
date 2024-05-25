@@ -13,7 +13,6 @@ Log:
 Gateway:
   Servers:
     scheduler: "http://172.17.0.1:8090"
-    java: "http://172.17.0.1:8012"
   Routers:
     - Path: "/api/user/login"
       ToPath: "/auth/login"

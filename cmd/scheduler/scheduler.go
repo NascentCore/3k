@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 	"sxwl/3k/internal/scheduler/config"
-	"sxwl/3k/internal/scheduler/cost"
 	"sxwl/3k/internal/scheduler/handler"
+	"sxwl/3k/internal/scheduler/pay"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/pkg/storage"
 
@@ -88,12 +88,12 @@ func main() {
 	// 创建 Cron BillingManager
 	crontab := cron.New(cron.WithSeconds()) // 使用 WithSeconds 来支持秒级定时任务
 	// 每分钟生成账单
-	_, err := crontab.AddFunc("0 * * * * *", cost.NewBillingManager(ctx).Update)
+	_, err := crontab.AddFunc("0 * * * * *", pay.NewBillingManager(ctx).Update)
 	if err != nil {
 		log.Fatalf("crontab AddFunc err=%s", err)
 	}
 	// 每分钟进行扣费
-	_, err = crontab.AddFunc("10 * * * * *", cost.NewBalanceManager(ctx).Update)
+	_, err = crontab.AddFunc("10 * * * * *", pay.NewBalanceManager(ctx).Update)
 	if err != nil {
 		log.Fatalf("crontab AddFunc err=%s", err)
 	}
