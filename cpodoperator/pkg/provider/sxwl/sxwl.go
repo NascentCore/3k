@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	v1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 )
@@ -64,7 +63,7 @@ func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob,
 	}
 	userIDs := []UserID{}
 	for _, v := range res.TrainningJobs {
-		userIDs = append(userIDs, UserID(strconv.Itoa(int(v.UserID))))
+		userIDs = append(userIDs, UserID(v.UserID))
 	}
 
 	for _, v := range res.InferenceJobs {
@@ -76,7 +75,7 @@ func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob,
 			}
 		}
 		if !exist {
-			userIDs = append(userIDs, UserID(strconv.Itoa(int(v.UserID))))
+			userIDs = append(userIDs, UserID(v.UserID))
 		}
 	}
 	for _, v := range res.JupyterLabJobs {
@@ -88,7 +87,7 @@ func (s *sxwl) GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob,
 			}
 		}
 		if !exist {
-			userIDs = append(userIDs, UserID(strconv.Itoa(int(v.UserID))))
+			userIDs = append(userIDs, UserID(v.UserID))
 		}
 	}
 	return res.TrainningJobs, res.InferenceJobs, res.JupyterLabJobs, userIDs, nil

@@ -20,7 +20,7 @@ type PortalJupyterLabJob struct {
 	// MIB
 	DataVolumeSize   string              `json:"dataVolumeSize"`
 	PretrainedModels *[]PretrainedModels `json:"pretrainedModels"`
-	UserID           int64               `json:"userId"`
+	UserID           string              `json:"userId"`
 }
 
 type PretrainedModels struct {
@@ -63,7 +63,7 @@ type PortalTrainningJob struct {
 	Epochs                string `json:"epochs"`
 	LearningRate          string `json:"learningRate"`
 	BatchSize             string `json:"batchSize"`
-	UserID                int64  `json:"userId"`
+	UserID                string `json:"userId"`
 	TrainedModelName      string `json:"trainedModelName,optional"`
 }
 
@@ -76,7 +76,7 @@ type PortalInferenceJob struct {
 	GpuNumber     int64  `json:"gpu_number"`
 	CpodId        string `json:"cpod_id"`
 	Template      string `json:"template,omitempty"`
-	UserID        int64  `json:"user_id"`
+	UserID        string `json:"user_id"`
 }
 
 type TrainningJobState struct {
@@ -87,7 +87,7 @@ type TrainningJobState struct {
 	JobStatus v1beta1.JobConditionType `json:"job_status"`
 	Info      string                   `json:"info,omitempty"` // more info about jobstatus , especially when error occured
 	Extension interface{}              `json:"extension"`
-	UserID    int64                    `json:"user_id"`
+	UserID    string                   `json:"user_id"`
 }
 
 type UserID string // 用户ID
