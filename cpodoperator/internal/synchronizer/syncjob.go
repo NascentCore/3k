@@ -14,14 +14,10 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/utils/pointer"
 
 	"github.com/go-logr/logr"
-	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -1039,17 +1035,18 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, tp, pvcName, download
 	return err
 }
 
-func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob, userIDs []sxwl.UserID) error {
+func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob, userIDs []sxwl.UserID) {
 	// 1. 获取当前Kubernetes集群中的JupyterLab任务列表
 	for _, UserID := range userIDs {
-		var currentJupyterLabJobs appsv1.StatefulSetList
+		var currentJupyterLabJobs v1beta1.JuypterLabList
 		err := s.kubeClient.List(ctx, &currentJupyterLabJobs, &client.MatchingLabels{
-			"app": "jupyterlab",
+			v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 		}, client.InNamespace(UserID))
 		if err != nil {
-			s.logger.Error(err, "failed to list JupyterLab jobs")
-			return err
+			s.logger.Error(err, "failed to list JupyterLabs")
+			return
 		}
+		s.logger.Info("DEBUG sync juypterlab of user", "user", userIDs, "juypterlabs", portalJobs, "existing", currentJupyterLabJobs.Items)
 
 		// 2. 遍历并同步JupyterLab任务
 		for _, job := range portalJobs {
@@ -1065,81 +1062,42 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 
 			if !found {
 				// 创建新的JupyterLab任务
-				ss, err := s.createJupyterLabStatefulSet(ctx, string(UserID), job)
+				err := s.createJupyterLab(ctx, string(UserID), job)
 				if err != nil {
-					s.addCreateFailedJupyterLabJob(job)
 					s.logger.Error(err, "failed to create JupyterLab StatefulSet")
-					return err
-				} else {
-					s.deleteCreateFailedJupyterLabJob(job.JobName)
-					s.logger.Info("JupyterLab StatefulSet created", "statefulset", ss.Name)
-				}
-
-				ownerRef := metav1.OwnerReference{
-					APIVersion: "apps/v1",
-					Kind:       "StatefulSet",
-					Name:       ss.Name,
-					UID:        ss.UID,
-				}
-
-				svc, err := s.createJupyterLabService(ctx, string(UserID), job, ownerRef)
-				if err != nil {
-					s.logger.Error(err, "failed to create JupyterLab service")
-					return err
-				}
-				s.logger.Info("JupyterLab service created", "service", svc.Name)
-
-				ing, err := s.createJupyterLabIngress(ctx, string(UserID), job, svc, ownerRef)
-				if err != nil {
-					s.logger.Error(err, "failed to create JupyterLab ingress")
-					return err
-				}
-				s.logger.Info("JupyterLab ingress created", "ingress", ing.Name)
-			}
-		}
-
-		// 3. 删除不再需要的JupyterLab任务
-		for _, currentJob := range currentJupyterLabJobs.Items {
-			exists := false
-			for _, job := range portalJobs {
-				if currentJob.Name == job.JobName {
-					exists = true
-					break
-				}
-			}
-
-			if !exists {
-				// 删除当前的JupyterLab任务
-				if err := s.kubeClient.Delete(ctx, &currentJob); err != nil {
-					s.logger.Error(err, "failed to delete JupyterLab job", "job", currentJob)
 				}
 			}
 		}
 
 	}
-	return nil
+	var totalJuypterlabJobs v1beta1.JuypterLabList
+	if err := s.kubeClient.List(ctx, &totalJuypterlabJobs, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	}); err != nil {
+		s.logger.Error(err, "failed to list JupyterLabs")
+		return
+	}
+	for _, currentJob := range totalJuypterlabJobs.Items {
+		exists := false
+		for _, job := range portalJobs {
+			if currentJob.Name == job.JobName {
+				exists = true
+				break
+			}
+		}
+
+		if !exists {
+			// 删除当前的JupyterLab任务
+			if err := s.kubeClient.Delete(ctx, &currentJob); err != nil {
+				s.logger.Error(err, "failed to delete JupyterLab job", "job", currentJob)
+			}
+		}
+	}
 }
 
-func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) (*appsv1.StatefulSet, error) {
-	storageClassName := os.Getenv("STORAGECLASS")
-	volumeMounts := []v1.VolumeMount{
-		{
-			Name:      "workspace",
-			MountPath: "/workspace",
-		},
-	}
-	volumes := []v1.Volume{
-		{
-			Name: "workspace",
-			VolumeSource: v1.VolumeSource{
-				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-					ClaimName: "pvc-" + job.JobName + "-0",
-				},
-			},
-		},
-	}
-
+func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) error {
 	// 处理预训练模型的挂载点
+	models := []v1beta1.Model{}
 	for _, pm := range *job.PretrainedModels {
 		_, done, err := s.checkModelExistence(ctx, namespace, pm.PretrainedModelId, pm.PretrainedModelIsPublic)
 		if err != nil {
@@ -1154,210 +1112,31 @@ func (s *SyncJob) createJupyterLabStatefulSet(ctx context.Context, namespace str
 		if pm.PretrainedModelIsPublic {
 			modelID = modelID + "-public"
 		}
-		var modelStorage cpodv1.ModelStorage
-		if err := s.kubeClient.Get(ctx, client.ObjectKey{Name: modelID, Namespace: namespace}, &modelStorage); err != nil {
-			return nil, fmt.Errorf("failed to get ModelStorage %s: %w", pm.PretrainedModelId, err)
-		}
-
-		// 添加挂载点
-		volumeMounts = append(volumeMounts, v1.VolumeMount{
-			Name:      modelID,
-			MountPath: pm.PretrainedModelPath,
+		models = append(models, v1beta1.Model{
+			ModelStorage: modelID,
+			MountPath:    pm.PretrainedModelPath,
 		})
 
-		// 添加对应的卷
-		volumes = append(volumes, v1.Volume{
-			Name: modelID,
-			VolumeSource: v1.VolumeSource{
-				PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-					ClaimName: modelStorage.Spec.PVC,
-					ReadOnly:  true,
-				},
-			},
-		})
 	}
 
-	// 2. 创建StatefulSet
-	ss := &appsv1.StatefulSet{
+	juypterlab := v1beta1.JuypterLab{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      job.JobName,
 			Namespace: namespace,
-			Labels:    map[string]string{"app": "jupyterlab"},
+			Name:      job.JobName,
+			Labels: map[string]string{
+				v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+				v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+			},
 		},
-		Spec: appsv1.StatefulSetSpec{
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"app": job.JobName},
-			},
-			Template: v1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{"app": job.JobName},
-				},
-				Spec: v1.PodSpec{
-					Containers: []v1.Container{
-						{
-							Name:  job.JobName,
-							Image: "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5",
-							Resources: v1.ResourceRequirements{
-								Requests: v1.ResourceList{
-									v1.ResourceCPU:    resource.MustParse(job.CPUCount),
-									v1.ResourceMemory: resource.MustParse(job.Memory),
-								},
-								Limits: v1.ResourceList{
-									v1.ResourceCPU:    resource.MustParse(job.CPUCount),
-									v1.ResourceMemory: resource.MustParse(job.Memory),
-									"nvidia.com/gpu":  *resource.NewQuantity(int64(job.GPUCount), resource.DecimalSI),
-								},
-							},
-							Env: []v1.EnvVar{
-								{
-									Name:  "JUPYTER_TOKEN",
-									Value: job.JobName,
-								},
-							},
-							Command: []string{
-								"jupyter",
-								"lab",
-								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%s/", job.JobName),
-								"--allow-root",
-								"--ip=0.0.0.0",
-							},
-							VolumeMounts: volumeMounts,
-						},
-					},
-					Volumes: volumes,
-				},
-			},
-			VolumeClaimTemplates: []v1.PersistentVolumeClaim{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "pvc",
-					},
-					Spec: v1.PersistentVolumeClaimSpec{
-						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
-						StorageClassName: &storageClassName,
-						Resources: v1.ResourceRequirements{
-							Requests: v1.ResourceList{
-								v1.ResourceStorage: resource.MustParse(job.DataVolumeSize),
-							},
-						},
-					},
-				},
-			},
+		Spec: v1beta1.JuypterLabSpec{
+			GPUCount:       job.GPUCount,
+			Memory:         job.Memory,
+			CPUCount:       job.CPUCount,
+			GPUProduct:     job.GPUProduct,
+			DataVolumeSize: job.DataVolumeSize,
+			Models:         models,
 		},
 	}
 
-	if job.GPUProduct != "" {
-		ss.Spec.Template.Spec.NodeSelector = map[string]string{
-			"nvidia.com/gpu.product": job.GPUProduct,
-		}
-	}
-
-	// 3. 创建StatefulSet
-	if err := s.kubeClient.Create(ctx, ss); err != nil {
-		return nil, fmt.Errorf("failed to create StatefulSet %s: %w", job.JobName, err)
-	}
-
-	return ss, nil
-}
-
-func (s *SyncJob) createJupyterLabService(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, ownerRef metav1.OwnerReference) (*v1.Service, error) {
-	svc := &v1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:            job.JobName + "-svc",
-			Namespace:       namespace,
-			OwnerReferences: []metav1.OwnerReference{ownerRef},
-		},
-		Spec: v1.ServiceSpec{
-			Selector: map[string]string{
-				"app": job.JobName,
-			},
-			Ports: []v1.ServicePort{
-				{
-					Port:       8888,
-					TargetPort: intstr.FromInt(8888),
-				},
-			},
-			Type: v1.ServiceTypeClusterIP, // 使用ClusterIP以便在集群内部访问
-		},
-	}
-
-	if err := s.kubeClient.Create(ctx, svc); err != nil {
-		return nil, fmt.Errorf("failed to create service for JupyterLab %s: %v", job.JobName, err)
-	}
-
-	return svc, nil
-}
-
-func (s *SyncJob) createJupyterLabIngress(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob, svc *v1.Service, ownerRef metav1.OwnerReference) (*networkingv1.Ingress, error) {
-	pathType := networkingv1.PathTypeImplementationSpecific
-	ing := &networkingv1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:            job.JobName + "-ing",
-			Namespace:       namespace,
-			OwnerReferences: []metav1.OwnerReference{ownerRef},
-			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + job.JobName + "/$2",
-			},
-		},
-		Spec: networkingv1.IngressSpec{
-			IngressClassName: pointer.StringPtr("nginx"),
-			Rules: []networkingv1.IngressRule{
-				{
-					IngressRuleValue: networkingv1.IngressRuleValue{
-						HTTP: &networkingv1.HTTPIngressRuleValue{
-							Paths: []networkingv1.HTTPIngressPath{
-								{
-									PathType: &pathType,
-									Path:     "/jupyterlab/" + job.JobName + "(/|$)(.*)",
-									Backend: networkingv1.IngressBackend{
-										Service: &networkingv1.IngressServiceBackend{
-											Name: job.JobName + "-svc",
-											Port: networkingv1.ServiceBackendPort{
-												Number: 8888,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	if err := s.kubeClient.Create(ctx, ing); err != nil {
-		return nil, fmt.Errorf("failed to create ingress for JupyterLab %s: %v", job.InstanceName, err)
-	}
-
-	return ing, nil
-}
-
-func (s *SyncJob) getCreateFailedJupyterLabJobs() []sxwl.PortalJupyterLabJob {
-	res := []sxwl.PortalJupyterLabJob{}
-	s.createFailedJobs.mu.RLock()
-	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mjj {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addCreateFailedJupyterLabJob(j sxwl.PortalJupyterLabJob) {
-	if _, ok := s.createFailedJobs.mjj[j.JobName]; ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mjj[j.JobName] = j
-}
-
-// 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedJupyterLabJob(j string) {
-	if _, ok := s.createFailedJobs.mjj[j]; !ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mjj, j)
+	return s.kubeClient.Create(ctx, &juypterlab)
 }

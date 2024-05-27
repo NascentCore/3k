@@ -1,0 +1,12 @@
+apiVersion: cpod.cpod/v1beta1
+kind: LlamaFactory
+metadata:
+  labels:
+    app.kubernetes.io/name: llamafactory
+    app.kubernetes.io/instance: llamafactory-sample
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cpodjob
+  name: llamafactory-sample
+spec:
+  # TODO(user): Add fields here

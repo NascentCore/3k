@@ -1,0 +1,27 @@
+# permissions for end users to view llamafactories.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: llamafactory-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+  name: llamafactory-viewer-role
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - llamafactories
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - llamafactories/status
+  verbs:
+  - get
