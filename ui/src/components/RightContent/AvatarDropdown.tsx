@@ -9,6 +9,7 @@ import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
 import { removeToken } from '@/utils';
 import { useIntl } from '@umijs/max';
+import MyAccount from '../MyAccount';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -130,14 +131,17 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
   ];
 
   return (
-    <HeaderDropdown
-      menu={{
-        selectedKeys: [],
-        onClick: onMenuClick,
-        items: menuItems,
-      }}
-    >
-      {children}
-    </HeaderDropdown>
+    <>
+      <HeaderDropdown
+        menu={{
+          selectedKeys: [],
+          onClick: onMenuClick,
+          items: menuItems,
+        }}
+      >
+        {children}
+      </HeaderDropdown>
+      <MyAccount />
+    </>
   );
 };

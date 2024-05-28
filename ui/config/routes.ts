@@ -95,23 +95,6 @@ export default [
   //   component: './LLaMAFactory',
   // },
   {
-    path: '/MyAccount',
-    name: 'MyAccount',
-    icon: 'UserOutlined',
-    routes: [
-      {
-        path: '/MyAccount/Profile',
-        name: 'Profile',
-        component: './MyAccount/Profile',
-      },
-      {
-        path: '/MyAccount/BillOverview',
-        name: 'BillOverview',
-        component: './MyAccount/BillOverview',
-      },
-    ],
-  },
-  {
     path: '*',
     layout: false,
     component: './404',
