@@ -39,6 +39,7 @@ type (
 		Id            int64          `db:"id"`             // 自增ID
 		ServiceName   string         `db:"service_name"`   // 推理服务名
 		UserId        int64          `db:"user_id"`        // 用户ID
+		NewUserId     string         `db:"new_user_id"`    // 用户ID
 		CpodId        string         `db:"cpod_id"`        // cpod id
 		Status        int64          `db:"status"`         // 状态：0等待部署、1部署中、2部署完成、3终止
 		ObtainStatus  int64          `db:"obtain_status"`  // 状态：1不需要下发、0需要下发
@@ -87,14 +88,14 @@ func (m *defaultSysInferenceModel) FindOne(ctx context.Context, id int64) (*SysI
 }
 
 func (m *defaultSysInferenceModel) Insert(ctx context.Context, data *SysInference) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysInferenceRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysInferenceRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.NewUserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime)
 	return ret, err
 }
 
 func (m *defaultSysInferenceModel) Update(ctx context.Context, data *SysInference) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysInferenceRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.ServiceName, data.UserId, data.NewUserId, data.CpodId, data.Status, data.ObtainStatus, data.BillingStatus, data.GpuNumber, data.GpuType, data.ModelName, data.ModelId, data.ModelSize, data.ModelPublic, data.Template, data.Url, data.Metadata, data.StartTime, data.EndTime, data.Id)
 	return err
 }
 

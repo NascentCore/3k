@@ -89,7 +89,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 		resp.User.User.Enabled = true
 	}
 	// id
-	resp.User.User.ID = int(user.UserId)
+	resp.User.User.ID = user.UserId
 	// user_id
 	resp.User.User.UserID = user.NewUserId
 	// isAdmin

@@ -41,7 +41,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 
 	// check balance
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.UserID,
+		"new_user_id": req.UserID,
 	}))
 	if err != nil {
 		return nil, err
@@ -53,18 +53,18 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	// check quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GpuType, req.GpuNumber)
 	if err != nil {
-		l.Errorf("JobCreate CheckQuota userId: %d GpuType: %s err: %s", req.UserID, req.GpuType, err)
+		l.Errorf("JobCreate CheckQuota userId: %s GpuType: %s err: %s", req.UserID, req.GpuType, err)
 		return nil, err
 	}
 	if !ok {
-		err = fmt.Errorf("JobCreate CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, req.GpuType, left, req.GpuNumber)
+		err = fmt.Errorf("JobCreate CheckQuota userId: %s gpu: %s left: %d need: %d", req.UserID, req.GpuType, left, req.GpuNumber)
 		l.Error(err)
 		return nil, err
 	}
 
 	newUUID, err := uuid.NewRandom()
 	if err != nil {
-		l.Errorf("new uuid userId: %d err: %s", req.UserID, err)
+		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -74,7 +74,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 
 	userJob := &model.SysUserJob{}
 	_ = copier.Copy(userJob, req)
-	userJob.UserId = req.UserID
+	userJob.NewUserId = req.UserID
 	userJob.JobName = sql.NullString{String: "ai" + newUUID.String(), Valid: true}
 	if req.PretrainedModelId != "" {
 		userJob.PretrainedModelName = orm.NullString(req.PretrainedModelId)
@@ -89,13 +89,13 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	jsonAll := make(map[string]any)
 	bytes, err := json.Marshal(req)
 	if err != nil {
-		l.Errorf("marshal userJob userId: %d err: %s", req.UserID, err)
+		l.Errorf("marshal userJob userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
 	err = json.Unmarshal(bytes, &jsonAll)
 	if err != nil {
-		l.Errorf("unmarshal userId: %d err: %s", req.UserID, err)
+		l.Errorf("unmarshal userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -107,14 +107,14 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
-		l.Errorf("marshal jsonAll userId: %d err: %s", req.UserID, err)
+		l.Errorf("marshal jsonAll userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 	userJob.JsonAll = sql.NullString{String: string(bytes), Valid: true}
 
 	_, err = UserJobModel.Insert(l.ctx, userJob)
 	if err != nil {
-		l.Errorf("insert userId: %d err: %s", req.UserID, err)
+		l.Errorf("insert userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 

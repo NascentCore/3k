@@ -35,7 +35,7 @@ func (l *UserListLogic) UserList() (resp *types.UserListResp, err error) {
 	resp = &types.UserListResp{Data: make([]types.User, 0)}
 	for _, user := range userList {
 		resp.Data = append(resp.Data, types.User{
-			UserId:   user.UserId,
+			UserID:   user.NewUserId,
 			UserName: user.Username.String,
 		})
 	}

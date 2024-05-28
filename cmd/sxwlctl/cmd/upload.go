@@ -71,9 +71,9 @@ var uploadCmd = &cobra.Command{
 		prefix := ""
 		switch typ {
 		case "model":
-			prefix = fmt.Sprintf("models/user-%d/", userID)
+			prefix = fmt.Sprintf("models/%s/", userID)
 		case "dataset":
-			prefix = fmt.Sprintf("datasets/user-%d/", userID)
+			prefix = fmt.Sprintf("datasets/%s/", userID)
 		}
 		size, err := upload(conf, path.Join(prefix, filepath.Base(dir)), dir)
 		if err != nil {
@@ -92,7 +92,7 @@ func init() {
 	viper.SetDefault("auth_url", "https://llm.sxwl.ai/api/uploader_access")
 }
 
-func getAccessByToken(token string) (id, key string, userID int64, err error) {
+func getAccessByToken(token string) (id, key string, userID string, err error) {
 	// Create a new request using http.NewRequest
 	req, err := http.NewRequest("GET", viper.GetString("auth_url"), nil)
 	if err != nil {

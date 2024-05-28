@@ -34,11 +34,11 @@ func (l *InferenceDeleteLogic) InferenceDelete(req *types.InferenceDeleteReq) (r
 	service, err := InferenceModel.FindOneByQuery(l.ctx, InferenceModel.AllFieldsBuilder().Where(
 		squirrel.And{
 			squirrel.Eq{"service_name": req.ServiceName},
-			squirrel.Eq{"user_id": req.UserID},
+			squirrel.Eq{"new_user_id": req.UserID},
 		},
 	))
 	if err != nil {
-		l.Errorf("FindOneByQuery service_name=%s user_id=%d err=%s", req.ServiceName, req.UserID, err)
+		l.Errorf("FindOneByQuery service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
 		return nil, err
 	}
 
@@ -52,24 +52,24 @@ func (l *InferenceDeleteLogic) InferenceDelete(req *types.InferenceDeleteReq) (r
 	result, err := InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(
 		squirrel.And{
 			squirrel.Eq{"service_name": req.ServiceName},
-			squirrel.Eq{"user_id": req.UserID},
+			squirrel.Eq{"new_user_id": req.UserID},
 		}).SetMap(map[string]interface{}{
 		"status":   model.InferStatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {
-		l.Errorf("update inference service_name=%s user_id=%d err=%s", req.ServiceName, req.UserID, err)
+		l.Errorf("update inference service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
 		return nil, err
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		l.Errorf("RowsAffected service_name=%s user_id=%d err=%s", req.ServiceName, req.UserID, err)
+		l.Errorf("RowsAffected service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
 		return nil, err
 	}
 
 	if rows != 1 {
-		l.Errorf("RowsAffected rows=%d service_name=%s user_id=%d err=%s", rows, req.ServiceName, req.UserID, err)
+		l.Errorf("RowsAffected rows=%d service_name=%s user_id=%s err=%s", rows, req.ServiceName, req.UserID, err)
 	}
 
 	resp = &types.InferenceDeleteResp{Message: fmt.Sprintf("service_name: %s stopped", req.ServiceName)}

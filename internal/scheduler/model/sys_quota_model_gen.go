@@ -36,12 +36,13 @@ type (
 	}
 
 	SysQuota struct {
-		Id        int64     `db:"id"`         // 自增ID
-		UserId    int64     `db:"user_id"`    // 用户ID
-		Resource  string    `db:"resource"`   // 资源类型
-		Quota     int64     `db:"quota"`      // 资源配额
-		CreatedAt time.Time `db:"created_at"` // 创建时间
-		UpdatedAt time.Time `db:"updated_at"` // 更新时间
+		Id        int64     `db:"id"`          // 自增ID
+		UserId    int64     `db:"user_id"`     // 用户ID
+		NewUserId string    `db:"new_user_id"` // 用户ID
+		Resource  string    `db:"resource"`    // 资源类型
+		Quota     int64     `db:"quota"`       // 资源配额
+		CreatedAt time.Time `db:"created_at"`  // 创建时间
+		UpdatedAt time.Time `db:"updated_at"`  // 更新时间
 	}
 )
 
@@ -73,14 +74,14 @@ func (m *defaultSysQuotaModel) FindOne(ctx context.Context, id int64) (*SysQuota
 }
 
 func (m *defaultSysQuotaModel) Insert(ctx context.Context, data *SysQuota) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, sysQuotaRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.Resource, data.Quota)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, sysQuotaRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserId, data.NewUserId, data.Resource, data.Quota)
 	return ret, err
 }
 
 func (m *defaultSysQuotaModel) Update(ctx context.Context, data *SysQuota) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysQuotaRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.Resource, data.Quota, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserId, data.NewUserId, data.Resource, data.Quota, data.Id)
 	return err
 }
 

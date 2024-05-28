@@ -27,7 +27,7 @@ func NewJupyterlabImageVersionListLogic(ctx context.Context, svcCtx *svc.Service
 }
 
 func (l *JupyterlabImageVersionListLogic) JupyterlabImageVersionList(req *types.JupyterlabImageVersionListReq) (resp *types.JupyterlabImageVersionListResp, err error) {
-	url := fmt.Sprintf("%s/repos?user_id=%d&instance_name=%s", l.svcCtx.Config.K8S.BaseApi, req.UserID, req.InstanceName)
+	url := fmt.Sprintf("%s/repos?user_id=%s&instance_name=%s", l.svcCtx.Config.K8S.BaseApi, req.UserID, req.InstanceName)
 	imageListResp, err := httpc.Do(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		l.Errorf("repos http request url=%s err=%s", url, err)

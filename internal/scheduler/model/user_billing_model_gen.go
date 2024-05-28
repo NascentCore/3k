@@ -39,6 +39,7 @@ type (
 		Id            int64          `db:"id"`             // ID
 		BillingId     string         `db:"billing_id"`     // 账单ID
 		UserId        int64          `db:"user_id"`        // 用户ID
+		NewUserId     string         `db:"new_user_id"`    // 用户ID
 		Amount        float64        `db:"amount"`         // 消费金额
 		BillingStatus int64          `db:"billing_status"` // 账单状态（0 未支付、1 已支付、2 欠费）
 		JobId         string         `db:"job_id"`         // 关联任务id
@@ -80,14 +81,14 @@ func (m *defaultUserBillingModel) FindOne(ctx context.Context, id int64) (*UserB
 }
 
 func (m *defaultUserBillingModel) Insert(ctx context.Context, data *UserBilling) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userBillingRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.BillingId, data.UserId, data.Amount, data.BillingStatus, data.JobId, data.JobType, data.BillingTime, data.DueTime, data.PaymentTime, data.Description)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userBillingRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.BillingId, data.UserId, data.NewUserId, data.Amount, data.BillingStatus, data.JobId, data.JobType, data.BillingTime, data.DueTime, data.PaymentTime, data.Description)
 	return ret, err
 }
 
 func (m *defaultUserBillingModel) Update(ctx context.Context, data *UserBilling) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userBillingRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.BillingId, data.UserId, data.Amount, data.BillingStatus, data.JobId, data.JobType, data.BillingTime, data.DueTime, data.PaymentTime, data.Description, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.BillingId, data.UserId, data.NewUserId, data.Amount, data.BillingStatus, data.JobId, data.JobType, data.BillingTime, data.DueTime, data.PaymentTime, data.Description, data.Id)
 	return err
 }
 

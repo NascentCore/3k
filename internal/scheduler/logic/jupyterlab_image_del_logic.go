@@ -29,8 +29,9 @@ func NewJupyterlabImageDelLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *JupyterlabImageDelLogic) JupyterlabImageDel(req *types.JupyterlabImageDelReq) (resp *types.JupyterlabImageDelResp, err error) {
 	url := fmt.Sprintf("%s/delete_repo", l.svcCtx.Config.K8S.BaseApi)
+	// TODO types.ImageDelReq 跟 types.JupyterlabImageDelReq 内容一样
 	imageDelResp, err := httpc.Do(context.Background(), http.MethodDelete, url, types.ImageDelReq{
-		UserID:    int(req.UserID),
+		UserID:    req.UserID,
 		ImageName: req.ImageName,
 		Tag:       req.TagName,
 	})

@@ -26,21 +26,32 @@ func NewQuotaListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QuotaLi
 }
 
 func (l *QuotaListLogic) QuotaList(req *types.QuotaListReq) (resp *types.QuotaListResp, err error) {
+	UserModel := l.svcCtx.UserModel
 	QuotaModel := l.svcCtx.QuotaModel
 
+	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
+	if err != nil {
+		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
+		return nil, ErrNotAdmin
+	}
+	if !isAdmin {
+		l.Infof("UserModel.IsAdmin userID=%s is not admin", req.UserID)
+		return nil, ErrNotAdmin
+	}
+
 	var quotaList []*model.SysQuota
-	if req.UserId != 0 {
+	if req.UserID != "" {
 		quotaList, err = QuotaModel.Find(l.ctx, QuotaModel.AllFieldsBuilder().Where(squirrel.Eq{
-			"user_id": req.UserId,
+			"new_user_id": req.UserID,
 		}))
 		if err != nil {
-			l.Errorf("QuotaList Find user_id=%d err=%s", req.UserId, err)
+			l.Errorf("QuotaList Find user_id=%s err=%s", req.UserID, err)
 			return nil, err
 		}
 	} else {
 		quotaList, err = QuotaModel.FindAll(l.ctx, "")
 		if err != nil {
-			l.Errorf("QuotaList FindAll user_id=%d err=%s", req.UserId, err)
+			l.Errorf("QuotaList FindAll user_id=%s err=%s", req.UserID, err)
 			return nil, err
 		}
 	}
@@ -52,7 +63,7 @@ func (l *QuotaListLogic) QuotaList(req *types.QuotaListReq) (resp *types.QuotaLi
 		resp.Data = append(resp.Data, types.QuotaResp{
 			Id: quota.Id,
 			Quota: types.Quota{
-				UserId:   quota.UserId,
+				UserId:   quota.NewUserId,
 				Resource: quota.Resource,
 				Quota:    quota.Quota,
 			},

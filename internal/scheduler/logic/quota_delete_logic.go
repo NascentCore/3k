@@ -24,10 +24,22 @@ func NewQuotaDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Quota
 }
 
 func (l *QuotaDeleteLogic) QuotaDelete(req *types.QuotaDeleteReq) (resp *types.QuotaDeleteResp, err error) {
+	UserModel := l.svcCtx.UserModel
 	QuotaModel := l.svcCtx.QuotaModel
+
+	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
+	if err != nil {
+		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
+		return nil, ErrNotAdmin
+	}
+	if !isAdmin {
+		l.Infof("UserModel.IsAdmin userID=%s is not admin", req.UserID)
+		return nil, ErrNotAdmin
+	}
+
 	err = QuotaModel.Delete(l.ctx, req.Id)
 	if err != nil {
-		l.Errorf("QuotaDelete id=%d user_id=%d err=%s", req.Id, req.UserID, err)
+		l.Errorf("QuotaDelete id=%d user_id=%s err=%s", req.Id, req.UserID, err)
 		return nil, err
 	}
 
