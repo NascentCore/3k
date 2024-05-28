@@ -44,7 +44,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 
 	// check balance
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.UserID,
+		"new_user_id": req.UserID,
 	}))
 	if err != nil {
 		return nil, err
@@ -56,15 +56,15 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	// check model is in list
 	_, ok := l.svcCtx.Config.FinetuneModel[req.Model]
 	if !ok {
-		l.Errorf("finetune model %s is not supported userId: %d", req.Model, req.UserID)
+		l.Errorf("finetune model %s is not supported userId: %s", req.Model, req.UserID)
 		return nil, fmt.Errorf("model: %s for codeless fine-tune is not supported", req.Model)
 	}
 
 	userJob := &model.SysUserJob{}
-	userJob.UserId = req.UserID
+	userJob.NewUserId = req.UserID
 	jobName, err := job.NewJobName()
 	if err != nil {
-		l.Errorf("new uuid userId: %d err: %s", req.UserID, err)
+		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 	userJob.JobName = orm.NullString(jobName)
@@ -76,11 +76,11 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile)
 	ok, datasetSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
 	if err != nil {
-		l.Errorf("dataset storage.ExistDir userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
+		l.Errorf("dataset storage.ExistDir userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
 		return nil, err
 	}
 	if !ok {
-		l.Errorf("dataset not exists userID: %d dataset: %s err: %s", req.UserID, req.TrainingFile, err)
+		l.Errorf("dataset not exists userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
 		return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
 	}
 	userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
@@ -96,8 +96,8 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 			},
 		}))
 		if err != nil {
-			l.Errorf("finetune no gpu match model: %s userId: %d", req.Model, req.UserID)
-			return nil, fmt.Errorf("finetune no gpu match model: %s userId: %d", req.Model, req.UserID)
+			l.Errorf("finetune no gpu match model: %s userId: %s", req.Model, req.UserID)
+			return nil, fmt.Errorf("finetune no gpu match model: %s userId: %s", req.Model, req.UserID)
 		}
 		userJob.GpuType = cpodMain.GpuProd
 		userJob.GpuNumber = orm.NullInt64(1) // 无代码微调暂时都写1
@@ -109,11 +109,11 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	// check gpu quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, userJob.GpuType.String, userJob.GpuNumber.Int64)
 	if err != nil {
-		l.Errorf("finetune CheckQuota userId: %d GpuType: %s err: %s", req.UserID, userJob.GpuType.String, err)
+		l.Errorf("finetune CheckQuota userId: %s GpuType: %s err: %s", req.UserID, userJob.GpuType.String, err)
 		return nil, err
 	}
 	if !ok {
-		err = fmt.Errorf("finetune CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, userJob.GpuType.String, left, userJob.GpuNumber.Int64)
+		err = fmt.Errorf("finetune CheckQuota userId: %s gpu: %s left: %d need: %d", req.UserID, userJob.GpuType.String, left, userJob.GpuNumber.Int64)
 		l.Error(err)
 		return nil, err
 	}
@@ -150,13 +150,13 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll := make(map[string]any)
 	bytes, err := json.Marshal(createReq)
 	if err != nil {
-		l.Errorf("marshal userJob userId: %d err: %s", req.UserID, err)
+		l.Errorf("marshal userJob userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
 	err = json.Unmarshal(bytes, &jsonAll)
 	if err != nil {
-		l.Errorf("unmarshal userId: %d err: %s", req.UserID, err)
+		l.Errorf("unmarshal userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -182,14 +182,14 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
-		l.Errorf("marshal jsonAll userId: %d err: %s", req.UserID, err)
+		l.Errorf("marshal jsonAll userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 	userJob.JsonAll = sql.NullString{String: string(bytes), Valid: true}
 
 	_, err = UserJobModel.Insert(l.ctx, userJob)
 	if err != nil {
-		l.Errorf("insert userId: %d err: %s", req.UserID, err)
+		l.Errorf("insert userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 

@@ -11,12 +11,6 @@ info (
 import "client.api"
 
 type (
-	AuthReq {
-		UserID int64 `header:"Sx-User"`
-	}
-)
-
-type (
 	GPUStateInfo {
 		Temp      int    `json:"temp"`
 		MemUsage  int    `json:"mem_usage"`
@@ -117,7 +111,7 @@ type (
 		ResourceInfo     ResourceInfo       `json:"resource_info"`
 		UpdateTime       string             `json:"update_time"`
 		CPODID           string             `json:"cpod_id"`
-		UserID           int64              `header:"Sx-User"`
+		UserID           string             `header:"Sx-User-ID"`
 	}
 	CPODStatusResp {
 		Message string `json:"message"`
@@ -186,7 +180,7 @@ type (
 		RunCommand              string            `json:"runCommand,optional"`
 		CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
 		Env                     map[string]string `json:"env,optional,omitempty"`
-		UserID                  int64             `header:"Sx-User" json:"-"`
+		UserID                  string            `header:"Sx-User-ID"`
 	}
 	JobCreateResp {
 		JobId string `json:"job_id"`
@@ -204,7 +198,7 @@ type (
 		TrainedModelName string                 `json:"trainedModelName,optional"`
 		Hyperparameters  map[string]interface{} `json:"hyperparameters,optional,omitempty"`
 		Config           map[string]interface{} `json:"config,optional,omitempty"`
-		UserID           int64                  `header:"Sx-User" json:"-"`
+		UserID           string                 `header:"Sx-User-ID"`
 	}
 	FinetuneResp {
 		JobId string `json:"job_id"`
@@ -219,20 +213,20 @@ type (
 		Owner             string   `json:"owner"`
 		Size              int64    `json:"size"`
 		IsPublic          bool     `json:"is_public"`
-		UserId            int64    `json:"user_id"`
+		UserId            string   `json:"user_id"`
 		Tag               []string `json:"tag"`
 		FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 		InferenceGPUCount int      `json:"inference_gpu_count"`
 	}
 	ResourceModelsReq {
-		UserID int64 `header:"Sx-User" json:"-"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	ResourceModelsResp {
 		Total int64      `json:"total"`
 		List  []Resource `json:"list"`
 	}
 	ResourceDatasetsReq {
-		UserID int64 `header:"Sx-User" json:"-"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	ResourceDatasetsResp {
 		Total int64      `json:"total"`
@@ -242,20 +236,20 @@ type (
 
 type (
 	UploaderAccessReq {
-		UserID int64 `header:"Sx-User" json:"-"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	UploaderAccessResp {
 		AccessID  string `json:"access_id"`
 		AccessKey string `json:"access_key"`
-		UserID    int64  `json:"user_id"`
+		UserID    string `json:"user_id"`
 	}
 )
 
 type (
 	JobGetReq {
-		Current int   `form:"current"`
-		Size    int   `form:"size"`
-		UserID  int64 `header:"Sx-User"`
+		Current int    `form:"current"`
+		Size    int    `form:"size"`
+		UserID  string `header:"Sx-User-ID"`
 	}
 	Job {
 		CkptPath            string `json:"ckptPath"`
@@ -281,7 +275,7 @@ type (
 		StopTime            int    `json:"stopTime"`
 		StopType            int    `json:"stopType"`
 		UpdateTime          string `json:"updateTime"`
-		UserId              int    `json:"userId"`
+		UserId              string `json:"userId"`
 		WorkStatus          int    `json:"workStatus"`
 	}
 	JobGetResp {
@@ -306,21 +300,21 @@ type (
 		ModelName string `json:"model_name"`
 		GpuModel  string `json:"gpu_model,optional"`
 		GpuCount  int64  `json:"gpu_count,optional"`
-		UserID    int64  `header:"Sx-User"`
+		UserID    string `header:"Sx-User-ID"`
 	}
 	InferenceDeployResp {
 		ServiceName string `json:"service_name"`
 	}
 	InferenceInfoReq {
 		ServiceName string `json:"service_name,optional"`
-		UserID      int64  `header:"Sx-User"`
+		UserID      string `header:"Sx-User-ID"`
 	}
 	InferenceInfoResp {
 		Data []SysInference `json:"data"`
 	}
 	InferenceDeleteReq {
 		ServiceName string `form:"service_name"`
-		UserID      int64  `header:"Sx-User"`
+		UserID      string `header:"Sx-User-ID"`
 	}
 	InferenceDeleteResp {
 		Message string `json:"message"`
@@ -339,7 +333,7 @@ type (
 		GpuNumber     int64  `json:"gpu_number"`
 		Template      string `json:"template"`
 		CpodId        string `json:"cpod_id"`
-		UserId        int64  `json:"user_id"`
+		UserId        string `json:"user_id"`
 	}
 	PretrainedModels {
 		PretrainedModelId   string `json:"pretrainedModelId"`
@@ -355,7 +349,7 @@ type (
 		GPUProduct       string             `json:"gpuProduct"`
 		DataVolumeSize   string             `json:"dataVolumeSize"`
 		PretrainedModels []PretrainedModels `json:"pretrainedModels"`
-		UserID           int64              `json:"userId"`
+		UserID           string             `json:"userId"`
 	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
@@ -396,13 +390,13 @@ type (
 
 type (
 	Quota {
-		UserId   int64  `json:"user_id"`
+		UserId   string `json:"user_id"`
 		Resource string `json:"resource"`
 		Quota    int64  `json:"quota"`
 	}
 	QuotaAddReq {
 		Quota
-		UserID int64 `header:"Sx-User"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	QuotaAddResp {
 		Message string `json:"message"`
@@ -412,22 +406,22 @@ type (
 		Quota
 	}
 	QuotaListReq {
-		UserId int64 `json:"user_id,optional"`
+		UserID string `json:"user_id,optional"`
 	}
 	QuotaListResp {
 		Data []QuotaResp `json:"data"`
 	}
 	QuotaUpdateReq {
-		Id     int64 `json:"id"`
-		Quota  int64 `json:"quota"`
-		UserID int64 `header:"Sx-User"`
+		Id     int64  `json:"id"`
+		Quota  int64  `json:"quota"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	QuotaUpdateResp {
 		Message string `json:"message"`
 	}
 	QuotaDeleteReq {
-		Id     int64 `json:"id"`
-		UserID int64 `header:"Sx-User"`
+		Id     int64  `json:"id"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	QuotaDeleteResp {
 		Message string `json:"message"`
@@ -436,7 +430,7 @@ type (
 
 type (
 	User {
-		UserId   int64  `json:"user_id"`
+		UserID   string `json:"user_id"`
 		UserName string `json:"user_name"`
 	}
 	UserListResp {
@@ -519,13 +513,16 @@ type (
 		CreateTime string `json:"createTime"`
 		Email      string `json:"email"`
 		Enabled    bool   `json:"enabled"`
-		ID         int    `json:"id"`
+		ID         int64  `json:"id"`
 		UserID     string `json:"user_id"`
 		IsAdmin    bool   `json:"isAdmin"`
 		UpdateBy   string `json:"updateBy"`
 		UpdateTime string `json:"updateTime"`
 		UserType   int    `json:"userType"`
 		Username   string `json:"username"`
+	}
+	UserInfoReq {
+		UserID string `header:"Sx-User-ID"`
 	}
 	UserInfoResp {
 		User UserInfo `json:"user"`
@@ -548,7 +545,7 @@ type (
 )
 service scheduler-api {
 	@handler userInfo
-	get /info (AuthReq) returns (UserInfoResp)
+	get /info (UserInfoReq) returns (UserInfoResp)
 
 	@handler userLogin
 	post /login (LoginReq) returns (LoginResp)
@@ -585,25 +582,25 @@ type (
 		ModelName      string `json:"model_name,optional"`
 		ModelPath      string `json:"model_path,optional"`
 		URL            string `json:"url,optional"`
-		UserId         int64  `json:"user_id"`
+		UserId         string `json:"user_id"`
 		Status         string `json:"status,optional"`
 	}
 	JupyterlabCreateReq {
 		Jupyterlab
-		UserID int64 `header:"Sx-User"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	JupyterlabCreateResp {
 		Message string `json:"message"`
 	}
 	JupyterlabListReq {
-		UserID int64 `header:"Sx-User"`
+		UserID string `header:"Sx-User_ID"`
 	}
 	JupyterlabListResp {
 		Data []Jupyterlab `json:"data"`
 	}
 	JupyterlabDeleteReq {
 		JobName string `json:"job_name"`
-		UserID  int64  `header:"Sx-User"`
+		UserID  string `header:"Sx-User-ID"`
 	}
 	JupyterlabDeleteResp {
 		Message string `json:"message"`
@@ -625,7 +622,7 @@ type (
 		PushTime  string `json:"push_time"`
 	}
 	JupyterlabImageCreateReq {
-		UserID       int64  `header:"Sx-User"`
+		UserID       string `header:"Sx-User-ID"`
 		BaseImage    string `json:"base_image"`
 		InstanceName string `json:"instance_name"`
 		JobName      string `json:"job_name"`
@@ -634,7 +631,7 @@ type (
 		Message string `json:"message"`
 	}
 	JupyterlabImageDelReq {
-		UserID    int64  `header:"Sx-User"`
+		UserID    string `header:"Sx-User-ID"`
 		ImageName string `json:"image_name"`
 		TagName   string `json:"tag_name,optional"`
 	}
@@ -642,13 +639,13 @@ type (
 		Message string `json:"message"`
 	}
 	JupyterlabImageListReq {
-		UserID int64 `header:"Sx-User"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	JupyterlabImageListResp {
 		Data []JupyterlabImage `json:"data"`
 	}
 	JupyterlabImageVersionListReq {
-		UserID       int64  `header:"Sx-User"`
+		UserID       string `header:"Sx-User-ID"`
 		InstanceName string `form:"instance_name"`
 	}
 	JupyterlabImageVersionListResp {
@@ -659,8 +656,8 @@ type (
 // 终止任务
 type (
 	JobsDelReq {
-		UserID int64 `header:"Sx-User"`
-		ToUser int64 `json:"user_id"`
+		UserID string `header:"Sx-User-ID"`
+		ToUser string `json:"user_id"`
 	}
 	JobsDelResp {
 		Message string `json:"message"`
@@ -670,7 +667,6 @@ type (
 // 计费
 type (
 	BalanceAddReq {
-		UserId int64   `header:"Sx-User"`
 		UserID string  `header:"Sx-User-ID"`
 		ToUser int64   `json:"user_id"`
 		Amount float64 `json:"amount"`
@@ -679,7 +675,6 @@ type (
 		Message string `json:"message"`
 	}
 	BalanceGetReq {
-		UserId int64  `header:"Sx-User"`
 		UserID string `header:"Sx-User-ID"`
 		ToUser int64  `form:"user_id"`
 	}
@@ -699,7 +694,6 @@ type (
 		Description   string  `json:"description"` // 账单描述（可选，详细说明此次费用的具体内容）
 	}
 	BillingListReq {
-		UserId    int64  `header:"Sx-User"`
 		UserID    string `header:"Sx-User-ID"`
 		ToUser    int64  `form:"user_id,optional"`
 		StartTime string `form:"start_time,optional"`
@@ -720,7 +714,7 @@ type (
 		JobName      string `json:"job_name"`
 	}
 	ImageDelReq {
-		UserID    int    `json:"user_id"`
+		UserID    string `json:"user_id"`
 		ImageName string `json:"image_name"`
 		Tag       string `json:"tag"`
 	}
@@ -728,7 +722,7 @@ type (
 
 type (
 	BaseImageListReq {
-		UserID int64 `header:"Sx-User"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	BaseImageListResp {
 		Data []string `json:"data"`

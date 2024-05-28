@@ -25,7 +25,19 @@ func NewQuotaUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Quota
 }
 
 func (l *QuotaUpdateLogic) QuotaUpdate(req *types.QuotaUpdateReq) (resp *types.QuotaUpdateResp, err error) {
+	UserModel := l.svcCtx.UserModel
 	QuotaModel := l.svcCtx.QuotaModel
+
+	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
+	if err != nil {
+		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
+		return nil, ErrNotAdmin
+	}
+	if !isAdmin {
+		l.Infof("UserModel.IsAdmin userID=%s is not admin", req.UserID)
+		return nil, ErrNotAdmin
+	}
+
 	_, err = QuotaModel.UpdateColsByCond(l.ctx, QuotaModel.UpdateBuilder().Where(squirrel.Eq{
 		"id": req.Id,
 	}).Set("quota", req.Quota))

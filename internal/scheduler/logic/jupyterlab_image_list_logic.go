@@ -27,7 +27,7 @@ func NewJupyterlabImageListLogic(ctx context.Context, svcCtx *svc.ServiceContext
 }
 
 func (l *JupyterlabImageListLogic) JupyterlabImageList(req *types.JupyterlabImageListReq) (resp *types.JupyterlabImageListResp, err error) {
-	url := fmt.Sprintf("%s/repos?user_id=%d", l.svcCtx.Config.K8S.BaseApi, req.UserID)
+	url := fmt.Sprintf("%s/repos?user_id=%s", l.svcCtx.Config.K8S.BaseApi, req.UserID)
 	imageListResp, err := httpc.Do(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		l.Errorf("repos http request url=%s err=%s", url, err)

@@ -160,7 +160,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			serviceResp.Status = statusDesc
 		}
 		serviceResp.Template = service.Template.String
-		serviceResp.UserId = service.UserId
+		serviceResp.UserId = service.NewUserId
 		if service.ModelPublic.Int64 == model.CachePrivate {
 			serviceResp.ModelIsPublic = false
 		} else {
@@ -214,6 +214,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 				PretrainedModelPath: jupyterlab.ModelPath,
 			})
 		}
+		jupyterlabResp.UserID = jupyterlab.NewUserId
 
 		resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
 

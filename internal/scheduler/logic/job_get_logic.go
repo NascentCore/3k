@@ -27,10 +27,10 @@ func NewJobGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JobGetLogi
 
 func (l *JobGetLogic) JobGet(req *types.JobGetReq) (resp *types.JobGetResp, err error) {
 	UserJobModel := l.svcCtx.UserJobModel
-	userJobs, total, err := UserJobModel.FindPageListByPage(l.ctx, squirrel.Eq{"user_id": req.UserID},
+	userJobs, total, err := UserJobModel.FindPageListByPage(l.ctx, squirrel.Eq{"new_user_id": req.UserID},
 		int64(req.Current), int64(req.Size), "")
 	if err != nil {
-		l.Errorf("get userJobs user_id: %d err: %s", req.UserID, err)
+		l.Errorf("get userJobs user_id: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -42,6 +42,7 @@ func (l *JobGetLogic) JobGet(req *types.JobGetReq) (resp *types.JobGetResp, err 
 		_ = copier.Copy(&job, userJob)
 		job.CreateTime = userJob.CreateTime.Time.Format(time.DateTime)
 		job.UpdateTime = userJob.UpdateTime.Time.Format(time.DateTime)
+		job.UserId = userJob.NewUserId
 		resp.Content = append(resp.Content, job)
 	}
 

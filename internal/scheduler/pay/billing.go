@@ -99,7 +99,7 @@ func (bm *BillingManager) Update() {
 			}
 			billingList = append(billingList, model.UserBilling{
 				BillingId:     billingID,
-				UserId:        job.UserId,
+				NewUserId:     job.NewUserId,
 				Amount:        amount,
 				BillingStatus: model.BillingStatusUnpaid,
 				JobId:         job.JobName.String,
@@ -169,7 +169,7 @@ func (bm *BillingManager) Update() {
 			}
 			billingList = append(billingList, model.UserBilling{
 				BillingId:     billingID,
-				UserId:        infer.UserId,
+				NewUserId:     infer.NewUserId,
 				Amount:        amount,
 				BillingStatus: model.BillingStatusUnpaid,
 				JobId:         infer.ServiceName,

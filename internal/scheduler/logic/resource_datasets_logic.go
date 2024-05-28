@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
@@ -64,9 +63,9 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 				ID:       dataset.DataId,
 				Name:     datasetName,
 				Object:   "dataset",
-				Owner:    "user",
+				Owner:    dataset.NewUserId.String,
 				IsPublic: false,
-				UserId:   dataset.UserId.Int64,
+				UserId:   dataset.NewUserId.String,
 				Tag:      []string{},
 				Size:     dataset.DataSize,
 			})
@@ -84,7 +83,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 				ID:       storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
 				Name:     datasetName,
 				Object:   "dataset",
-				Owner:    strconv.FormatInt(req.UserID, 10),
+				Owner:    req.UserID,
 				IsPublic: false,
 				UserId:   req.UserID,
 				Tag:      []string{},

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
@@ -87,7 +86,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				GpuAllocatable: sql.NullInt64{Int64: int64(gpu.Allocatable), Valid: true},
 				CreateTime:     sql.NullTime{Time: time.Now(), Valid: true},
 				UpdateTime:     sql.NullTime{Time: time.Now(), Valid: true},
-				UserId:         sql.NullString{String: strconv.FormatInt(req.UserID, 10), Valid: true},
+				UserId:         orm.NullString(req.UserID),
 			}
 			_, err := CpodMainModel.Insert(l.ctx, &cpodMain)
 			if err != nil {

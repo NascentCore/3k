@@ -32,7 +32,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 	selectBuilder := JupyterlabModel.AllFieldsBuilder()
 	selectBuilder = selectBuilder.Where(squirrel.And{
 		squirrel.Eq{
-			"user_id": req.UserID,
+			"new_user_id": req.UserID,
 		},
 		squirrel.NotEq{
 			"status": model.JupyterStatusStopped,
@@ -40,7 +40,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 	})
 	jupyterlabs, err := JupyterlabModel.Find(l.ctx, selectBuilder)
 	if err != nil {
-		l.Errorf("JupyterlabModel.Find user_id: %d err: %s", req.UserID, err)
+		l.Errorf("JupyterlabModel.Find user_id: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -58,6 +58,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 		if ok {
 			jupyterlabResp.Status = statusDesc
 		}
+		jupyterlabResp.UserId = jupyterlab.NewUserId
 
 		resp.Data = append(resp.Data, jupyterlabResp)
 	}

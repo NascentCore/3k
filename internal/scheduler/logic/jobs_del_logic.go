@@ -45,34 +45,34 @@ func (l *JobsDelLogic) JobsDel(req *types.JobsDelReq) (resp *types.JobsDelResp, 
 
 	// cpodjob and finetune
 	_, err = JobModel.UpdateColsByCond(l.ctx, JobModel.UpdateBuilder().Where(squirrel.Eq{
-		"user_id": req.ToUser,
+		"new_user_id": req.ToUser,
 	}).Set("deleted", model.JobDeleted))
 	if err != nil {
-		l.Errorf("job deleted userID=%d err=%s", req.ToUser, err)
+		l.Errorf("job deleted userID=%s err=%s", req.ToUser, err)
 		return nil, err
 	}
 
 	// inference
 	_, err = InferModel.UpdateColsByCond(l.ctx, InferModel.UpdateBuilder().Where(
-		squirrel.Eq{"user_id": req.ToUser},
+		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
 		"status":   model.InferStatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {
-		l.Errorf("inference stop user_id=%d err=%s", req.ToUser, err)
+		l.Errorf("inference stop user_id=%s err=%s", req.ToUser, err)
 		return nil, err
 	}
 
 	// jupyterlab
 	_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(
-		squirrel.Eq{"user_id": req.ToUser},
+		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
 		"status":   model.JupyterStatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {
-		l.Errorf("jupyterlab stop user_id=%d err=%s", req.ToUser, err)
+		l.Errorf("jupyterlab stop user_id=%s err=%s", req.ToUser, err)
 		return nil, err
 	}
 

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
-
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
@@ -30,9 +28,10 @@ func NewJupyterlabImageCreateLogic(ctx context.Context, svcCtx *svc.ServiceConte
 
 func (l *JupyterlabImageCreateLogic) JupyterlabImageCreate(req *types.JupyterlabImageCreateReq) (resp *types.JupyterlabImageCreateResp, err error) {
 	url := fmt.Sprintf("%s/build_image", l.svcCtx.Config.K8S.BaseApi)
+	// TODO types.BuildImageReq 可以用 types.JupyterlabImageCreateReq 代替掉
 	buildImageResp, err := httpc.Do(context.Background(), http.MethodPost, url, types.BuildImageReq{
 		BaseImage:    req.BaseImage,
-		UserID:       strconv.FormatInt(req.UserID, 10),
+		UserID:       req.UserID,
 		InstanceName: req.InstanceName,
 		JobName:      req.JobName,
 	})

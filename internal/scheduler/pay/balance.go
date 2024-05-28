@@ -131,10 +131,10 @@ func (bm *BalanceManager) Update() {
 		if userBalance.Balance < 0.0 {
 			// 欠费，终止任务
 			_, err = logic.NewJobsDelLogic(bm.ctx, bm.svcCtx).JobsDel(&types.JobsDelReq{
-				ToUser: userBalance.UserId,
+				ToUser: userBalance.NewUserId,
 			})
 			if err != nil {
-				bm.Errorf("user overdraw delete jobs user_id=%d err=%s", userBalance.UserId, err)
+				bm.Errorf("user overdraw delete jobs user_id=%s err=%s", userBalance.NewUserId, err)
 			}
 		}
 	}

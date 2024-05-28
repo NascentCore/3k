@@ -34,11 +34,11 @@ func (l *JupyterlabDelLogic) JupyterlabDel(req *types.JupyterlabDeleteReq) (resp
 	instance, err := JupyterlabModel.FindOneByQuery(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(
 		squirrel.And{
 			squirrel.Eq{"job_name": req.JobName},
-			squirrel.Eq{"user_id": req.UserID},
+			squirrel.Eq{"new_user_id": req.UserID},
 		},
 	))
 	if err != nil {
-		l.Errorf("FindOneByQuery job_name=%d user_id=%d err=%s", req.JobName, req.UserID, err)
+		l.Errorf("FindOneByQuery job_name=%s user_id=%d err=%s", req.JobName, req.UserID, err)
 		return nil, err
 	}
 
@@ -52,24 +52,24 @@ func (l *JupyterlabDelLogic) JupyterlabDel(req *types.JupyterlabDeleteReq) (resp
 	result, err := JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(
 		squirrel.And{
 			squirrel.Eq{"job_name": req.JobName},
-			squirrel.Eq{"user_id": req.UserID},
+			squirrel.Eq{"new_user_id": req.UserID},
 		}).SetMap(map[string]interface{}{
 		"status":   model.JupyterStatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {
-		l.Errorf("update jupyterlab job_name=%s user_id=%d err=%s", req.JobName, req.UserID, err)
+		l.Errorf("update jupyterlab job_name=%s user_id=%s err=%s", req.JobName, req.UserID, err)
 		return nil, err
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		l.Errorf("RowsAffected job_name=%s user_id=%d err=%s", req.JobName, req.UserID, err)
+		l.Errorf("RowsAffected job_name=%s user_id=%s err=%s", req.JobName, req.UserID, err)
 		return nil, err
 	}
 
 	if rows != 1 {
-		l.Errorf("RowsAffected rows=%d job_name=%s user_id=%d err=%s", rows, req.JobName, req.UserID, err)
+		l.Errorf("RowsAffected rows=%d job_name=%s user_id=%s err=%s", rows, req.JobName, req.UserID, err)
 	}
 
 	resp = &types.JupyterlabDeleteResp{Message: fmt.Sprintf("job_name: %s stopped", req.JobName)}

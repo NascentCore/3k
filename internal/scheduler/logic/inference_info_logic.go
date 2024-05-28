@@ -34,13 +34,13 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 	InferenceModel := l.svcCtx.InferenceModel
 
 	selectBuilder := InferenceModel.AllFieldsBuilder()
-	selectBuilder = selectBuilder.Where(squirrel.Eq{"user_id": req.UserID})
+	selectBuilder = selectBuilder.Where(squirrel.Eq{"new_user_id": req.UserID})
 	if req.ServiceName != "" {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"service_name": req.ServiceName})
 	}
 	infers, err := InferenceModel.FindAll(l.ctx, selectBuilder, "")
 	if err != nil {
-		l.Errorf("InferenceModel.FindAll user_id: %d service_name: %s err: %s", req.UserID, req.ServiceName, err)
+		l.Errorf("InferenceModel.FindAll user_id: %s service_name: %s err: %s", req.UserID, req.ServiceName, err)
 		return nil, err
 	}
 

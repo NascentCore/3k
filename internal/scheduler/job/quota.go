@@ -9,15 +9,15 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userId int64, resource string, need int64) (ok bool, left int64, err error) {
+func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userID string, resource string, need int64) (ok bool, left int64, err error) {
 	QuotaModel := svx.QuotaModel
 	UserJobModel := svx.UserJobModel
 	InferenceModel := svx.InferenceModel
 
 	// check user has quota
 	quota, err := QuotaModel.FindOneByQuery(ctx, QuotaModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id":  userId,
-		"resource": resource,
+		"new_user_id": userID,
+		"resource":    resource,
 	}))
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
@@ -29,7 +29,7 @@ func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userId int64, reso
 
 	// check quota left
 	jobs, err := UserJobModel.Find(ctx, UserJobModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id":     userId,
+		"new_user_id": userID,
 		"work_status": model.JobStatusWorkerRunning,
 		"gpu_type":    resource,
 		"deleted":     0,
@@ -40,8 +40,8 @@ func CheckQuota(ctx context.Context, svx *svc.ServiceContext, userId int64, reso
 
 	infers, err := InferenceModel.FindAll(ctx, InferenceModel.AllFieldsBuilder().Where(squirrel.And{
 		squirrel.Eq{
-			"user_id":  userId,
-			"gpu_type": resource,
+			"new_user_id": userID,
+			"gpu_type":    resource,
 		},
 		squirrel.NotEq{
 			"status": model.InferStatusStopped,

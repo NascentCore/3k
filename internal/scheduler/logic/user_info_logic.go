@@ -27,9 +27,9 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 	}
 }
 
-func (l *UserInfoLogic) UserInfo(req *types.AuthReq) (resp *types.UserInfoResp, err error) {
+func (l *UserInfoLogic) UserInfo(req *types.UserInfoReq) (resp *types.UserInfoResp, err error) {
 	UserModel := l.svcCtx.UserModel
-	user, err := UserModel.FindOne(l.ctx, req.UserID)
+	user, err := UserModel.FindOneByUserID(l.ctx, req.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("UserInfo err=%s", err)
 	}
@@ -46,7 +46,7 @@ func (l *UserInfoLogic) UserInfo(req *types.AuthReq) (resp *types.UserInfoResp, 
 		resp.User.Enabled = true
 	}
 	// id
-	resp.User.ID = int(req.UserID)
+	resp.User.ID = user.UserId
 	// user_id
 	resp.User.UserID = user.NewUserId
 	// isAdmin

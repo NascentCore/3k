@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"path"
 	"sort"
-	"strconv"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
@@ -109,10 +108,10 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				ID:                m.DataId,
 				Name:              modelName,
 				Object:            "model",
-				Owner:             "user",
+				Owner:             m.NewUserId.String,
 				Size:              m.DataSize,
 				IsPublic:          false,
-				UserId:            m.UserId.Int64,
+				UserId:            m.NewUserId.String,
 				Tag:               tag,
 				FinetuneGPUCount:  int(m.FinetuneGpuCount),
 				InferenceGPUCount: int(m.InferenceGpuCount),
@@ -150,7 +149,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				ID:                storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
 				Name:              modelName,
 				Object:            "model",
-				Owner:             fmt.Sprintf("user %s", strconv.FormatInt(req.UserID, 10)),
+				Owner:             req.UserID,
 				Size:              size,
 				IsPublic:          false,
 				UserId:            req.UserID,

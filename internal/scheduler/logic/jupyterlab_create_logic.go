@@ -34,7 +34,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 
 	// check balance
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.UserID,
+		"new_user_id": req.UserID,
 	}))
 	if err != nil {
 		return nil, err
@@ -46,34 +46,34 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	// check quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, req.GPUProduct, req.GPUCount)
 	if err != nil {
-		l.Errorf("JupyterlabCreate CheckQuota userId: %d GpuType: %s err: %s", req.UserID, req.GPUProduct, err)
+		l.Errorf("JupyterlabCreate CheckQuota userId: %s GpuType: %s err: %s", req.UserID, req.GPUProduct, err)
 		return nil, err
 	}
 	if !ok {
-		err = fmt.Errorf("JupyterlabCreate CheckQuota userId: %d gpu: %s left: %d need: %d", req.UserID, req.GPUProduct, left, req.GPUCount)
+		err = fmt.Errorf("JupyterlabCreate CheckQuota userId: %s gpu: %s left: %d need: %d", req.UserID, req.GPUProduct, left, req.GPUCount)
 		l.Error(err)
 		return nil, err
 	}
 
 	// check name unique
 	jupyterList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.UserId,
+		"new_user_id": req.UserId,
 	}))
 	if err != nil {
-		l.Errorf("JupyterlabCreate find userId: %d err: %s", req.UserId, err)
+		l.Errorf("JupyterlabCreate find userId: %s err: %s", req.UserId, err)
 		return nil, err
 	}
 
 	for _, jupyterlab := range jupyterList {
 		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.JupyterStatusStopped {
-			l.Errorf("JupyterlabCreate name duplicate userId: %d name: %s", req.UserID, req.InstanceName)
+			l.Errorf("JupyterlabCreate name duplicate userId: %s name: %s", req.UserID, req.InstanceName)
 			return nil, fmt.Errorf("实例名字重复")
 		}
 	}
 
 	newUUID, err := uuid.NewRandom()
 	if err != nil {
-		l.Errorf("new uuid userId: %d err: %s", req.UserID, err)
+		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 	jobName := "jupyter-" + newUUID.String()
@@ -84,7 +84,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 
 	jupyterInstance := model.SysJupyterlab{
 		JobName:        jobName,
-		UserId:         req.UserId,
+		NewUserId:      req.UserId,
 		Status:         model.JupyterStatusWaitDeploy,
 		BillingStatus:  billingStatus,
 		InstanceName:   req.InstanceName,
@@ -99,7 +99,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	}
 	_, err = JupyterlabModel.Insert(l.ctx, &jupyterInstance)
 	if err != nil {
-		l.Errorf("insert userId: %d err: %s", req.UserID, err)
+		l.Errorf("insert userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
