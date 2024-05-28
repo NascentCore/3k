@@ -144,7 +144,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 			s.logger.Error(err, "failed to list finetunejob")
 		}
 		for _, job := range portaljobs {
-			if strconv.Itoa(int(job.UserID)) != string(user) {
+			if job.UserID != string(user) {
 				continue
 			}
 			if job.JobType != "Codeless" {
@@ -248,7 +248,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 		}
 
 		for _, job := range portaljobs {
-			if strconv.Itoa(int(job.UserID)) != string(user) {
+			if job.UserID != string(user) {
 				continue
 			}
 
@@ -502,7 +502,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 		s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items)
 
 		for _, job := range portaljobs {
-			if strconv.Itoa(int(job.UserID)) != string(user) {
+			if job.UserID != string(user) {
 				continue
 			}
 			exists := false
@@ -1050,7 +1050,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 
 		// 2. 遍历并同步JupyterLab任务
 		for _, job := range portalJobs {
-			if strconv.Itoa(int(job.UserID)) != string(UserID) {
+			if job.UserID != string(UserID) {
 				continue
 			}
 			found := false
