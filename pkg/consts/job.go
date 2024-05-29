@@ -15,7 +15,7 @@ const (
 const (
 	JobTypePytorch = "Pytorch"
 	// Rename JobTypeFinetune to JobTypeFineTune
-	JobTypeFinetune = "FineTune"
+	JobTypeFinetune = "Finetune"
 )
 
 const (
