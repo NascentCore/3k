@@ -130,8 +130,9 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 	}
 
 	balance := &model.UserBalance{
-		UserId:  user.UserId,
-		Balance: l.svcCtx.Config.Billing.InitBalance,
+		UserId:    user.UserId, // TODO remove
+		NewUserId: user.NewUserId,
+		Balance:   l.svcCtx.Config.Billing.InitBalance,
 	}
 	_, err = UserBalanceModel.Insert(l.ctx, balance)
 	if err != nil {
