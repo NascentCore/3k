@@ -32,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"knative.dev/pkg/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -58,6 +59,9 @@ type CPodJobOption struct {
 	ModelUploadJobImage        string
 	ModelUploadJobBackoffLimit int32
 	ModelUploadOssBucketName   string
+	DownloaderImage            string
+	// oss access key
+	OssAK, OssSK string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -130,6 +134,14 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	}()
 
 	if !util.IsFinshed(cpodjob.Status) {
+		// 判断模型和数据集是否已经准备完毕
+		if util.GetCondition(cpodjob.Status, cpodv1beta1.JobDataPreparing) == nil {
+			if err := c.PrepareData(ctx, cpodjob); err != nil {
+				logger.Error(err, "unable to prepare data", "cpdojob", cpodjob)
+				return ctrl.Result{}, err
+			}
+		}
+
 		baseJob, err := c.GetBaseJob(ctx, cpodjob)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -978,4 +990,170 @@ func generateModelstorageName(cpodjob *v1beta1.CPodJob) string {
 		modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, "user-"+userId+"/"+jobName))
 	}
 	return modelstorageName
+}
+
+func (c *CPodJobReconciler) PrepareData(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+	// 判断模型是否存在
+	if cpodjob.Spec.PretrainModelName != "" {
+		modelName := cpodjob.Spec.PretrainModelName
+		if cpodjob.Spec.PretrainModelIsPublic {
+			modelName = modelName + v1beta1.CPodPublicStorageSuffix
+		}
+		preTrainModel := &cpodv1.ModelStorage{}
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelName}, preTrainModel); err != nil {
+			if apierrors.IsNotFound(err) {
+				publicModel := &cpodv1.ModelStorage{}
+				if cpodjob.Spec.PretrainModelIsPublic {
+					// 判断公共模型是否存在
+					if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: cpodjob.Spec.PretrainModelName}, publicModel); err != nil {
+						if apierrors.IsNotFound(err) {
+							// 公共模型不存在
+							// TODO 创建下载任务
+							return fmt.Errorf("public model %s not found", cpodjob.Spec.PretrainModelName)
+						}
+						return fmt.Errorf("failed to get public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					}
+				}
+				// 模型是私有模型
+				// TODO: 创建下载任务
+				return fmt.Errorf("pretrain model %s not found", cpodjob.Spec.PretrainModelName)
+			}
+			return err
+		}
+		if preTrainModel.Status.Phase != "done" {
+			return fmt.Errorf("pretrain model %s not ready", cpodjob.Spec.PretrainModelName)
+		}
+	}
+
+	if cpodjob.Spec.DatasetName != "" {
+	}
+	return nil
+}
+
+func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType string, dataID, dataName string, dataSize int64, userId string, namespace string, cpodjob *v1beta1.CPodJob) error {
+	// TODO 创建modelstorage和pvc
+	pvcName := fmt.Sprintf("%s-%s", dataName, userId)
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+		if apierrors.IsNotFound(err) {
+			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      pvcName,
+					Namespace: cpodjob.Namespace,
+					OwnerReferences: []metav1.OwnerReference{
+						c.generateOwnerRefCPodJob(ctx, cpodjob),
+					},
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
+					Resources: corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceStorage: *resource.NewQuantity((int64(cpodjob.Spec.DataVolumeSize) * 1024 * 1024), resource.BinarySI),
+						},
+					},
+					StorageClassName: &c.Option.StorageClassName,
+				},
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+	}
+
+	if dataType == "modelstorage" {
+		modelstorage := &cpodv1.ModelStorage{}
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: dataID}, modelstorage); err != nil {
+			if apierrors.IsNotFound(err) {
+				modelstorage = &cpodv1.ModelStorage{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      dataID,
+						Namespace: namespace,
+					},
+					Spec: cpodv1.ModelStorageSpec{
+						ModelType: "oss",
+						ModelName: dataName,
+						PVC:       pvcName,
+						// TODO: @sxwl-donggang 完善字段
+					},
+				}
+				if err := c.Client.Create(ctx, modelstorage); err != nil && !apierrors.IsAlreadyExists(err) {
+					return err
+				}
+			}
+			return err
+		}
+	}
+
+	// type-dataName
+	downloadJobName := fmt.Sprintf("%s-%s", dataType, dataName)
+	job := batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: cpodjob.Namespace,
+			Name:      downloadJobName,
+			Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+		},
+		Spec: batchv1.JobSpec{
+			Parallelism:  ptr.Int32(1),
+			Completions:  ptr.Int32(1),
+			BackoffLimit: ptr.Int32(6),
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "data-volume",
+							VolumeSource: corev1.VolumeSource{PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+								ClaimName: pvcName,
+								ReadOnly:  false,
+							}},
+						},
+					},
+					Containers: []corev1.Container{
+						{
+							Name:  "downloader",
+							Image: c.Option.DownloaderImage,
+							Args: []string{
+								"-g",
+								"cpod.cpod",
+								"-v",
+								"v1",
+								"-p",
+								tp + "storages",
+								"-n",
+								"cpod",
+								"--name",
+								dataID,
+								"oss",
+								ossPath,
+								"-t",
+								dataSize,
+								"--endpoint",
+								"https://oss-cn-beijing.aliyuncs.com",
+								"--access_id",
+								c.Option.OssAK,
+								"--access_key",
+								c.Option.OssSK,
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									MountPath: "/data",
+									Name:      "data-volume",
+								},
+							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
+						},
+					},
+					RestartPolicy:                 "Never",
+					TerminationGracePeriodSeconds: ptr.Int64(30),
+					DNSPolicy:                     "ClusterFirst",
+					ServiceAccountName:            "sa-downloader",
+					ImagePullSecrets: []corev1.LocalObjectReference{
+						{Name: "aliyun-enterprise-registry"},
+					},
+				},
+			},
+			CompletionMode: batchv1.NonIndexedCompletion,
+		},
+	}
+	err := c.Client.Create(ctx, &job)
+	return err
 }

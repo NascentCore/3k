@@ -32,6 +32,7 @@ type ModelStorageSpec struct {
 	PVC                   string `json:"pvc,omitempty"`
 	Template              string `json:"template,omitempty"`
 	ConvertTensorRTEngine bool   `json:"converttensortrengine,omitempty"`
+	IsLoraAdapter         bool   `json:"isloraadapter,omitempty"`
 }
 
 type ConvertTensorRTEngineStatus string

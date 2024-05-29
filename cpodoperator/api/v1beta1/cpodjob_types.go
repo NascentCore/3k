@@ -56,6 +56,9 @@ const (
 	// The training has failed its execution.
 	// include the failures caused by invalid spec
 	JobFailed JobConditionType = "Failed"
+
+	// JobDataPreparing means the job is preparing data (modelstorage)
+	JobDataPreparing JobConditionType = "DataPreparing"
 )
 
 type JobType string
@@ -116,6 +119,9 @@ type CPodJobSpec struct {
 	// when DatasetName is set , this should be set
 	// +optional
 	DatasetName string `json:"datasetName,omitempty"`
+	// whether dataset is public
+	// +optional
+	DatasetIsPublic string `json:"datasetIsPublic,omitempty"`
 
 	// the path at which pretrainmodel volume will mount
 	// if not set or PretrainModelName is not set , not pretrainmodel will be mounted ,
@@ -126,6 +132,10 @@ type CPodJobSpec struct {
 	// when PretrainModelPath is set , this should be set
 	// +optional
 	PretrainModelName string `json:"pretrainModelName,omitempty"`
+
+	// whether pretrainmodel is public
+	// +optional
+	PretrainModelIsPublic bool `json:"pretrainModelIsPublic,omitempty"`
 
 	// the path at which code volume will mount
 	// if not set or gitRepo is not set , not code will be mounted
