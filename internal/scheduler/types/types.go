@@ -3,7 +3,7 @@ package types
 
 type BalanceAddReq struct {
 	UserID string  `header:"Sx-User-ID"`
-	ToUser int64   `json:"user_id"`
+	ToUser string  `json:"user_id"`
 	Amount float64 `json:"amount"`
 }
 
@@ -13,11 +13,11 @@ type BalanceAddResp struct {
 
 type BalanceGetReq struct {
 	UserID string `header:"Sx-User-ID"`
-	ToUser int64  `form:"user_id"`
+	ToUser string `form:"user_id"`
 }
 
 type BalanceGetResp struct {
-	UserID  int64   `json:"user_id"`
+	UserID  string  `json:"user_id"`
 	Balance float64 `json:"balance"`
 }
 
@@ -31,7 +31,7 @@ type BaseImageListResp struct {
 
 type BillingListReq struct {
 	UserID    string `header:"Sx-User-ID"`
-	ToUser    int64  `form:"user_id,optional"`
+	ToUser    string `form:"user_id,optional"`
 	StartTime string `form:"start_time,optional"`
 	EndTime   string `form:"end_time,optional"`
 	JobID     string `form:"job_id,optional"`
@@ -640,7 +640,7 @@ type User struct {
 
 type UserBilling struct {
 	BillingId     string  `json:"billing_id"`     // 账单ID
-	UserId        int64   `json:"user_id"`        // 用户ID
+	UserId        string  `json:"user_id"`        // 用户ID
 	Amount        float64 `json:"amount"`         // 消费金额
 	BillingStatus int64   `json:"billing_status"` // 账单状态（0 未支付、1 已支付、2 欠费） TODO 返回字符串
 	JobId         string  `json:"job_id"`         // 关联任务id

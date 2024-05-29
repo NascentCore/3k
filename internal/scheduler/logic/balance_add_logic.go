@@ -39,21 +39,21 @@ func (l *BalanceAddLogic) BalanceAdd(req *types.BalanceAddReq) (resp *types.Bala
 	}
 
 	result, err := BalanceModel.UpdateColsByCond(l.ctx, BalanceModel.UpdateBuilder().Where(squirrel.Eq{
-		"user_id": req.ToUser,
+		"new_user_id": req.ToUser,
 	}).Set("balance", squirrel.Expr("balance + ?", req.Amount)))
 	if err != nil {
-		l.Errorf("update balance userID=%d amount=%.2f err=%s", req.UserID, req.Amount, err)
+		l.Errorf("update balance userID=%s amount=%.2f err=%s", req.UserID, req.Amount, err)
 		return nil, ErrBalanceAddFail
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		l.Errorf("update balance RowsAffected user_id=%d err=%s", req.UserID, err)
+		l.Errorf("update balance RowsAffected user_id=%s err=%s", req.UserID, err)
 		return nil, ErrBalanceAddFail
 	}
 
 	if rows != 1 {
-		l.Errorf("update balance RowsAffected rows=%d user_id=%d err=%s", rows, req.UserID, err)
+		l.Errorf("update balance RowsAffected rows=%d user_id=%s err=%s", rows, req.UserID, err)
 		return nil, ErrBalanceAddFail
 	}
 

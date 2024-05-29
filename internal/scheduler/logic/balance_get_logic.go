@@ -33,16 +33,16 @@ func (l *BalanceGetLogic) BalanceGet(req *types.BalanceGetReq) (resp *types.Bala
 		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
 		return nil, ErrNotAdmin
 	}
-	if !isAdmin {
+	if !isAdmin && req.UserID != req.ToUser {
 		l.Infof("UserModel.IsAdmin userID=%s is not admin", req.UserID)
 		return nil, ErrNotAdmin
 	}
 
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.ToUser,
+		"new_user_id": req.ToUser,
 	}))
 	if err != nil {
-		l.Errorf("BalanceModel.FindOneByQuery userID=%d err=%s", req.ToUser, err)
+		l.Errorf("BalanceModel.FindOneByQuery userID=%s err=%s", req.ToUser, err)
 		return nil, ErrBalanceFindFail
 	}
 
