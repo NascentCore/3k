@@ -106,6 +106,10 @@ type CpodJobResp struct {
 	JupyterlabList       []JupyterLab             `json:"jupyter_lab_list"`
 }
 
+type CreateNewUserIDResp struct {
+	Message string `json:"message"`
+}
+
 type DiskInfo struct {
 	Size  int `json:"size"`
 	Usage int `json:"usage"`
@@ -427,7 +431,7 @@ type JupyterlabImageVersionListResp struct {
 }
 
 type JupyterlabListReq struct {
-	UserID string `header:"Sx-User_ID"`
+	UserID string `header:"Sx-User-ID"`
 }
 
 type JupyterlabListResp struct {

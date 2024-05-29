@@ -593,7 +593,7 @@ type (
 		Message string `json:"message"`
 	}
 	JupyterlabListReq {
-		UserID string `header:"Sx-User_ID"`
+		UserID string `header:"Sx-User-ID"`
 	}
 	JupyterlabListResp {
 		Data []Jupyterlab `json:"data"`
@@ -729,6 +729,11 @@ type (
 	}
 )
 
+// TODO remove
+type CreateNewUserIDResp {
+	Message string `json:"message"`
+}
+
 @server (
 	prefix: /api
 )
@@ -788,5 +793,9 @@ service scheduler-api {
 	@doc "账单记录"
 	@handler BillingList
 	get /pay/billing (BillingListReq) returns (BillingListResp)
+
+	@doc "生成所有user_id"
+	@handler CreateNewUserID
+	post /user/newuserid returns (CreateNewUserIDResp)
 }
 
