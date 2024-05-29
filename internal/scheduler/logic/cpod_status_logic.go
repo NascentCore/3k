@@ -99,6 +99,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				"gpu_total":       gpu.Total,
 				"gpu_allocatable": gpu.Allocatable,
 				"gpu_mem":         gpu.MemSize,
+				"user_id":         req.UserID,
 				"update_time": sql.NullTime{
 					Time:  time.Now(),
 					Valid: true,

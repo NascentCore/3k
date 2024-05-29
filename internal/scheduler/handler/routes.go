@@ -210,6 +210,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/user/newuserid",
+				Handler: CreateNewUserIDHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/user/register/:code",
 				Handler: registerHandler(serverCtx),
 			},
