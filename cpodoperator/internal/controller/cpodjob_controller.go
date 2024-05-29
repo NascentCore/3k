@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -32,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"knative.dev/pkg/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,7 +44,6 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
-	"github.com/NascentCore/cpodoperator/internal/synchronizer"
 	"github.com/NascentCore/cpodoperator/pkg/util"
 
 	commonv1 "github.com/kubeflow/common/pkg/apis/common/v1"
@@ -58,6 +59,9 @@ type CPodJobOption struct {
 	ModelUploadJobImage        string
 	ModelUploadJobBackoffLimit int32
 	ModelUploadOssBucketName   string
+	DownloaderImage            string
+	// oss access key
+	OssAK, OssSK string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -112,7 +116,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 			return ctrl.Result{}, err
 		}
 
-		if err := c.createModelstorage(ctx, cpodjob); err != nil {
+		if err := c.createGeneratedModelstorage(ctx, cpodjob); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, nil
@@ -130,6 +134,14 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	}()
 
 	if !util.IsFinshed(cpodjob.Status) {
+		// 判断模型和数据集是否已经准备完毕
+		if util.GetCondition(cpodjob.Status, cpodv1beta1.JobDataPreparing) == nil {
+			if err := c.PrepareData(ctx, cpodjob); err != nil {
+				logger.Error(err, "unable to prepare data", "cpdojob", cpodjob)
+				return ctrl.Result{}, err
+			}
+		}
+
 		baseJob, err := c.GetBaseJob(ctx, cpodjob)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -161,7 +173,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 		return ctrl.Result{}, err
 	}
 
-	if err := c.createModelstorage(ctx, cpodjob); err != nil {
+	if err := c.createGeneratedModelstorage(ctx, cpodjob); err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -276,8 +288,12 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	}
 
 	if cpodjob.Spec.DatasetPath != "" && cpodjob.Spec.DatasetName != "" {
+		datasetName := cpodjob.Spec.DatasetName
+		if cpodjob.Spec.DatasetIsPublic {
+			datasetName = datasetName + v1beta1.CPodPublicStorageSuffix
+		}
 		dataset := &cpodv1.DataSetStorage{}
-		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.DatasetName}, dataset); err != nil {
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: datasetName}, dataset); err != nil {
 			if apierrors.IsNotFound(err) {
 				c.Recorder.Eventf(cpodjob, corev1.EventTypeWarning, "DatasetFailed", "Dataset not found")
 				util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobFailed, corev1.ConditionTrue, "GetDatasetFailed", "Dataset not found")
@@ -304,8 +320,12 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	}
 
 	if cpodjob.Spec.PretrainModelName != "" && cpodjob.Spec.PretrainModelPath != "" {
+		modelName := cpodjob.Spec.PretrainModelName
+		if cpodjob.Spec.PretrainModelIsPublic {
+			modelName = modelName + v1beta1.CPodPublicStorageSuffix
+		}
 		pretrainModel := &cpodv1.ModelStorage{}
-		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, pretrainModel); err != nil {
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelName}, pretrainModel); err != nil {
 			if apierrors.IsNotFound(err) {
 				c.Recorder.Eventf(cpodjob, corev1.EventTypeWarning, "GetPretrainModelFailed", "Pretrain model not found")
 				util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobFailed, corev1.ConditionTrue, "GetPretrainModelFailed", "Pretrain model not found")
@@ -936,7 +956,7 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 	}
 }
 
-func (c *CPodJobReconciler) createModelstorage(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
 	if cpodjob.Spec.ModelSavePath == "" || cpodjob.Spec.ModelSaveVolumeSize == 0 || cpodjob.Spec.PretrainModelName == "" || cpodjob.Spec.PretrainModelPath == "" {
 		return nil
 	}
@@ -975,7 +995,432 @@ func generateModelstorageName(cpodjob *v1beta1.CPodJob) string {
 		jobName, _ = strings.CutSuffix(jobName, "-cpodjob")
 	}
 	if userId, ok := cpodjob.Labels[v1beta1.CPodUserIDLabel]; ok {
-		modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, "user-"+userId+"/"+jobName))
+		modelstorageName = util.ModelCRDName(fmt.Sprintf(util.OSSUserModelPath, "user-"+userId+"/"+jobName))
 	}
 	return modelstorageName
+}
+
+func (c *CPodJobReconciler) PrepareData(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+	wg := sync.WaitGroup{}
+	errChan := make(chan error, 2)
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		if err := c.prepareModel(ctx, cpodjob); err != nil {
+			errChan <- err
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		if err := c.prepareDataset(ctx, cpodjob); err != nil {
+			errChan <- err
+			return
+		}
+	}()
+	wg.Wait()
+	for err := range errChan {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+	modelSize := int64(0)
+	modelReadableName := ""
+	if cpodjob.Labels != nil {
+		if sizeStr, ok := cpodjob.Labels[v1beta1.CPodPreTrainModelSize]; ok {
+			size, err := strconv.ParseInt(sizeStr, 10, 64)
+			if err != nil {
+				return fmt.Errorf("failed to parse model size %v: %v", sizeStr, err)
+			}
+			modelSize = size
+		}
+		if name, ok := cpodjob.Labels[v1beta1.CPodPreTrainModelReadableName]; ok {
+			modelReadableName = name
+		}
+	}
+	if cpodjob.Spec.PretrainModelName != "" {
+		modelName := cpodjob.Spec.PretrainModelName
+		if cpodjob.Spec.PretrainModelIsPublic {
+			modelName = modelName + v1beta1.CPodPublicStorageSuffix
+		}
+		preTrainModel := &cpodv1.ModelStorage{}
+		// FIX: 这里如果下载任务创建了，第二次进入这里，modelstorage已经创建了
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelName}, preTrainModel); err != nil {
+			if apierrors.IsNotFound(err) {
+				if cpodjob.Spec.PretrainModelIsPublic {
+					// 判断公共模型是否存在
+					publicModel := &cpodv1.ModelStorage{}
+					if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: cpodjob.Spec.PretrainModelName}, publicModel); err != nil {
+						if apierrors.IsNotFound(err) {
+							if publicModel, err = c.createModelstorage(ctx, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+								return fmt.Errorf("failed to create model storage for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						} else {
+							return fmt.Errorf("failed to get public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+						}
+					} else {
+						return fmt.Errorf("failed to get public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					}
+					if publicModel.Status.Phase != "done" {
+						// 判断是否创建了下载任务
+						jobName := "model-" + cpodjob.Spec.PretrainModelName
+						job := &batchv1.Job{}
+						if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
+							if apierrors.IsNotFound(err) {
+								// 创建下载任务
+								if err := c.CreateDownloadJob(ctx, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+									return fmt.Errorf("failed to create download job for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+								} else {
+									return fmt.Errorf("failed to create download job for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+								}
+							} else {
+								return fmt.Errorf("failed to get public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						}
+						// 可能存在多个用户使用同一个模型的情况
+						if job.Status.Succeeded != 1 {
+							return fmt.Errorf("public model downloader job %s is unsuccessful: %v", jobName, job.Status.Succeeded)
+						}
+						return fmt.Errorf("public model is %s not done", cpodjob.Spec.PretrainModelName)
+					}
+
+					// 公共模型存在，拷贝模型到用户命名空间
+					if err := CopyPublicModelStorage(ctx, c.Client, cpodjob.Spec.PretrainModelName, cpodjob.Namespace); err != nil {
+						return fmt.Errorf("failed to copy public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					}
+				} else {
+					// 下载私有模型
+					if privateModel, err := c.createModelstorage(ctx, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+						return fmt.Errorf("failed to create model storage for private model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					} else {
+						preTrainModel = privateModel
+					}
+					if preTrainModel.Status.Phase != "done" {
+						jobName := "model-" + cpodjob.Spec.PretrainModelName
+						job := &batchv1.Job{}
+						if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: jobName}, job); err != nil {
+							if apierrors.IsNotFound(err) {
+								// 创建下载任务
+								if err := c.CreateDownloadJob(ctx, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+									return fmt.Errorf("failed to create download job for private model %s: %v", cpodjob.Spec.PretrainModelName, err)
+								}
+							} else {
+								return fmt.Errorf("failed to get private model %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						}
+						if job.Status.Succeeded != 1 {
+							return fmt.Errorf("private model downloader job %s is unsuccessful: %v", jobName, job.Status.Succeeded)
+						}
+						return fmt.Errorf("private model is %s not done", cpodjob.Spec.PretrainModelName)
+					}
+				}
+			} else {
+				return fmt.Errorf("failed to get model %s: %v", modelName, err)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+	datasetSize := int64(0)
+	ReadableName := ""
+	if cpodjob.Labels != nil {
+		if sizeStr, ok := cpodjob.Labels[v1beta1.CPodDatasetSize]; ok {
+			size, err := strconv.ParseInt(sizeStr, 10, 64)
+			if err != nil {
+				return fmt.Errorf("failed to parse dataset size %v: %v", sizeStr, err)
+			}
+			datasetSize = size
+		}
+		if name, ok := cpodjob.Labels[v1beta1.CPodDatasetlReadableName]; ok {
+			ReadableName = name
+		}
+	}
+	if cpodjob.Spec.DatasetName != "" {
+		datasetName := cpodjob.Spec.DatasetName
+		if cpodjob.Spec.DatasetIsPublic {
+			datasetName = datasetName + v1beta1.CPodPublicStorageSuffix
+		}
+		dataset := &cpodv1.DataSetStorage{}
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: datasetName}, dataset); err != nil {
+			if apierrors.IsNotFound(err) {
+				if cpodjob.Spec.DatasetIsPublic {
+					publicDataset := &cpodv1.DataSetStorage{}
+					if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: cpodjob.Spec.DatasetName}, publicDataset); err != nil {
+						if apierrors.IsNotFound(err) {
+							if publicDataset, err = c.createDatasetstorage(ctx, cpodjob.Spec.PretrainModelName, ReadableName, datasetSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+								return fmt.Errorf("failed to create datasetstorage for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						} else {
+							return fmt.Errorf("failed to get public dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+						}
+					} else {
+						return fmt.Errorf("failed to get public dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+					}
+					if publicDataset.Status.Phase != "done" {
+						jobName := "dataset-" + cpodjob.Spec.DatasetName
+						job := &batchv1.Job{}
+						if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
+							if apierrors.IsNotFound(err) {
+								if err := c.CreateDownloadJob(ctx, "dataset", cpodjob.Spec.DatasetName, ReadableName, datasetSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+									return fmt.Errorf("failed to create download job for public dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+								} else {
+									return fmt.Errorf("failed to create download job for public dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+								}
+							} else {
+								return fmt.Errorf("failed to get public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						}
+						if job.Status.Succeeded != 1 {
+							return fmt.Errorf("public dataset downloader job %s is unsuccessful: %v", jobName, job.Status.Succeeded)
+						}
+						return fmt.Errorf("public dataset is %s not done", cpodjob.Spec.PretrainModelName)
+					}
+
+					if err := CopyPublicDatasetStorage(ctx, c.Client, cpodjob.Spec.DatasetName, cpodjob.Namespace); err != nil {
+						return fmt.Errorf("failed to copy public dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+					}
+				} else {
+					// 下载私有模型
+					if privateDataset, err := c.createDatasetstorage(ctx, cpodjob.Spec.DatasetName, ReadableName, datasetSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+						return fmt.Errorf("failed to create dataset storage for private model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					} else {
+						dataset = privateDataset
+					}
+					if dataset.Status.Phase != "done" {
+						jobName := "dataset-" + cpodjob.Spec.PretrainModelName
+						job := &batchv1.Job{}
+						if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: jobName}, job); err != nil {
+							if apierrors.IsNotFound(err) {
+								// 创建下载任务
+								if err := c.CreateDownloadJob(ctx, "dataset", cpodjob.Spec.DatasetName, ReadableName, datasetSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+									return fmt.Errorf("failed to create download job for private dataset %s: %v", cpodjob.Spec.DatasetName, err)
+								}
+							} else {
+								return fmt.Errorf("failed to get private dataset %s: %v", cpodjob.Spec.PretrainModelName, err)
+							}
+						}
+						if job.Status.Succeeded != 1 {
+							return fmt.Errorf("private dataset downloader job %s is unsuccessful: %v", jobName, job.Status.Succeeded)
+						}
+						return fmt.Errorf("private dataset is %s not done", cpodjob.Spec.PretrainModelName)
+					}
+				}
+			} else {
+				return fmt.Errorf("failed to get model %s: %v", datasetName, err)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, dataName string, dataSize int64, userId string, namespace string, cpodjob *v1beta1.CPodJob) (*cpodv1.ModelStorage, error) {
+	ossPath := util.ResourceToOSSPath("model", "")
+
+	pvcName := util.ModelPVCName(ossPath)
+	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+		if apierrors.IsNotFound(err) {
+			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      pvcName,
+					Namespace: cpodjob.Namespace,
+					OwnerReferences: []metav1.OwnerReference{
+						c.generateOwnerRefCPodJob(ctx, cpodjob),
+					},
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
+					Resources: corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceStorage: resource.MustParse(pvcSize),
+						},
+					},
+					StorageClassName: &c.Option.StorageClassName,
+				},
+			})
+			if err != nil && !apierrors.IsAlreadyExists(err) {
+				return nil, fmt.Errorf("failed to create pvc %s: %v", pvcName, err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+		}
+	}
+
+	modelstorage := &cpodv1.ModelStorage{}
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: dataID}, modelstorage); err != nil {
+		if apierrors.IsNotFound(err) {
+			modelstorage = &cpodv1.ModelStorage{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      dataID,
+					Namespace: namespace,
+				},
+				Spec: cpodv1.ModelStorageSpec{
+					ModelType: "oss",
+					ModelName: dataName,
+					PVC:       pvcName,
+				},
+			}
+			if err := c.Client.Create(ctx, modelstorage); err != nil && !apierrors.IsAlreadyExists(err) {
+				return nil, fmt.Errorf("failed to create modelstorage %s: %v", dataID, err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to get modelstorage %s: %v", dataID, err)
+		}
+	}
+
+	return modelstorage, nil
+}
+
+func (c *CPodJobReconciler) createDatasetstorage(ctx context.Context, dataID, dataName string, dataSize int64, userId string, namespace string, cpodjob *v1beta1.CPodJob) (*cpodv1.DataSetStorage, error) {
+	ossPath := util.ResourceToOSSPath("dataset", "")
+
+	pvcName := util.DatasetPVCName(ossPath)
+	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+		if apierrors.IsNotFound(err) {
+			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      pvcName,
+					Namespace: cpodjob.Namespace,
+					OwnerReferences: []metav1.OwnerReference{
+						c.generateOwnerRefCPodJob(ctx, cpodjob),
+					},
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
+					Resources: corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceStorage: resource.MustParse(pvcSize),
+						},
+					},
+					StorageClassName: &c.Option.StorageClassName,
+				},
+			})
+			if err != nil && !apierrors.IsAlreadyExists(err) {
+				return nil, fmt.Errorf("failed to create pvc %s: %v", pvcName, err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+		}
+	}
+
+	datasetstorage := &cpodv1.DataSetStorage{}
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: dataID}, datasetstorage); err != nil {
+		if apierrors.IsNotFound(err) {
+			datasetstorage = &cpodv1.DataSetStorage{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      dataID,
+					Namespace: namespace,
+				},
+				Spec: cpodv1.DataSetStorageSpec{
+					DatasetType: "oss",
+					DatasetName: dataName,
+					PVC:         pvcName,
+				},
+			}
+			if err := c.Client.Create(ctx, datasetstorage); err != nil && !apierrors.IsAlreadyExists(err) {
+				return nil, fmt.Errorf("failed to create datasetstorage %s: %v", dataID, err)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to get datasetstorage %s: %v", dataID, err)
+		}
+	}
+
+	return datasetstorage, nil
+}
+
+// dataType: model、dataset
+func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType string, dataID, dataName string, dataSize int64, userId string, namespace string, cpodjob *v1beta1.CPodJob) error {
+	ossPath := util.ResourceToOSSPath(dataType, "")
+
+	var pvcName string
+	if dataType == "model" {
+		pvcName = util.ModelPVCName(ossPath)
+	} else {
+		pvcName = util.DatasetPVCName(ossPath)
+	}
+
+	// 构造oss路径
+	completionMode := batchv1.NonIndexedCompletion
+
+	// type-dataName
+	downloadJobName := fmt.Sprintf("%s-%s", dataType, dataID)
+	job := batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: cpodjob.Namespace,
+			Name:      downloadJobName,
+			Labels:    map[string]string{v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource},
+		},
+		Spec: batchv1.JobSpec{
+			Parallelism:  ptr.Int32(1),
+			Completions:  ptr.Int32(1),
+			BackoffLimit: ptr.Int32(6),
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						{
+							Name: "data-volume",
+							VolumeSource: corev1.VolumeSource{PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+								ClaimName: pvcName,
+								ReadOnly:  false,
+							}},
+						},
+					},
+					Containers: []corev1.Container{
+						{
+							Name:  "downloader",
+							Image: c.Option.DownloaderImage,
+							Args: []string{
+								"-g",
+								"cpod.cpod",
+								"-v",
+								"v1",
+								"-p",
+								dataType + "storages",
+								"-n",
+								namespace,
+								"--name",
+								dataID,
+								"oss",
+								ossPath,
+								"-t",
+								fmt.Sprintf("%d", dataSize),
+								"--endpoint",
+								"https://oss-cn-beijing.aliyuncs.com",
+								"--access_id",
+								c.Option.OssAK,
+								"--access_key",
+								c.Option.OssSK,
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									MountPath: "/data",
+									Name:      "data-volume",
+								},
+							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
+						},
+					},
+					RestartPolicy:                 "Never",
+					TerminationGracePeriodSeconds: ptr.Int64(30),
+					DNSPolicy:                     "ClusterFirst",
+					ServiceAccountName:            "sa-downloader",
+					ImagePullSecrets: []corev1.LocalObjectReference{
+						{Name: "aliyun-enterprise-registry"},
+					},
+				},
+			},
+			CompletionMode: &completionMode,
+		},
+	}
+	err := c.Client.Create(ctx, &job)
+	return err
 }

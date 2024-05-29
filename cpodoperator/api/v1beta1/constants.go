@@ -19,6 +19,11 @@ const (
 
 	CPodPublicNamespace     = "public"
 	CPodPublicStorageSuffix = "-public"
+
+	CPodPreTrainModelSize         = "cpod.cpod/cpod-model-size"
+	CPodPreTrainModelReadableName = "cpod.cpod/cpod-model-readable-name"
+	CPodDatasetSize               = "cpod.cpod/cpod-dataset-size"
+	CPodDatasetlReadableName      = "cpod.cpod/cpod-dataset-readable-name"
 )
 
 const (

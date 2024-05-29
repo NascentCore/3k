@@ -3,7 +3,6 @@ package synchronizer
 import (
 	"context"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -277,124 +276,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					duration = job.StopTime
 				}
 
-				modelId := job.PretrainModelId
-				if job.PretrainModelId != "" {
-					// 判断指定的预训练模型是否存在
-					exists, done, err := s.checkModelExistence(ctx, string(user), job.PretrainModelId, job.PretrainModelIsPublic)
-					if err != nil {
-						s.logger.Error(err, "failed to check model existence", "modelid", job.PretrainModelId)
-						continue
-					}
-					if exists {
-						if !done {
-							s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							continue
-						}
-					} else { // modelstorage not exist
-						if s.autoDownloadResource {
-							s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish",
-								"jobname", job.JobName, "modelid", job.PretrainModelId)
-							// return preparing status during the downloader task.
-							s.addPreparingTrainningJob(job)
-							// create PVC
-							ossAK := os.Getenv("AK")
-							ossSK := os.Getenv("AS")
-							storageClassName := os.Getenv("STORAGECLASS")
-							ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
-							pvcName := ModelPVCName(ossPath)
-							// storageName := ModelCRDName(ossPath)
-							modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
-							// pvcsize is 1.2 * modelsize
-							pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
-							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-							if err != nil {
-								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							// create ModelStorage
-							err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
-							if err != nil {
-								s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							// create DownloaderJob
-							err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
-							if err != nil {
-								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("downloader job created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							continue
-						}
-
-					}
-				}
-				if job.PretrainModelIsPublic {
-					modelId = modelId + v1beta1.CPodPublicStorageSuffix
-				}
-				datasetID := job.DatasetId
-				if job.DatasetId != "" {
-					// 判断指定的预训练模型是否存在
-					exists, done, err := s.checkDatasetExistence(ctx, string(user), job.DatasetId, job.DatasetIsPublic)
-					if err != nil {
-						s.logger.Error(err, "failed to check dataset existence", "datasetid", job.DatasetId, "job", job)
-						continue
-					}
-					if exists {
-						if !done {
-							s.logger.Info("Dataset is preparing.", "jobname", job.JobName, "datasetid", job.DatasetId)
-							continue
-						}
-					} else { // dataset not exist
-						if s.autoDownloadResource {
-							s.logger.Info("dataset not exists , starting downloader task , task will be started when downloader task finish",
-								"jobname", job.JobName, "datasetid", job.DatasetId)
-							// return preparing status during the downloader task.
-							s.addPreparingTrainningJob(job)
-							// create PVC
-							ossAK := os.Getenv("AK")
-							ossSK := os.Getenv("AS")
-							storageClassName := os.Getenv("STORAGECLASS")
-							ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
-							pvcName := DatasetPVCName(ossPath)
-							datasetSize := fmt.Sprintf("%d", job.DatasetSize)
-							// pvcsize is 1.2 * datasetsize
-							pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
-							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-							if err != nil {
-								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							// create DatasetStorage
-							err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
-							if err != nil {
-								s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							// create DownloaderJob
-							err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
-							if err != nil {
-								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("downloader job created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							continue
-						}
-					}
-				}
-				if job.DatasetIsPublic {
-					datasetID = datasetID + "-public"
-				}
 				var gpuPerWorker int32 = 8
 				var replicas int32 = 1
 				if job.GpuNumber < 8 {
@@ -418,6 +299,10 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						Labels: map[string]string{
 							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+							// TODO: add modelstorage label
+							v1beta1.CPodPreTrainModelReadableName: job.PretrainModelName,
+							v1beta1.CPodPreTrainModelSize:         fmt.Sprintf("%d", job.PretrainModelSize),
+							v1beta1.CPodDatasetSize:               fmt.Sprintf("%d", job.DatasetSize),
 						},
 						Annotations: map[string]string{
 							v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
@@ -429,9 +314,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						GPURequiredPerReplica: gpuPerWorker,
 						GPUType:               job.GpuType,
 						DatasetPath:           job.DatasetPath,
-						DatasetName:           datasetID,
+						DatasetName:           job.DatasetId,
 						PretrainModelPath:     job.PretrainModelPath,
-						PretrainModelName:     modelId,
+						PretrainModelName:     job.PretrainModelId,
 						CKPTPath:              job.CkptPath,
 						CKPTVolumeSize:        int32(job.CkptVol),
 						ModelSavePath:         job.ModelPath,

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/NascentCore/cpodoperator/internal/synchronizer"
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
 	"github.com/NascentCore/cpodoperator/pkg/util"
 	v1 "k8s.io/api/core/v1"
@@ -115,7 +114,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, gpuCount, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
 
-			if err := r.CopyPublicModelStorage(ctx, modelConfig.ModelStorageName, finetune); err != nil {
+			if err := CopyPublicModelStorage(ctx, r.Client, modelConfig.ModelStorageName, finetune.Namespace); err != nil {
 				logger.Error(err, "copy public model storage error")
 				return ctrl.Result{}, err
 			}
@@ -167,7 +166,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			finetune.Status.Phase = cpodv1beta1.PhaseSucceeded
 			modelstorageName := cpodjob.Name + "-modelsavestorage"
 			if userId, ok := finetune.Labels[v1beta1.CPodUserIDLabel]; ok {
-				modelstorageName = synchronizer.ModelCRDName(fmt.Sprintf(synchronizer.OSSUserModelPath, userId+"/"+finetune.Name))
+				modelstorageName = util.ModelCRDName(fmt.Sprintf(util.OSSUserModelPath, userId+"/"+finetune.Name))
 			}
 			finetune.Status.ModelStorage = modelstorageName
 		} else if util.IsFailed(cpodjob.Status) {
@@ -269,14 +268,14 @@ func ConvertParamsMap(params map[string]string) []string {
 	return result
 }
 
-func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicModelStorageName string, finetune *cpodv1beta1.FineTune) error {
+func CopyPublicModelStorage(ctx context.Context, kubeClient client.Client, publicModelStorageName string, targetNamespace string) error {
 	modelStorage := &cpodv1.ModelStorage{}
 	modelStorageName := publicModelStorageName + v1beta1.CPodPublicStorageSuffix
 	publicModelStorage := &cpodv1.ModelStorage{}
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: finetune.Namespace, Name: modelStorageName}, modelStorage); err != nil {
+	if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: targetNamespace, Name: modelStorageName}, modelStorage); err != nil {
 		if apierrors.IsNotFound(err) {
 			// if model storage not found, create a new one
-			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorageName}, publicModelStorage); err != nil {
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorageName}, publicModelStorage); err != nil {
 				if apierrors.IsNotFound(err) {
 					// 公共数据集不存在
 					return fmt.Errorf("public model storage not found")
@@ -285,16 +284,16 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			}
 			// 创建用户命名空间的公共数据集的拷贝
 			var publicDsPVC v1.PersistentVolumeClaim
-			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorage.Spec.PVC}, &publicDsPVC); err != nil {
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorage.Spec.PVC}, &publicDsPVC); err != nil {
 				return fmt.Errorf("cannot find public model storage pvc")
 			}
 			var publicDsPV v1.PersistentVolume
-			if err := r.Client.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDsPVC.Spec.VolumeName}, &publicDsPV); err != nil {
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDsPVC.Spec.VolumeName}, &publicDsPV); err != nil {
 				return fmt.Errorf("cannt find public model storage pv")
 			}
 			// 创建pv
 			pvCopy := publicDsPV.DeepCopy()
-			pvName := pvCopy.Name + "-" + finetune.Namespace
+			pvName := pvCopy.Name + "-" + targetNamespace
 			if len(pvName) > 63 {
 				pvName = pvName[:63]
 			}
@@ -305,23 +304,23 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			pvCopy.ResourceVersion = ""
 			pvCopy.Spec.CSI.VolumeHandle = pvName
 			pvCopy.UID = ""
-			if err := r.Client.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+			if err := kubeClient.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
 				return fmt.Errorf("failed to create pv")
 			}
 			// 创建pvc
 			pvcCopy := publicDsPVC.DeepCopy()
 			pvcCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
-			pvcCopy.Namespace = finetune.Namespace
+			pvcCopy.Namespace = targetNamespace
 			pvcCopy.Spec.VolumeName = pvCopy.Name
 			pvcCopy.ResourceVersion = ""
 			pvcCopy.UID = ""
-			if err := r.Client.Create(ctx, pvcCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+			if err := kubeClient.Create(ctx, pvcCopy); err != nil && !apierrors.IsAlreadyExists(err) {
 				return fmt.Errorf("failed to create pvc")
 			}
 			// 创建modelstorage
 			modelStorageCopy := publicModelStorage.DeepCopy()
 			modelStorageCopy.Name = publicModelStorage.Name + v1beta1.CPodPublicStorageSuffix
-			modelStorageCopy.Namespace = finetune.Namespace
+			modelStorageCopy.Namespace = targetNamespace
 			modelStorageCopy.Spec.PVC = pvcCopy.Name
 			modelStorageCopy.ResourceVersion = ""
 			modelStorageCopy.UID = ""
@@ -329,12 +328,88 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 				modelStorageCopy.Labels = map[string]string{}
 			}
 			modelStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
-			if err := r.Client.Create(ctx, modelStorageCopy); err != nil {
+			if err := kubeClient.Create(ctx, modelStorageCopy); err != nil {
 				return err
 			}
 			// TODO: update modelstorage status
 			modelStorageCopy.Status.Phase = "done"
-			if err := r.Client.Status().Update(ctx, modelStorageCopy); err != nil {
+			if err := kubeClient.Status().Update(ctx, modelStorageCopy); err != nil {
+				return fmt.Errorf("failed to update model storage status")
+			}
+			return nil
+		}
+		return err
+	}
+
+	return nil
+}
+
+func CopyPublicDatasetStorage(ctx context.Context, kubeClient client.Client, publicDatasetStorageName string, targetNamespace string) error {
+	datasetStorage := &cpodv1.DataSetStorage{}
+	datasetStorageName := publicDatasetStorageName + v1beta1.CPodPublicStorageSuffix
+	publicDatasetStorage := &cpodv1.DataSetStorage{}
+	if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: targetNamespace, Name: datasetStorageName}, datasetStorage); err != nil {
+		if apierrors.IsNotFound(err) {
+			// if data storage not found, create a new one
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDatasetStorageName}, publicDatasetStorage); err != nil {
+				if apierrors.IsNotFound(err) {
+					// 公共数据集不存在
+					return fmt.Errorf("public dataset storage not found")
+				}
+				return err
+			}
+			// 创建用户命名空间的公共数据集的拷贝
+			var publicDsPVC v1.PersistentVolumeClaim
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDatasetStorage.Spec.PVC}, &publicDsPVC); err != nil {
+				return fmt.Errorf("cannot find public dataset storage pvc")
+			}
+			var publicDsPV v1.PersistentVolume
+			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDsPVC.Spec.VolumeName}, &publicDsPV); err != nil {
+				return fmt.Errorf("cannt find public dataset storage pv")
+			}
+			// 创建pv
+			pvCopy := publicDsPV.DeepCopy()
+			pvName := pvCopy.Name + "-" + targetNamespace
+			if len(pvName) > 63 {
+				pvName = pvName[:63]
+			}
+			if strings.HasSuffix(pvName, "-") {
+				pvName = pvName[:len(pvName)-1]
+			}
+			pvCopy.Name = pvName
+			pvCopy.ResourceVersion = ""
+			pvCopy.Spec.CSI.VolumeHandle = pvName
+			pvCopy.UID = ""
+			if err := kubeClient.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+				return fmt.Errorf("failed to create pv")
+			}
+			// 创建pvc
+			pvcCopy := publicDsPVC.DeepCopy()
+			pvcCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
+			pvcCopy.Namespace = targetNamespace
+			pvcCopy.Spec.VolumeName = pvCopy.Name
+			pvcCopy.ResourceVersion = ""
+			pvcCopy.UID = ""
+			if err := kubeClient.Create(ctx, pvcCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+				return fmt.Errorf("failed to create pvc")
+			}
+			// 创建modelstorage
+			datasetStorageCopy := publicDatasetStorage.DeepCopy()
+			datasetStorageCopy.Name = publicDatasetStorage.Name + v1beta1.CPodPublicStorageSuffix
+			datasetStorageCopy.Namespace = targetNamespace
+			datasetStorageCopy.Spec.PVC = pvcCopy.Name
+			datasetStorageCopy.ResourceVersion = ""
+			datasetStorageCopy.UID = ""
+			if datasetStorageCopy.Labels == nil {
+				datasetStorageCopy.Labels = map[string]string{}
+			}
+			datasetStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
+			if err := kubeClient.Create(ctx, datasetStorageCopy); err != nil {
+				return err
+			}
+			// TODO: update modelstorage status
+			datasetStorageCopy.Status.Phase = "done"
+			if err := kubeClient.Status().Update(ctx, datasetStorageCopy); err != nil {
 				return fmt.Errorf("failed to update model storage status")
 			}
 			return nil

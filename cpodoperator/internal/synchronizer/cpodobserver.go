@@ -132,7 +132,7 @@ func parseStatus(s v1beta1.CPodJobStatus) (v1beta1.JobConditionType, string) {
 	}
 	// order : modeluploaded , modeluploading , failed , succeeded , running , created
 	checkOrder := []v1beta1.JobConditionType{v1beta1.JobModelUploaded, v1beta1.JobModelUploading, v1beta1.JobFailed,
-		v1beta1.JobSucceeded, v1beta1.JobRunning, v1beta1.JobCreated}
+		v1beta1.JobSucceeded, v1beta1.JobRunning, v1beta1.JobCreated, v1beta1.JobDataPreparing}
 	for _, checker := range checkOrder {
 		if condMap[checker].Status == v1.ConditionTrue {
 			return checker, condMap[checker].Message
