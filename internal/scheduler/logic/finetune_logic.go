@@ -57,7 +57,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	_, ok := l.svcCtx.Config.FinetuneModel[req.Model]
 	if !ok {
 		l.Errorf("finetune model %s is not supported userId: %s", req.Model, req.UserID)
-		return nil, fmt.Errorf("model: %s for codeless fine-tune is not supported", req.Model)
+		return nil, fmt.Errorf("model: %s for finetune is not supported", req.Model)
 	}
 
 	userJob := &model.SysUserJob{}
@@ -86,7 +86,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
 
 	// job_type
-	userJob.JobType = orm.NullString(consts.JobTypeCodeless)
+	userJob.JobType = orm.NullString(consts.JobTypeFinetune)
 
 	// fill gpu
 	if req.GpuModel == "" {

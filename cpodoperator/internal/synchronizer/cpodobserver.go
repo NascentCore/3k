@@ -172,7 +172,7 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 
 		for _, owner := range cpodjob.OwnerReferences {
 			if owner.Kind == "FineTune" {
-				JobType = "Codeless"
+				JobType = "Finetune"
 				Name = owner.Name
 				break
 			}
@@ -229,7 +229,7 @@ func (co *CPodObserver) getFinetuneStates(ctx context.Context) ([]sxwl.Trainning
 		stats = append(stats, sxwl.TrainningJobState{
 			Name:      finetuneJob.Name,
 			Namespace: finetuneJob.Namespace,
-			JobType:   "Codeless",
+			JobType:   "Finetune",
 			JobStatus: v1beta1.JobConditionType(strings.ToLower(string(finetuneJob.Status.Phase))),
 			Info:      finetuneJob.Status.FailureMessage,
 		})
