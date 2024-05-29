@@ -147,7 +147,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 			if job.UserID != string(user) {
 				continue
 			}
-			if job.JobType != "Codeless" {
+			if job.JobType != "Finetune" {
 				continue
 			}
 			s.logger.Info("finetune job", "finetune", job.JobName)
@@ -252,7 +252,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 				continue
 			}
 
-			if job.JobType == "Codeless" {
+			if job.JobType == "Finetune" {
 				continue
 			}
 
