@@ -764,7 +764,11 @@ func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string, 
 				pvCopy := publicMsPV.DeepCopy()
 				pvCopy.ResourceVersion = ""
 				pvCopy.UID = ""
-				pvCopy.Name = pvCopy.Name + "-" + namespace
+				pvName := pvCopy.Name + "-" + namespace
+				if len(pvName) > 63 {
+					pvName = pvName[:63]
+				}
+				pvCopy.Name = pvName
 				pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + namespace
 				if err := s.kubeClient.Create(ctx, pvCopy); err != nil && !kerrors.IsAlreadyExists(err) {
 					return false, false, err
@@ -842,7 +846,11 @@ func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string
 				}
 				// 创建pv
 				pvCopy := publicDsPV.DeepCopy()
-				pvCopy.Name = pvCopy.Name + "-" + namespace
+				pvName := pvCopy.Name + "-" + namespace
+				if len(pvName) > 63 {
+					pvName = pvName[:63]
+				}
+				pvCopy.Name = pvName
 				pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + namespace
 				pvCopy.ResourceVersion = ""
 				pvCopy.UID = ""
