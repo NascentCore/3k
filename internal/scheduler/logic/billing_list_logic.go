@@ -34,17 +34,17 @@ func (l *BillingListLogic) BillingList(req *types.BillingListReq) (resp *types.B
 
 	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
 	if err != nil {
-		l.Errorf("UserModel.IsAdmin userID=%d err=%s", req.UserID, err)
+		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
 		return nil, ErrNotAdmin
 	}
-	if !isAdmin {
-		l.Infof("UserModel.IsAdmin userID=%d is not admin", req.UserID)
+	if !isAdmin && req.UserID != req.ToUser {
+		l.Infof("UserModel.IsAdmin userID=%s is not admin", req.UserID)
 		return nil, ErrNotAdmin
 	}
 
 	builder := BillingModel.AllFieldsBuilder()
-	if req.ToUser != 0 {
-		builder = builder.Where(squirrel.Eq{"user_id": req.ToUser})
+	if req.ToUser != "" {
+		builder = builder.Where(squirrel.Eq{"new_user_id": req.ToUser})
 	}
 	if req.JobID != "" {
 		builder = builder.Where(squirrel.Eq{"job_id": req.JobID})
@@ -58,7 +58,7 @@ func (l *BillingListLogic) BillingList(req *types.BillingListReq) (resp *types.B
 
 	billings, err := BillingModel.Find(l.ctx, builder)
 	if err != nil && !errors.Is(err, model.ErrNotFound) {
-		l.Errorf("BillingModel.Find userID=%d jobID=%s startTime=%s endTime=%s err=%s",
+		l.Errorf("BillingModel.Find userID=%s jobID=%s startTime=%s endTime=%s err=%s",
 			req.ToUser, req.JobID, req.StartTime, req.EndTime, err)
 		return nil, ErrDBFind
 	}
