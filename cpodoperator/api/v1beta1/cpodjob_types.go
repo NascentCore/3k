@@ -56,6 +56,9 @@ const (
 	// The training has failed its execution.
 	// include the failures caused by invalid spec
 	JobFailed JobConditionType = "Failed"
+
+	// JobDataPreparing means the job is preparing data (modelstorage)
+	JobDataPreparing JobConditionType = "DataPreparing"
 )
 
 type JobType string
