@@ -46,7 +46,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
       return apiPostJobJupyterlab({
         data: {
           ...values,
-          user_id: currentUser?.id,
+          user_id: currentUser?.user_id,
           cpu_count: Number(values.cpu_count),
           memory: Number(values.memory) * 1024 * 1024,
           data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
