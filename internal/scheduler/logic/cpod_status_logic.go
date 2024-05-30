@@ -367,10 +367,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				sysCpodCache.Public = model.CachePublic
 			} else {
 				sysCpodCache.Public = model.CachePrivate
-				sysCpodCache.UserId = sql.NullInt64{
-					Int64: cache.UserID,
-					Valid: true,
-				}
+				sysCpodCache.NewUserId = orm.NullString(cache.UserID)
 			}
 			_, err = CpodCacheModel.Insert(l.ctx, &sysCpodCache)
 			if err != nil {
@@ -382,18 +379,16 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			// 存在的检查下template和size是否变更
 			isPublic := true
 			public := model.CachePublic
-			userId := int64(0)
 			if currentCache[id].Public == model.CachePrivate {
 				isPublic = false
 				public = model.CachePrivate
-				userId = cache.UserID
 			}
 			if currentCache[id].Template != cache.Template ||
 				currentCache[id].DataSize != cache.DataSize ||
 				currentCache[id].FinetuneGpuCount != cache.FinetuneGPUCount ||
 				currentCache[id].InferenceGpuCount != cache.InferenceGPUCount ||
 				isPublic != cache.IsPublic ||
-				currentCache[id].UserId.Int64 != cache.UserID {
+				currentCache[id].NewUserId.String != cache.UserID {
 				_, err = CpodCacheModel.UpdateColsByCond(l.ctx, CpodCacheModel.UpdateBuilder().Where(squirrel.Eq{
 					"id": currentCache[id].Id,
 				}).SetMap(map[string]interface{}{
@@ -402,7 +397,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 					"finetune_gpu_count":  cache.FinetuneGPUCount,
 					"inference_gpu_count": cache.InferenceGPUCount,
 					"public":              public,
-					"user_id":             userId,
+					"new_user_id":         cache.UserID,
 				}))
 				if err != nil {
 					l.Logger.Errorf("cpod_cache update cpod_id=%s data_type=%s data_name=%s data_id=%s data_source=%s err=%s",
