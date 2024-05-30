@@ -82,7 +82,7 @@ type Cache {
 	Template          string `json:"template"`
 	DataSource        string `json:"data_source"`
 	IsPublic          bool   `json:"is_public"`
-	UserID            int64  `json:"user_id"`
+	UserID            string `json:"user_id"`
 	FinetuneGPUCount  int64  `json:"finetune_gpu_count"`
 	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
