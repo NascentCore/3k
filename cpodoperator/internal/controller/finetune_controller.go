@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/NascentCore/cpodoperator/internal/synchronizer"
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
@@ -296,6 +297,9 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			pvName := pvCopy.Name + "-" + finetune.Namespace
 			if len(pvName) > 63 {
 				pvName = pvName[:63]
+			}
+			if strings.HasSuffix(pvName, "-") {
+				pvName = pvName[:len(pvName)-1]
 			}
 			pvCopy.Name = pvName
 			pvCopy.ResourceVersion = ""
