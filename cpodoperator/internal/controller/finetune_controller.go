@@ -303,14 +303,14 @@ func (r *FineTuneReconciler) CopyPublicModelStorage(ctx context.Context, publicM
 			}
 			pvCopy.Name = pvName
 			pvCopy.ResourceVersion = ""
-			pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + finetune.Namespace
+			pvCopy.Spec.CSI.VolumeHandle = pvName
 			pvCopy.UID = ""
 			if err := r.Client.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
 				return fmt.Errorf("failed to create pv")
 			}
 			// 创建pvc
 			pvcCopy := publicDsPVC.DeepCopy()
-			pvcCopy.Name = pvCopy.Name + "-" + finetune.Namespace
+			pvcCopy.Name = pvCopy.Name + v1beta1.CPodPublicStorageSuffix
 			pvcCopy.Namespace = finetune.Namespace
 			pvcCopy.Spec.VolumeName = pvCopy.Name
 			pvcCopy.ResourceVersion = ""

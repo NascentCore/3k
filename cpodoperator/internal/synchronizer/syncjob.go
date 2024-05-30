@@ -772,7 +772,7 @@ func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string, 
 					pvName = pvName[:len(pvName)-1]
 				}
 				pvCopy.Name = pvName
-				pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + namespace
+				pvCopy.Spec.CSI.VolumeHandle = pvName
 				if err := s.kubeClient.Create(ctx, pvCopy); err != nil && !kerrors.IsAlreadyExists(err) {
 					return false, false, err
 				}
@@ -857,7 +857,7 @@ func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string
 					pvName = pvName[:len(pvName)-1]
 				}
 				pvCopy.Name = pvName
-				pvCopy.Spec.CSI.VolumeHandle = pvCopy.Spec.CSI.VolumeHandle + "-" + namespace
+				pvCopy.Spec.CSI.VolumeHandle = pvName
 				pvCopy.ResourceVersion = ""
 				pvCopy.UID = ""
 				if err := s.kubeClient.Create(ctx, pvCopy); err != nil && !kerrors.IsAlreadyExists(err) {
