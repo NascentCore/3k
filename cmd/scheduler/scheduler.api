@@ -784,6 +784,24 @@ type (
 		total int64          `json:"total"`
 		Data  []UserRecharge `json:"data"`
 	}
+	TaskBilling {
+		UserId    string  `json:"user_id"` // 用户ID
+		JobId     string  `json:"job_id"` // 关联任务id
+		JobType   string  `json:"job_type"` // 关联任务类型（例如：finetune、inference）
+		Amount    float64 `json:"amount"` // 消费金额
+		StartTime string  `json:"begin_time"`
+		EndTime   string  `json:"end_time"`
+	}
+	BillingTasksReq {
+		SxUserID string `header:"Sx-User-ID"`
+		UserID   string `form:"user_id"`
+		Page     int64  `form:"page"`
+		PageSize int64  `form:"page_size"`
+	}
+	BillingTasksResp {
+		Data  []TaskBilling `json:"data"`
+		Total int64         `json:"total"`
+	}
 )
 
 // python接口参数定义
@@ -896,9 +914,13 @@ service scheduler-api {
 	@handler BalanceGet
 	get /pay/balance (BalanceGetReq) returns (BalanceGetResp)
 
-	@doc "账单记录"
+	@doc "账单明细"
 	@handler BillingList
 	get /pay/billing (BillingListReq) returns (BillingListResp)
+
+	@doc "聚合账单"
+	@handler BillingTasks
+	get /pay/billing/tasks (BillingTasksReq) returns (BillingTasksResp)
 
 	@doc "充值记录"
 	@handler RechargeList

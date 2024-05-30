@@ -57,6 +57,18 @@ type BillingListResp struct {
 	Data []UserBilling `json:"data"`
 }
 
+type BillingTasksReq struct {
+	SxUserID string `header:"Sx-User-ID"`
+	UserID   string `form:"user_id"`
+	Page     int64  `form:"page"`
+	PageSize int64  `form:"page_size"`
+}
+
+type BillingTasksResp struct {
+	Data  []TaskBilling `json:"data"`
+	Total int64         `json:"total"`
+}
+
 type BuildImageReq struct {
 	BaseImage    string `json:"base_image"`
 	UserID       string `json:"user_id"`
@@ -698,6 +710,15 @@ type SysInference struct {
 	Url       string `json:"url"`
 	StartTime string `json:"start_time"` // 推理服务启动时间
 	EndTime   string `json:"end_time"`   // 推理服务终止时间
+}
+
+type TaskBilling struct {
+	UserId    string  `json:"user_id"`  // 用户ID
+	JobId     string  `json:"job_id"`   // 关联任务id
+	JobType   string  `json:"job_type"` // 关联任务类型（例如：finetune、inference）
+	Amount    float64 `json:"amount"`   // 消费金额
+	StartTime string  `json:"begin_time"`
+	EndTime   string  `json:"end_time"`
 }
 
 type UploaderAccessReq struct {
