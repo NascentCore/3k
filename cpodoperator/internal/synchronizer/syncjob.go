@@ -392,7 +392,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						}
 					}
 				}
-				if job.DatasetId == "" {
+				if job.DatasetIsPublic {
 					datasetID = datasetID + "-public"
 				}
 				var gpuPerWorker int32 = 8
