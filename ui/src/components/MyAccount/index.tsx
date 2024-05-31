@@ -40,10 +40,10 @@ const Index: React.FC = () => {
   const [balance, setBalance] = useState(0);
   const [show, setShow] = useState(false);
   useEffect(() => {
-    apiGetPayBalance({ params: { user_id: currentUser?.id } }).then((res) => {
-      setBalance(res?.balance);
-      setShow(true);
-    });
+    // apiGetPayBalance({ params: { user_id: currentUser?.user_id } }).then((res) => {
+    //   setBalance(res?.balance);
+    //   setShow(true);
+    // });
   }, []);
 
   return (
