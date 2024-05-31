@@ -31,5 +31,6 @@ export default {
   'pages.UserJobCommit.form.pretrainedModelPath': 'Mount Path',
   'pages.UserJobCommit.form.datasetId': 'Dataset',
   'pages.UserJobCommit.form.datasetPath': 'Mount Path',
+  'pages.UserJobCommit.form.path.error':'Mount path must start with "/"',
   'pages.UserJobCommit.form.runCommand': 'Run Command',
 };

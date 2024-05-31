@@ -30,5 +30,6 @@ export default {
   'pages.UserJobCommit.form.pretrainedModelPath': '挂载路径',
   'pages.UserJobCommit.form.datasetId': '数据集',
   'pages.UserJobCommit.form.datasetPath': '挂载路径',
+  'pages.UserJobCommit.form.path.error':'路径必须以"/"开头',
   'pages.UserJobCommit.form.runCommand': '启动命令',
 };

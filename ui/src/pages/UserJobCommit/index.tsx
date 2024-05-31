@@ -1,6 +1,7 @@
 import {
   apiPostUserJob,
   useApiGetGpuType,
+  useApiGetJobJupyterImage,
   useApiResourceDatasets,
   useApiResourceModels,
 } from '@/services';
@@ -17,6 +18,8 @@ const Welcome: React.FC = () => {
   const intl = useIntl();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
+    ckptPath: '/workspace/ckpt',
+    modelPath: '/workspace/saved_model',
     stopType: 0,
     gpuNumber: 1,
     stopTime: 0,
@@ -24,6 +27,7 @@ const Welcome: React.FC = () => {
   const { data: gpuTypeOptions } = useApiGetGpuType();
   const { data: resourceModels }: any = useApiResourceModels();
   const { data: resourceDatasets }: any = useApiResourceDatasets();
+  const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
 
   const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
     ...x,
@@ -72,6 +76,11 @@ const Welcome: React.FC = () => {
     ),
     value: x.id,
   }));
+
+  const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
+    label: x.image_name,
+    value: x.image_name,
+  })); 
 
   const gpuProdValue = Form.useWatch('gpuType', form);
   // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
@@ -145,6 +154,14 @@ const Welcome: React.FC = () => {
                       id: 'pages.UserJobCommit.form.placeholder',
                       defaultMessage: '请输入',
                     }),
+                  },
+                  {
+                    pattern: /^\//,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.path.error',
+                      defaultMessage: '路径必须以"/"开头',
+                    }),
+                    whitespace: true,
                   },
                 ]}
               >
@@ -228,6 +245,14 @@ const Welcome: React.FC = () => {
                       id: 'pages.UserJobCommit.form.placeholder',
                       defaultMessage: '请输入',
                     }),
+                  },
+                  {
+                    pattern: /^\//,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.path.error',
+                      defaultMessage: '路径必须以"/"开头',
+                    }),
+                    whitespace: true,
                   },
                 ]}
               >
@@ -364,13 +389,16 @@ const Welcome: React.FC = () => {
               },
             ]}
           >
-            <Input
+            <Select
+              mode="tags"
+              maxCount={1}
+              options={jobJupyterImagesList}
               allowClear
               placeholder={intl.formatMessage({
                 id: 'pages.UserJobCommit.form.placeholder',
                 defaultMessage: '请输入',
               })}
-            />
+            ></Select>
           </Form.Item>
 
           <Form.Item
@@ -500,6 +528,16 @@ const Welcome: React.FC = () => {
                     })}
                   </>
                 }
+                rules={[
+                  {
+                    pattern: /^\//,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.path.error',
+                      defaultMessage: '路径必须以"/"开头',
+                    }),
+                    whitespace: true,
+                  },
+                ]}
               >
                 <Input
                   placeholder={intl.formatMessage({
@@ -544,6 +582,16 @@ const Welcome: React.FC = () => {
                     })}
                   </>
                 }
+                rules={[
+                  {
+                    pattern: /^\//,
+                    message: intl.formatMessage({
+                      id: 'pages.UserJobCommit.form.path.error',
+                      defaultMessage: '路径必须以"/"开头',
+                    }),
+                    whitespace: true,
+                  },
+                ]}
               >
                 <Input
                   placeholder={intl.formatMessage({
