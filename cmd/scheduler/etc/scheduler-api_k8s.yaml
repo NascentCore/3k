@@ -15,10 +15,13 @@ OSS:
   Endpoint: "https://oss-cn-beijing.aliyuncs.com"
   PublicModelDir: "models/public/"
   PublicDatasetDir: "datasets/public/"
+  PublicAdapterDir: "adapters/public/"
   UserModelDir: "models/%s/"
   UserModelPrefix: "models/"
   UserDatasetDir: "datasets/%s/"
   UserDatasetPrefix: "datasets/"
+  UserAdapterDir: "adapters/%s/"
+  UserAdapterPrefix: "adapters/"
   FinetuneTagFile: "sxwl-can-fine-tune.md"
   InferenceTagFile: "sxwl-can-inference.md"
   LocalMode: Yes

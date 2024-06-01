@@ -15,38 +15,38 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ResourceDatasetsLogic struct {
+type ResourceAdaptersLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewResourceDatasetsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ResourceDatasetsLogic {
-	return &ResourceDatasetsLogic{
+func NewResourceAdaptersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ResourceAdaptersLogic {
+	return &ResourceAdaptersLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq) (resp *types.ResourceListResp, err error) {
+func (l *ResourceAdaptersLogic) ResourceAdapters(req *types.ResourceAdaptersReq) (resp *types.ResourceListResp, err error) {
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	resp = &types.ResourceListResp{
 		PublicList: make([]types.Resource, 0),
 		UserList:   make([]types.Resource, 0),
 	}
 
-	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket, l.svcCtx.Config.OSS.PublicDatasetDir, 2)
+	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket, l.svcCtx.Config.OSS.PublicAdapterDir, 2)
 	if err != nil {
 		return nil, err
 	}
 
 	for dir, size := range dirs {
-		datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicDatasetDir)
+		adapterName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.PublicAdapterDir)
 		resp.PublicList = append(resp.PublicList, types.Resource{
-			ID:       storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
-			Name:     datasetName,
-			Object:   "dataset",
+			ID:       storage.AdapterCRDName(storage.ResourceToOSSPath(consts.Adapter, adapterName)),
+			Name:     adapterName,
+			Object:   consts.Adapter,
 			Owner:    "public",
 			IsPublic: true,
 			Tag:      []string{},
@@ -55,37 +55,37 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 	}
 
 	if l.svcCtx.Config.OSS.LocalMode {
-		datasets, err := CpodCacheModel.FindActive(l.ctx, model.CacheDataset, req.UserID, 30)
+		adapters, err := CpodCacheModel.FindActive(l.ctx, model.CacheAdapter, req.UserID, 30)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, dataset := range datasets {
-			datasetName := strings.TrimPrefix(strings.TrimSuffix(dataset.DataName, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
+		for _, adapter := range adapters {
+			adapterName := strings.TrimPrefix(strings.TrimSuffix(adapter.DataName, "/"), l.svcCtx.Config.OSS.UserAdapterPrefix)
 			resp.PublicList = append(resp.PublicList, types.Resource{
-				ID:       dataset.DataId,
-				Name:     datasetName,
-				Object:   "dataset",
-				Owner:    dataset.NewUserId.String,
+				ID:       adapter.DataId,
+				Name:     adapterName,
+				Object:   consts.Adapter,
+				Owner:    adapter.NewUserId.String,
 				IsPublic: false,
-				UserID:   dataset.NewUserId.String,
+				UserID:   adapter.NewUserId.String,
 				Tag:      []string{},
-				Size:     dataset.DataSize,
+				Size:     adapter.DataSize,
 			})
 		}
 	} else {
 		dirs, err = storage.ListDir(l.svcCtx.Config.OSS.Bucket,
-			fmt.Sprintf(l.svcCtx.Config.OSS.UserDatasetDir, req.UserID), 1)
+			fmt.Sprintf(l.svcCtx.Config.OSS.UserAdapterDir, req.UserID), 1)
 		if err != nil {
 			return nil, err
 		}
 
 		for dir, size := range dirs {
-			datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserDatasetPrefix)
+			adapterName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserAdapterPrefix)
 			resp.UserList = append(resp.UserList, types.Resource{
-				ID:       storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName)),
-				Name:     datasetName,
-				Object:   "dataset",
+				ID:       storage.AdapterCRDName(storage.ResourceToOSSPath(consts.Adapter, adapterName)),
+				Name:     adapterName,
+				Object:   consts.Adapter,
 				Owner:    req.UserID,
 				IsPublic: false,
 				UserID:   req.UserID,

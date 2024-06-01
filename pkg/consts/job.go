@@ -10,21 +10,24 @@ const (
 	CacheModel   = "model"
 	CacheDataSet = "dataset"
 	CacheImage   = "image"
+	CacheAdapter = "adapter"
 )
 
 const (
-	JobTypePytorch = "Pytorch"
-	// Rename JobTypeFinetune to JobTypeFineTune
-	JobTypeFinetune = "Finetune"
+	JobTypePytorch  = "Pytorch"
+	JobTypeFinetune = "Finetune" // Rename JobTypeFinetune to JobTypeFineTune
 )
 
 const (
 	Model                = "model"
 	Dataset              = "dataset"
+	Adapter              = "adapter"
 	OSSPublicModelPath   = "models/public/%s"
 	OSSUserModelPath     = "models/%s"
 	OSSPublicDatasetPath = "datasets/public/%s"
 	OSSUserDatasetPath   = "datasets/%s"
+	OSSPublicAdapterPath = "adapters/public/%s"
+	OSSUserAdapterPath   = "adapters/%s"
 )
 
 const (

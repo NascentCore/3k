@@ -171,11 +171,11 @@ type (
 		PretrainedModelId       string            `json:"pretrainedModelId,optional"`
 		PretrainedModelName     string            `json:"pretrainedModelName,optional"`
 		PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
-		PretrainedModelIsPublic bool              `json:"model_is_public,optional"`
+		PretrainedModelIsPublic bool              `json:"modelIsPublic,optional"`
 		DatasetId               string            `json:"datasetId,optional"`
 		DatasetName             string            `json:"datasetName,optional"`
 		DatasetPath             string            `json:"datasetPath,optional"`
-		DatasetIsPublic         bool              `json:"dataset_is_public,optional"`
+		DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
 		TrainedModelName        string            `json:"trainedModelName,optional"`
 		RunCommand              string            `json:"runCommand,optional"`
 		CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
@@ -213,24 +213,24 @@ type (
 		Owner             string   `json:"owner"`
 		Size              int64    `json:"size"`
 		IsPublic          bool     `json:"is_public"`
-		UserId            string   `json:"user_id"`
+		UserID            string   `json:"user_id"`
 		Tag               []string `json:"tag"`
+		Template          string   `json:"template"`
 		FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 		InferenceGPUCount int      `json:"inference_gpu_count"`
 	}
 	ResourceModelsReq {
 		UserID string `header:"Sx-User-ID"`
 	}
-	ResourceModelsResp {
-		Total int64      `json:"total"`
-		List  []Resource `json:"list"`
-	}
 	ResourceDatasetsReq {
 		UserID string `header:"Sx-User-ID"`
 	}
-	ResourceDatasetsResp {
-		Total int64      `json:"total"`
-		List  []Resource `json:"list"`
+	ResourceAdaptersReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	ResourceListResp {
+		PublicList []Resource `json:"public_list"`
+		UserList   []Resource `json:"user_list"`
 	}
 )
 
@@ -466,11 +466,17 @@ service scheduler-api {
 	@handler FinetuneHandler
 	post /job/finetune (FinetuneReq) returns (FinetuneResp)
 
+	@doc "模型列表"
 	@handler ResourceModelsHandler
-	get /resource/models (ResourceModelsReq) returns ([]Resource) // oss上存储的模型
+	get /api/resource/models (ResourceModelsReq) returns (ResourceListResp) // oss上存储的模型
 
+	@doc "数据集列表"
 	@handler ResourceDatasetsHandler
-	get /resource/datasets (ResourceDatasetsReq) returns ([]Resource) // oss上存储的数据集
+	get /api/resource/datasets (ResourceDatasetsReq) returns (ResourceListResp) // oss上存储的数据集
+
+	@doc "适配器列表"
+	@handler ResourceAdaptersHandler
+	get /api/resource/adapters (ResourceAdaptersReq) returns (ResourceListResp) // oss上存储的适配器
 
 	@handler UploaderAccessHandler
 	get /resource/uploader_access (UploaderAccessReq) returns (UploaderAccessResp)

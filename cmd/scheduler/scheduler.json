@@ -58,11 +58,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -92,11 +91,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -116,11 +114,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -148,11 +145,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -182,11 +178,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "instance_name",
@@ -217,11 +212,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -241,11 +235,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -273,11 +266,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -307,18 +299,16 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "user_id",
             "in": "query",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -341,11 +331,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -375,18 +364,16 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "user_id",
             "in": "query",
             "required": false,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "start_time",
@@ -415,6 +402,31 @@
         ]
       }
     },
+    "/api/resource/adapters": {
+      "get": {
+        "summary": "适配器列表",
+        "operationId": "ResourceAdaptersHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ResourceListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/resource/baseimages": {
       "get": {
         "summary": "基础镜像列表",
@@ -429,13 +441,79 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/resource/datasets": {
+      "get": {
+        "summary": "数据集列表",
+        "operationId": "ResourceDatasetsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ResourceListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/resource/models": {
+      "get": {
+        "summary": "模型列表",
+        "operationId": "ResourceModelsHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ResourceListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/user/newuserid": {
+      "post": {
+        "summary": "生成所有user_id",
+        "operationId": "CreateNewUserID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CreateNewUserIDResp"
+            }
+          }
+        },
         "tags": [
           "scheduler-api"
         ]
@@ -485,11 +563,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -582,11 +659,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -615,11 +691,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "service_name",
@@ -644,11 +719,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -678,11 +752,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -737,11 +810,10 @@
         },
         "parameters": [
           {
-            "name": "-",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -770,11 +842,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "current",
@@ -810,11 +881,10 @@
         },
         "parameters": [
           {
-            "name": "-",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -938,8 +1008,7 @@
             "name": "user_id",
             "in": "query",
             "required": false,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -958,11 +1027,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -989,11 +1057,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -1020,11 +1087,10 @@
         },
         "parameters": [
           {
-            "name": "Sx-User",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -1033,62 +1099,6 @@
             "schema": {
               "$ref": "#/definitions/QuotaUpdateReq"
             }
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/resource/datasets": {
-      "get": {
-        "operationId": "ResourceDatasetsHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Resource"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "-",
-            "in": "header",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/resource/models": {
-      "get": {
-        "operationId": "ResourceModelsHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Resource"
-              }
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "-",
-            "in": "header",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
           }
         ],
         "tags": [
@@ -1109,11 +1119,10 @@
         },
         "parameters": [
           {
-            "name": "-",
+            "name": "Sx-User-ID",
             "in": "header",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "tags": [
@@ -1139,16 +1148,11 @@
     }
   },
   "definitions": {
-    "AuthReq": {
-      "type": "object",
-      "title": "AuthReq"
-    },
     "BalanceAddReq": {
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "amount": {
           "type": "number",
@@ -1177,8 +1181,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "BalanceGetReq",
@@ -1190,8 +1193,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "balance": {
           "type": "number",
@@ -1227,8 +1229,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "start_time": {
           "type": "string"
@@ -1379,8 +1380,7 @@
           "format": "boolean"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "finetune_gpu_count": {
           "type": "integer",
@@ -1505,6 +1505,18 @@
         "job_list",
         "inference_service_list",
         "jupyter_lab_list"
+      ]
+    },
+    "CreateNewUserIDResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "CreateNewUserIDResp",
+      "required": [
+        "message"
       ]
     },
     "DiskInfo": {
@@ -1710,8 +1722,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string"
         },
         "image_name": {
           "type": "string"
@@ -1843,8 +1854,7 @@
           "type": "string"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "InferenceService",
@@ -1961,8 +1971,7 @@
           "type": "string"
         },
         "userId": {
-          "type": "integer",
-          "format": "int32"
+          "type": "string"
         },
         "workStatus": {
           "type": "integer",
@@ -2232,8 +2241,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "JobsDelReq",
@@ -2285,8 +2293,7 @@
           }
         },
         "userId": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "JupyterLab",
@@ -2347,8 +2354,7 @@
           "type": "string"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "status": {
           "type": "string"
@@ -2408,8 +2414,7 @@
           "type": "string"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "status": {
           "type": "string"
@@ -2894,8 +2899,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "resource": {
           "type": "string"
@@ -2916,8 +2920,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "resource": {
           "type": "string"
@@ -2970,8 +2973,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "QuotaListReq"
@@ -2999,8 +3001,7 @@
           "format": "int64"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "resource": {
           "type": "string"
@@ -3104,14 +3105,16 @@
           "format": "boolean"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "tag": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "template": {
+          "type": "string"
         },
         "finetune_gpu_count": {
           "type": "integer",
@@ -3132,33 +3135,18 @@
         "is_public",
         "user_id",
         "tag",
+        "template",
         "finetune_gpu_count",
         "inference_gpu_count"
       ]
     },
+    "ResourceAdaptersReq": {
+      "type": "object",
+      "title": "ResourceAdaptersReq"
+    },
     "ResourceDatasetsReq": {
       "type": "object",
       "title": "ResourceDatasetsReq"
-    },
-    "ResourceDatasetsResp": {
-      "type": "object",
-      "properties": {
-        "total": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "list": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Resource"
-          }
-        }
-      },
-      "title": "ResourceDatasetsResp",
-      "required": [
-        "total",
-        "list"
-      ]
     },
     "ResourceInfo": {
       "type": "object",
@@ -3197,29 +3185,31 @@
         "caches"
       ]
     },
-    "ResourceModelsReq": {
-      "type": "object",
-      "title": "ResourceModelsReq"
-    },
-    "ResourceModelsResp": {
+    "ResourceListResp": {
       "type": "object",
       "properties": {
-        "total": {
-          "type": "integer",
-          "format": "int64"
+        "public_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Resource"
+          }
         },
-        "list": {
+        "user_list": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Resource"
           }
         }
       },
-      "title": "ResourceModelsResp",
+      "title": "ResourceListResp",
       "required": [
-        "total",
-        "list"
+        "public_list",
+        "user_list"
       ]
+    },
+    "ResourceModelsReq": {
+      "type": "object",
+      "title": "ResourceModelsReq"
     },
     "SendEmailReq": {
       "type": "object",
@@ -3295,8 +3285,7 @@
           "type": "string"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       },
       "title": "UploaderAccessResp",
@@ -3310,8 +3299,7 @@
       "type": "object",
       "properties": {
         "user_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "user_name": {
           "type": "string"
@@ -3331,8 +3319,7 @@
           "description": " 账单ID"
         },
         "user_id": {
-          "type": "integer",
-          "format": "int64",
+          "type": "string",
           "description": " 用户ID"
         },
         "amount": {
@@ -3400,7 +3387,10 @@
         },
         "id": {
           "type": "integer",
-          "format": "int32"
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "string"
         },
         "isAdmin": {
           "type": "boolean",
@@ -3428,12 +3418,17 @@
         "email",
         "enabled",
         "id",
+        "user_id",
         "isAdmin",
         "updateBy",
         "updateTime",
         "userType",
         "username"
       ]
+    },
+    "UserInfoReq": {
+      "type": "object",
+      "title": "UserInfoReq"
     },
     "UserInfoResp": {
       "type": "object",

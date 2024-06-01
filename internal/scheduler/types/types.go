@@ -270,11 +270,11 @@ type JobCreateReq struct {
 	PretrainedModelId       string            `json:"pretrainedModelId,optional"`
 	PretrainedModelName     string            `json:"pretrainedModelName,optional"`
 	PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
-	PretrainedModelIsPublic bool              `json:"model_is_public,optional"`
+	PretrainedModelIsPublic bool              `json:"modelIsPublic,optional"`
 	DatasetId               string            `json:"datasetId,optional"`
 	DatasetName             string            `json:"datasetName,optional"`
 	DatasetPath             string            `json:"datasetPath,optional"`
-	DatasetIsPublic         bool              `json:"dataset_is_public,optional"`
+	DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
 	TrainedModelName        string            `json:"trainedModelName,optional"`
 	RunCommand              string            `json:"runCommand,optional"`
 	CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
@@ -575,19 +575,19 @@ type Resource struct {
 	Owner             string   `json:"owner"`
 	Size              int64    `json:"size"`
 	IsPublic          bool     `json:"is_public"`
-	UserId            string   `json:"user_id"`
+	UserID            string   `json:"user_id"`
 	Tag               []string `json:"tag"`
+	Template          string   `json:"template"`
 	FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 	InferenceGPUCount int      `json:"inference_gpu_count"`
 }
 
-type ResourceDatasetsReq struct {
+type ResourceAdaptersReq struct {
 	UserID string `header:"Sx-User-ID"`
 }
 
-type ResourceDatasetsResp struct {
-	Total int64      `json:"total"`
-	List  []Resource `json:"list"`
+type ResourceDatasetsReq struct {
+	UserID string `header:"Sx-User-ID"`
 }
 
 type ResourceInfo struct {
@@ -598,13 +598,13 @@ type ResourceInfo struct {
 	Caches       []Cache      `json:"caches"`
 }
 
-type ResourceModelsReq struct {
-	UserID string `header:"Sx-User-ID"`
+type ResourceListResp struct {
+	PublicList []Resource `json:"public_list"`
+	UserList   []Resource `json:"user_list"`
 }
 
-type ResourceModelsResp struct {
-	Total int64      `json:"total"`
-	List  []Resource `json:"list"`
+type ResourceModelsReq struct {
+	UserID string `header:"Sx-User-ID"`
 }
 
 type SendEmailReq struct {
