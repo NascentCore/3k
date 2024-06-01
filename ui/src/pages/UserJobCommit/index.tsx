@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import { QuestionCircleFilled } from '@ant-design/icons';
 import AsyncButton from '@/components/AsyncButton';
-import { formatFileSize } from '@/utils';
+import { concatArray, formatFileSize } from '@/utils';
 
 const Welcome: React.FC = () => {
   const intl = useIntl();
@@ -39,7 +39,10 @@ const Welcome: React.FC = () => {
     ),
     value: x.gpuProd,
   }));
-  const resourceModelsList = resourceModels?.map((x) => ({
+  const resourceModelsList = concatArray(
+    resourceModels?.public_list,
+    resourceModels?.user_list,
+  ).map((x) => ({
     ...x,
     label: (
       <>
@@ -58,7 +61,10 @@ const Welcome: React.FC = () => {
     value: x.id,
     key: x.id,
   }));
-  const resourceDatasetsList = resourceDatasets?.map((x) => ({
+  const resourceDatasetsList = concatArray(
+    resourceDatasets?.public_list,
+    resourceDatasets?.user_list,
+  ).map((x) => ({
     ...x,
     label: (
       <>
@@ -80,7 +86,7 @@ const Welcome: React.FC = () => {
   const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
     label: x.image_name,
     value: x.image_name,
-  })); 
+  }));
 
   const gpuProdValue = Form.useWatch('gpuType', form);
   // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
@@ -93,6 +99,7 @@ const Welcome: React.FC = () => {
       return apiPostUserJob({
         data: {
           ...values,
+          imagePath: values.imagePath[0],
           ckptVol: Number(values.ckptVol),
           gpuNumber: Number(values.gpuNumber),
           modelVol: Number(values.modelVol),

@@ -30,3 +30,9 @@ export function copyTextToClipboard(text) {
   document.body.removeChild(textarea);
   console.log('Text copied to clipboard');
 }
+
+export const concatArray = (arr1: any[], arr2: any[]) => {
+  const _arr1 = arr1 || [];
+  const _arr2 = arr2 || [];
+  return [..._arr1, ..._arr2];
+};

@@ -3,6 +3,7 @@ import { Button, Form, Input, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
+import { concatArray } from '@/utils';
 
 interface IProps {
   onChange: () => void;
@@ -15,7 +16,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
   const intl = useIntl();
 
   const { data: resourceModels }: any = useApiResourceModels();
-  const resourceModelsList = resourceModels?.map((x) => ({
+  const resourceModelsList = concatArray(
+    resourceModels?.public_list,
+    resourceModels?.user_list,
+  ).map((x) => ({
     ...x,
     label: x.name,
     value: x.id,

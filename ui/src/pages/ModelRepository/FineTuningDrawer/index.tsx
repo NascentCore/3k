@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
+import { concatArray } from '@/utils';
 
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();
@@ -27,7 +28,14 @@ const Content = ({ record, onCancel }) => {
   const [resourceDatasetsOption, setResourceDatasets] = useState([]);
   useEffect(() => {
     apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(res?.map((x) => ({ ...x, label: x.name, value: x.name, key: x.id })));
+      setResourceDatasets(
+        concatArray(res?.public_list, res?.user_list).map((x) => ({
+          ...x,
+          label: x.name,
+          value: x.name,
+          key: x.id,
+        })),
+      );
     });
   }, []);
 
