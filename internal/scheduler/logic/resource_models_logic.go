@@ -30,9 +30,12 @@ func NewResourceModelsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Re
 	}
 }
 
-func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp []types.Resource, err error) {
+func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp *types.ResourceListResp, err error) {
 	CpodCacheModel := l.svcCtx.CpodCacheModel
-	resp = []types.Resource{}
+	resp = &types.ResourceListResp{
+		PublicList: make([]types.Resource, 0),
+		UserList:   make([]types.Resource, 0),
+	}
 
 	// public models
 	// ListDir 只能查询1000个匹配前缀的文件，小批量数据ok，更完善还是需要有db来存储模型元数据
@@ -91,8 +94,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		return otherModels[i].ID < otherModels[j].ID
 	})
 
-	resp = append(resp, validModels...)
-	resp = append(resp, otherModels...)
+	resp.PublicList = append(resp.PublicList, validModels...)
+	resp.PublicList = append(resp.PublicList, otherModels...)
 
 	// user models
 	if l.svcCtx.Config.OSS.LocalMode {
@@ -104,15 +107,16 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		for _, m := range models {
 			tag := []string{"finetune", "inference"} // TODO 根据其他元信息来判断是否能微调和推理
 			modelName := strings.TrimPrefix(strings.TrimSuffix(m.DataName, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
-			resp = append(resp, types.Resource{
+			resp.UserList = append(resp.UserList, types.Resource{
 				ID:                m.DataId,
 				Name:              modelName,
 				Object:            "model",
 				Owner:             m.NewUserId.String,
 				Size:              m.DataSize,
 				IsPublic:          false,
-				UserId:            m.NewUserId.String,
+				UserID:            m.NewUserId.String,
 				Tag:               tag,
+				Template:          m.Template,
 				FinetuneGPUCount:  int(m.FinetuneGpuCount),
 				InferenceGPUCount: int(m.InferenceGpuCount),
 			})
@@ -145,14 +149,14 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			}
 
 			modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
-			resp = append(resp, types.Resource{
+			resp.UserList = append(resp.UserList, types.Resource{
 				ID:                storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
 				Name:              modelName,
 				Object:            "model",
 				Owner:             req.UserID,
 				Size:              size,
 				IsPublic:          false,
-				UserId:            req.UserID,
+				UserID:            req.UserID,
 				Tag:               tag,
 				FinetuneGPUCount:  1,
 				InferenceGPUCount: 1,

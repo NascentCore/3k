@@ -26,14 +26,6 @@ Gateway:
       ToPath: "/auth/info"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/resource/models"
-      ToPath: "/resource/models"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/resource/datasets"
-      ToPath: "/resource/datasets"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/job/finetune"
       ToPath: "/job/finetune"
       Auth: Yes

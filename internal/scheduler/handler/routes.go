@@ -14,6 +14,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
+				Path:    "/api/resource/adapters",
+				Handler: ResourceAdaptersHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/resource/datasets",
+				Handler: ResourceDatasetsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/resource/models",
+				Handler: ResourceModelsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/cpod/gpu_type",
 				Handler: GpuTypeHandler(serverCtx),
 			},
@@ -101,16 +116,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodDelete,
 				Path:    "/quota",
 				Handler: QuotaDeleteHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/resource/datasets",
-				Handler: ResourceDatasetsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/resource/models",
-				Handler: ResourceModelsHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,

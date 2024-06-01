@@ -16,10 +16,13 @@ type Config struct {
 		Endpoint          string
 		PublicModelDir    string
 		PublicDatasetDir  string
+		PublicAdapterDir  string
 		UserModelDir      string
 		UserModelPrefix   string
 		UserDatasetDir    string
 		UserDatasetPrefix string
+		UserAdapterDir    string
+		UserAdapterPrefix string
 		FinetuneTagFile   string
 		InferenceTagFile  string
 		LocalMode         bool

@@ -22,6 +22,12 @@ func ResourceToOSSPath(resourceType, resource string) string {
 		} else {
 			return fmt.Sprintf(consts.OSSPublicDatasetPath, resource)
 		}
+	case consts.Adapter:
+		if strings.HasPrefix(resource, "user-") {
+			return fmt.Sprintf(consts.OSSUserAdapterPath, resource)
+		} else {
+			return fmt.Sprintf(consts.OSSPublicAdapterPath, resource)
+		}
 	}
 
 	return ""
@@ -43,6 +49,10 @@ func DatasetCRDName(ossPath string) string {
 	return fmt.Sprintf("dataset-storage-%s", hash(ossPath))
 }
 
+func AdapterCRDName(ossPath string) string {
+	return fmt.Sprintf("adapter-storage-%s", hash(ossPath))
+}
+
 func ModelPVCName(ossPath string) string {
 	return fmt.Sprintf("pvc-model-%s", hash(ossPath))
 }
@@ -51,12 +61,20 @@ func DatasetPVCName(ossPath string) string {
 	return fmt.Sprintf("pvc-dataset-%s", hash(ossPath))
 }
 
+func AdapterPVCName(ossPath string) string {
+	return fmt.Sprintf("pvc-adapter-%s", hash(ossPath))
+}
+
 func ModelDownloadJobName(ossPath string) string {
 	return fmt.Sprintf("download-model-%s", hash(ossPath))
 }
 
 func DatasetDownloadJobName(ossPath string) string {
 	return fmt.Sprintf("download-dataset-%s", hash(ossPath))
+}
+
+func AdapterDownloadJobName(ossPath string) string {
+	return fmt.Sprintf("download-adapter-%s", hash(ossPath))
 }
 
 func OssPathToOssURL(bucket, ossPath string) string {

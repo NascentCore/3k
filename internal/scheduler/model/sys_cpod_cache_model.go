@@ -13,6 +13,7 @@ const (
 	CacheModel   = 1
 	CacheDataset = 2
 	CacheImage   = 3
+	CacheAdapter = 4
 )
 
 const (
@@ -164,7 +165,7 @@ func (m *defaultSysCpodCacheModel) FindActive(ctx context.Context, dataType int,
 	err := m.conn.QueryRowsCtx(ctx, &caches, fmt.Sprintf(`select c.*
 	from sys_cpod_cache c
 	join (select cpod_id, max(update_time) as update_time from sys_cpod_main group by cpod_id) m on c.cpod_id = m.cpod_id
-	where c.data_type = %d and c.new_user_id = %s and m.update_time > NOW() - INTERVAL %d MINUTE;`, dataType, userID, minutes),
+	where c.data_type = %d and c.new_user_id = '%s' and m.update_time > NOW() - INTERVAL %d MINUTE;`, dataType, userID, minutes),
 	)
 	if err != nil {
 		return nil, err
