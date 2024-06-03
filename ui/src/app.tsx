@@ -7,6 +7,7 @@ import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import React from 'react';
 import { apiAuthInfo } from './services';
+import { Button } from 'antd';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 let user: any = {};
@@ -49,7 +50,29 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    actionsRender: () => [<SelectLang key="SelectLang" />],
+    actionsRender: () => [
+      <>
+        <Button
+          type="link"
+          onClick={() => {
+            window.open('https://sxwl.ai/pricing');
+          }}
+        >
+          价格
+        </Button>
+      </>,
+      <>
+        <Button
+          type="link"
+          onClick={() => {
+            window.open('https://sxwl.ai/docs/cloud');
+          }}
+        >
+          文档
+        </Button>
+      </>,
+      <SelectLang key="SelectLang" />,
+    ],
     avatarProps: {
       // src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       title: <AvatarName />,
