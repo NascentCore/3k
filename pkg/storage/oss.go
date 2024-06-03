@@ -330,7 +330,7 @@ func ExistFile(bucketName, filePath string) (bool, int64, error) {
 }
 
 // UploadDir uploads the whole local directory to the OSS
-func UploadDir(bucketName, localDirPath, ossDirPath string) (int64, error) {
+func UploadDir(bucketName, localDirPath, ossDirPath string, verbose bool) (int64, error) {
 	// Ensure the OSS directory path ends with a slash
 	if !strings.HasSuffix(ossDirPath, "/") {
 		ossDirPath += "/"
@@ -368,8 +368,10 @@ func UploadDir(bucketName, localDirPath, ossDirPath string) (int64, error) {
 			return err
 		}
 
-		totalBytes += info.Size()
-		log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", info.Size())
+		if verbose {
+			totalBytes += info.Size()
+			log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", info.Size())
+		}
 
 		return nil
 	})
@@ -377,6 +379,75 @@ func UploadDir(bucketName, localDirPath, ossDirPath string) (int64, error) {
 	if err != nil {
 		log.SLogger.Errorw("walk local dir err", "error", err)
 		return totalBytes, err
+	}
+
+	return totalBytes, nil
+}
+
+// DownloadDir will download the ossDirPath to localDirPath and returns the disk size downloaded and the error.
+func DownloadDir(bucketName, localDirPath, ossDirPath string, verbose bool) (int64, error) {
+	// Ensure the OSS directory path ends with a slash
+	if !strings.HasSuffix(ossDirPath, "/") {
+		ossDirPath += "/"
+	}
+
+	// Get the OSS bucket
+	bucket, err := client.Bucket(bucketName)
+	if err != nil {
+		log.SLogger.Errorw("get bucket err", "error", err)
+		return 0, err
+	}
+
+	var totalBytes int64
+	// List objects in the OSS directory
+	listOptions := []oss.Option{
+		oss.Prefix(ossDirPath),
+	}
+	isTruncated := true
+
+	for isTruncated {
+		// Get the list of objects
+		result, err := bucket.ListObjects(listOptions...)
+		if err != nil {
+			log.SLogger.Errorw("list objects err", "error", err)
+			return totalBytes, err
+		}
+
+		for _, object := range result.Objects {
+			// Calculate the local file path
+			relativePath := strings.TrimPrefix(object.Key, ossDirPath)
+			localFilePath := filepath.Join(localDirPath, relativePath)
+
+			// Ensure the local directory exists
+			if err := os.MkdirAll(filepath.Dir(localFilePath), os.ModePerm); err != nil {
+				log.SLogger.Errorw("create local dir err", "error", err, "localFilePath", localFilePath)
+				return totalBytes, err
+			}
+
+			// Download the file
+			err = bucket.GetObjectToFile(object.Key, localFilePath)
+			if err != nil {
+				log.SLogger.Errorw("download file err", "error", err, "ossPath", object.Key, "localFilePath", localFilePath)
+				return totalBytes, err
+			}
+
+			// Always calculate the total bytes downloaded
+			fileInfo, err := os.Stat(localFilePath)
+			if err != nil {
+				log.SLogger.Errorw("stat file err", "error", err, "localFilePath", localFilePath)
+				return totalBytes, err
+			}
+			totalBytes += fileInfo.Size()
+
+			if verbose {
+				log.SLogger.Infow("file downloaded", "ossPath", object.Key, "localFilePath", localFilePath, "size", fileInfo.Size())
+			}
+		}
+
+		isTruncated = result.IsTruncated
+		if isTruncated {
+			listOptions = append(listOptions, oss.Marker(result.NextMarker))
+		}
 	}
 
 	return totalBytes, nil
