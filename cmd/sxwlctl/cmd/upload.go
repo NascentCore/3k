@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"path"
 	"path/filepath"
-	"sxwl/3k/internal/scheduler/types"
+	"sxwl/3k/cmd/sxwlctl/internal/auth"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/storage"
 	"time"
@@ -17,8 +16,9 @@ import (
 )
 
 var (
-	dir string
-	typ string
+	dir     string
+	typ     string
+	verbose bool
 )
 
 type Config struct {
@@ -40,9 +40,9 @@ var uploadCmd = &cobra.Command{
 		}
 
 		switch typ {
-		case "model", "dataset":
+		case consts.Model, consts.Dataset, consts.Adapter:
 		default:
-			fmt.Println("data_type should be [model|dataset]")
+			fmt.Println("data_type should be [model|dataset|adapter]")
 			os.Exit(1)
 		}
 
@@ -51,7 +51,7 @@ var uploadCmd = &cobra.Command{
 			fmt.Println("Please input a sxwl token")
 			os.Exit(1)
 		}
-		accessID, accessKey, userID, err := getAccessByToken(token)
+		accessID, accessKey, userID, err := auth.GetAccessByToken(token)
 		if err != nil {
 			fmt.Println("Please check token and auth_url in config file")
 			os.Exit(1)
@@ -70,12 +70,15 @@ var uploadCmd = &cobra.Command{
 		start := time.Now()
 		prefix := ""
 		switch typ {
-		case "model":
-			prefix = fmt.Sprintf("models/%s/", userID)
-		case "dataset":
-			prefix = fmt.Sprintf("datasets/%s/", userID)
+		case consts.Model:
+			prefix = fmt.Sprintf(consts.OSSUserModelPath, userID)
+		case consts.Dataset:
+			prefix = fmt.Sprintf(consts.OSSUserDatasetPath, userID)
+		case consts.Adapter:
+			prefix = fmt.Sprintf(consts.OSSUserAdapterPath, userID)
 		}
-		size, err := upload(conf, path.Join(prefix, filepath.Base(dir)), dir)
+		// size, err := upload(conf, path.Join(prefix, filepath.Base(dir)), dir)
+		size, err := storage.UploadDir(conf.Bucket, dir, path.Join(prefix, filepath.Base(dir)), verbose)
 		if err != nil {
 			fmt.Printf("upload err: %s\n", err)
 			os.Exit(1)
@@ -87,47 +90,9 @@ var uploadCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(uploadCmd)
-	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹")
-	uploadCmd.Flags().StringVar(&typ, "data_type", "model", "[model|dataset]")
+	uploadCmd.Flags().SortFlags = false
+	uploadCmd.Flags().StringVarP(&typ, "type", "t", "model", "[model|dataset|adapter]")
+	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
+	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")
 	viper.SetDefault("auth_url", "https://llm.sxwl.ai/api/uploader_access")
-}
-
-func getAccessByToken(token string) (id, key string, userID string, err error) {
-	// Create a new request using http.NewRequest
-	req, err := http.NewRequest("GET", viper.GetString("auth_url"), nil)
-	if err != nil {
-		err = fmt.Errorf("Error creating request: %s\n", err)
-		return
-	}
-
-	// Add an 'Authorization' header to the request
-	req.Header.Add("Authorization", "Bearer "+token)
-
-	// Send the request using http.Client
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		err = fmt.Errorf("Error sending request to API endpoint: %s\n", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Check if the response status code indicates success (200 OK)
-	if resp.StatusCode != http.StatusOK {
-		err = fmt.Errorf("auth_url request failed with status code: %d", resp.StatusCode)
-		return
-	}
-
-	// Decode the JSON response into the UploaderAccessResp struct
-	var response types.UploaderAccessResp
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		err = fmt.Errorf("Error decoding JSON response: %s\n", err)
-		return
-	}
-
-	return response.AccessID, response.AccessKey, response.UserID, err
-}
-
-func upload(conf Config, prefix, localDir string) (int64, error) {
-	return storage.UploadDir(conf.Bucket, localDir, prefix)
 }
