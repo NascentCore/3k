@@ -1,11 +1,15 @@
 import { useApiGetPayBilling } from '@/services';
-import { useIntl } from '@umijs/max';
+import { useIntl, useModel } from '@umijs/max';
 import { Table } from 'antd';
 import React from 'react';
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  useApiGetPayBilling();
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
+  const { data, isLoading } = useApiGetPayBilling({
+    params: { user_id: currentUser?.user_id },
+  });
   return (
     <>
       <Table
@@ -15,8 +19,8 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: 'ID',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'billing_id',
+            key: 'billing_id',
             align: 'center',
             width: 150,
           },
@@ -25,8 +29,8 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: '任务ID',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'job_id',
+            key: 'job_id',
             align: 'center',
             width: 150,
           },
@@ -35,8 +39,8 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: '任务类型',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'job_type',
+            key: 'job_type',
             align: 'center',
             width: 150,
           },
@@ -91,8 +95,8 @@ const Index: React.FC = () => {
             width: 150,
           },
         ]}
-        dataSource={[]}
-        loading={false}
+        dataSource={data?.data || []}
+        loading={isLoading}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />
     </>
