@@ -11,7 +11,7 @@ const Content = () => {
     {
       key: '1',
       label: intl.formatMessage({
-        id: 'xxx',
+        id: 'pages.myAccount.tabs.title.DepositHistory',
         defaultMessage: '充值记录',
       }),
       children: <DepositHistory />,
@@ -19,7 +19,7 @@ const Content = () => {
     {
       key: '2',
       label: intl.formatMessage({
-        id: 'xxx',
+        id: 'pages.myAccount.tabs.title.BillHistory',
         defaultMessage: '历史账单',
       }),
       children: <BillHistory />,
@@ -55,14 +55,21 @@ const Index: React.FC = () => {
             setOpen(true);
           }}
         >
-          余额: ￥{balance}
+          {intl.formatMessage({
+            id: 'pages.myAccount.button.balance',
+            defaultMessage: '余额',
+          })}
+          : ￥{balance}
         </Button>
       )}
       <Drawer
         width={1000}
         title={intl.formatMessage({
           id: 'xxx',
-          defaultMessage: '账单信息',
+          defaultMessage: intl.formatMessage({
+            id: 'pages.myAccount.drawer.title.Account',
+            defaultMessage: '账单信息',
+          }),
         })}
         placement="right"
         onClose={() => setOpen(false)}

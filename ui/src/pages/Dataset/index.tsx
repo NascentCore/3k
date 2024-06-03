@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Space, Table, Tabs } from 'antd';
+import { Table, Tabs } from 'antd';
 import React from 'react';
-import { useApiResourceDatasets, useApiResourceModels } from '@/services';
+import { useApiResourceDatasets } from '@/services';
 import { formatFileSize } from '@/utils';
 import { useIntl } from '@umijs/max';
 
@@ -12,7 +12,7 @@ const TabTable = ({ dataSource, loading }: any) => {
       columns={[
         {
           title: intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.dataset.table.column.name',
             defaultMessage: '数据集名称',
           }),
           dataIndex: 'name',
@@ -22,7 +22,7 @@ const TabTable = ({ dataSource, loading }: any) => {
         },
         {
           title: intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.dataset.table.column.size',
             defaultMessage: '数据集大小',
           }),
           dataIndex: 'size',
@@ -35,24 +35,13 @@ const TabTable = ({ dataSource, loading }: any) => {
         },
         {
           title: intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.dataset.table.column.desc',
             defaultMessage: '数据集说明',
           }),
           dataIndex: 'owner',
           key: 'owner',
           align: 'center',
           width: 150,
-        },
-        {
-          title: intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: '操作',
-          }),
-          dataIndex: 'action',
-          key: 'action',
-          width: 200,
-          align: 'center',
-          render: (_, record) => <></>,
         },
       ]}
       dataSource={dataSource}
@@ -69,7 +58,10 @@ const Index: React.FC = () => {
   const items = [
     {
       key: '1',
-      label: '公共数据集',
+      label: intl.formatMessage({
+        id: 'pages.dataset.tabs.title.public',
+        defaultMessage: '公共数据集',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.public_list || []} loading={isLoading} />
@@ -78,7 +70,10 @@ const Index: React.FC = () => {
     },
     {
       key: '2',
-      label: '用户数据集',
+      label: intl.formatMessage({
+        id: 'pages.dataset.tabs.title.user',
+        defaultMessage: '用户数据集',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.user_list || []} loading={isLoading} />

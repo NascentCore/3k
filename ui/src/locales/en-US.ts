@@ -9,6 +9,7 @@ import JupyterLab from './en-US/JupyterLab';
 import oem from './en-US/oem';
 import Adapter from './en-US/adapter';
 import Dataseta from './en-US/dataset';
+import global from './en-US/global';
 
 export default {
   'menu.welcome': 'Welcome',
@@ -24,16 +25,7 @@ export default {
   'menu.UserQuota': 'UserQuota',
   'menu.Dataset': 'Dataset',
   'menu.Adapter': 'Adapter',
-  'pages.global.header.logout': 'Log Out',
-  'pages.global.confirm.title': 'Prompt',
-  'pages.global.confirm.okText': 'Yes',
-  'pages.global.confirm.cancelText': 'No',
-  'pages.global.confirm.delete.button': 'Delete',
-  'pages.global.confirm.delete.description': 'Confirm deletion?',
-  'pages.global.confirm.delete.success': 'Delete Success',
-  'pages.global.form.submit.success': 'Success',
-  'pages.global.form.placeholder': 'Please enter',
-  'pages.global.form.select.placeholder': 'Please select',
+  ...global,
   ...oem,
   ...login,
   ...modelRepository,

@@ -12,7 +12,7 @@ const TabTable = ({ dataSource, loading }: any) => {
       columns={[
         {
           title: intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.adapter.table.column.name',
             defaultMessage: '适配器名称',
           }),
           dataIndex: 'name',
@@ -22,7 +22,7 @@ const TabTable = ({ dataSource, loading }: any) => {
         },
         {
           title: intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.adapter.table.column.size',
             defaultMessage: '适配器体积',
           }),
           dataIndex: 'size',
@@ -32,18 +32,6 @@ const TabTable = ({ dataSource, loading }: any) => {
           render: (text) => {
             return formatFileSize(text);
           },
-        },
-
-        {
-          title: intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: '操作',
-          }),
-          dataIndex: 'action',
-          key: 'action',
-          width: 200,
-          align: 'center',
-          render: (_, record) => <></>,
         },
       ]}
       dataSource={dataSource}
@@ -60,7 +48,10 @@ const Index: React.FC = () => {
   const items = [
     {
       key: '1',
-      label: '公共适配器',
+      label: intl.formatMessage({
+        id: 'pages.adapter.tabs.title.public',
+        defaultMessage: '公共适配器',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.public_list || []} loading={isLoading} />
@@ -69,7 +60,10 @@ const Index: React.FC = () => {
     },
     {
       key: '2',
-      label: '用户适配器',
+      label: intl.formatMessage({
+        id: 'pages.adapter.tabs.title.user',
+        defaultMessage: '用户适配器',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.user_list || []} loading={isLoading} />

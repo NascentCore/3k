@@ -1,9 +1,11 @@
+import { useApiGetPayBilling } from '@/services';
 import { useIntl } from '@umijs/max';
 import { Table } from 'antd';
 import React from 'react';
 
 const Index: React.FC = () => {
   const intl = useIntl();
+  useApiGetPayBilling();
   return (
     <>
       <Table
