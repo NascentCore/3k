@@ -55,8 +55,8 @@ type JuypterLabReconciler struct {
 //+kubebuilder:rbac:groups=cpod.cpod,resources=juypterlabs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpod.cpod,resources=juypterlabs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cpod.cpod,resources=juypterlabs/finalizers,verbs=update
-//+kubebuilder:rbac:groups="apps",resources=statfulsets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups="apps",resources=statfulsets/status,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="apps",resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="apps",resources=statefulsets/status,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
