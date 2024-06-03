@@ -7,6 +7,8 @@ import clusterInformation from './zh-CN/clusterInformation';
 import userQuota from './zh-CN/userQuota';
 import JupyterLab from './zh-CN/JupyterLab';
 import oem from './zh-CN/oem';
+import Adapter from './zh-CN/adapter';
+import Dataseta from './zh-CN/dataset';
 
 export default {
   'menu.welcome': '欢迎',
@@ -20,6 +22,8 @@ export default {
   'menu.JupyterLab': '开发实验室(JupyterLab)',
   'menu.ClusterInformation': '集群信息',
   'menu.UserQuota': '用户配额',
+  'menu.Dataset': '数据集',
+  'menu.Adapter': '适配器',
   'pages.global.header.logout': '退出登录',
   'pages.global.confirm.title': '提示',
   'pages.global.confirm.okText': '是',
@@ -39,4 +43,6 @@ export default {
   ...clusterInformation,
   ...userQuota,
   ...JupyterLab,
+  ...Adapter,
+  ...Dataseta,
 };

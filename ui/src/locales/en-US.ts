@@ -6,7 +6,9 @@ import userJobCommit from './en-US/userJobCommit';
 import clusterInformation from './en-US/clusterInformation';
 import userQuota from './en-US/userQuota';
 import JupyterLab from './en-US/JupyterLab';
-import oem from './en-US/oem'
+import oem from './en-US/oem';
+import Adapter from './en-US/adapter';
+import Dataseta from './en-US/dataset';
 
 export default {
   'menu.welcome': 'Welcome',
@@ -20,6 +22,8 @@ export default {
   'menu.JupyterLab': 'JupyterLab',
   'menu.ClusterInformation': 'ClusterInformation',
   'menu.UserQuota': 'UserQuota',
+  'menu.Dataset': 'Dataset',
+  'menu.Adapter': 'Adapter',
   'pages.global.header.logout': 'Log Out',
   'pages.global.confirm.title': 'Prompt',
   'pages.global.confirm.okText': 'Yes',
@@ -39,4 +43,6 @@ export default {
   ...clusterInformation,
   ...userQuota,
   ...JupyterLab,
+  ...Adapter,
+  ...Dataseta,
 };

@@ -65,6 +65,15 @@ export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
     });
   });
 
+// 适配器 api/resource/adapters
+export async function apiResourceAdapters(options?: { [key: string]: any }) {
+  return request('/api/resource/adapters', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiResourceAdapters = () => useSWR(['/api/resource/adapters'], apiResourceAdapters);
+
 // 2.6 无代码微调
 
 export async function apiFinetunes(options?: { [key: string]: any }) {
