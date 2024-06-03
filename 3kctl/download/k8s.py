@@ -67,18 +67,21 @@ def get_crd_objects(api_instance, group, version, resource, namespace):
         raise e
 
 
-def create_pvc(api_instance, namespace, pvc_name, storage_size):
+def create_pvc(api_instance, namespace, pvc_name, storage_size,
+               access_mode="ReadWriteMany", pvc_type="dynamic", volume_name=""):
     body = {
         "apiVersion": "v1",
         "kind": "PersistentVolumeClaim",
         "metadata": {"name": pvc_name, "namespace": namespace},
         "spec": {
-            "accessModes": ["ReadWriteMany"],
+            "accessModes": [access_mode],
             "resources": {"requests": {"storage": storage_size}},
-            "storageClassName": "ceph-filesystem",
+            "storageClassName": get_storage_class_from_configmap("cpod-system"),
             "volumeMode:": "Filesystem"
         },
     }
+    if pvc_type == "static":
+        body["spec"]["volumeName"] = volume_name
 
     try:
         api_response = api_instance.create_namespaced_persistent_volume_claim(
@@ -91,7 +94,7 @@ def create_pvc(api_instance, namespace, pvc_name, storage_size):
         raise e
 
 
-def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, proxy_env="", namespace="cpod",
+def create_download_job(api_instance, job_name, container_name, image, pvc_name, args, proxy_env="", namespace="public",
                         secret="aliyun-enterprise-registry", service_account_name="sa-downloader"):
     # 创建 Job 的配置
     job = client.V1Job(api_version="batch/v1", kind="Job",
@@ -198,3 +201,37 @@ def delete_pods_for_job(api_instance, namespace, job_name):
 
     except ApiException as e:
         print(f"Exception when calling CoreV1Api->list_namespaced_pod or delete_namespaced_pod: {e}")
+
+def get_storage_class_from_configmap(namespace):
+    api_instance = client.CoreV1Api()
+    configmap = api_instance.read_namespaced_config_map(name="cpod-info", namespace=namespace)
+    return configmap.data.get("storage_class", "ceph-filesystem")
+
+def create_persistent_volume(api_instance, model_type, model_id, volume_name, hashid):
+    # 定义PersistentVolume的元数据和规格
+    pv = client.V1PersistentVolume(
+        api_version="v1",
+        kind="PersistentVolume",
+        metadata=client.V1ObjectMeta(name=volume_name),
+        spec=client.V1PersistentVolumeSpec(
+            capacity={"storage": "100Mi"},
+            access_modes=["ReadWriteMany"],
+            storage_class_name=get_storage_class_from_configmap('cpod-system'),
+            mount_options=[f'subdir=/{model_type}s/{model_id}'],
+            csi=client.V1CSIPersistentVolumeSource(
+                driver="csi.juicefs.com",
+                volume_handle=f"{model_type}-{hashid}",
+                node_publish_secret_ref=client.V1SecretReference(
+                    name="juicefs-sc-secret",
+                    namespace="kube-system"
+                )
+            )
+        )
+    )
+
+    # 调用API来创建PV
+    try:
+        api_response = api_instance.create_persistent_volume(body=pv)
+        print(f"Created PV: {api_response.metadata.name}")
+    except client.ApiException as e:
+        print("Error creating PV:", e)

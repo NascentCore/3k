@@ -3,6 +3,7 @@ import hashlib
 # Placeholder constants - replace these with your actual values
 MODEL = "model"
 DATASET = "dataset"
+ADAPTER = "adapter"
 OSS_USER_MODEL_PATH = "models/{}"
 OSS_PUBLIC_MODEL_PATH = "models/public/{}"
 OSS_USER_DATASET_PATH = "datasets/{}"
