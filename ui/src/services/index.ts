@@ -1,3 +1,4 @@
+import { concatArray } from '@/utils';
 import { request } from '@umijs/max';
 import useSWR from 'swr';
 
@@ -48,6 +49,17 @@ export const useApiResourceModels = (options?: { [key: string]: any }) =>
       ...(data || {}),
     });
   });
+export const useResourceModelsOptions = () => {
+  const { data }: any = useApiResourceModels();
+  const options = concatArray(data?.public_list, data?.user_list).map((item: any) => {
+    return {
+      label: item.name,
+      value: item.id,
+      key: item.id,
+    };
+  });
+  return options;
+};
 
 // 数据集列表
 export async function apiResourceDatasets(options?: { [key: string]: any }) {
@@ -64,6 +76,34 @@ export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
       ...(data || {}),
     });
   });
+
+export const useResourceDatasetsOptions = () => {
+  const { data }: any = useApiResourceDatasets();
+  const options = concatArray(data?.public_list, data?.user_list).map((x) => ({
+    ...x,
+    label: x.name,
+    value: x.id,
+  }));
+  return options;
+};
+
+// 适配器 api/resource/adapters
+export async function apiResourceAdapters(options?: { [key: string]: any }) {
+  return request('/api/resource/adapters', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiResourceAdapters = () => useSWR(['/api/resource/adapters'], apiResourceAdapters);
+export const useResourceAdaptersOptions = () => {
+  const { data }: any = useApiResourceAdapters();
+  const options = concatArray(data?.public_list, data?.user_list).map((x) => ({
+    ...x,
+    label: x.name,
+    value: x.id,
+  }));
+  return options;
+};
 
 // 2.6 无代码微调
 
@@ -148,6 +188,15 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
       ...(data || {}),
     });
   });
+export const useGpuTypeOptions = () => {
+  const { data }: any = useApiGetGpuType();
+  const options = data?.map((x: any) => ({
+    ...x,
+    label: x.gpuProd,
+    value: x.gpuProd,
+  }));
+  return options;
+};
 
 // 集群信息 新增
 export async function apiPostApiNode(options?: { [key: string]: any }) {

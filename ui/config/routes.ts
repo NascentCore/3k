@@ -33,6 +33,18 @@ export default [
     component: './ModelRepository',
   },
   {
+    path: '/Dataset',
+    name: 'Dataset',
+    icon: 'TableOutlined',
+    component: './Dataset',
+  },
+  {
+    path: '/Adapter',
+    name: 'Adapter',
+    icon: 'SwapOutlined',
+    component: './Adapter',
+  },
+  {
     path: '/UserJobCommit',
     name: 'UserJobCommit',
     icon: 'ProfileOutlined',

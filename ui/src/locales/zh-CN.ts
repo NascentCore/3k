@@ -7,6 +7,9 @@ import clusterInformation from './zh-CN/clusterInformation';
 import userQuota from './zh-CN/userQuota';
 import JupyterLab from './zh-CN/JupyterLab';
 import oem from './zh-CN/oem';
+import Adapter from './zh-CN/adapter';
+import Dataseta from './zh-CN/dataset';
+import global from './zh-CN/global'
 
 export default {
   'menu.welcome': '欢迎',
@@ -20,16 +23,9 @@ export default {
   'menu.JupyterLab': '开发实验室(JupyterLab)',
   'menu.ClusterInformation': '集群信息',
   'menu.UserQuota': '用户配额',
-  'pages.global.header.logout': '退出登录',
-  'pages.global.confirm.title': '提示',
-  'pages.global.confirm.okText': '是',
-  'pages.global.confirm.cancelText': '否',
-  'pages.global.confirm.delete.button': '删除',
-  'pages.global.confirm.delete.description': '确认删除?',
-  'pages.global.confirm.delete.success': '删除成功',
-  'pages.global.form.submit.success': '操作成功',
-  'pages.global.form.placeholder': '请输入',
-  'pages.global.form.select.placeholder': '请选择',
+  'menu.Dataset': '数据集',
+  'menu.Adapter': '适配器',
+  ...global,
   ...oem,
   ...login,
   ...modelRepository,
@@ -39,4 +35,6 @@ export default {
   ...clusterInformation,
   ...userQuota,
   ...JupyterLab,
+  ...Adapter,
+  ...Dataseta,
 };

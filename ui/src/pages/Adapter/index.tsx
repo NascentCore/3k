@@ -1,9 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Space, Table, Tabs } from 'antd';
 import React from 'react';
-import FineTuningDrawer from './FineTuningDrawer';
-import InferenceDrawer from './InferenceDrawer';
-import { useApiResourceModels } from '@/services';
+import { useApiResourceAdapters } from '@/services';
 import { formatFileSize } from '@/utils';
 import { useIntl } from '@umijs/max';
 
@@ -14,8 +12,8 @@ const TabTable = ({ dataSource, loading }: any) => {
       columns={[
         {
           title: intl.formatMessage({
-            id: 'pages.modelRepository.table.column.id',
-            // defaultMessage: '模型名称',
+            id: 'pages.adapter.table.column.name',
+            defaultMessage: '适配器名称',
           }),
           dataIndex: 'name',
           key: 'name',
@@ -24,18 +22,8 @@ const TabTable = ({ dataSource, loading }: any) => {
         },
         {
           title: intl.formatMessage({
-            id: 'pages.modelRepository.table.column.owner',
-            // defaultMessage: '所有者',
-          }),
-          dataIndex: 'owner',
-          key: 'owner',
-          align: 'center',
-          width: 150,
-        },
-        {
-          title: intl.formatMessage({
-            id: 'pages.modelRepository.table.column.size',
-            // defaultMessage: '模型体积',
+            id: 'pages.adapter.table.column.size',
+            defaultMessage: '适配器体积',
           }),
           dataIndex: 'size',
           key: 'size',
@@ -44,24 +32,6 @@ const TabTable = ({ dataSource, loading }: any) => {
           render: (text) => {
             return formatFileSize(text);
           },
-        },
-        {
-          title: intl.formatMessage({
-            id: 'pages.modelRepository.table.column.action',
-            // defaultMessage: '操作',
-          }),
-          dataIndex: 'action',
-          key: 'action',
-          width: 200,
-          align: 'center',
-          render: (_, record) => (
-            <>
-              <Space>
-                {record?.tag?.includes('finetune') && <FineTuningDrawer record={record} />}
-                {record?.tag?.includes('inference') && <InferenceDrawer record={record} />}
-              </Space>
-            </>
-          ),
         },
       ]}
       dataSource={dataSource}
@@ -73,12 +43,15 @@ const TabTable = ({ dataSource, loading }: any) => {
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  const { data, mutate, isLoading }: any = useApiResourceModels();
-
+  const { data, mutate, isLoading }: any = useApiResourceAdapters();
+  console.log(1111, { data });
   const items = [
     {
       key: '1',
-      label: '公共模型',
+      label: intl.formatMessage({
+        id: 'pages.adapter.tabs.title.public',
+        defaultMessage: '公共适配器',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.public_list || []} loading={isLoading} />
@@ -87,7 +60,10 @@ const Index: React.FC = () => {
     },
     {
       key: '2',
-      label: '私有模型',
+      label: intl.formatMessage({
+        id: 'pages.adapter.tabs.title.user',
+        defaultMessage: '用户适配器',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.user_list || []} loading={isLoading} />

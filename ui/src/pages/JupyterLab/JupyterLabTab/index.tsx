@@ -4,6 +4,7 @@ import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
 import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
 import { formatFileSize, getToken } from '@/utils';
+import AddLLaMAFactoryDrawer from './AddLLaMAFactoryDrawer';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
@@ -75,7 +76,8 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             dataIndex: 'action',
             key: 'action',
             align: 'center',
-            width: 150,
+            width: 200,
+            fixed: 'right',
             render: (_, record) => (
               <>
                 <Space>
@@ -90,6 +92,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       defaultMessage: '进入',
                     })}
                   </Button>
+                  <AddLLaMAFactoryDrawer />
                   <Button
                     type={'link'}
                     onClick={() => {
