@@ -1,0 +1,35 @@
+apiVersion: cpod.cpod/v1beta1
+kind: CPodJob
+metadata:
+  labels:
+    # cpod.cpod/cpodjob-source: sxwl
+    cpod.cpod/userID: user-fdf4b74e-97db-4022-9b33-24bbe940597d
+    cpod.cpod/cpod-model-readable-name: gpt3_lite
+    cpod.cpod/cpod-model-size: "52428800"
+  annotations: 
+    cpod.cpod/cpod-model-readable-name: user-fdf4b74e-97db-4022-9b33-24bbe940597d/gpt3_lite
+  name: test
+  namespace: user-fdf4b74e-97db-4022-9b33-24bbe940597d
+spec:
+  backoffLimit: 1
+  ckptPath: /workspace/ckpt
+  ckptVolumeSize: 10240
+  command:
+  - torchrun
+  - --nnodes=1
+  - --nproc_per_node=1
+  - finetune_poetry.py
+  datasetName: dataset-storage-e505673234392893
+  datasetIsPublic: true
+  datasetPath: /workspace/chinese-poetry-collection
+  gpuRequiredPerReplica: 1
+  gpuType: NVIDIA-GeForce-RTX-3090
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modelscope_gpt3_2h16g4tp:v2
+  jobType: pytorch
+  modelSavePath: /workspace/saved_model
+  modelSaveVolumeSize: 10240
+  pretrainModelName: model-storage-c929e5286f90c714
+  pretrainModelIsPublic: false
+  pretrainModelPath: /workspace/nlp_gpt3_text-generation_1.3B
+  uploadModel: true
+  workerReplicas: 1

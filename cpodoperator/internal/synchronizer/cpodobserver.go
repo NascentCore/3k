@@ -366,18 +366,35 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 			}
 		}
 
-		caches = append(caches, resource.Cache{
-			IsPublic:          isPublic,
-			UserID:            model.Namespace,
-			DataType:          resource.CacheModel,
-			DataName:          model.Spec.ModelName,
-			DataId:            model.Name,
-			DataSize:          model.Status.Size,
-			Template:          model.Spec.Template,
-			DataSource:        model.Spec.ModelType,
-			FinetuneGPUCount:  int64(FinetuneGPUCount),
-			InferenceGPUCount: int64(InferenceGPUCount),
-		})
+		if model.Spec.IsLoraAdapter {
+			caches = append(caches, resource.Cache{
+				IsPublic:          isPublic,
+				UserID:            model.Namespace,
+				DataType:          resource.CacheAdapter,
+				DataName:          model.Spec.ModelName,
+				DataId:            model.Name,
+				DataSize:          model.Status.Size,
+				Template:          model.Spec.Template,
+				DataSource:        model.Spec.ModelType,
+				FinetuneGPUCount:  int64(FinetuneGPUCount),
+				InferenceGPUCount: int64(InferenceGPUCount),
+			})
+		} else {
+			caches = append(caches, resource.Cache{
+				IsPublic:          isPublic,
+				UserID:            model.Namespace,
+				DataType:          resource.CacheModel,
+				DataName:          model.Spec.ModelName,
+				DataId:            model.Name,
+				DataSize:          model.Status.Size,
+				Template:          model.Spec.Template,
+				DataSource:        model.Spec.ModelType,
+				FinetuneGPUCount:  int64(FinetuneGPUCount),
+				InferenceGPUCount: int64(InferenceGPUCount),
+			})
+
+		}
+
 	}
 	var datasetList cpodv1.DataSetStorageList
 	err = co.kubeClient.List(ctx, &datasetList)

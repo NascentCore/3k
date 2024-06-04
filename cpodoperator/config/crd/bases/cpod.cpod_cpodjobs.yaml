@@ -51,6 +51,8 @@ spec:
                 items:
                   type: string
                 type: array
+              datasetIsPublic:
+                type: boolean
               datasetName:
                 type: string
               datasetPath:
@@ -146,6 +148,8 @@ spec:
               modelSaveVolumeSize:
                 format: int32
                 type: integer
+              pretrainModelIsPublic:
+                type: boolean
               pretrainModelName:
                 type: string
               pretrainModelPath:

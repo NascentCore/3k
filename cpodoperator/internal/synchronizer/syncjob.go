@@ -17,6 +17,7 @@ import (
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -128,6 +129,37 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
 				s.logger.Error(err, "failed to create user namespace", "user", user)
 			} else {
 				s.logger.Info("user created", "user", newUserNamespace)
+			}
+		}
+	}
+	for _, userNs := range users.Items {
+		var clusterrolebinding rbacv1.ClusterRoleBinding
+		if err := s.kubeClient.Get(ctx, types.NamespacedName{Name: userNs.Name}, &clusterrolebinding); err != nil {
+			if kerrors.IsNotFound(err) {
+				newClusterRoleBinding := rbacv1.ClusterRoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: userNs.Name,
+					},
+					Subjects: []rbacv1.Subject{
+						{
+							Kind:      "ServiceAccount",
+							Name:      "default",
+							Namespace: userNs.Namespace,
+						},
+					},
+					RoleRef: rbacv1.RoleRef{
+						Kind:     "ClusterRole",
+						Name:     "cluster-admin",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+				}
+				if err = s.kubeClient.Create(ctx, &newClusterRoleBinding); err != nil {
+					s.logger.Error(err, "failed to create clusterrolebinding", "user", userNs.Name)
+				} else {
+					s.logger.Info("clusterrolebinding created", "user", userNs.Name)
+				}
+			} else {
+				s.logger.Error(err, "failed to get clusterrolebinding", "user", userNs.Name)
 			}
 		}
 	}
@@ -299,13 +331,13 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						Labels: map[string]string{
 							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
-							// TODO: add modelstorage label
-							v1beta1.CPodPreTrainModelReadableName: job.PretrainModelName,
-							v1beta1.CPodPreTrainModelSize:         fmt.Sprintf("%d", job.PretrainModelSize),
-							v1beta1.CPodDatasetSize:               fmt.Sprintf("%d", job.DatasetSize),
 						},
 						Annotations: map[string]string{
-							v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
+							v1beta1.CPodModelstorageNameAnno:          job.TrainedModelName,
+							v1beta1.CPodPreTrainModelReadableNameAnno: job.PretrainModelName,
+							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.PretrainModelSize),
+							v1beta1.CPodDatasetlReadableNameAnno:      job.DatasetName,
+							v1beta1.CPodDatasetSizeAnno:               fmt.Sprintf("%d", job.DatasetSize),
 						},
 					},
 
@@ -340,7 +372,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 			}
 		}
-
 	}
 
 	var totalCPodJobs v1beta1.CPodJobList

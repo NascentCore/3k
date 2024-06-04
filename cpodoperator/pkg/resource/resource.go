@@ -5,6 +5,7 @@ const (
 	CacheModel   = "model"
 	CacheDataSet = "dataset"
 	CacheImage   = "image"
+	CacheAdapter = "adapter"
 )
 
 // 单个GPU的信息状态信息
