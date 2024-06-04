@@ -37,15 +37,15 @@ var (
 // downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
 	Use:   "download",
-	Short: "",
-	Long:  ``,
+	Short: "download",
+	Long:  `下载模型、数据集、适配器`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := fs.MakeDir(outDir)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
-		switch typ {
+		switch resource {
 		case consts.Model, consts.Dataset, consts.Adapter:
 		default:
 			log.Fatal("data_type should be [model|dataset|adapter]")
@@ -82,7 +82,7 @@ var downloadCmd = &cobra.Command{
 
 		start := time.Now()
 		ossPath := ""
-		switch typ {
+		switch resource {
 		case consts.Model:
 			ossPath = fmt.Sprintf(consts.OSSUserModelPath, name)
 		case consts.Dataset:
@@ -101,8 +101,8 @@ var downloadCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(downloadCmd)
 	downloadCmd.Flags().SortFlags = false
-	downloadCmd.Flags().StringVarP(&typ, "type", "t", "model", "[model|dataset|adapter]")
+	downloadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
 	downloadCmd.Flags().StringVarP(&name, "name", "n", "model", "资源名称，可从页面上复制")
 	downloadCmd.Flags().StringVarP(&outDir, "out_dir", "o", "./", "输出目录")
-	downloadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")
+	downloadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs[true|false]")
 }
