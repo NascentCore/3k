@@ -264,7 +264,7 @@ def build_and_push_image(base_image, user_id, instance_name, job_name):
         f.write(f'FROM {base_image}\n')
         f.write('WORKDIR /workspace\n')
         f.write(f'COPY ./workspace /workspace\n')
-        f.write('RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple\n')
+        f.write('RUN if [ -f requirements.txt ]; then pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple; fi\n')
     # 构建完整的镜像标签
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     full_image_name = f'dockerhub.kubekey.local/{user_id}/{instance_name}:v{timestamp}'
