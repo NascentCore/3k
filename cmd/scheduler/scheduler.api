@@ -11,6 +11,15 @@ info (
 import "client.api"
 
 type (
+	BaseReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	BaseResp {
+		Message string `json:"message"`
+	}
+)
+
+type (
 	GPUStateInfo {
 		Temp      int    `json:"temp"`
 		MemUsage  int    `json:"mem_usage"`
@@ -740,6 +749,23 @@ type CreateNewUserIDResp {
 	Message string `json:"message"`
 }
 
+type (
+	CpodInfo {
+		CpodID         string `json:"cpod_id"`
+		CpodVersion    string `json:"cpod_version"`
+		GPUVendor      string `json:"gpu_vendor"`
+		GPUProd        string `json:"gpu_prod"`
+		GPUMem         int64  `json:"gpu_mem"`
+		GPUTotal       int64  `json:"gpu_total"`
+		GPUAllocatable int64  `json:"gpu_allocatable"`
+		CreateTime     string `json:"create_time"`
+		UpdateTime     string `json:"update_time"`
+	}
+	ClusterCpodsResp {
+		Data []CpodInfo `json:"data"`
+	}
+)
+
 @server (
 	prefix: /api
 )
@@ -803,5 +829,9 @@ service scheduler-api {
 	@doc "生成所有user_id"
 	@handler CreateNewUserID
 	post /user/newuserid returns (CreateNewUserIDResp)
+
+	@doc "集群列表"
+	@handler ClusterCpods
+	get /cluster/cpods (BaseReq) returns (ClusterCpodsResp)
 }
 

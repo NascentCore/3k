@@ -149,6 +149,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodGet,
+				Path:    "/cluster/cpods",
+				Handler: ClusterCpodsHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/code/sendEmail",
 				Handler: sendEmailHandler(serverCtx),

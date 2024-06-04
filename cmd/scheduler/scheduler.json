@@ -16,6 +16,31 @@
     "application/json"
   ],
   "paths": {
+    "/api/cluster/cpods": {
+      "get": {
+        "summary": "集群列表",
+        "operationId": "ClusterCpods",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ClusterCpodsResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/code/sendEmail": {
       "post": {
         "summary": "发送邮件验证码",
@@ -1225,6 +1250,22 @@
         "data"
       ]
     },
+    "BaseReq": {
+      "type": "object",
+      "title": "BaseReq"
+    },
+    "BaseResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResp",
+      "required": [
+        "message"
+      ]
+    },
     "BillingListReq": {
       "type": "object",
       "properties": {
@@ -1405,6 +1446,21 @@
         "inference_gpu_count"
       ]
     },
+    "ClusterCpodsResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CpodInfo"
+          }
+        }
+      },
+      "title": "ClusterCpodsResp",
+      "required": [
+        "data"
+      ]
+    },
     "ClusterNode": {
       "type": "object",
       "properties": {
@@ -1464,6 +1520,53 @@
         "gpu_product",
         "name",
         "role"
+      ]
+    },
+    "CpodInfo": {
+      "type": "object",
+      "properties": {
+        "cpod_id": {
+          "type": "string"
+        },
+        "cpod_version": {
+          "type": "string"
+        },
+        "gpu_vendor": {
+          "type": "string"
+        },
+        "gpu_prod": {
+          "type": "string"
+        },
+        "gpu_mem": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_allocatable": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "create_time": {
+          "type": "string"
+        },
+        "update_time": {
+          "type": "string"
+        }
+      },
+      "title": "CpodInfo",
+      "required": [
+        "cpod_id",
+        "cpod_version",
+        "gpu_vendor",
+        "gpu_prod",
+        "gpu_mem",
+        "gpu_total",
+        "gpu_allocatable",
+        "create_time",
+        "update_time"
       ]
     },
     "CpodJobReq": {
