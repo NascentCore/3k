@@ -20,9 +20,9 @@ export default {
   'pages.jupyterLab.AddJupyterLab.form.instance_name.pattern':
     '实例名称只能包含大小写字母、数字、下划线(_)和分割符(-)',
   'pages.jupyterLab.AddJupyterLab.form.cpu_count': 'CPU',
-  'pages.jupyterLab.AddJupyterLab.form.memory': 'memory',
-  'pages.jupyterLab.AddJupyterLab.form.gpu_count': 'gpu',
-  'pages.jupyterLab.AddJupyterLab.form.gpu_product': 'gpu类型',
+  'pages.jupyterLab.AddJupyterLab.form.memory': 'MEM',
+  'pages.jupyterLab.AddJupyterLab.form.gpu_count': 'GPU数量',
+  'pages.jupyterLab.AddJupyterLab.form.gpu_product': 'GPU类型',
   'pages.jupyterLab.AddJupyterLab.form.data_volume_size': '数据卷大小',
   'pages.jupyterLab.AddJupyterLab.form.model_id': '挂载模型',
   'pages.jupyterLab.AddJupyterLab.form.model_path': '模型挂载路径',

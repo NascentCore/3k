@@ -1,4 +1,12 @@
-import { apiPostJobJupyterlab, useApiGetGpuType, useApiResourceModels } from '@/services';
+import {
+  apiPostJobJupyterlab,
+  useApiGetGpuType,
+  useApiResourceModels,
+  useGpuTypeOptions,
+  useResourceAdaptersOptions,
+  useResourceDatasetsOptions,
+  useResourceModelsOptions,
+} from '@/services';
 import { Button, Form, Input, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from '@umijs/max';
@@ -15,22 +23,10 @@ const Index = ({ onChange, onCancel }: IProps) => {
   const { currentUser } = initialState || {};
   const intl = useIntl();
 
-  const { data: resourceModels }: any = useApiResourceModels();
-  const resourceModelsList = concatArray(
-    resourceModels?.public_list,
-    resourceModels?.user_list,
-  ).map((x) => ({
-    ...x,
-    label: x.name,
-    value: x.id,
-    key: x.id,
-  }));
-  const { data: gpuTypeOptions } = useApiGetGpuType();
-  const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
-    ...x,
-    label: x.gpuProd,
-    value: x.gpuProd,
-  }));
+  const gpuTypeOptions = useGpuTypeOptions();
+  const modelsOptions = useResourceModelsOptions();
+  const datasetsOptions = useResourceDatasetsOptions();
+  const adaptersOptions = useResourceAdaptersOptions();
 
   const [form] = Form.useForm();
   useEffect(() => {
@@ -39,6 +35,8 @@ const Index = ({ onChange, onCancel }: IProps) => {
       memory: 2048,
       data_volume_size: 1024,
       model_path: '/model',
+      adapter_path: '/adapter',
+      dataset_path: '/dataset',
     });
   }, []);
   const gpu_product_watch = Form.useWatch('gpu_product', form);
@@ -56,7 +54,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
           data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
           gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
           model_name: values.model_id
-            ? resourceModelsList?.find((x: any) => x.id === values.model_id)?.label
+            ? modelsOptions?.find((x: any) => x.id === values.model_id)?.label
             : void 0,
         },
       }).then(() => {
@@ -142,7 +140,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
           name="gpu_count"
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.gpu_count',
-            defaultMessage: 'gpu',
+            defaultMessage: 'GPU数量',
           })}
           rules={gpu_product_watch && [{ required: true }]}
         >
@@ -160,12 +158,12 @@ const Index = ({ onChange, onCancel }: IProps) => {
           name="gpu_product"
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.gpu_product',
-            defaultMessage: 'gpu类型',
+            defaultMessage: 'GPU类型',
           })}
         >
           <Select
             allowClear
-            options={gpuTypeOptionsList}
+            options={gpuTypeOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
@@ -201,7 +199,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         >
           <Select
             allowClear
-            options={resourceModelsList}
+            options={modelsOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
@@ -213,6 +211,71 @@ const Index = ({ onChange, onCancel }: IProps) => {
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.model_path',
             defaultMessage: '模型挂载路径',
+          })}
+        >
+          <Input
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+            allowClear
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="adapter_id"
+          label={intl.formatMessage({
+            id: 'xxx',
+            defaultMessage: '挂载适配器',
+          })}
+          rules={[{ required: true }]}
+        >
+          <Select
+            allowClear
+            options={adaptersOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+          />
+        </Form.Item>
+        <Form.Item
+          name="adapter_path"
+          label={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.xxx',
+            defaultMessage: '适配器挂载路径',
+          })}
+        >
+          <Input
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+            allowClear
+          />
+        </Form.Item>
+        <Form.Item
+          name="dataset_id"
+          label={intl.formatMessage({
+            id: 'xxx',
+            defaultMessage: '挂载数据集',
+          })}
+          rules={[{ required: true }]}
+        >
+          <Select
+            allowClear
+            options={datasetsOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+          />
+        </Form.Item>
+        <Form.Item
+          name="dataset_path"
+          label={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.xxx',
+            defaultMessage: '数据集挂载路径',
           })}
         >
           <Input

@@ -21,7 +21,7 @@ export default {
     'Instance name can only contain uppercase and lowercase letters, numbers, underscores (_), and hyphens (-)',
   'pages.jupyterLab.AddJupyterLab.form.cpu_count': 'CPU',
   'pages.jupyterLab.AddJupyterLab.form.memory': 'Memory',
-  'pages.jupyterLab.AddJupyterLab.form.gpu_count': 'GPU',
+  'pages.jupyterLab.AddJupyterLab.form.gpu_count': 'GPU Count',
   'pages.jupyterLab.AddJupyterLab.form.gpu_product': 'GPU Type',
   'pages.jupyterLab.AddJupyterLab.form.data_volume_size': 'Data Volume Size',
   'pages.jupyterLab.AddJupyterLab.form.model_id': 'Mount Model',

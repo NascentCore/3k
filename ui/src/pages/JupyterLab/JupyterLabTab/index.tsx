@@ -4,7 +4,6 @@ import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
 import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
 import { formatFileSize, getToken } from '@/utils';
-import AddLLaMAFactoryDrawer from './AddLLaMAFactoryDrawer';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
@@ -33,7 +32,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             dataIndex: 'cpu_count',
             key: 'cpu_count',
             align: 'center',
-            width: 100,
+            width: 80,
           },
           {
             title: intl.formatMessage({
@@ -56,7 +55,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             dataIndex: 'gpu_product',
             key: 'gpu_product',
             align: 'center',
-            width: 100,
+            width: 200,
           },
           {
             title: intl.formatMessage({
@@ -75,9 +74,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             }),
             dataIndex: 'action',
             key: 'action',
-            align: 'center',
-            width: 200,
-            fixed: 'right',
+            align: 'center', 
             render: (_, record) => (
               <>
                 <Space>
@@ -87,12 +84,16 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       window.open(record?.url);
                     }}
                   >
-                    {intl.formatMessage({
-                      id: 'pages.jupyterLab.JupyterLabTab.table.column.action.enterBtn',
-                      defaultMessage: '进入',
-                    })}
+                    JupyterLab
                   </Button>
-                  <AddLLaMAFactoryDrawer />
+                  <Button
+                    type={'link'}
+                    onClick={() => {
+                      window.open(record?.url);
+                    }}
+                  >
+                    LLaMA-Factory
+                  </Button>
                   <Button
                     type={'link'}
                     onClick={() => {
