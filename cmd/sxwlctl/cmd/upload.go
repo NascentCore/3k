@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"sxwl/3k/cmd/sxwlctl/internal/auth"
+	consts2 "sxwl/3k/cmd/sxwlctl/internal/consts"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/storage"
@@ -16,9 +18,10 @@ import (
 )
 
 var (
-	dir     string
-	typ     string
-	verbose bool
+	dir      string
+	resource string
+	template string
+	verbose  bool
 )
 
 type Config struct {
@@ -32,15 +35,34 @@ type Config struct {
 var uploadCmd = &cobra.Command{
 	Use:   "upload",
 	Short: "upload",
-	Long:  ``,
+	Long:  `上传本地模型、数据集、适配器`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if !fs.IsDirExist(dir) {
 			fmt.Println("Please input a correct local dir")
 			os.Exit(1)
 		}
 
-		switch typ {
-		case consts.Model, consts.Dataset, consts.Adapter:
+		switch resource {
+		case consts.Model:
+			if template == "" {
+				log.Fatalf("Please use -t to set the inference template used for this model")
+			}
+			// meta file
+			err := fs.TouchFile(path.Join(dir, consts2.FileCanFinetune))
+			if err != nil {
+				log.Fatalf("touch file %s err: %s", consts2.FileCanFinetune, err)
+			}
+
+			err = fs.TouchFile(path.Join(dir, consts2.FileCanInference))
+			if err != nil {
+				log.Fatalf("touch file %s err: %s", consts2.FileCanInference, err)
+			}
+
+			err = fs.TouchFile(path.Join(dir, fmt.Sprintf(consts2.FileInferTemplate, template)))
+			if err != nil {
+				log.Fatalf("touch file %s err: %s", fmt.Sprintf(consts2.FileInferTemplate, template), err)
+			}
+		case consts.Dataset, consts.Adapter:
 		default:
 			fmt.Println("data_type should be [model|dataset|adapter]")
 			os.Exit(1)
@@ -69,7 +91,7 @@ var uploadCmd = &cobra.Command{
 
 		start := time.Now()
 		prefix := ""
-		switch typ {
+		switch resource {
 		case consts.Model:
 			prefix = fmt.Sprintf(consts.OSSUserModelPath, userID)
 		case consts.Dataset:
@@ -91,8 +113,8 @@ var uploadCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(uploadCmd)
 	uploadCmd.Flags().SortFlags = false
-	uploadCmd.Flags().StringVarP(&typ, "type", "t", "model", "[model|dataset|adapter]")
+	uploadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
-	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")
-	viper.SetDefault("auth_url", "https://llm.sxwl.ai/api/uploader_access")
+	uploadCmd.Flags().StringVarP(&template, "template", "t", "", "模型推理使用的template")
+	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs[true|false]")
 }
