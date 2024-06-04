@@ -99,7 +99,7 @@ class Model(cli.Application):
                 create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
 
             create_persistent_volume(core_v1_api, 'model', model_id, pvc_name,
-                                     hash_data(resource_to_oss_path(MODEL, model_id)))
+                                     hash_data(resource_to_oss_path(MODEL, model_id)), "ReadOnlyMany")
             create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
             print("create_persistent_volume exception: %s" % e)
@@ -242,7 +242,7 @@ class Dataset(cli.Application):
                 create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
 
             create_persistent_volume(core_v1_api, 'dataset', dataset_id, pvc_name,
-                                     hash_data(resource_to_oss_path(MODEL, dataset_id)))
+                                     hash_data(resource_to_oss_path(MODEL, dataset_id)), "ReadOnlyMany")
             create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
             print("create_persistent_volume exception: %s" % e)
@@ -444,8 +444,8 @@ class Adapter(cli.Application):
                 plural=MODEL_PLURAL,
                 name=crd_name,
                 spec={
-                    "datasettype": hub_name,
-                    "datasetname": adapter_id,
+                    "modeltype": hub_name,
+                    "modelname": adapter_id,
                     "pvc": pvc_name,
                 },
                 namespace=namespace

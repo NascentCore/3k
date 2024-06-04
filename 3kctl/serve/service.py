@@ -256,7 +256,7 @@ def build_and_push_image(base_image, user_id, instance_name, job_name):
 
     # 复制代码到工作目录
     code_dir = f'{job_name}-0:/workspace'
-    copy_cmd = ['kubectl', 'cp', '-n', 'cpod', code_dir, './workspace']
+    copy_cmd = ['kubectl', 'cp', '-n', user_id, code_dir, './workspace']
     subprocess.run(copy_cmd, check=True)
 
     # 生成Dockerfile
