@@ -29,6 +29,14 @@ type BaseImageListResp struct {
 	Data []string `json:"data"`
 }
 
+type BaseReq struct {
+	UserID string `header:"Sx-User-ID"`
+}
+
+type BaseResp struct {
+	Message string `json:"message"`
+}
+
 type BillingListReq struct {
 	UserID    string `header:"Sx-User-ID"`
 	ToUser    string `form:"user_id,optional"`
@@ -80,6 +88,10 @@ type Cache struct {
 	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
 
+type ClusterCpodsResp struct {
+	Data []CpodInfo `json:"data"`
+}
+
 type ClusterNode struct {
 	NodeRole    string `json:"node_role"`
 	NodeName    string `json:"node_name"`
@@ -94,6 +106,18 @@ type ClusterNodeInfo struct {
 	GpuProduct string   `json:"gpu_product"`
 	Name       string   `json:"name"`
 	Role       []string `json:"role"`
+}
+
+type CpodInfo struct {
+	CpodID         string `json:"cpod_id"`
+	CpodVersion    string `json:"cpod_version"`
+	GPUVendor      string `json:"gpu_vendor"`
+	GPUProd        string `json:"gpu_prod"`
+	GPUMem         int64  `json:"gpu_mem"`
+	GPUTotal       int64  `json:"gpu_total"`
+	GPUAllocatable int64  `json:"gpu_allocatable"`
+	CreateTime     string `json:"create_time"`
+	UpdateTime     string `json:"update_time"`
 }
 
 type CpodJobReq struct {
