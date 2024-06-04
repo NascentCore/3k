@@ -84,6 +84,7 @@ class Model(cli.Application):
                     pass
                 try:
                     delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
                 except ApiException as e:
                     pass
             else:
@@ -93,11 +94,13 @@ class Model(cli.Application):
         storage = "100Mi"
         job_pvc_name = 'model-download'
         try:
-            create_persistent_volume(core_v1_api, 'model', '', job_pvc_name, job_pvc_name)
-            create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'model', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
             create_persistent_volume(core_v1_api, 'model', model_id, pvc_name,
                                      hash_data(resource_to_oss_path(MODEL, model_id)))
-            create_pvc(core_v1_api, namespace, pvc_name, storage, pvc_type="static", volume_name=pvc_name)
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
             print("create_persistent_volume exception: %s" % e)
             return
@@ -224,6 +227,7 @@ class Dataset(cli.Application):
                     pass
                 try:
                     delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
                 except ApiException as e:
                     pass
             else:
@@ -233,11 +237,13 @@ class Dataset(cli.Application):
         storage = "100Mi"
         job_pvc_name = 'dataset-download'
         try:
-            create_persistent_volume(core_v1_api, 'dataset', '', job_pvc_name, job_pvc_name)
-            create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'dataset', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
             create_persistent_volume(core_v1_api, 'dataset', dataset_id, pvc_name,
                                      hash_data(resource_to_oss_path(MODEL, dataset_id)))
-            create_pvc(core_v1_api, namespace, pvc_name, storage, pvc_type="static", volume_name=pvc_name)
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
             print("create_persistent_volume exception: %s" % e)
             return
@@ -364,6 +370,7 @@ class Adapter(cli.Application):
                     pass
                 try:
                     delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
                 except ApiException as e:
                     pass
             else:
@@ -373,11 +380,14 @@ class Adapter(cli.Application):
         storage = "100Mi"
         job_pvc_name = 'adapter-download'
         try:
-            create_persistent_volume(core_v1_api, 'adapter', '', job_pvc_name, job_pvc_name)
-            create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'adapter', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
             create_persistent_volume(core_v1_api, 'adapter', adapter_id, pvc_name,
-                                     hash_data(resource_to_oss_path(MODEL, adapter_id)))
-            create_pvc(core_v1_api, namespace, pvc_name, storage, pvc_type="static", volume_name=pvc_name)
+                                     hash_data(resource_to_oss_path(MODEL, adapter_id)), "ReadOnlyMany")
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
+
         except ApiException as e:
             print("create_persistent_volume exception: %s" % e)
             return

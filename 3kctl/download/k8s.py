@@ -51,6 +51,15 @@ def create_job_name_with_hash(resource_type, hashid):
         return "download-dataset-{0}".format(hashid)
 
 
+def get_pvc_by_name(api_instance, namespace, name):
+    try:
+        pvc = api_instance.read_namespaced_persistent_volume_claim(name=name, namespace=namespace)
+        return pvc
+    except ApiException as e:
+        print(e)
+        return None
+
+
 def get_crd_object(api_instance, group, version, resource, namespace, name):
     try:
         obj = api_instance.get_namespaced_custom_object(group, version, namespace, resource, name)
@@ -154,6 +163,13 @@ def delete_pvc(api_instance, namespace, pvc_name):
         raise e
 
 
+def delete_pv(api_instance, pv_name):
+    try:
+        api_instance.delete_persistent_volume(name=pv_name, body=client.V1DeleteOptions())
+    except Exception as e:
+        raise e
+
+
 def create_custom_resource(api_instance, group, version, kind, plural, name, namespace, spec):
     crd_instance = {
         "apiVersion": f"{group}/{version}",
@@ -207,7 +223,7 @@ def get_storage_class_from_configmap(namespace):
     configmap = api_instance.read_namespaced_config_map(name="cpod-info", namespace=namespace)
     return configmap.data.get("storage_class", "ceph-filesystem")
 
-def create_persistent_volume(api_instance, model_type, model_id, volume_name, hashid):
+def create_persistent_volume(api_instance, model_type, model_id, volume_name, hashid, access_mode="ReadWriteMany"):
     # 定义PersistentVolume的元数据和规格
     pv = client.V1PersistentVolume(
         api_version="v1",
@@ -215,7 +231,7 @@ def create_persistent_volume(api_instance, model_type, model_id, volume_name, ha
         metadata=client.V1ObjectMeta(name=volume_name),
         spec=client.V1PersistentVolumeSpec(
             capacity={"storage": "100Mi"},
-            access_modes=["ReadWriteMany"],
+            access_modes=[access_mode],
             storage_class_name=get_storage_class_from_configmap('cpod-system'),
             mount_options=[f'subdir=/{model_type}s/{model_id}'],
             csi=client.V1CSIPersistentVolumeSource(
