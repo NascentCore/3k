@@ -12,6 +12,10 @@ class OSSHub(object):
         result = self.bucket.list_objects(prefix=self.resource_to_oss_path("model", model_id))
         return len(result.object_list) > 0
 
+    def have_adapter(self, adapter_id):
+        result = self.bucket.list_objects(prefix=self.resource_to_oss_path("adapter", adapter_id))
+        return len(result.object_list) > 0
+
     def have_dataset(self, dataset_id):
         result = self.bucket.list_objects(prefix=self.resource_to_oss_path("dataset", dataset_id))
         return len(result.object_list) > 0
@@ -21,6 +25,17 @@ class OSSHub(object):
 
         total_size = 0
         for obj in oss2.ObjectIterator(self.bucket, prefix=self.resource_to_oss_path("model", model_id)):
+            total_size += obj.size
+
+        # Convert bytes to GB
+        size_in_gb = total_size / (1024 ** 3)
+        return size_in_gb
+
+    def adapter_size(self, adapter_id):
+        """return the size of model in GB"""
+
+        total_size = 0
+        for obj in oss2.ObjectIterator(self.bucket, prefix=self.resource_to_oss_path("adapter", adapter_id)):
             total_size += obj.size
 
         # Convert bytes to GB
@@ -43,6 +58,11 @@ class OSSHub(object):
 
         return "oss://%s/%s" % (self.bucket_name, self.resource_to_oss_path("model", model_id))
 
+    def adapter_url(self, adapter_id):
+        """return the oss url by model id"""
+
+        return "oss://%s/%s" % (self.bucket_name, self.resource_to_oss_path("adapter", adapter_id))
+
     def dataset_url(self, dataset_id):
         """return the oss by dataset id"""
 
@@ -58,6 +78,11 @@ class OSSHub(object):
                 return "models/{}".format(resource)
             else:
                 return "models/public/{}".format(resource)
+        elif resource_type == "adapter":
+            if resource.startswith("user-"):
+                return "adapters/{}".format(resource)
+            else:
+                return "adapters/public/{}".format(resource)
         elif resource_type == "dataset":
             if resource.startswith("user-"):
                 return "datasets/{}".format(resource)

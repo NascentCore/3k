@@ -29,7 +29,7 @@ class Download(cli.Application):
 class Model(cli.Application):
     """download model"""
 
-    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="cpod"):
+    def main(self, hub_name, model_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="public"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -66,7 +66,8 @@ class Model(cli.Application):
                     elif phase_value == "done":
                         print("hub:%s model_id:%s already crd:%s downloaded" % (hub_name, model_id, crd_name))
                     else:
-                        print("hub:%s model_id:%s phase:%s crd:%s please check the phase" % (hub_name, model_id, phase_value, crd_name))
+                        print("hub:%s model_id:%s phase:%s crd:%s please check the phase" %
+                              (hub_name, model_id, phase_value, crd_name))
                 else:
                     print('''hub:%s model_id:%s please try again later, if this continue occurs, please delete the crd:
     kubectl delete ModelStorage %s -n %s''' % (hub_name, model_id, crd_name, namespace))
@@ -83,32 +84,31 @@ class Model(cli.Application):
                     pass
                 try:
                     delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
                 except ApiException as e:
                     pass
             else:
                 print("get_crd_object exception %s" % e)
                 return
 
-        # 创建PVC
-        storage = model_size * 2  # 默认是depth=1 2倍空间
-        if depth > 1:
-            storage = model_size * 3  # 多层深度 3倍空间
-
-        if hub_name == "oss":
-            storage = model_size * 1.1 # oss文件是准确的大小
-
-        storage = "%dGi" % math.ceil(storage)
-        print("model {0} size {1} GB pvc {2} GB".format(hub_name, model_size, storage))
-
+        storage = "100Mi"
+        job_pvc_name = 'model-download'
         try:
-            create_pvc(core_v1_api, namespace, pvc_name, storage)
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'model', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
+            create_persistent_volume(core_v1_api, 'model', model_id, pvc_name,
+                                     hash_data(resource_to_oss_path(MODEL, model_id)), "ReadOnlyMany")
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
-            print("create_pvc exception: %s" % e)
+            print("create_persistent_volume exception: %s" % e)
             return
 
         # 创建下载Job
         try:
             job_params = [
+                "-o", f"/data/{model_id}",
                 "-g", GROUP,
                 "-v", VERSION,
                 "-p", MODEL_PLURAL,
@@ -137,7 +137,7 @@ class Model(cli.Application):
                                 job_name,
                                 "model-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
-                                pvc_name,
+                                job_pvc_name,
                                 job_params,
                                 proxy,
                                 namespace,
@@ -173,7 +173,7 @@ class Model(cli.Application):
 class Dataset(cli.Application):
     """download dataset"""
 
-    def main(self, hub_name, dataset_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="cpod"):
+    def main(self, hub_name, dataset_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="public"):
         hub = hub_factory(hub_name)
         if hub is None:
             print("hub:{0} is not supported".format(hub_name))
@@ -227,32 +227,31 @@ class Dataset(cli.Application):
                     pass
                 try:
                     delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
                 except ApiException as e:
                     pass
             else:
                 print("get_crd_object exception %s" % e)
                 return
 
-        # 创建PVC
-        storage = dataset_size * 2  # 默认是depth=1 2倍空间
-        if depth > 1:
-            storage = dataset_size * 3  # 多层深度 3倍空间
-
-        if hub_name == "oss":
-            storage = dataset_size * 1.1 # oss文件是准确的大小
-
-        storage = "%dGi" % math.ceil(storage)
-        print("dataset {0} size {1} GB pvc {2} GB".format(hub_name, dataset_size, storage))
-
+        storage = "100Mi"
+        job_pvc_name = 'dataset-download'
         try:
-            create_pvc(core_v1_api, namespace, pvc_name, storage)
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'dataset', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
+            create_persistent_volume(core_v1_api, 'dataset', dataset_id, pvc_name,
+                                     hash_data(resource_to_oss_path(MODEL, dataset_id)), "ReadOnlyMany")
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
         except ApiException as e:
-            print("create_pvc exception: %s" % e)
+            print("create_persistent_volume exception: %s" % e)
             return
 
         # 创建下载Job
         try:
             job_params = [
+                "-o", f"/data/{dataset_id}",
                 "-g", GROUP,
                 "-v", VERSION,
                 "-p", DATASET_PLURAL,
@@ -281,7 +280,7 @@ class Dataset(cli.Application):
                                 job_name,
                                 "dataset-downloader",
                                 "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
-                                pvc_name,
+                                job_pvc_name,
                                 job_params,
                                 proxy,
                                 namespace,
@@ -313,11 +312,155 @@ class Dataset(cli.Application):
             return
 
 
+@Download.subcommand("adapter")
+class Adapter(cli.Application):
+    """download adapter"""
+
+    def main(self, hub_name, adapter_id, proxy="", depth=1, downloader_version=DOWNLOADER_VERSION, namespace="public"):
+        hub = hub_factory(hub_name)
+        if hub is None:
+            print("hub:{0} is not supported".format(hub_name))
+            return
+
+        # check the adapter id exists
+        if not hub.have_adapter(adapter_id):
+            print("hub:%s adapter:%s dose not exist" % (hub_name, adapter_id))
+            return
+
+        depth = int(depth)
+        adapter_size = math.ceil(hub.adapter_size(adapter_id))  # get the dataset size in GB
+        crd_name = create_crd_name(hub_name, adapter_id, "adapter")
+        pvc_name = create_pvc_name(hub_name, adapter_id, "adapter")
+        job_name = create_job_name(hub_name, adapter_id, "adapter")
+        if hub_name == "oss":
+            crd_name = model_crd_name(resource_to_oss_path(ADAPTER, adapter_id))
+            pvc_name = model_pvc_name(resource_to_oss_path(ADAPTER, adapter_id))
+            job_name = model_download_job_name(resource_to_oss_path(ADAPTER, adapter_id))
+        config.load_kube_config()
+        core_v1_api = client.CoreV1Api()
+        batch_v1_api = client.BatchV1Api()
+        custom_objects_api = client.CustomObjectsApi()
+
+        # check if crd already exists
+        try:
+            crd_obj = get_crd_object(custom_objects_api, GROUP, VERSION, MODEL_PLURAL, namespace, crd_name)
+            if 'status' in crd_obj:
+                phase_value = crd_obj['status'].get('phase', None)
+                if phase_value is not None:
+                    if phase_value == "downloading":
+                        print("hub:%s adapter_id:%s is downloading" % (hub_name, adapter_id))
+                    elif phase_value == "done":
+                        print("hub:%s adapter_id:%s already downloaded" % (hub_name, adapter_id))
+                    else:
+                        print("hub:%s adapter_id:%s phase:%s please check the phase" % (
+                            hub_name, adapter_id, phase_value))
+                else:
+                    print('''hub:%s adapter_id:%s please try again later, if this continue occurs, please delete the crd:
+    kubectl delete ModelStorage %s -n %s''' % (hub_name, adapter_id, crd_name, namespace))
+            else:
+                print('''crd %s exists and without status. You can delete it by:
+    kubectl delete ModelStorage %s -n %s''' % (crd_name, crd_name, namespace))
+            return
+        except ApiException as e:
+            if e.status == 404:
+                # crd 不存在，那么如果有job或pvc，都应该清理掉
+                try:
+                    delete_job(batch_v1_api, namespace, job_name)
+                except ApiException as e:
+                    pass
+                try:
+                    delete_pvc(core_v1_api, namespace, pvc_name)
+                    delete_pv(core_v1_api, pvc_name)
+                except ApiException as e:
+                    pass
+            else:
+                print("get_crd_object exception %s" % e)
+                return
+
+        storage = "100Mi"
+        job_pvc_name = 'adapter-download'
+        try:
+            if not get_pvc_by_name(core_v1_api, namespace, job_pvc_name):
+                create_persistent_volume(core_v1_api, 'adapter', '', job_pvc_name, job_pvc_name)
+                create_pvc(core_v1_api, namespace, job_pvc_name, storage, pvc_type="static", volume_name=job_pvc_name)
+
+            create_persistent_volume(core_v1_api, 'adapter', adapter_id, pvc_name,
+                                     hash_data(resource_to_oss_path(MODEL, adapter_id)), "ReadOnlyMany")
+            create_pvc(core_v1_api, namespace, pvc_name, storage, "ReadOnlyMany", pvc_type="static", volume_name=pvc_name)
+
+        except ApiException as e:
+            print("create_persistent_volume exception: %s" % e)
+            return
+
+        # 创建下载Job
+        try:
+            job_params = [
+                "-o", f"/data/{adapter_id}",
+                "-g", GROUP,
+                "-v", VERSION,
+                "-p", MODEL_PLURAL,
+                "-n", namespace,
+                "--name", crd_name
+            ]
+
+            if hub_name == "oss":
+                additional_params = [
+                    "oss", hub.adapter_url(adapter_id),
+                    "-t", str(adapter_size * 1024 * 1024 * 1024),
+                    "--endpoint", OSS_ENDPOINT,
+                    "--access_id", OSS_ACCESS_ID,
+                    "--access_key", OSS_ACCESS_KEY
+                ]
+                job_params.extend(additional_params)
+            else:
+                additional_params = [
+                    "git", hub.dataset_url(adapter_id),
+                    "-d", str(depth),
+                    "-t", str(adapter_id * 2 * 1024 * 1024 * 1024)
+                ]
+                job_params.extend(additional_params)
+
+            create_download_job(batch_v1_api,
+                                job_name,
+                                "dataset-downloader",
+                                "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:%s" % downloader_version,
+                                job_pvc_name,
+                                job_params,
+                                proxy,
+                                namespace,
+                                "aliyun-enterprise-registry",
+                                "sa-downloader")
+        except ApiException as e:
+            print("create_download_job exception: %s" % e)
+            return
+
+        # 创建CRD对象
+        try:
+            create_custom_resource(
+                api_instance=custom_objects_api,
+                group=GROUP,
+                version=VERSION,
+                kind="ModelStorage",
+                plural=MODEL_PLURAL,
+                name=crd_name,
+                spec={
+                    "modeltype": hub_name,
+                    "modelname": adapter_id,
+                    "pvc": pvc_name,
+                },
+                namespace=namespace
+            )
+            print(f"Custom Resource '{crd_name}' created.")
+        except ApiException as e:
+            print("create_crd_record exception: %s" % e)
+            return
+
+
 @Download.subcommand("status")
 class Status(cli.Application):
     """download status check all download jobs status"""
 
-    def main(self, namespace="cpod"):
+    def main(self, namespace="public"):
         config.load_kube_config()
         custom_objects_api = client.CustomObjectsApi()
         try:
@@ -360,7 +503,7 @@ class Status(cli.Application):
 class Delete(cli.Application):
     """delete model or dataset and all related resource"""
 
-    def main(self, resource, hashid, namespace="cpod"):
+    def main(self, resource, hashid, namespace="public"):
         if resource not in ["model", "dataset"]:
             print("Error: Resource must be 'model' or 'dataset'.")
             return 1  # Exit with an error code
