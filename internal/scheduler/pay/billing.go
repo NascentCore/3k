@@ -274,7 +274,7 @@ func (bm *BillingManager) Update() {
 func (bm *BillingManager) SaveBilling(billings []model.UserBilling) error {
 	insertBuilder := bm.svcCtx.UserBillingModel.InsertBuilder().Columns(
 		"billing_id",
-		"user_id",
+		"new_user_id",
 		"amount",
 		"billing_status",
 		"job_id",
@@ -285,7 +285,7 @@ func (bm *BillingManager) SaveBilling(billings []model.UserBilling) error {
 	for _, billing := range billings {
 		insertBuilder = insertBuilder.Values(
 			billing.BillingId,
-			billing.UserId,
+			billing.NewUserId,
 			billing.Amount,
 			billing.BillingStatus,
 			billing.JobId,
@@ -311,6 +311,10 @@ func (bm *BillingManager) SaveBilling(billings []model.UserBilling) error {
 }
 
 func (bm *BillingManager) BillCompleteTraining(ids []int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	sql, args, err := bm.svcCtx.UserJobModel.UpdateBuilder().Where(squirrel.Eq{
 		"job_id": ids,
 	}).Set("billing_status", model.BillingStatusComplete).ToSql()
@@ -334,6 +338,10 @@ func (bm *BillingManager) BillCompleteTraining(ids []int64) error {
 }
 
 func (bm *BillingManager) BillCompleteInfer(ids []int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	sql, args, err := bm.svcCtx.InferenceModel.UpdateBuilder().Where(squirrel.Eq{
 		"id": ids,
 	}).Set("billing_status", model.BillingStatusComplete).ToSql()
@@ -357,6 +365,10 @@ func (bm *BillingManager) BillCompleteInfer(ids []int64) error {
 }
 
 func (bm *BillingManager) BillCompleteJupyter(ids []int64) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
 	sql, args, err := bm.svcCtx.JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
 		"id": ids,
 	}).Set("billing_status", model.BillingStatusComplete).ToSql()
