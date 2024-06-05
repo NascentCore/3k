@@ -23,6 +23,7 @@ import (
 
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
 	"github.com/NascentCore/cpodoperator/pkg/util"
+	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -119,6 +120,13 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				return ctrl.Result{}, err
 			}
 
+			if finetune.Annotations == nil {
+				finetune.Annotations = make(map[string]string)
+			}
+			finetune.Annotations[v1beta1.CPodModelstorageBaseNameAnno] = modelConfig.Name
+			finetune.Annotations[v1beta1.CPodPreTrainModelSizeAnno] = fmt.Sprintf("%d", modelConfig.Targetmodelsize*1024*1024)
+			finetune.Annotations[v1beta1.CPodPreTrainModelTemplateAnno] = modelConfig.Template
+
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:   finetune.Namespace,
@@ -134,11 +142,13 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 					JobType:               "pytorch",
 					DatasetName:           finetune.Spec.DatasetStorage,
 					DatasetPath:           "/data/dataset/custom",
+					DatasetIsPublic:       finetune.Spec.DatasetIsPublic,
 					GPUType:               gpuProduct,
 					GPURequiredPerReplica: gpuCount,
 					ModelSavePath:         "/data/save",
 					ModelSaveVolumeSize:   int32(modelConfig.Targetmodelsize),
-					PretrainModelName:     modelConfig.ModelStorageName + v1beta1.CPodPublicStorageSuffix,
+					PretrainModelName:     modelConfig.ModelStorageName,
+					PretrainModelIsPublic: true,
 					PretrainModelPath:     "/data/model",
 					CKPTPath:              "/data/ckpt",
 					CKPTVolumeSize:        int32(modelConfig.Targetmodelsize),
@@ -282,7 +292,6 @@ func CopyPublicModelStorage(ctx context.Context, kubeClient client.Client, publi
 				}
 				return err
 			}
-			// 创建用户命名空间的公共数据集的拷贝
 			var publicDsPVC v1.PersistentVolumeClaim
 			if err := kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicModelStorage.Spec.PVC}, &publicDsPVC); err != nil {
 				return fmt.Errorf("cannot find public model storage pvc")
@@ -304,7 +313,9 @@ func CopyPublicModelStorage(ctx context.Context, kubeClient client.Client, publi
 			pvCopy.ResourceVersion = ""
 			pvCopy.Spec.CSI.VolumeHandle = pvName
 			pvCopy.UID = ""
+			logrus.Info("DEBUG", "pv", pvCopy, "pvName", pvName)
 			if err := kubeClient.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
+				logrus.Info("DEBUG1", "pv", pvCopy)
 				return fmt.Errorf("failed to create pv")
 			}
 			// 创建pvc

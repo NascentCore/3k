@@ -189,25 +189,6 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 				}
 			}
 			if !exists {
-				// create
-				datasetID := job.DatasetId
-				exist, done, err := s.checkDatasetExistence(ctx, string(user), datasetID, job.DatasetIsPublic)
-				if err != nil {
-					s.logger.Error(err, "failed to check dataset existence", "datasetID", datasetID)
-					continue
-				}
-				if !exist {
-					s.logger.Error(err, "dataset not exists", "datasetID", datasetID, "job", job)
-					continue
-				}
-				if !done {
-					s.logger.Info("Model is preparing.", "job", job)
-					continue
-				}
-				if job.DatasetIsPublic {
-					datasetID = datasetID + "-public"
-				}
-
 				newJob := v1beta1.FineTune{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      job.JobName,
@@ -217,12 +198,14 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 						},
 						Annotations: map[string]string{
-							v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
+							v1beta1.CPodModelstorageNameAnno:     job.TrainedModelName,
+							v1beta1.CPodDatasetlReadableNameAnno: job.DatasetName,
+							v1beta1.CPodDatasetSizeAnno:          fmt.Sprintf("%d", job.DatasetSize),
 						},
 					},
 					Spec: v1beta1.FineTuneSpec{
 						Model:          job.PretrainModelName,
-						DatasetStorage: datasetID,
+						DatasetStorage: job.DatasetId,
 						Upload:         s.uploadTrainedModel,
 						HyperParameters: map[string]string{
 							"n_epochs":                 job.Epochs,
@@ -318,7 +301,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 				jobType, ok := jobTypeCheck(job.JobType)
 				if !ok {
 					s.logger.Info("invalid jobtype", "jobtype", job.JobType, "jobname", job.JobName)
-					s.addCreateFailedTrainningJob(job)
 					continue
 				}
 				var backoffLimit int32 = int32(job.BackoffLimit)
@@ -336,6 +318,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 							v1beta1.CPodModelstorageNameAnno:          job.TrainedModelName,
 							v1beta1.CPodPreTrainModelReadableNameAnno: job.PretrainModelName,
 							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.PretrainModelSize),
+							v1beta1.CPodPreTrainModelTemplateAnno:     job.PretrainModelTemplate,
 							v1beta1.CPodDatasetlReadableNameAnno:      job.DatasetName,
 							v1beta1.CPodDatasetSizeAnno:               fmt.Sprintf("%d", job.DatasetSize),
 						},
@@ -363,11 +346,8 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					},
 				}
 				if err = s.kubeClient.Create(ctx, &newJob); err != nil {
-					s.addCreateFailedTrainningJob(job)
 					s.logger.Error(err, "failed to create trainningjob", "job", newJob)
 				} else {
-					s.deleteCreateFailedTrainningJob(job.JobName)
-					s.deletePreparingTrainningJob(job.JobName)
 					s.logger.Info("trainningjob created", "job", newJob)
 				}
 			}
@@ -432,24 +412,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				if template == "" {
 					template = "default"
 				}
-				modelID := job.ModelId
-				exist, done, err := s.checkModelExistence(ctx, string(user), modelID, job.ModelIsPublic)
-				s.logger.Info("DEBUG", "modelid", modelID, "exist", exist, "done", done, "err", err)
-				if err != nil {
-					s.logger.Error(err, "failed to check model existence", "modelid", modelID)
-					continue
-				}
-				if !exist {
-					s.logger.Error(err, "model not exists", "modelid", modelID, "job", job)
-					continue
-				}
-				if !done {
-					s.logger.Info("Model is preparing.", "jobname", job.ServiceName, "modelid", modelID, "job", job)
-					continue
-				}
-				if job.ModelIsPublic {
-					modelID = modelID + v1beta1.CPodPublicStorageSuffix
-				}
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -459,6 +421,11 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						Labels: map[string]string{
 							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+						},
+						Annotations: map[string]string{
+							v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
+							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
+							v1beta1.CPodPreTrainModelTemplateAnno:     job.Template,
 						},
 					},
 					// TODO: fill PredictorSpec with infomation provided by portaljob
@@ -482,7 +449,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 										Env: []v1.EnvVar{
 											{
 												Name:  "STORAGE_URI",
-												Value: "modelstorage://" + modelID,
+												Value: "modelstorage://" + job.ModelId,
 											},
 											{
 												Name:  "API_PORT",
@@ -508,6 +475,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 								},
 							},
 						},
+						ModelIsPublic: job.ModelIsPublic,
 					},
 				}
 				if job.GpuNumber > 1 {
@@ -528,10 +496,8 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 
 				if err = s.kubeClient.Create(ctx, &newJob); err != nil {
-					s.addCreateFailedInferenceJob(job)
 					s.logger.Error(err, "failed to create inference job", "job", newJob)
 				} else {
-					s.deleteCreateFailedInferenceJob(job.ServiceName)
 					s.logger.Info("inference job created", "job", newJob)
 				}
 			}
@@ -562,92 +528,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 			s.logger.Info("inference job deleted", "jobid", cpodInferenceJob.Name)
 		}
 	}
-}
-
-func (s *SyncJob) getCreateFailedTrainningJobs() []sxwl.PortalTrainningJob {
-	res := []sxwl.PortalTrainningJob{}
-	s.createFailedJobs.mu.RLock()
-	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mtj {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addCreateFailedTrainningJob(j sxwl.PortalTrainningJob) {
-	if _, ok := s.createFailedJobs.mtj[j.JobName]; ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mtj[j.JobName] = j
-}
-
-// 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedTrainningJob(j string) {
-	if _, ok := s.createFailedJobs.mtj[j]; !ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mtj, j)
-}
-
-func (s *SyncJob) getPreparingTrainningJobs() []sxwl.PortalTrainningJob {
-	res := []sxwl.PortalTrainningJob{}
-	s.preparingJobs.mu.RLock()
-	defer s.preparingJobs.mu.RUnlock()
-	for _, v := range s.preparingJobs.mtj {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addPreparingTrainningJob(j sxwl.PortalTrainningJob) {
-	if _, ok := s.preparingJobs.mtj[j.JobName]; ok {
-		return
-	}
-	s.preparingJobs.mu.Lock()
-	defer s.preparingJobs.mu.Unlock()
-	s.preparingJobs.mtj[j.JobName] = j
-}
-
-func (s *SyncJob) deletePreparingTrainningJob(j string) {
-	if _, ok := s.preparingJobs.mtj[j]; !ok {
-		return
-	}
-	s.preparingJobs.mu.Lock()
-	defer s.preparingJobs.mu.Unlock()
-	delete(s.preparingJobs.mtj, j)
-}
-
-func (s *SyncJob) getCreateFailedInferenceJobs() []sxwl.PortalInferenceJob {
-	res := []sxwl.PortalInferenceJob{}
-	s.createFailedJobs.mu.RLock()
-	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mij {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addCreateFailedInferenceJob(j sxwl.PortalInferenceJob) {
-	if _, ok := s.createFailedJobs.mij[j.ServiceName]; ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mij[j.ServiceName] = j
-}
-
-// 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
-	if _, ok := s.createFailedJobs.mij[j]; !ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mij, j)
 }
 
 // 检查模型是否存在

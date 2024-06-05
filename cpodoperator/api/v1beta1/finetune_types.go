@@ -31,6 +31,7 @@ type FineTuneSpec struct {
 	// Foo is an example field of FineTune. Edit finetune_types.go to remove/update
 	Model           string            `json:"model,omitempty"`
 	DatasetStorage  string            `json:"dataset,omitempty"`
+	DatasetIsPublic bool              `json:"datasetIsPublic,omitempty"`
 	HyperParameters map[string]string `json:"hyperParameters,omitempty"`
 	Config          map[string]string `json:"config,omitempty"`
 	Upload          bool              `json:"upload,omitempty"`

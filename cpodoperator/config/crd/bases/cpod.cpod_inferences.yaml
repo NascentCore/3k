@@ -30,6 +30,8 @@ spec:
             type: object
           spec:
             properties:
+              modelIsPublic:
+                type: boolean
               predictor:
                 properties:
                   activeDeadlineSeconds:

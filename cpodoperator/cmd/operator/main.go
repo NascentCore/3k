@@ -67,7 +67,7 @@ func main() {
 	var storageClassName string
 	var modelUploadJobImage string
 	var modelUploadJobBackoffLimit int
-	var modelUploadOssBucketName string
+	var OssBucketName string
 	var inferenceIngressDomain string
 	var inferenceWebuiImage string
 	var finetuneGPUProduct string
@@ -81,10 +81,10 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.StringVar(&downloaderImage, "artifact-downloader-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v0.0.7", "The artifact download job image ")
 	flag.StringVar(&tensorrtConvertImage, "tensorrt-convert-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/trtinfer:build-engine", "The image to implement tensorrt convert job")
-	flag.StringVar(&storageClassName, "storageClassName", "ceph-filesystem", "which storagecalss the artifact downloader should create")
+	flag.StringVar(&storageClassName, "storageClassName", "juicefs-sc", "which storagecalss the artifact downloader should create")
 	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:18e807f", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
-	flag.StringVar(&modelUploadOssBucketName, "model-upload-job-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
+	flag.StringVar(&OssBucketName, "oss-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
 	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
 	flag.StringVar(&inferenceWebuiImage, "inference-webui-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/chatui:v2.3", "inference webui image")
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
@@ -132,10 +132,13 @@ func main() {
 			StorageClassName:           storageClassName,
 			ModelUploadJobImage:        modelUploadJobImage,
 			ModelUploadJobBackoffLimit: int32(modelUploadJobBackoffLimit),
-			ModelUploadOssBucketName:   modelUploadOssBucketName,
-			DownloaderImage:            downloaderImage,
-			OssAK:                      OssAK,
-			OssAS:                      OssAS,
+			ModelUploadOssBucketName:   OssBucketName,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CPodJob")
@@ -149,6 +152,13 @@ func main() {
 		Options: controller.InferenceOptions{
 			Domain:              inferenceIngressDomain,
 			InferenceWebuiImage: inferenceWebuiImage,
+			StorageClassName:    storageClassName,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Inference")

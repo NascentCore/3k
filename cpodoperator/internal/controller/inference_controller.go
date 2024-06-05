@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
+	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
+	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -31,6 +35,8 @@ type InferenceOptions struct {
 	Domain              string
 	InferenceWebuiImage string
 	InferencePathPrefix string
+	OssOption           OssOption
+	StorageClassName    string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -134,6 +140,15 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 			modelstorageName, err := parseModelStorageURI(*sourceURI)
 			if err != nil {
 				return err
+			}
+			// prepare model
+			if err := i.prepareModel(ctx, modelstorageName, inference); err != nil {
+				logrus.Error("prepare model failed", "err", err, "inference", inference)
+				return err
+			}
+
+			if inference.Spec.ModelIsPublic {
+				modelstorageName = modelstorageName + cpodv1beta1.CPodPublicStorageSuffix
 			}
 			modelstorage := cpodv1.ModelStorage{}
 			if err := i.Client.Get(ctx, client.ObjectKey{
@@ -430,4 +445,104 @@ func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference 
 // pointerTo returns a pointer to the provided PathType
 func pointerTo(pt netv1.PathType) *netv1.PathType {
 	return &pt
+}
+
+func (i *InferenceReconciler) prepareModel(ctx context.Context, modelstorageName string, inference *cpodv1beta1.Inference) error {
+	logrus.Info("DEBUG ", "cpodjob", inference.Spec, "Annotations", inference.Annotations)
+	modelSize := int64(0)
+	modelReadableName := ""
+	modelTemplate := ""
+	if inference.Annotations != nil {
+		if sizeStr, ok := inference.Annotations[cpodv1beta1.CPodPreTrainModelSizeAnno]; ok {
+			size, err := strconv.ParseInt(sizeStr, 10, 64)
+			if err != nil {
+				return fmt.Errorf("failed to parse model size %v: %v", sizeStr, err)
+			}
+			modelSize = size
+		}
+		if name, ok := inference.Annotations[v1beta1.CPodPreTrainModelReadableNameAnno]; ok {
+			modelReadableName = name
+		}
+
+		if template, ok := inference.Annotations[v1beta1.CPodPreTrainModelTemplateAnno]; ok {
+			modelTemplate = template
+		}
+	}
+	if inference.Spec.ModelIsPublic {
+		modelName := modelstorageName + v1beta1.CPodPublicStorageSuffix
+		ms := &cpodv1.ModelStorage{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: modelName}, ms); err != nil {
+			if apierrors.IsNotFound(err) {
+				publicMs := &cpodv1.ModelStorage{}
+				if err := i.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: modelstorageName}, publicMs); err != nil {
+					if apierrors.IsNotFound(err) {
+						if createdMs, err := createModelstorage(ctx, i.Client, modelstorageName, modelReadableName, modelSize, modelTemplate, v1beta1.CPodPublicNamespace, i.Options.StorageClassName); err != nil {
+							return fmt.Errorf("failed to create model storage for public model %s: %v", modelstorageName, err)
+						} else {
+							publicMs = createdMs
+						}
+					} else {
+						return fmt.Errorf("failed to get public model %s: %v", modelstorageName, err)
+					}
+				}
+				if publicMs != nil && publicMs.Status.Phase != "done" {
+					jobName := "model-" + modelstorageName
+					job := &batchv1.Job{}
+					if err := i.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
+						if apierrors.IsNotFound(err) {
+							if err := CreateDownloadJob(ctx, i.Client, i.Options.OssOption, "model", modelstorageName, modelReadableName, modelSize, inference.Namespace, v1beta1.CPodPublicNamespace); err != nil {
+								return fmt.Errorf("failed to create download job for public model %s: %v", modelstorageName, err)
+							}
+						} else {
+							return fmt.Errorf("failed to get public model %s: %v", modelstorageName, err)
+						}
+					}
+					if job.Status.Succeeded != 1 {
+						return fmt.Errorf("public model downloader job %s is running: %v", jobName, job.Status.Succeeded)
+					}
+					return fmt.Errorf("public model %s is not done", modelstorageName)
+				}
+				if err := CopyPublicModelStorage(ctx, i.Client, modelstorageName, inference.Namespace); err != nil {
+					return fmt.Errorf("failed to copy public model %s: %v", modelstorageName, err)
+				}
+				return nil
+			} else {
+				return fmt.Errorf("failed to get public model %v's copy  %s: %v", modelstorageName, modelName, err)
+			}
+		}
+		if ms.Status.Phase != "done" {
+			return fmt.Errorf("public model copy  %s is not done", modelstorageName)
+		}
+		return nil
+	}
+	ms := &cpodv1.ModelStorage{}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: modelstorageName}, ms); err != nil {
+		if apierrors.IsNotFound(err) {
+			if createdMs, err := createModelstorage(ctx, i.Client, modelstorageName, modelReadableName, modelSize, modelTemplate, inference.Namespace, i.Options.StorageClassName); err != nil {
+				return fmt.Errorf("failed to create model storage for private model %s: %v", modelstorageName, err)
+			} else {
+				ms = createdMs
+			}
+		} else {
+			return fmt.Errorf("failed to get private model %s: %v", modelstorageName, err)
+		}
+	}
+	if ms != nil && ms.Status.Phase != "done" {
+		jobName := "model-" + modelstorageName
+		job := &batchv1.Job{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: jobName}, job); err != nil {
+			if apierrors.IsNotFound(err) {
+				if err := CreateDownloadJob(ctx, i.Client, i.Options.OssOption, "model", modelstorageName, modelReadableName, modelSize, inference.Namespace, inference.Namespace); err != nil {
+					return fmt.Errorf("failed to create download job for private model %s: %v", modelstorageName, err)
+				}
+			} else {
+				return fmt.Errorf("failed to get private model %s: %v", modelstorageName, err)
+			}
+		}
+		if job.Status.Succeeded != 1 {
+			return fmt.Errorf("model downloader job %s is running: %v", jobName, job.Status.Succeeded)
+		}
+		return fmt.Errorf("private model %s is not done", modelstorageName)
+	}
+	return nil
 }

@@ -54,14 +54,18 @@ import (
 	toutil "github.com/kubeflow/training-operator/pkg/util"
 )
 
+type OssOption struct {
+	DownloaderImage string
+	OssAK, OssAS    string
+	BucketName      string
+}
+
 type CPodJobOption struct {
 	StorageClassName           string
 	ModelUploadJobImage        string
 	ModelUploadJobBackoffLimit int32
 	ModelUploadOssBucketName   string
-	DownloaderImage            string
-	// oss access key
-	OssAK, OssAS string
+	OssOption                  OssOption
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -143,7 +147,6 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 				return ctrl.Result{}, err
 			}
 		}
-		logrus.Info("prepare data done1", "cpodjob", cpodjob)
 		util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobDataPreparing, corev1.ConditionTrue, "DataReady", "Data is ready")
 
 		baseJob, err := c.GetBaseJob(ctx, cpodjob)
@@ -820,7 +823,7 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 										"./modeluploadjob",
 										"user-" + userID,
 										jobName,
-										c.Option.ModelUploadOssBucketName,
+										c.Option.OssOption.BucketName,
 									},
 									Env: []corev1.EnvVar{
 										{
@@ -1034,19 +1037,17 @@ func (c *CPodJobReconciler) PrepareData(ctx context.Context, cpodjob *v1beta1.CP
 		}
 	}
 
-	logrus.Info("prepare data done")
-
 	return nil
 }
 
 func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
-	logger := log.FromContext(ctx)
-	logger.Error(nil, "DEBUG ", "cpodjob", cpodjob.Spec, "Annotations", cpodjob.Annotations)
+	logrus.Info("DEBUG ", "cpodjob", cpodjob.Spec, "Annotations", cpodjob.Annotations)
 	if cpodjob.Spec.PretrainModelName == "" {
 		return nil
 	}
 	modelSize := int64(0)
 	modelReadableName := ""
+	modelTemplate := ""
 	if cpodjob.Annotations != nil {
 		if sizeStr, ok := cpodjob.Annotations[v1beta1.CPodPreTrainModelSizeAnno]; ok {
 			size, err := strconv.ParseInt(sizeStr, 10, 64)
@@ -1054,10 +1055,13 @@ func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.C
 				return fmt.Errorf("failed to parse model size %v: %v", sizeStr, err)
 			}
 			modelSize = size
-			logger.Error(nil, "DEBUG model size", "size", modelSize, "sizeStr", sizeStr)
 		}
 		if name, ok := cpodjob.Annotations[v1beta1.CPodPreTrainModelReadableNameAnno]; ok {
 			modelReadableName = name
+		}
+
+		if template, ok := cpodjob.Annotations[v1beta1.CPodPreTrainModelTemplateAnno]; ok {
+			modelTemplate = template
 		}
 	}
 	if cpodjob.Spec.PretrainModelIsPublic {
@@ -1068,7 +1072,7 @@ func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.C
 				publicMs := &cpodv1.ModelStorage{}
 				if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: cpodjob.Spec.PretrainModelName}, publicMs); err != nil {
 					if apierrors.IsNotFound(err) {
-						if createdMs, err := c.createModelstorage(ctx, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+						if createdMs, err := createModelstorage(ctx, c.Client, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, modelTemplate, v1beta1.CPodPublicNamespace, c.Option.StorageClassName); err != nil {
 							return fmt.Errorf("failed to create model storage for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
 						} else {
 							publicMs = createdMs
@@ -1082,7 +1086,7 @@ func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.C
 					job := &batchv1.Job{}
 					if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
 						if apierrors.IsNotFound(err) {
-							if err := c.CreateDownloadJob(ctx, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+							if err := CreateDownloadJob(ctx, c.Client, c.Option.OssOption, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace); err != nil {
 								return fmt.Errorf("failed to create download job for public model %s: %v", cpodjob.Spec.PretrainModelName, err)
 							}
 						} else {
@@ -1110,7 +1114,7 @@ func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.C
 	ms := &cpodv1.ModelStorage{}
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, ms); err != nil {
 		if apierrors.IsNotFound(err) {
-			if createdMs, err := c.createModelstorage(ctx, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, cpodjob); err != nil {
+			if createdMs, err := createModelstorage(ctx, c.Client, cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, modelTemplate, cpodjob.Namespace, c.Option.StorageClassName); err != nil {
 				return fmt.Errorf("failed to create model storage for private model %s: %v", cpodjob.Spec.PretrainModelName, err)
 			} else {
 				ms = createdMs
@@ -1124,7 +1128,7 @@ func (c *CPodJobReconciler) prepareModel(ctx context.Context, cpodjob *v1beta1.C
 		job := &batchv1.Job{}
 		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: jobName}, job); err != nil {
 			if apierrors.IsNotFound(err) {
-				if err := c.CreateDownloadJob(ctx, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+				if err := CreateDownloadJob(ctx, c.Client, c.Option.OssOption, "model", cpodjob.Spec.PretrainModelName, modelReadableName, modelSize, cpodjob.Namespace, cpodjob.Namespace); err != nil {
 					return fmt.Errorf("failed to create download job for private model %s: %v", cpodjob.Spec.PretrainModelName, err)
 				}
 			} else {
@@ -1167,7 +1171,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 				publicDs := &cpodv1.DataSetStorage{}
 				if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: cpodjob.Spec.DatasetName}, publicDs); err != nil {
 					if apierrors.IsNotFound(err) {
-						if createdDs, err := c.createDatasetStorage(ctx, cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+						if createdDs, err := createDatasetStorage(ctx, c.Client, cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, v1beta1.CPodPublicNamespace, c.Option.StorageClassName); err != nil {
 							return fmt.Errorf("failed to create dataset storage for public model %s: %v", cpodjob.Spec.DatasetName, err)
 						} else {
 							publicDs = createdDs
@@ -1181,7 +1185,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 					job := &batchv1.Job{}
 					if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
 						if apierrors.IsNotFound(err) {
-							if err := c.CreateDownloadJob(ctx, "dataset", cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace, cpodjob); err != nil {
+							if err := CreateDownloadJob(ctx, c.Client, c.Option.OssOption, "dataset", cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, v1beta1.CPodPublicNamespace); err != nil {
 								return fmt.Errorf("failed to create download job for public dataset %s: %v", cpodjob.Spec.DatasetName, err)
 							}
 						} else {
@@ -1209,7 +1213,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 	ds := &cpodv1.DataSetStorage{}
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.DatasetName}, ds); err != nil {
 		if apierrors.IsNotFound(err) {
-			if createdDs, err := c.createDatasetStorage(ctx, cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, cpodjob); err != nil {
+			if createdDs, err := createDatasetStorage(ctx, c.Client, cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, c.Option.StorageClassName); err != nil {
 				return fmt.Errorf("failed to create dataset storage for private dataset %s: %v", cpodjob.Spec.DatasetName, err)
 			} else {
 				ds = createdDs
@@ -1223,7 +1227,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 		job := &batchv1.Job{}
 		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: jobName}, job); err != nil {
 			if apierrors.IsNotFound(err) {
-				if err := c.CreateDownloadJob(ctx, "dataset", cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, cpodjob.Namespace, cpodjob); err != nil {
+				if err := CreateDownloadJob(ctx, c.Client, c.Option.OssOption, "dataset", cpodjob.Spec.DatasetName, datasetReadableName, datasetSize, cpodjob.Namespace, cpodjob.Namespace); err != nil {
 					return fmt.Errorf("failed to create download job for private dataset %s: %v", cpodjob.Spec.DatasetName, err)
 				}
 			} else {
@@ -1238,14 +1242,14 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 	return nil
 }
 
-func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, dataName string, dataSize int64, namespace string, cpodjob *v1beta1.CPodJob) (*cpodv1.ModelStorage, error) {
+func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, dataName string, dataSize int64, template, namespace string, storageClassName string) (*cpodv1.ModelStorage, error) {
 	ossPath := util.ResourceToOSSPath("model", dataName)
 
 	pvcName := util.ModelPVCName(ossPath)
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
 		if apierrors.IsNotFound(err) {
-			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+			err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      pvcName,
 					Namespace: namespace,
@@ -1257,7 +1261,7 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, data
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
 						},
 					},
-					StorageClassName: &c.Option.StorageClassName,
+					StorageClassName: &storageClassName,
 				},
 			})
 			if err != nil && !apierrors.IsAlreadyExists(err) {
@@ -1269,7 +1273,7 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, data
 	}
 
 	modelstorage := &cpodv1.ModelStorage{}
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: dataID}, modelstorage); err != nil {
+	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: dataID}, modelstorage); err != nil {
 		if apierrors.IsNotFound(err) {
 			modelstorage = &cpodv1.ModelStorage{
 				ObjectMeta: metav1.ObjectMeta{
@@ -1280,9 +1284,10 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, data
 					ModelType: "oss",
 					ModelName: dataName,
 					PVC:       pvcName,
+					Template:  template,
 				},
 			}
-			if err := c.Client.Create(ctx, modelstorage); err != nil && !apierrors.IsAlreadyExists(err) {
+			if err := kubeclient.Create(ctx, modelstorage); err != nil && !apierrors.IsAlreadyExists(err) {
 				return nil, fmt.Errorf("failed to create modelstorage %s: %v", dataID, err)
 			}
 		} else {
@@ -1293,17 +1298,17 @@ func (c *CPodJobReconciler) createModelstorage(ctx context.Context, dataID, data
 	return modelstorage, nil
 }
 
-func (c *CPodJobReconciler) createDatasetStorage(ctx context.Context, dataID, dataName string, dataSize int64, namespace string, cpodjob *v1beta1.CPodJob) (*cpodv1.DataSetStorage, error) {
+func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID, dataName string, dataSize int64, namespace string, storageClassName string) (*cpodv1.DataSetStorage, error) {
 	ossPath := util.ResourceToOSSPath("dataset", dataName)
 
 	pvcName := util.DatasetPVCName(ossPath)
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
 		if apierrors.IsNotFound(err) {
-			err := c.Client.Create(ctx, &corev1.PersistentVolumeClaim{
+			err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      pvcName,
-					Namespace: cpodjob.Namespace,
+					Namespace: namespace,
 				},
 				Spec: corev1.PersistentVolumeClaimSpec{
 					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
@@ -1312,7 +1317,7 @@ func (c *CPodJobReconciler) createDatasetStorage(ctx context.Context, dataID, da
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
 						},
 					},
-					StorageClassName: &c.Option.StorageClassName,
+					StorageClassName: &storageClassName,
 				},
 			})
 			if err != nil && !apierrors.IsAlreadyExists(err) {
@@ -1324,7 +1329,7 @@ func (c *CPodJobReconciler) createDatasetStorage(ctx context.Context, dataID, da
 	}
 
 	datasetstorage := &cpodv1.DataSetStorage{}
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: dataID}, datasetstorage); err != nil {
+	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: dataID}, datasetstorage); err != nil {
 		if apierrors.IsNotFound(err) {
 			datasetstorage = &cpodv1.DataSetStorage{
 				ObjectMeta: metav1.ObjectMeta{
@@ -1337,7 +1342,7 @@ func (c *CPodJobReconciler) createDatasetStorage(ctx context.Context, dataID, da
 					PVC:         pvcName,
 				},
 			}
-			if err := c.Client.Create(ctx, datasetstorage); err != nil && !apierrors.IsAlreadyExists(err) {
+			if err := kubeclient.Create(ctx, datasetstorage); err != nil && !apierrors.IsAlreadyExists(err) {
 				return nil, fmt.Errorf("failed to create datasetstorage %s: %v", dataID, err)
 			}
 		} else {
@@ -1349,7 +1354,7 @@ func (c *CPodJobReconciler) createDatasetStorage(ctx context.Context, dataID, da
 }
 
 // dataType: model、dataset
-func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType string, dataID, dataName string, dataSize int64, userId string, namespace string, cpodjob *v1beta1.CPodJob) error {
+func CreateDownloadJob(ctx context.Context, kubeclient client.Client, OssOption OssOption, dataType string, dataID, dataName string, dataSize int64, userId string, namespace string) error {
 	ossPath := util.ResourceToOSSPath(dataType, dataName)
 
 	var pvcName string
@@ -1388,7 +1393,7 @@ func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType stri
 					Containers: []corev1.Container{
 						{
 							Name:  "downloader",
-							Image: c.Option.DownloaderImage,
+							Image: OssOption.DownloaderImage,
 							Args: []string{
 								"-g",
 								"cpod.cpod",
@@ -1401,15 +1406,15 @@ func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType stri
 								"--name",
 								dataID,
 								"oss",
-								fmt.Sprintf("oss://%v/%v", c.Option.ModelUploadOssBucketName, ossPath),
+								fmt.Sprintf("oss://%v/%v", OssOption.BucketName, ossPath),
 								"-t",
 								fmt.Sprintf("%d", dataSize),
 								"--endpoint",
 								"https://oss-cn-beijing.aliyuncs.com",
 								"--access_id",
-								c.Option.OssAK,
+								OssOption.OssAK,
 								"--access_key",
-								c.Option.OssAS,
+								OssOption.OssAS,
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
@@ -1431,5 +1436,5 @@ func (c *CPodJobReconciler) CreateDownloadJob(ctx context.Context, dataType stri
 			CompletionMode: &completionMode,
 		},
 	}
-	return c.Client.Create(ctx, &job)
+	return kubeclient.Create(ctx, &job)
 }

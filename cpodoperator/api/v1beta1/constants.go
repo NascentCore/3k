@@ -22,6 +22,7 @@ const (
 
 	CPodPreTrainModelSizeAnno         = "cpod.cpod/cpod-model-size"
 	CPodPreTrainModelReadableNameAnno = "cpod.cpod/cpod-model-readable-name"
+	CPodPreTrainModelTemplateAnno     = "cpod.cpod/cpod-model-template"
 	CPodDatasetSizeAnno               = "cpod.cpod/cpod-dataset-size"
 	CPodDatasetlReadableNameAnno      = "cpod.cpod/cpod-dataset-readable-name"
 )

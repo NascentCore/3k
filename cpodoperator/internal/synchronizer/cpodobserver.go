@@ -28,25 +28,16 @@ const (
 )
 
 type CPodObserver struct {
-	kubeClient                      client.Client
-	logger                          logr.Logger
-	ch                              chan<- sxwl.HeartBeatPayload
-	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob
-	preparingTrainningJobsGetter    func() []sxwl.PortalTrainningJob
-	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob
-	cpodId                          string
-	cpodNamespace                   string
+	kubeClient    client.Client
+	logger        logr.Logger
+	ch            chan<- sxwl.HeartBeatPayload
+	cpodId        string
+	cpodNamespace string
 }
 
-func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedTrainningJobsGetter, preparingTrainningJobsGetter func() []sxwl.PortalTrainningJob,
-	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
-	logger logr.Logger) *CPodObserver {
+func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload, logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
-		createFailedTrainningJobsGetter: createFailedTrainningJobsGetter,
-		preparingTrainningJobsGetter:    preparingTrainningJobsGetter,
-		createFailedInferenceJobsGetter: createFailedInferenceJobsGetter,
-		cpodId:                          cpodId, cpodNamespace: cpodNamespace}
+		cpodId: cpodId, cpodNamespace: cpodNamespace}
 }
 
 func (co *CPodObserver) Start(ctx context.Context) {
@@ -55,26 +46,6 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	if err != nil {
 		co.logger.Error(err, "get job state error")
 		return
-	}
-	// combine with createdfailed jobs
-	for _, j := range co.createFailedTrainningJobsGetter() {
-		js = append(js, sxwl.TrainningJobState{
-			Name:      j.JobName,
-			Namespace: co.cpodNamespace,
-			JobType:   v1beta1.JobType(j.JobType),
-			// TODO: add to api or const
-			JobStatus: "createfailed",
-		})
-	}
-	// combine with preparing jobs
-	for _, j := range co.preparingTrainningJobsGetter() {
-		js = append(js, sxwl.TrainningJobState{
-			Name:      j.JobName,
-			Namespace: co.cpodNamespace,
-			JobType:   v1beta1.JobType(j.JobType),
-			// TODO: add to api or const
-			JobStatus: "preparing",
-		})
 	}
 	// combine with finetune jobs
 	fs, err := co.getFinetuneStates(ctx)
@@ -90,13 +61,6 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	if err != nil {
 		co.logger.Error(err, "get inference job state error")
 		return
-	}
-	// combine with createdfailed jobs
-	for _, j := range co.createFailedInferenceJobsGetter() {
-		ijs = append(ijs, sxwl.InferenceJobState{
-			ServiceName: j.ServiceName,
-			Status:      InferenceJobFailed,
-		})
 	}
 	co.logger.Info("inference jobstates to upload", "ijs", ijs)
 	resourceInfo, err := co.getResourceInfo(ctx)
