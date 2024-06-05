@@ -101,16 +101,12 @@ func ListFilesInDir(dir string, ext string) ([]string, error) {
 	return fileList, nil
 }
 
-// MakeDir creates a directory if it does not exist
+// MakeDir creates a directory and its parents if they do not exist
 func MakeDir(dir string) error {
-	// Check if the directory already exists
-	_, err := os.Stat(dir)
-	if os.IsNotExist(err) {
-		// Directory does not exist, so create it
-		err := os.Mkdir(dir, 0755) // 0755 is a common permission setting for directories
-		if err != nil {
-			return fmt.Errorf("failed to create directory: %v", err)
-		}
+	// Use os.MkdirAll to create the directory along with any necessary parents
+	err := os.MkdirAll(dir, 0755) // 0755 is a common permission setting for directories
+	if err != nil {
+		return fmt.Errorf("failed to create directory: %v", err)
 	}
 	return nil
 }
