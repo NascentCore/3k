@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/storage"
+	uuid2 "sxwl/3k/pkg/uuid"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -60,9 +62,23 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		return nil, fmt.Errorf("model: %s for finetune is not supported", req.Model)
 	}
 
+	// template
+	template := ""
+	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.Model))
+	if err != nil {
+		l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.Model, err)
+		return nil, err
+	}
+	for file := range fileList {
+		if strings.Contains(file, "sxwl-infer-template-") {
+			template = storage.ExtractTemplate(file)
+			break
+		}
+	}
+
 	userJob := &model.SysUserJob{}
 	userJob.NewUserId = req.UserID
-	jobName, err := job.NewJobName()
+	jobName, err := uuid2.WithPrefix("finetune")
 	if err != nil {
 		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
 		return nil, err
@@ -171,6 +187,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
 	jsonAll["pretrainedModelName"] = req.Model
 	jsonAll["pretrainedModelIsPublic"] = req.ModelIsPublic
+	jsonAll["pretrainedModelTemplate"] = template
 	jsonAll["trainedModelName"] = req.TrainedModelName
 	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
 	jsonAll["ckptVol"] = 0      // 改为数值型默认值

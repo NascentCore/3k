@@ -106,7 +106,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		// template
 		fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
 		if err != nil {
-			l.Errorf("model storage.ListFiles userID: %d model: %s err: %s", req.UserID, req.ModelName, err)
+			l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
 			return nil, err
 		}
 		for file := range fileList {
