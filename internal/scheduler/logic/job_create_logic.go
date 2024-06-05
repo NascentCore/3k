@@ -5,15 +5,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/storage"
+	uuid2 "sxwl/3k/pkg/uuid"
 	"time"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jinzhu/copier"
-
-	"github.com/google/uuid"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
@@ -62,20 +64,37 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		return nil, err
 	}
 
-	newUUID, err := uuid.NewRandom()
-	if err != nil {
-		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
-		return nil, err
+	if req.TrainedModelName == "" {
+		req.TrainedModelName, err = uuid2.WithPrefix("model")
+		if err != nil {
+			l.Errorf("create trained model name err=%s", err)
+			return nil, ErrSystem
+		}
 	}
 
-	if req.TrainedModelName == "" {
-		req.TrainedModelName = fmt.Sprintf("model-%s", newUUID.String())
+	// template
+	template := ""
+	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.PretrainedModelName))
+	if err != nil {
+		l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.PretrainedModelName, err)
+		return nil, err
+	}
+	for file := range fileList {
+		if strings.Contains(file, "sxwl-infer-template-") {
+			template = storage.ExtractTemplate(file)
+			break
+		}
 	}
 
 	userJob := &model.SysUserJob{}
 	_ = copier.Copy(userJob, req)
 	userJob.NewUserId = req.UserID
-	userJob.JobName = sql.NullString{String: "ai" + newUUID.String(), Valid: true}
+	jobName, err := uuid2.WithPrefix("train")
+	if err != nil {
+		l.Errorf("create train job name err=%s", err)
+		return nil, ErrSystem
+	}
+	userJob.JobName = orm.NullString(jobName)
 	if req.PretrainedModelId != "" {
 		userJob.PretrainedModelName = orm.NullString(req.PretrainedModelId)
 	}
@@ -104,6 +123,7 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	jsonAll["backoffLimit"] = 1
 	jsonAll["pretrainModelIsPublic"] = req.PretrainedModelIsPublic
 	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
+	jsonAll["pretrainModelTemplate"] = template
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
