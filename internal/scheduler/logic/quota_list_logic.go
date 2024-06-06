@@ -40,12 +40,12 @@ func (l *QuotaListLogic) QuotaList(req *types.QuotaListReq) (resp *types.QuotaLi
 	}
 
 	var quotaList []*model.SysQuota
-	if req.UserID != "" {
+	if req.ToUser != "" {
 		quotaList, err = QuotaModel.Find(l.ctx, QuotaModel.AllFieldsBuilder().Where(squirrel.Eq{
-			"new_user_id": req.UserID,
+			"new_user_id": req.ToUser,
 		}))
 		if err != nil {
-			l.Errorf("QuotaList Find user_id=%s err=%s", req.UserID, err)
+			l.Errorf("QuotaList Find user_id=%s err=%s", req.ToUser, err)
 			return nil, err
 		}
 	} else {
