@@ -1030,6 +1030,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "user_id",
             "in": "query",
             "required": false,
@@ -2364,6 +2370,56 @@
         "message"
       ]
     },
+    "JupyterAdapter": {
+      "type": "object",
+      "properties": {
+        "adapter_id": {
+          "type": "string"
+        },
+        "adapter_name": {
+          "type": "string"
+        },
+        "adapter_path": {
+          "type": "string"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "JupyterAdapter",
+      "required": [
+        "adapter_id",
+        "adapter_name",
+        "adapter_path",
+        "adapter_is_public"
+      ]
+    },
+    "JupyterDataset": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string"
+        },
+        "dataset_name": {
+          "type": "string"
+        },
+        "dataset_path": {
+          "type": "string"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "JupyterDataset",
+      "required": [
+        "dataset_id",
+        "dataset_name",
+        "dataset_path",
+        "dataset_is_public"
+      ]
+    },
     "JupyterLab": {
       "type": "object",
       "properties": {
@@ -2389,11 +2445,8 @@
         "dataVolumeSize": {
           "type": "string"
         },
-        "pretrainedModels": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/PretrainedModels"
-          }
+        "resource": {
+          "$ref": "#/definitions/JupyterResource"
         },
         "userId": {
           "type": "string"
@@ -2408,9 +2461,58 @@
         "gpuCount",
         "gpuProduct",
         "dataVolumeSize",
-        "pretrainedModels",
+        "resource",
         "userId"
       ]
+    },
+    "JupyterModel": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_path": {
+          "type": "string"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "JupyterModel",
+      "required": [
+        "model_id",
+        "model_name",
+        "model_path",
+        "model_is_public"
+      ]
+    },
+    "JupyterResource": {
+      "type": "object",
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterModel"
+          }
+        },
+        "datasets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterDataset"
+          }
+        },
+        "adapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JupyterAdapter"
+          }
+        }
+      },
+      "title": "JupyterResource"
     },
     "Jupyterlab": {
       "type": "object",
@@ -2444,14 +2546,8 @@
           "type": "integer",
           "format": "int64"
         },
-        "model_id": {
-          "type": "string"
-        },
-        "model_name": {
-          "type": "string"
-        },
-        "model_path": {
-          "type": "string"
+        "resource": {
+          "$ref": "#/definitions/JupyterResource"
         },
         "url": {
           "type": "string"
@@ -2469,7 +2565,7 @@
         "cpu_count",
         "memory",
         "data_volume_size",
-        "user_id"
+        "resource"
       ]
     },
     "JupyterlabCreateReq": {
@@ -2504,14 +2600,8 @@
           "type": "integer",
           "format": "int64"
         },
-        "model_id": {
-          "type": "string"
-        },
-        "model_name": {
-          "type": "string"
-        },
-        "model_path": {
-          "type": "string"
+        "resource": {
+          "$ref": "#/definitions/JupyterResource"
         },
         "url": {
           "type": "string"
@@ -2976,26 +3066,6 @@
       "title": "NodeListResp",
       "required": [
         "data"
-      ]
-    },
-    "PretrainedModels": {
-      "type": "object",
-      "properties": {
-        "pretrainedModelId": {
-          "type": "string"
-        },
-        "pretrainedModelName": {
-          "type": "string"
-        },
-        "pretrainedModelPath": {
-          "type": "string"
-        }
-      },
-      "title": "PretrainedModels",
-      "required": [
-        "pretrainedModelId",
-        "pretrainedModelName",
-        "pretrainedModelPath"
       ]
     },
     "Quota": {

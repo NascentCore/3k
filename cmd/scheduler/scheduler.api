@@ -344,21 +344,22 @@ type (
 		CpodId        string `json:"cpod_id"`
 		UserId        string `json:"user_id"`
 	}
-	PretrainedModels {
-		PretrainedModelId   string `json:"pretrainedModelId"`
-		PretrainedModelName string `json:"pretrainedModelName"`
-		PretrainedModelPath string `json:"pretrainedModelPath"`
-	}
+	// PretrainedModels {
+	//  PretrainedModelId   string `json:"pretrainedModelId"`
+	//  PretrainedModelName string `json:"pretrainedModelName"`
+	//  PretrainedModelPath string `json:"pretrainedModelPath"`
+	// }
 	JupyterLab {
-		JobName          string             `json:"jobName"`
-		InstanceName     string             `json:"instanceName"`
-		CPUCount         string             `json:"cpuCount"`
-		Memory           string             `json:"memory"`
-		GPUCount         int                `json:"gpuCount"`
-		GPUProduct       string             `json:"gpuProduct"`
-		DataVolumeSize   string             `json:"dataVolumeSize"`
-		PretrainedModels []PretrainedModels `json:"pretrainedModels"`
-		UserID           string             `json:"userId"`
+		JobName        string `json:"jobName"`
+		InstanceName   string `json:"instanceName"`
+		CPUCount       string `json:"cpuCount"`
+		Memory         string `json:"memory"`
+		GPUCount       int    `json:"gpuCount"`
+		GPUProduct     string `json:"gpuProduct"`
+		DataVolumeSize string `json:"dataVolumeSize"`
+		//                             PretrainedModels []PretrainedModels `json:"pretrainedModels"`
+		Resource JupyterResource `json:"resource"`
+		UserID   string          `json:"userId"`
 	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
@@ -585,6 +586,29 @@ type (
 
 // /job/jupyterlab
 type (
+	JupyterModel {
+		ModelId       string `json:"model_id"`
+		ModelName     string `json:"model_name"`
+		ModelPath     string `json:"model_path"`
+		ModelIsPublic bool   `json:"model_is_public"`
+	}
+	JupyterDataset {
+		DatasetId       string `json:"dataset_id"`
+		DatasetName     string `json:"dataset_name"`
+		DatasetPath     string `json:"dataset_path"`
+		DatasetIsPublic bool   `json:"dataset_is_public"`
+	}
+	JupyterAdapter {
+		AdapterId       string `json:"adapter_id"`
+		AdapterName     string `json:"adapter_name"`
+		AdapterPath     string `json:"adapter_path"`
+		AdapterIsPublic bool   `json:"adapter_is_public"`
+	}
+	JupyterResource {
+		Models   []JupyterModel   `json:"models,optional"`
+		Datasets []JupyterDataset `json:"datasets,optional"`
+		Adapters []JupyterAdapter `json:"adapters,optional"`
+	}
 	Jupyterlab {
 		ID             int64  `json:"id,optional"`
 		JobName        string `json:"job_name,optional"`
@@ -594,12 +618,13 @@ type (
 		GPUCount       int64  `json:"gpu_count,optional"`
 		GPUProduct     string `json:"gpu_product,optional"`
 		DataVolumeSize int64  `json:"data_volume_size"`
-		ModelId        string `json:"model_id,optional"`
-		ModelName      string `json:"model_name,optional"`
-		ModelPath      string `json:"model_path,optional"`
-		URL            string `json:"url,optional"`
-		UserId         string `json:"user_id"`
-		Status         string `json:"status,optional"`
+		//                             Models         []JupyterModel   `json:"models,optional"`
+		//                             Datasets       []JupyterDataset `json:"datasets,optional"`
+		//                             Adapters       []JupyterAdapter `json:"adapters,optional"`
+		Resource JupyterResource `json:"resource"`
+		URL      string          `json:"url,optional"`
+		UserId   string          `json:"user_id,optional"`
+		Status   string          `json:"status,optional"`
 	}
 	JupyterlabCreateReq {
 		Jupyterlab

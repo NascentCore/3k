@@ -206,13 +206,18 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		jupyterlabResp.GPUCount = int(jupyterlab.GpuCount)
 		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
 		jupyterlabResp.DataVolumeSize = fs.BytesToMi(jupyterlab.DataVolumeSize)
-		jupyterlabResp.PretrainedModels = make([]types.PretrainedModels, 0)
-		if jupyterlab.ModelId != "" {
-			jupyterlabResp.PretrainedModels = append(jupyterlabResp.PretrainedModels, types.PretrainedModels{
-				PretrainedModelId:   jupyterlab.ModelId,
-				PretrainedModelName: jupyterlab.ModelName,
-				PretrainedModelPath: jupyterlab.ModelPath,
-			})
+		// jupyterlabResp.PretrainedModels = make([]types.PretrainedModels, 0)
+		// if jupyterlab.ModelId != "" {
+		// 	jupyterlabResp.PretrainedModels = append(jupyterlabResp.PretrainedModels, types.PretrainedModels{
+		// 		PretrainedModelId:   jupyterlab.ModelId,
+		// 		PretrainedModelName: jupyterlab.ModelName,
+		// 		PretrainedModelPath: jupyterlab.ModelPath,
+		// 	})
+		// }
+		err = json.Unmarshal([]byte(jupyterlab.Resource), &jupyterlabResp.Resource)
+		if err != nil {
+			l.Errorf("json unmarshal jupyterlab: %d err: %s", jupyterlab.Id, err)
+			// return nil, ErrSystem
 		}
 		jupyterlabResp.UserID = jupyterlab.NewUserId
 
