@@ -354,33 +354,58 @@ type JobsDelResp struct {
 	Message string `json:"message"`
 }
 
+type JupyterAdapter struct {
+	AdapterId       string `json:"adapter_id"`
+	AdapterName     string `json:"adapter_name"`
+	AdapterPath     string `json:"adapter_path"`
+	AdapterIsPublic bool   `json:"adapter_is_public"`
+}
+
+type JupyterDataset struct {
+	DatasetId       string `json:"dataset_id"`
+	DatasetName     string `json:"dataset_name"`
+	DatasetPath     string `json:"dataset_path"`
+	DatasetIsPublic bool   `json:"dataset_is_public"`
+}
+
 type JupyterLab struct {
-	JobName          string             `json:"jobName"`
-	InstanceName     string             `json:"instanceName"`
-	CPUCount         string             `json:"cpuCount"`
-	Memory           string             `json:"memory"`
-	GPUCount         int                `json:"gpuCount"`
-	GPUProduct       string             `json:"gpuProduct"`
-	DataVolumeSize   string             `json:"dataVolumeSize"`
-	PretrainedModels []PretrainedModels `json:"pretrainedModels"`
-	UserID           string             `json:"userId"`
+	JobName        string          `json:"jobName"`
+	InstanceName   string          `json:"instanceName"`
+	CPUCount       string          `json:"cpuCount"`
+	Memory         string          `json:"memory"`
+	GPUCount       int             `json:"gpuCount"`
+	GPUProduct     string          `json:"gpuProduct"`
+	DataVolumeSize string          `json:"dataVolumeSize"`
+	Resource       JupyterResource `json:"resource"`
+	UserID         string          `json:"userId"`
+}
+
+type JupyterModel struct {
+	ModelId       string `json:"model_id"`
+	ModelName     string `json:"model_name"`
+	ModelPath     string `json:"model_path"`
+	ModelIsPublic bool   `json:"model_is_public"`
+}
+
+type JupyterResource struct {
+	Models   []JupyterModel   `json:"models,optional"`
+	Datasets []JupyterDataset `json:"datasets,optional"`
+	Adapters []JupyterAdapter `json:"adapters,optional"`
 }
 
 type Jupyterlab struct {
-	ID             int64  `json:"id,optional"`
-	JobName        string `json:"job_name,optional"`
-	InstanceName   string `json:"instance_name"`
-	CPUCount       int64  `json:"cpu_count"`
-	Memory         int64  `json:"memory"`
-	GPUCount       int64  `json:"gpu_count,optional"`
-	GPUProduct     string `json:"gpu_product,optional"`
-	DataVolumeSize int64  `json:"data_volume_size"`
-	ModelId        string `json:"model_id,optional"`
-	ModelName      string `json:"model_name,optional"`
-	ModelPath      string `json:"model_path,optional"`
-	URL            string `json:"url,optional"`
-	UserId         string `json:"user_id"`
-	Status         string `json:"status,optional"`
+	ID             int64           `json:"id,optional"`
+	JobName        string          `json:"job_name,optional"`
+	InstanceName   string          `json:"instance_name"`
+	CPUCount       int64           `json:"cpu_count"`
+	Memory         int64           `json:"memory"`
+	GPUCount       int64           `json:"gpu_count,optional"`
+	GPUProduct     string          `json:"gpu_product,optional"`
+	DataVolumeSize int64           `json:"data_volume_size"`
+	Resource       JupyterResource `json:"resource"`
+	URL            string          `json:"url,optional"`
+	UserId         string          `json:"user_id,optional"`
+	Status         string          `json:"status,optional"`
 }
 
 type JupyterlabCreateReq struct {
@@ -526,12 +551,6 @@ type NodeListReq struct {
 
 type NodeListResp struct {
 	Data []ClusterNodeInfo `json:"data"`
-}
-
-type PretrainedModels struct {
-	PretrainedModelId   string `json:"pretrainedModelId"`
-	PretrainedModelName string `json:"pretrainedModelName"`
-	PretrainedModelPath string `json:"pretrainedModelPath"`
 }
 
 type Quota struct {

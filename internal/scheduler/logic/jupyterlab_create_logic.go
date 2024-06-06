@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
@@ -57,10 +58,10 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 
 	// check name unique
 	jupyterList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"new_user_id": req.UserId,
+		"new_user_id": req.UserID,
 	}))
 	if err != nil {
-		l.Errorf("JupyterlabCreate find userId: %s err: %s", req.UserId, err)
+		l.Errorf("JupyterlabCreate find userId: %s err: %s", req.UserID, err)
 		return nil, err
 	}
 
@@ -82,9 +83,16 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		billingStatus = model.BillingStatusContinue
 	}
 
+	// resource
+	jsonResource, err := json.Marshal(req.Resource)
+	if err != nil {
+		l.Errorf("json marshal err: %s", err)
+		return nil, ErrSystem
+	}
+
 	jupyterInstance := model.SysJupyterlab{
 		JobName:        jobName,
-		NewUserId:      req.UserId,
+		NewUserId:      req.UserID,
 		Status:         model.JupyterStatusWaitDeploy,
 		BillingStatus:  billingStatus,
 		InstanceName:   req.InstanceName,
@@ -93,9 +101,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		CpuCount:       req.CPUCount,
 		MemCount:       req.Memory,
 		DataVolumeSize: req.DataVolumeSize,
-		ModelId:        req.ModelId,
-		ModelName:      req.ModelName,
-		ModelPath:      req.ModelPath,
+		Resource:       string(jsonResource),
 	}
 	_, err = JupyterlabModel.Insert(l.ctx, &jupyterInstance)
 	if err != nil {
