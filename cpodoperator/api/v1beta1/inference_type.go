@@ -36,6 +36,8 @@ type InferenceSpec struct {
 
 // InferenceStatus defines the observed state of Inference
 type InferenceStatus struct {
+	DataReady bool `json:"dataReady,omitempty"`
+
 	Ready bool `json:"ready,omitempty"`
 
 	URL *string `json:"url,omitempty"`

@@ -90,8 +90,8 @@ func main() {
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	flag.StringVar(&inferencePrefix, "inference-prefix", "/inference/api", "the prefix of inference ingress path")
 	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5", "the image of jupyterlab")
-	flag.StringVar(&OssAK, "oss-ak", "TFRBSTV0OXNGYk4yUWNrc0hLMUxWZ1JX", "the access key of oss")
-	flag.StringVar(&OssAS, "oss-as", "ZDc5UVNBTTYybUx3YkgwUWtjd0duUVFoRUNtR3Fx", "the secret key of oss")
+	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
+	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
 
 	opts := zap.Options{
 		Development: true,
@@ -153,6 +153,7 @@ func main() {
 			Domain:              inferenceIngressDomain,
 			InferenceWebuiImage: inferenceWebuiImage,
 			StorageClassName:    storageClassName,
+			InferencePathPrefix: inferencePrefix,
 			OssOption: controller.OssOption{
 				OssAK:           OssAK,
 				OssAS:           OssAS,

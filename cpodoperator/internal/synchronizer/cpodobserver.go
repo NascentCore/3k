@@ -21,10 +21,11 @@ import (
 )
 
 const (
-	InferenceJobDeploying = "deploying"
-	InferenceJobDeployed  = "deployed"
-	InferenceJobFailed    = "failed"
-	JupyterLabJobFailed   = "failed"
+	InferenceJobDataPreparing = "dataPreparing"
+	InferenceJobDeploying     = "deploying"
+	InferenceJobDeployed      = "deployed"
+	InferenceJobFailed        = "failed"
+	JupyterLabJobFailed       = "failed"
 )
 
 type CPodObserver struct {
@@ -213,7 +214,9 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 	stats := []sxwl.InferenceJobState{}
 	for _, inferenceJob := range inferenceJobs.Items {
 		status := InferenceJobDeploying
-		if inferenceJob.Status.Ready {
+		if !inferenceJob.Status.DataReady {
+			status = InferenceJobDataPreparing
+		} else if inferenceJob.Status.Ready {
 			status = InferenceJobDeployed
 		}
 		url := "/inference/" + inferenceJob.Name

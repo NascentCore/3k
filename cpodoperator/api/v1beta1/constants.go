@@ -25,6 +25,7 @@ const (
 	CPodPreTrainModelTemplateAnno     = "cpod.cpod/cpod-model-template"
 	CPodDatasetSizeAnno               = "cpod.cpod/cpod-dataset-size"
 	CPodDatasetlReadableNameAnno      = "cpod.cpod/cpod-dataset-readable-name"
+	CPodPublicSharedPVC               = "shared-pvc"
 )
 
 const (

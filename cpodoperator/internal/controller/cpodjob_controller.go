@@ -1247,29 +1247,94 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 
 	pvcName := util.ModelPVCName(ossPath)
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
-	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
-		if apierrors.IsNotFound(err) {
-			err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      pvcName,
-					Namespace: namespace,
-				},
-				Spec: corev1.PersistentVolumeClaimSpec{
-					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-					Resources: corev1.ResourceRequirements{
-						Requests: corev1.ResourceList{
+
+	if namespace == v1beta1.CPodPublicNamespace {
+		pvcSize = "100Mi"
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: dataID}, &corev1.PersistentVolume{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				volumeMode := corev1.PersistentVolumeFilesystem
+				kubeclient.Create(ctx, &corev1.PersistentVolume{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      dataID,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeSpec{
+						AccessModes:  []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						MountOptions: []string{fmt.Sprintf("subdir=/models/%s", dataName)},
+						Capacity: corev1.ResourceList{
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
 						},
+						PersistentVolumeReclaimPolicy: corev1.PersistentVolumeReclaimRetain,
+						VolumeMode:                    &volumeMode,
+						PersistentVolumeSource: corev1.PersistentVolumeSource{
+							CSI: &corev1.CSIPersistentVolumeSource{
+								Driver: "csi.juicefs.com",
+								NodePublishSecretRef: &corev1.SecretReference{
+									Namespace: "kube-system",
+									Name:      "juicefs-sc-secret",
+								},
+								VolumeHandle: dataID,
+							},
+						},
+						StorageClassName: storageClassName,
 					},
-					StorageClassName: &storageClassName,
-				},
-			})
-			if err != nil && !apierrors.IsAlreadyExists(err) {
-				return nil, fmt.Errorf("failed to create pvc %s, : %v, pvcSize %v, datasize %v ", pvcName, err, pvcSize, dataSize)
+				})
+			} else {
+				return nil, fmt.Errorf("failed to get pv %s: %v", dataID, err)
 			}
-		} else {
-			return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
 		}
+
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      pvcName,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: resource.MustParse(pvcSize),
+							},
+						},
+						VolumeName:       dataID,
+						StorageClassName: &storageClassName,
+					},
+				})
+				if err != nil && !apierrors.IsAlreadyExists(err) {
+					return nil, fmt.Errorf("failed to create pvc %s, : %v, pvcSize %v, datasize %v ", pvcName, err, pvcSize, dataSize)
+				}
+			} else {
+				return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+			}
+		}
+	} else {
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      pvcName,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: resource.MustParse(pvcSize),
+							},
+						},
+						StorageClassName: &storageClassName,
+					},
+				})
+				if err != nil && !apierrors.IsAlreadyExists(err) {
+					return nil, fmt.Errorf("failed to create pvc %s, : %v, pvcSize %v, datasize %v ", pvcName, err, pvcSize, dataSize)
+				}
+			} else {
+				return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+			}
+		}
+
 	}
 
 	modelstorage := &cpodv1.ModelStorage{}
@@ -1303,28 +1368,93 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 
 	pvcName := util.DatasetPVCName(ossPath)
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
-	if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
-		if apierrors.IsNotFound(err) {
-			err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      pvcName,
-					Namespace: namespace,
-				},
-				Spec: corev1.PersistentVolumeClaimSpec{
-					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-					Resources: corev1.ResourceRequirements{
-						Requests: corev1.ResourceList{
+
+	if namespace == v1beta1.CPodPublicNamespace {
+		pvcSize = "100Mi"
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: dataID}, &corev1.PersistentVolume{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				volumeMode := corev1.PersistentVolumeFilesystem
+				kubeclient.Create(ctx, &corev1.PersistentVolume{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      dataID,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeSpec{
+						AccessModes:  []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						MountOptions: []string{fmt.Sprintf("subdir=/datasets/%s", dataName)},
+						Capacity: corev1.ResourceList{
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
 						},
+						PersistentVolumeReclaimPolicy: corev1.PersistentVolumeReclaimRetain,
+						VolumeMode:                    &volumeMode,
+						PersistentVolumeSource: corev1.PersistentVolumeSource{
+							CSI: &corev1.CSIPersistentVolumeSource{
+								Driver: "csi.juicefs.com",
+								NodePublishSecretRef: &corev1.SecretReference{
+									Namespace: "kube-system",
+									Name:      "juicefs-sc-secret",
+								},
+								VolumeHandle: dataID,
+							},
+						},
+						StorageClassName: storageClassName,
 					},
-					StorageClassName: &storageClassName,
-				},
-			})
-			if err != nil && !apierrors.IsAlreadyExists(err) {
-				return nil, fmt.Errorf("failed to create pvc %s: %v", pvcName, err)
+				})
+			} else {
+				return nil, fmt.Errorf("failed to get pv %s: %v", dataID, err)
 			}
-		} else {
-			return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+		}
+
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      pvcName,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: resource.MustParse(pvcSize),
+							},
+						},
+						StorageClassName: &storageClassName,
+						VolumeName:       dataID,
+					},
+				})
+				if err != nil && !apierrors.IsAlreadyExists(err) {
+					return nil, fmt.Errorf("failed to create pvc %s: %v", pvcName, err)
+				}
+			} else {
+				return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+			}
+		}
+
+	} else {
+		if err := kubeclient.Get(ctx, client.ObjectKey{Namespace: namespace, Name: pvcName}, &corev1.PersistentVolumeClaim{}); err != nil {
+			if apierrors.IsNotFound(err) {
+				err := kubeclient.Create(ctx, &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      pvcName,
+						Namespace: namespace,
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: resource.MustParse(pvcSize),
+							},
+						},
+						StorageClassName: &storageClassName,
+					},
+				})
+				if err != nil && !apierrors.IsAlreadyExists(err) {
+					return nil, fmt.Errorf("failed to create pvc %s: %v", pvcName, err)
+				}
+			} else {
+				return nil, fmt.Errorf("failed to get pvc %s: %v", pvcName, err)
+			}
 		}
 	}
 
@@ -1358,15 +1488,43 @@ func CreateDownloadJob(ctx context.Context, kubeclient client.Client, OssOption 
 	ossPath := util.ResourceToOSSPath(dataType, dataName)
 
 	var pvcName string
+	targetDir := "datasets"
 	if dataType == "model" {
 		pvcName = util.ModelPVCName(ossPath)
+		targetDir = "models"
 	} else {
 		pvcName = util.DatasetPVCName(ossPath)
+	}
+	args := []string{
+		"-g",
+		"cpod.cpod",
+		"-v",
+		"v1",
+		"-p",
+		dataType + "storages",
+		"-n",
+		namespace,
+		"--name",
+		dataID,
+		"oss",
+		fmt.Sprintf("oss://%v/%v", OssOption.BucketName, ossPath),
+		"-t",
+		fmt.Sprintf("%d", dataSize),
+		"--endpoint",
+		"https://oss-cn-beijing.aliyuncs.com",
+		"--access_id",
+		OssOption.OssAK,
+		"--access_key",
+		OssOption.OssAS,
+	}
+
+	if namespace == v1beta1.CPodPublicNamespace {
+		pvcName = v1beta1.CPodPublicSharedPVC
+		args = append(args, []string{"-o", fmt.Sprintf("/data/%v/%v", targetDir, dataName)}...)
 	}
 
 	// 构造oss路径
 	completionMode := batchv1.NonIndexedCompletion
-
 	// type-dataName
 	downloadJobName := fmt.Sprintf("%s-%s", dataType, dataID)
 	job := batchv1.Job{
@@ -1394,28 +1552,7 @@ func CreateDownloadJob(ctx context.Context, kubeclient client.Client, OssOption 
 						{
 							Name:  "downloader",
 							Image: OssOption.DownloaderImage,
-							Args: []string{
-								"-g",
-								"cpod.cpod",
-								"-v",
-								"v1",
-								"-p",
-								dataType + "storages",
-								"-n",
-								namespace,
-								"--name",
-								dataID,
-								"oss",
-								fmt.Sprintf("oss://%v/%v", OssOption.BucketName, ossPath),
-								"-t",
-								fmt.Sprintf("%d", dataSize),
-								"--endpoint",
-								"https://oss-cn-beijing.aliyuncs.com",
-								"--access_id",
-								OssOption.OssAK,
-								"--access_key",
-								OssOption.OssAS,
-							},
+							Args:  args,
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									MountPath: "/data",

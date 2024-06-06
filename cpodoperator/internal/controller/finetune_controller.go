@@ -190,6 +190,15 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		}
 		return ctrl.Result{}, nil
 	} else {
+		if cond := util.GetCondition(cpodjob.Status, cpodv1beta1.JobDataPreparing); cond != nil {
+			if cond.Status == v1.ConditionTrue {
+				finetune.Status.Phase = cpodv1beta1.PhasePreparingData
+				if err := r.Client.Status().Update(ctx, finetune); err != nil {
+					return ctrl.Result{}, err
+				}
+				return ctrl.Result{Requeue: true}, nil
+			}
+		}
 		if finetune.Status.Phase != cpodv1beta1.PhaseRunning {
 			finetune.Status.Phase = cpodv1beta1.PhaseRunning
 			if err := r.Client.Status().Update(ctx, finetune); err != nil {

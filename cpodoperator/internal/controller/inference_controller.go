@@ -139,6 +139,7 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 		if strings.HasPrefix(*sourceURI, cpodv1beta1.ModelStoragePrefix) {
 			modelstorageName, err := parseModelStorageURI(*sourceURI)
 			if err != nil {
+				inference.Status.DataReady = false
 				return err
 			}
 			// prepare model
@@ -146,6 +147,8 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 				logrus.Error("prepare model failed", "err", err, "inference", inference)
 				return err
 			}
+
+			inference.Status.DataReady = true
 
 			if inference.Spec.ModelIsPublic {
 				modelstorageName = modelstorageName + cpodv1beta1.CPodPublicStorageSuffix
