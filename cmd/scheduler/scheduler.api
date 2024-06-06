@@ -415,7 +415,8 @@ type (
 		Quota
 	}
 	QuotaListReq {
-		UserID string `json:"user_id,optional"`
+		UserID string `header:"Sx-User-ID"`
+		ToUser string `json:"user_id,optional"`
 	}
 	QuotaListResp {
 		Data []QuotaResp `json:"data"`

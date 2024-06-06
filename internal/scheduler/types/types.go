@@ -559,7 +559,8 @@ type QuotaDeleteResp struct {
 }
 
 type QuotaListReq struct {
-	UserID string `json:"user_id,optional"`
+	UserID string `header:"Sx-User-ID"`
+	ToUser string `json:"user_id,optional"`
 }
 
 type QuotaListResp struct {
