@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
@@ -59,7 +60,10 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 			jupyterlabResp.Status = statusDesc
 		}
 		jupyterlabResp.UserId = jupyterlab.NewUserId
-
+		err = json.Unmarshal([]byte(jupyterlab.Resource), &jupyterlabResp.Resource)
+		if err != nil {
+			l.Errorf("json unmarshal jupyterlab: %d err: %s", jupyterlab.Id, err)
+		}
 		resp.Data = append(resp.Data, jupyterlabResp)
 	}
 
