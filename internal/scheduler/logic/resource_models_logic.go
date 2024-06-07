@@ -75,6 +75,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			IsPublic:          true,
 			Size:              size,
 			Tag:               tag,
+			Template:          storage.ModelTemplate(l.svcCtx.Config.OSS.Bucket, modelName),
 			FinetuneGPUCount:  1,
 			InferenceGPUCount: 1,
 		}
@@ -158,6 +159,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 				IsPublic:          false,
 				UserID:            req.UserID,
 				Tag:               tag,
+				Template:          storage.ModelTemplate(l.svcCtx.Config.OSS.Bucket, modelName),
 				FinetuneGPUCount:  1,
 				InferenceGPUCount: 1,
 			})

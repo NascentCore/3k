@@ -100,3 +100,17 @@ func ExtractTemplate(filename string) string {
 	template := strings.Split(templateWithExtension, ".")[0]
 	return template
 }
+
+func ModelTemplate(bucket, modelName string) string {
+	fileList, err := ListFiles(bucket, ResourceToOSSPath(consts.Model, modelName))
+	if err != nil {
+		return ""
+	}
+	for file := range fileList {
+		if strings.Contains(file, "sxwl-infer-template-") {
+			return ExtractTemplate(file)
+		}
+	}
+
+	return ""
+}
