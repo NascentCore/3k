@@ -530,181 +530,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 	}
 }
 
-// 检查模型是否存在
-func (s *SyncJob) checkModelExistence(ctx context.Context, namespace, m string, modelType bool) (bool, bool, error) {
-	var ms cpodv1.ModelStorage
-	if modelType {
-		var publicMs cpodv1.ModelStorage
-		// 判断用户命名空间公共模型是否已经拷贝
-		err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: m + v1beta1.CPodPublicStorageSuffix}, &ms)
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				// 还未拷贝
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: "public", Name: m}, &publicMs); err != nil {
-					if kerrors.IsNotFound(err) {
-						// 公共模型不存在
-						return false, false, nil
-					}
-					return false, false, err
-				}
-				// 创建用户命名空间的公共模型的拷贝
-				var publicMsPVC v1.PersistentVolumeClaim
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: "public", Name: publicMs.Spec.PVC}, &publicMsPVC); err != nil {
-					return false, false, err
-				}
-				var publicMsPV v1.PersistentVolume
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: "public", Name: publicMsPVC.Spec.VolumeName}, &publicMsPV); err != nil {
-					return false, false, err
-				}
-				// 创建pv
-				pvCopy := publicMsPV.DeepCopy()
-				pvCopy.ResourceVersion = ""
-				pvCopy.UID = ""
-				pvName := pvCopy.Name + "-" + namespace
-				if len(pvName) > 63 {
-					pvName = pvName[:63]
-				}
-				if strings.HasSuffix(pvName, "-") {
-					pvName = pvName[:len(pvName)-1]
-				}
-				pvCopy.Name = pvName
-				pvCopy.Spec.CSI.VolumeHandle = pvName
-				if err := s.kubeClient.Create(ctx, pvCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// 创建pvc
-				pvcCopy := publicMsPVC.DeepCopy()
-				pvcCopy.Name = pvcCopy.Name + v1beta1.CPodPublicStorageSuffix
-				pvcCopy.Namespace = namespace
-				pvcCopy.Spec.VolumeName = pvCopy.Name
-				pvcCopy.ResourceVersion = ""
-				pvcCopy.UID = ""
-				if err := s.kubeClient.Create(ctx, pvcCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// 创建modelstorage
-				modelStorageCopy := publicMs.DeepCopy()
-				modelStorageCopy.Name = modelStorageCopy.Name + v1beta1.CPodPublicStorageSuffix
-				modelStorageCopy.Namespace = namespace
-				modelStorageCopy.Spec.PVC = pvcCopy.Name
-				modelStorageCopy.ResourceVersion = ""
-				modelStorageCopy.UID = ""
-				if modelStorageCopy.Labels == nil {
-					modelStorageCopy.Labels = make(map[string]string)
-				}
-				modelStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
-				if err := s.kubeClient.Create(ctx, modelStorageCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// TODO: update modelstorage status
-				modelStorageCopy.Status.Phase = "done"
-				if err := s.kubeClient.Status().Update(ctx, modelStorageCopy); err != nil {
-					return false, false, err
-				}
-				return true, true, nil
-			}
-			return false, false, err
-		}
-		return true, true, nil
-	}
-	err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: m}, &ms)
-	if err != nil {
-		if kerrors.IsNotFound(err) {
-			return false, false, nil
-		}
-		return false, false, err
-	}
-	return true, ms.Status.Phase == "done", nil
-}
-
-// 检查数据集是否存在
-func (s *SyncJob) checkDatasetExistence(ctx context.Context, namespace, d string, datasetType bool) (bool, bool, error) {
-	var ds cpodv1.DataSetStorage
-	if datasetType {
-		var publicDs cpodv1.DataSetStorage
-		// 判断用户命名空间公共数据集是否已经拷贝
-		err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: d + v1beta1.CPodPublicStorageSuffix}, &ds)
-		if err != nil {
-			if kerrors.IsNotFound(err) {
-				// 还未拷贝
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: d}, &publicDs); err != nil {
-					if kerrors.IsNotFound(err) {
-						// 公共数据集不存在
-						return false, false, nil
-					}
-					return false, false, err
-				}
-				// 创建用户命名空间的公共数据集的拷贝
-				var publicDsPVC v1.PersistentVolumeClaim
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDs.Spec.PVC}, &publicDsPVC); err != nil {
-					return false, false, err
-				}
-				var publicDsPV v1.PersistentVolume
-				if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: v1beta1.CPodPublicNamespace, Name: publicDsPVC.Spec.VolumeName}, &publicDsPV); err != nil {
-					return false, false, err
-				}
-				// 创建pv
-				pvCopy := publicDsPV.DeepCopy()
-				pvName := pvCopy.Name + "-" + namespace
-				if len(pvName) > 63 {
-					pvName = pvName[:63]
-				}
-				if strings.HasSuffix(pvName, "-") {
-					pvName = pvName[:len(pvName)-1]
-				}
-				pvCopy.Name = pvName
-				pvCopy.Spec.CSI.VolumeHandle = pvName
-				pvCopy.ResourceVersion = ""
-				pvCopy.UID = ""
-				if err := s.kubeClient.Create(ctx, pvCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// 创建pvc
-				pvcCopy := publicDsPVC.DeepCopy()
-				pvcCopy.Name = pvcCopy.Name + v1beta1.CPodPublicStorageSuffix
-				pvcCopy.Namespace = namespace
-				pvcCopy.Spec.VolumeName = pvCopy.Name
-				pvcCopy.ResourceVersion = ""
-				pvCopy.UID = ""
-				if err := s.kubeClient.Create(ctx, pvcCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// 创建modelstorage
-				datasetStorageCopy := publicDs.DeepCopy()
-				datasetStorageCopy.Name = datasetStorageCopy.Name + v1beta1.CPodPublicStorageSuffix
-				datasetStorageCopy.Namespace = namespace
-				datasetStorageCopy.Spec.PVC = pvcCopy.Name
-				datasetStorageCopy.ResourceVersion = ""
-				datasetStorageCopy.UID = ""
-				if datasetStorageCopy.Labels == nil {
-					datasetStorageCopy.Labels = make(map[string]string)
-				}
-				datasetStorageCopy.Labels[v1beta1.CPODStorageCopyLable] = "true"
-				if err := s.kubeClient.Create(ctx, datasetStorageCopy); err != nil && !kerrors.IsAlreadyExists(err) {
-					return false, false, err
-				}
-				// TODO: update modelstorage status
-				datasetStorageCopy.Status.Phase = "done"
-				if err := s.kubeClient.Status().Update(ctx, datasetStorageCopy); err != nil {
-					return false, false, err
-				}
-				return true, true, nil
-			}
-			return false, false, err
-		}
-		return true, true, nil
-	}
-	err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: namespace, Name: d}, &ds)
-	if err != nil {
-		if kerrors.IsNotFound(err) {
-			return false, false, nil
-		}
-		return false, false, err
-	}
-	// TODO @sxwl-donggang: 公共模型的拷贝
-	return true, ds.Status.Phase == "done", nil
-}
-
 func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
 	m := cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
@@ -848,7 +673,7 @@ func (s *SyncJob) createDownloaderJob(ctx context.Context, tp, pvcName, download
 func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.PortalJupyterLabJob, userIDs []sxwl.UserID) {
 	// 1. 获取当前Kubernetes集群中的JupyterLab任务列表
 	for _, UserID := range userIDs {
-		var currentJupyterLabJobs v1beta1.JuypterLabList
+		var currentJupyterLabJobs v1beta1.JupyterLabList
 		err := s.kubeClient.List(ctx, &currentJupyterLabJobs, &client.MatchingLabels{
 			v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 		}, client.InNamespace(UserID))
@@ -880,7 +705,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 		}
 
 	}
-	var totalJuypterlabJobs v1beta1.JuypterLabList
+	var totalJuypterlabJobs v1beta1.JupyterLabList
 	if err := s.kubeClient.List(ctx, &totalJuypterlabJobs, &client.MatchingLabels{
 		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 	}); err != nil {
@@ -908,31 +733,41 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) error {
 	// 处理预训练模型的挂载点
 	models := []v1beta1.Model{}
-	if job.PretrainedModels != nil {
-		for _, pm := range *job.PretrainedModels {
-			_, done, err := s.checkModelExistence(ctx, namespace, pm.PretrainedModelId, pm.PretrainedModelIsPublic)
-			if err != nil {
-				s.logger.Error(err, "failed to check model existence", "modelid", pm.PretrainedModelId)
-				continue
-			}
-			if !done {
-				s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", pm.PretrainedModelId)
-				continue
-			}
-			modelID := pm.PretrainedModelId
-			if pm.PretrainedModelIsPublic {
-				modelID = modelID + "-public"
-			}
-			models = append(models, v1beta1.Model{
-				ModelStorage: modelID,
-				MountPath:    pm.PretrainedModelPath,
-			})
+	for _, model := range job.Resource.Models {
+		models = append(models, v1beta1.Model{
+			Name:          model.ModelName,
+			ModelStorage:  model.ModelID,
+			ModelIspublic: model.ModelIsPublic,
+			ModelSize:     model.ModelSize,
+			MountPath:     model.ModelPath,
+		})
+	}
 
-		}
+	for _, adapter := range job.Resource.Adapters {
+		models = append(models, v1beta1.Model{
+			IsAdapter:     true,
+			Name:          adapter.AdapterName,
+			ModelStorage:  adapter.AdapterID,
+			ModelIspublic: adapter.AdapterIsPublic,
+			ModelSize:     adapter.AdapterSize,
+			MountPath:     adapter.AdapterPath,
+		})
 
 	}
 
-	juypterlab := v1beta1.JuypterLab{
+	datasets := []v1beta1.Dataset{}
+	for _, dataset := range job.Resource.Datasets {
+		datasets = append(datasets, v1beta1.Dataset{
+			Name:            dataset.DatasetName,
+			DatasetStorage:  dataset.DatasetID,
+			DatasetIspublic: dataset.DatasetIsPublic,
+			DatasetSize:     dataset.DatasetSize,
+			MountPath:       dataset.DatasetPath,
+		})
+
+	}
+
+	juypterlab := v1beta1.JupyterLab{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      job.JobName,
@@ -941,13 +776,14 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 				v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 			},
 		},
-		Spec: v1beta1.JuypterLabSpec{
+		Spec: v1beta1.JupyterLabSpec{
 			GPUCount:       job.GPUCount,
 			Memory:         job.Memory,
 			CPUCount:       job.CPUCount,
 			GPUProduct:     job.GPUProduct,
 			DataVolumeSize: job.DataVolumeSize,
 			Models:         models,
+			Datasets:       datasets,
 		},
 	}
 

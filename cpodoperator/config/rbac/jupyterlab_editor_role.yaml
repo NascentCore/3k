@@ -1,0 +1,31 @@
+# permissions for end users to edit jupyterlabs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: jupyterlab-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cpodjob
+    app.kubernetes.io/part-of: cpodjob
+    app.kubernetes.io/managed-by: kustomize
+  name: jupyterlab-editor-role
+rules:
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - jupyterlabs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cpod.cpod
+  resources:
+  - jupyterlabs/status
+  verbs:
+  - get

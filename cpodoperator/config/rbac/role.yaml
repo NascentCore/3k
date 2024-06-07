@@ -29,30 +29,6 @@ rules:
   - update
   - watch
 - apiGroups:
-  - apps
-  resources:
-  - statefulsets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets/status
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
   - batch
   resources:
   - jobs
@@ -225,7 +201,7 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
-  - juypterlabs
+  - jupyterlabs
   verbs:
   - create
   - delete
@@ -237,13 +213,13 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
-  - juypterlabs/finalizers
+  - jupyterlabs/finalizers
   verbs:
   - update
 - apiGroups:
   - cpod.cpod
   resources:
-  - juypterlabs/status
+  - jupyterlabs/status
   verbs:
   - get
   - patch

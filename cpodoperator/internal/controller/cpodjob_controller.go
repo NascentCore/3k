@@ -1198,7 +1198,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 					return fmt.Errorf("public dataset %s is not done", cpodjob.Spec.DatasetName)
 				}
 				if err := CopyPublicDatasetStorage(ctx, c.Client, cpodjob.Spec.DatasetName, cpodjob.Namespace); err != nil {
-					return fmt.Errorf("failed to copy public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					return fmt.Errorf("failed to copy public model %s: %v", cpodjob.Spec.DatasetName, err)
 				}
 				return nil
 			} else {

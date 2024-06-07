@@ -24,7 +24,7 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // JuypterLabSpec defines the desired state of JuypterLab
-type JuypterLabSpec struct {
+type JupyterLabSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -40,12 +40,27 @@ type JuypterLabSpec struct {
 
 	DataVolumeSize string `json:"dataVolumeSize,omitempty"`
 
-	Models []Model `json:"model,omitempty"`
+	Models []Model `json:"models,omitempty"`
+
+	Datasets []Dataset `json:"datasets,omitempty"`
+}
+
+type Dataset struct {
+	DatasetStorage  string `json:"datasetStorage,omitempty"`
+	DatasetSize     int    `json:"datasetSize,omitempty"`
+	DatasetIspublic bool   `json:"datasetIspublic,omitempty"`
+	Name            string `json:"name,omitempty"`
+	MountPath       string `json:"mountPath,omitempty"`
 }
 
 type Model struct {
-	ModelStorage string `json:"modelStorage,omitempty"`
-	MountPath    string `json:"mountPath,omitempty"`
+	ModelStorage  string `json:"modelStorage,omitempty"`
+	ModelIspublic bool   `json:"modelIspublic,omitempty"`
+	ModelSize     int    `json:"modelSize,omitempty"`
+	Name          string `json:"name,omitempty"`
+	IsAdapter     bool   `json:"isAdapter,omitempty"`
+	Template      string `json:"template,omitempty"`
+	MountPath     string `json:"mountPath,omitempty"`
 }
 
 type JupyterLabJobPhase string
@@ -57,33 +72,35 @@ const (
 )
 
 // JuypterLabStatus defines the observed state of JuypterLab
-type JuypterLabStatus struct {
+type JupyterLabStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	Phase JupyterLabJobPhase `json:"phase,omitempty"`
+
+	DataReady bool `json:"dataReady,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// JuypterLab is the Schema for the juypterlabs API
-type JuypterLab struct {
+// JupyterLab is the Schema for the jupyterlabs API
+type JupyterLab struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   JuypterLabSpec   `json:"spec,omitempty"`
-	Status JuypterLabStatus `json:"status,omitempty"`
+	Spec   JupyterLabSpec   `json:"spec,omitempty"`
+	Status JupyterLabStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// JuypterLabList contains a list of JuypterLab
-type JuypterLabList struct {
+// JupyterLabList contains a list of JupyterLab
+type JupyterLabList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []JuypterLab `json:"items"`
+	Items           []JupyterLab `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&JuypterLab{}, &JuypterLabList{})
+	SchemeBuilder.Register(&JupyterLab{}, &JupyterLabList{})
 }

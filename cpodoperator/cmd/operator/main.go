@@ -39,7 +39,6 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	mpiv2 "github.com/kubeflow/mpi-operator/pkg/apis/kubeflow/v2beta1"
 	tov1 "github.com/kubeflow/training-operator/pkg/apis/kubeflow.org/v1"
-	//+kubebuilder:scaffold:imports
 )
 
 var (
@@ -188,15 +187,21 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "FineTune")
 		os.Exit(1)
 	}
-	if err = (&controller.JuypterLabReconciler{
+	if err = (&controller.JupyterLabReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 		Option: &controller.JupyterLabOption{
 			StorageClassName: storageClassName,
 			Image:            jupyterLabImage,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "JuypterLab")
+		setupLog.Error(err, "unable to create controller", "controller", "JupyterLab")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

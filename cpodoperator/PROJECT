@@ -66,7 +66,7 @@ resources:
   controller: true
   domain: cpod
   group: cpod
-  kind: JuypterLab
+  kind: LlamaFactory
   path: sxwl/cpodoperator/api/v1beta1
   version: v1beta1
 - api:
@@ -75,7 +75,7 @@ resources:
   controller: true
   domain: cpod
   group: cpod
-  kind: LlamaFactory
+  kind: JupyterLab
   path: sxwl/cpodoperator/api/v1beta1
   version: v1beta1
 version: "3"
