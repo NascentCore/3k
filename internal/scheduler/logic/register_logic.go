@@ -39,6 +39,7 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 	UserModel := l.svcCtx.UserModel
 	VerifyCodeModel := l.svcCtx.VerifyCodeModel
 	UserBalanceModel := l.svcCtx.UserBalanceModel
+	RechargeModel := l.svcCtx.RechargeModel
 
 	// check verify code is correct
 	code, err := VerifyCodeModel.FindOneByVerifyKey(l.ctx, req.Email)
@@ -137,6 +138,24 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 	_, err = UserBalanceModel.Insert(l.ctx, balance)
 	if err != nil {
 		l.Errorf("insert balance username=%s err=%s", req.Username, err)
+		return fmt.Errorf("注册失败 err=%s", err)
+	}
+
+	recharge, err := uuid2.WithPrefix("recharge")
+	if err != nil {
+		l.Errorf("new uuid username=%s err=%s", req.Username, err)
+		return fmt.Errorf("注册失败 err=%s", err)
+	}
+	_, err = RechargeModel.Insert(l.ctx, &model.UserRecharge{
+		RechargeId:    recharge,
+		UserId:        userID,
+		Amount:        l.svcCtx.Config.Billing.InitBalance,
+		BeforeBalance: 0,
+		AfterBalance:  l.svcCtx.Config.Billing.InitBalance,
+		Description:   DescRechargeRegister,
+	})
+	if err != nil {
+		l.Errorf("insert recharge username=%s err=%s", req.Username, err)
 		return fmt.Errorf("注册失败 err=%s", err)
 	}
 

@@ -427,6 +427,54 @@
         ]
       }
     },
+    "/api/pay/recharge": {
+      "get": {
+        "summary": "充值记录",
+        "operationId": "RechargeList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/RechargeListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/resource/adapters": {
       "get": {
         "summary": "适配器列表",
@@ -3219,6 +3267,47 @@
         "message"
       ]
     },
+    "RechargeListReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "RechargeListReq",
+      "required": [
+        "page",
+        "page_size"
+      ]
+    },
+    "RechargeListResp": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserRecharge"
+          }
+        }
+      },
+      "title": "RechargeListResp",
+      "required": [
+        "total",
+        "data"
+      ]
+    },
     "RegisterUserReq": {
       "type": "object",
       "properties": {
@@ -3628,6 +3717,63 @@
       "title": "UserListResp",
       "required": [
         "data"
+      ]
+    },
+    "UserRecharge": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": " ID"
+        },
+        "recharge_id": {
+          "type": "string",
+          "description": " 充值记录id"
+        },
+        "user_id": {
+          "type": "string",
+          "description": " 用户ID"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 充值金额"
+        },
+        "before_balance": {
+          "type": "number",
+          "format": "double",
+          "description": " 充值前余额"
+        },
+        "after_balance": {
+          "type": "number",
+          "format": "double",
+          "description": " 充值后余额"
+        },
+        "description": {
+          "type": "string",
+          "description": " 描述"
+        },
+        "created_at": {
+          "type": "string",
+          "description": " 创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": " 更新时间"
+        }
+      },
+      "title": "UserRecharge",
+      "required": [
+        "id",
+        "recharge_id",
+        "user_id",
+        "amount",
+        "before_balance",
+        "after_balance",
+        "description",
+        "created_at",
+        "updated_at"
       ]
     },
     "WrapUser": {

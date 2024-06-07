@@ -601,6 +601,18 @@ type QuotaUpdateResp struct {
 	Message string `json:"message"`
 }
 
+type RechargeListReq struct {
+	UserID   string `header:"Sx-User-ID"`
+	ToUser   string `form:"user_id,optional"`
+	Page     int64  `form:"page"`
+	PageSize int64  `form:"page_size"`
+}
+
+type RechargeListResp struct {
+	Total int64          `json:"total"`
+	Data  []UserRecharge `json:"data"`
+}
+
 type RegisterUserReq struct {
 	Code         string `path:"code"`
 	Username     string `json:"username"`
@@ -719,6 +731,18 @@ type UserInfoResp struct {
 
 type UserListResp struct {
 	Data []User `json:"data"`
+}
+
+type UserRecharge struct {
+	Id            int64   `json:"id"`             // ID
+	RechargeId    string  `json:"recharge_id"`    // 充值记录id
+	UserId        string  `json:"user_id"`        // 用户ID
+	Amount        float64 `json:"amount"`         // 充值金额
+	BeforeBalance float64 `json:"before_balance"` // 充值前余额
+	AfterBalance  float64 `json:"after_balance"`  // 充值后余额
+	Description   string  `json:"description"`    // 描述
+	CreatedAt     string  `json:"created_at"`     // 创建时间
+	UpdatedAt     string  `json:"updated_at"`     // 更新时间
 }
 
 type WrapUser struct {

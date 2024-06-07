@@ -2,12 +2,13 @@ package logic
 
 import (
 	"context"
-
+	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
+	"sxwl/3k/pkg/uuid"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type BalanceAddLogic struct {
@@ -24,10 +25,12 @@ func NewBalanceAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Balanc
 	}
 }
 
-func (l *BalanceAddLogic) BalanceAdd(req *types.BalanceAddReq) (resp *types.BalanceAddResp, err error) {
+func (l *BalanceAddLogic) BalanceAdd(req *types.BalanceAddReq) (*types.BalanceAddResp, error) {
 	UserModel := l.svcCtx.UserModel
 	BalanceModel := l.svcCtx.UserBalanceModel
+	RechargeModel := l.svcCtx.RechargeModel
 
+	// Check if the user is an admin
 	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
 	if err != nil {
 		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
@@ -38,24 +41,55 @@ func (l *BalanceAddLogic) BalanceAdd(req *types.BalanceAddReq) (resp *types.Bala
 		return nil, ErrNotAdmin
 	}
 
-	result, err := BalanceModel.UpdateColsByCond(l.ctx, BalanceModel.UpdateBuilder().Where(squirrel.Eq{
-		"new_user_id": req.ToUser,
-	}).Set("balance", squirrel.Expr("balance + ?", req.Amount)))
+	// Generate recharge ID
+	rechargeID, err := uuid.WithPrefix("recharge")
 	if err != nil {
-		l.Errorf("update balance userID=%s amount=%.2f err=%s", req.UserID, req.Amount, err)
-		return nil, ErrBalanceAddFail
+		l.Errorf("new uuid userID=%s err=%s", req.UserID, err)
+		return nil, ErrSystem
 	}
 
-	rows, err := result.RowsAffected()
+	// Transaction handling
+	err = l.svcCtx.DB.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+		// Get current balance
+		beforeBalance, err := BalanceModel.GetBalance(ctx, session, req.ToUser)
+		if err != nil {
+			l.Errorf("BalanceModel.GetBalance userID=%s err=%s", req.UserID, err)
+			return err
+		}
+
+		// Update balance
+		afterBalance := beforeBalance + req.Amount
+		err = BalanceModel.SetBalance(ctx, session, req.ToUser, afterBalance)
+		if err != nil {
+			l.Errorf("BalanceModel.SetBalance userID=%s err=%s", req.UserID, err)
+			return err
+		}
+
+		// Create recharge record
+		recharge := &model.UserRecharge{
+			RechargeId:    rechargeID,
+			UserId:        req.ToUser,
+			Amount:        req.Amount,
+			BeforeBalance: beforeBalance,
+			AfterBalance:  afterBalance,
+			Description:   DescRechargeAdmin,
+		}
+
+		_, err = RechargeModel.TransInsert(ctx, session, recharge)
+		if err != nil {
+			l.Errorf("RechargeModel.TransInsert userID=%s err=%s", req.UserID, err)
+			return err
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		l.Errorf("update balance RowsAffected user_id=%s err=%s", req.UserID, err)
-		return nil, ErrBalanceAddFail
+		l.Errorf("DbTrans err=%s", err)
+		return nil, ErrDB
 	}
 
-	if rows != 1 {
-		l.Errorf("update balance RowsAffected rows=%d user_id=%s err=%s", rows, req.UserID, err)
-		return nil, ErrBalanceAddFail
-	}
-
-	return &types.BalanceAddResp{Message: MsgBalanceAddSuccess}, nil
+	return &types.BalanceAddResp{
+		Message: MsgBalanceAddSuccess,
+	}, nil
 }
