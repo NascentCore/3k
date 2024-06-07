@@ -21,32 +21,24 @@ import (
 )
 
 const (
-	InferenceJobDeploying = "deploying"
-	InferenceJobDeployed  = "deployed"
-	InferenceJobFailed    = "failed"
-	JupyterLabJobFailed   = "failed"
+	InferenceJobDataPreparing = "dataPreparing"
+	InferenceJobDeploying     = "deploying"
+	InferenceJobDeployed      = "deployed"
+	InferenceJobFailed        = "failed"
+	JupyterLabJobFailed       = "failed"
 )
 
 type CPodObserver struct {
-	kubeClient                      client.Client
-	logger                          logr.Logger
-	ch                              chan<- sxwl.HeartBeatPayload
-	createFailedTrainningJobsGetter func() []sxwl.PortalTrainningJob
-	preparingTrainningJobsGetter    func() []sxwl.PortalTrainningJob
-	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob
-	cpodId                          string
-	cpodNamespace                   string
+	kubeClient    client.Client
+	logger        logr.Logger
+	ch            chan<- sxwl.HeartBeatPayload
+	cpodId        string
+	cpodNamespace string
 }
 
-func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload,
-	createFailedTrainningJobsGetter, preparingTrainningJobsGetter func() []sxwl.PortalTrainningJob,
-	createFailedInferenceJobsGetter func() []sxwl.PortalInferenceJob,
-	logger logr.Logger) *CPodObserver {
+func NewCPodObserver(kubeClient client.Client, cpodId, cpodNamespace string, ch chan<- sxwl.HeartBeatPayload, logger logr.Logger) *CPodObserver {
 	return &CPodObserver{kubeClient: kubeClient, logger: logger, ch: ch,
-		createFailedTrainningJobsGetter: createFailedTrainningJobsGetter,
-		preparingTrainningJobsGetter:    preparingTrainningJobsGetter,
-		createFailedInferenceJobsGetter: createFailedInferenceJobsGetter,
-		cpodId:                          cpodId, cpodNamespace: cpodNamespace}
+		cpodId: cpodId, cpodNamespace: cpodNamespace}
 }
 
 func (co *CPodObserver) Start(ctx context.Context) {
@@ -55,26 +47,6 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	if err != nil {
 		co.logger.Error(err, "get job state error")
 		return
-	}
-	// combine with createdfailed jobs
-	for _, j := range co.createFailedTrainningJobsGetter() {
-		js = append(js, sxwl.TrainningJobState{
-			Name:      j.JobName,
-			Namespace: co.cpodNamespace,
-			JobType:   v1beta1.JobType(j.JobType),
-			// TODO: add to api or const
-			JobStatus: "createfailed",
-		})
-	}
-	// combine with preparing jobs
-	for _, j := range co.preparingTrainningJobsGetter() {
-		js = append(js, sxwl.TrainningJobState{
-			Name:      j.JobName,
-			Namespace: co.cpodNamespace,
-			JobType:   v1beta1.JobType(j.JobType),
-			// TODO: add to api or const
-			JobStatus: "preparing",
-		})
 	}
 	// combine with finetune jobs
 	fs, err := co.getFinetuneStates(ctx)
@@ -90,13 +62,6 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	if err != nil {
 		co.logger.Error(err, "get inference job state error")
 		return
-	}
-	// combine with createdfailed jobs
-	for _, j := range co.createFailedInferenceJobsGetter() {
-		ijs = append(ijs, sxwl.InferenceJobState{
-			ServiceName: j.ServiceName,
-			Status:      InferenceJobFailed,
-		})
 	}
 	co.logger.Info("inference jobstates to upload", "ijs", ijs)
 	resourceInfo, err := co.getResourceInfo(ctx)
@@ -132,7 +97,7 @@ func parseStatus(s v1beta1.CPodJobStatus) (v1beta1.JobConditionType, string) {
 	}
 	// order : modeluploaded , modeluploading , failed , succeeded , running , created
 	checkOrder := []v1beta1.JobConditionType{v1beta1.JobModelUploaded, v1beta1.JobModelUploading, v1beta1.JobFailed,
-		v1beta1.JobSucceeded, v1beta1.JobRunning, v1beta1.JobCreated}
+		v1beta1.JobSucceeded, v1beta1.JobRunning, v1beta1.JobCreated, v1beta1.JobDataPreparing}
 	for _, checker := range checkOrder {
 		if condMap[checker].Status == v1.ConditionTrue {
 			return checker, condMap[checker].Message
@@ -249,7 +214,9 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 	stats := []sxwl.InferenceJobState{}
 	for _, inferenceJob := range inferenceJobs.Items {
 		status := InferenceJobDeploying
-		if inferenceJob.Status.Ready {
+		if !inferenceJob.Status.DataReady {
+			status = InferenceJobDataPreparing
+		} else if inferenceJob.Status.Ready {
 			status = InferenceJobDeployed
 		}
 		url := "/inference/" + inferenceJob.Name
@@ -366,18 +333,35 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 			}
 		}
 
-		caches = append(caches, resource.Cache{
-			IsPublic:          isPublic,
-			UserID:            model.Namespace,
-			DataType:          resource.CacheModel,
-			DataName:          model.Spec.ModelName,
-			DataId:            model.Name,
-			DataSize:          model.Status.Size,
-			Template:          model.Spec.Template,
-			DataSource:        model.Spec.ModelType,
-			FinetuneGPUCount:  int64(FinetuneGPUCount),
-			InferenceGPUCount: int64(InferenceGPUCount),
-		})
+		if model.Spec.IsLoraAdapter {
+			caches = append(caches, resource.Cache{
+				IsPublic:          isPublic,
+				UserID:            model.Namespace,
+				DataType:          resource.CacheAdapter,
+				DataName:          model.Spec.ModelName,
+				DataId:            model.Name,
+				DataSize:          model.Status.Size,
+				Template:          model.Spec.Template,
+				DataSource:        model.Spec.ModelType,
+				FinetuneGPUCount:  int64(FinetuneGPUCount),
+				InferenceGPUCount: int64(InferenceGPUCount),
+			})
+		} else {
+			caches = append(caches, resource.Cache{
+				IsPublic:          isPublic,
+				UserID:            model.Namespace,
+				DataType:          resource.CacheModel,
+				DataName:          model.Spec.ModelName,
+				DataId:            model.Name,
+				DataSize:          model.Status.Size,
+				Template:          model.Spec.Template,
+				DataSource:        model.Spec.ModelType,
+				FinetuneGPUCount:  int64(FinetuneGPUCount),
+				InferenceGPUCount: int64(InferenceGPUCount),
+			})
+
+		}
+
 	}
 	var datasetList cpodv1.DataSetStorageList
 	err = co.kubeClient.List(ctx, &datasetList)

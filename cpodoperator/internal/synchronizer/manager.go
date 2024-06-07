@@ -31,9 +31,7 @@ func NewManager(cpodId, inferImage string, uploadTrainedModel, autoDownloadResou
 	ch := make(chan sxwl.HeartBeatPayload, 1)
 	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel, autoDownloadResource, inferImage)
 	uploader := NewUploader(ch, scheduler, period, logger.WithName("uploader"))
-	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch,
-		syncJob.getCreateFailedTrainningJobs, syncJob.getPreparingTrainningJobs, syncJob.getCreateFailedInferenceJobs,
-		logger.WithName("cpodobserver"))
+	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch, logger.WithName("cpodobserver"))
 	return &Manager{
 		runables: []Runnable{
 			syncJob,

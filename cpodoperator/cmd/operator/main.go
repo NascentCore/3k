@@ -67,28 +67,31 @@ func main() {
 	var storageClassName string
 	var modelUploadJobImage string
 	var modelUploadJobBackoffLimit int
-	var modelUploadOssBucketName string
+	var OssBucketName string
 	var inferenceIngressDomain string
 	var inferenceWebuiImage string
 	var finetuneGPUProduct string
 	var inferencePrefix string
 	var jupyterLabImage string
+	var OssAK, OssAS string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&downloaderImage, "artifact-downloader-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v1.0.0", "The artifact download job image ")
+	flag.StringVar(&downloaderImage, "artifact-downloader-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v0.0.7", "The artifact download job image ")
 	flag.StringVar(&tensorrtConvertImage, "tensorrt-convert-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/trtinfer:build-engine", "The image to implement tensorrt convert job")
-	flag.StringVar(&storageClassName, "storageClassName", "ceph-filesystem", "which storagecalss the artifact downloader should create")
+	flag.StringVar(&storageClassName, "storageClassName", "juicefs-sc", "which storagecalss the artifact downloader should create")
 	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/modeluploader:18e807f", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
-	flag.StringVar(&modelUploadOssBucketName, "model-upload-job-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
+	flag.StringVar(&OssBucketName, "oss-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
 	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
 	flag.StringVar(&inferenceWebuiImage, "inference-webui-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/chatui:v2.3", "inference webui image")
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	flag.StringVar(&inferencePrefix, "inference-prefix", "/inference/api", "the prefix of inference ingress path")
 	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5", "the image of jupyterlab")
+	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
+	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
 
 	opts := zap.Options{
 		Development: true,
@@ -129,7 +132,13 @@ func main() {
 			StorageClassName:           storageClassName,
 			ModelUploadJobImage:        modelUploadJobImage,
 			ModelUploadJobBackoffLimit: int32(modelUploadJobBackoffLimit),
-			ModelUploadOssBucketName:   modelUploadOssBucketName,
+			ModelUploadOssBucketName:   OssBucketName,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CPodJob")
@@ -143,6 +152,14 @@ func main() {
 		Options: controller.InferenceOptions{
 			Domain:              inferenceIngressDomain,
 			InferenceWebuiImage: inferenceWebuiImage,
+			StorageClassName:    storageClassName,
+			InferencePathPrefix: inferencePrefix,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Inference")

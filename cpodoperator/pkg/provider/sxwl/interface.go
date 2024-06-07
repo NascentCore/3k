@@ -57,6 +57,7 @@ type PortalTrainningJob struct {
 	PretrainModelSize     int    `json:"pretrainedModelSize"`
 	PretrainModelPath     string `json:"pretrainedModelPath"`
 	PretrainModelIsPublic bool   `json:"pretrainModelIsPublic"`
+	PretrainModelTemplate string `json:"pretrainModelTemplate"`
 	StopTime              int    `json:"stopTime"`
 	StopType              int    `json:"stopType"`
 	BackoffLimit          int    `json:"backoffLimit"`
@@ -71,6 +72,8 @@ type PortalInferenceJob struct {
 	ServiceName   string `json:"service_name"`
 	Status        string `json:"status"`
 	ModelId       string `json:"model_id"`
+	ModelName     string `json:"model_name"`
+	ModelSize     int    `json:"model_size"`
 	ModelIsPublic bool   `json:"model_is_public"`
 	GpuType       string `json:"gpu_type"`
 	GpuNumber     int64  `json:"gpu_number"`

@@ -1,4 +1,4 @@
-package synchronizer
+package util
 
 import (
 	"crypto/sha1"

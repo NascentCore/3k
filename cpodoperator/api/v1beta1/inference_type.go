@@ -30,10 +30,14 @@ type InferenceSpec struct {
 	// Predictor defines the model serving spec
 	// +required
 	Predictor kservev1beta1.PredictorSpec `json:"predictor"`
+
+	ModelIsPublic bool `json:"modelIsPublic,omitempty"`
 }
 
 // InferenceStatus defines the observed state of Inference
 type InferenceStatus struct {
+	DataReady bool `json:"dataReady,omitempty"`
+
 	Ready bool `json:"ready,omitempty"`
 
 	URL *string `json:"url,omitempty"`

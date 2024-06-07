@@ -31,6 +31,7 @@ type FineTuneSpec struct {
 	// Foo is an example field of FineTune. Edit finetune_types.go to remove/update
 	Model           string            `json:"model,omitempty"`
 	DatasetStorage  string            `json:"dataset,omitempty"`
+	DatasetIsPublic bool              `json:"datasetIsPublic,omitempty"`
 	HyperParameters map[string]string `json:"hyperParameters,omitempty"`
 	Config          map[string]string `json:"config,omitempty"`
 	Upload          bool              `json:"upload,omitempty"`
@@ -41,10 +42,11 @@ type FineTuneSpec struct {
 type Phase string
 
 const (
-	PhasePending   Phase = "Pending"
-	PhaseRunning   Phase = "Running"
-	PhaseFailed    Phase = "Invalid"
-	PhaseSucceeded Phase = "Succeeded"
+	PhasePending       Phase = "Pending"
+	PhasePreparingData Phase = "PreparingData"
+	PhaseRunning       Phase = "Running"
+	PhaseFailed        Phase = "Invalid"
+	PhaseSucceeded     Phase = "Succeeded"
 )
 
 // FineTuneStatus defines the observed state of FineTune

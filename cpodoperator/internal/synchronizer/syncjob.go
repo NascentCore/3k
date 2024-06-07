@@ -3,7 +3,6 @@ package synchronizer
 import (
 	"context"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +17,7 @@ import (
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -132,6 +132,37 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
 			}
 		}
 	}
+	for _, userNs := range users.Items {
+		var clusterrolebinding rbacv1.ClusterRoleBinding
+		if err := s.kubeClient.Get(ctx, types.NamespacedName{Name: userNs.Name}, &clusterrolebinding); err != nil {
+			if kerrors.IsNotFound(err) {
+				newClusterRoleBinding := rbacv1.ClusterRoleBinding{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: userNs.Name,
+					},
+					Subjects: []rbacv1.Subject{
+						{
+							Kind:      "ServiceAccount",
+							Name:      "default",
+							Namespace: userNs.Namespace,
+						},
+					},
+					RoleRef: rbacv1.RoleRef{
+						Kind:     "ClusterRole",
+						Name:     "cluster-admin",
+						APIGroup: "rbac.authorization.k8s.io",
+					},
+				}
+				if err = s.kubeClient.Create(ctx, &newClusterRoleBinding); err != nil {
+					s.logger.Error(err, "failed to create clusterrolebinding", "user", userNs.Name)
+				} else {
+					s.logger.Info("clusterrolebinding created", "user", userNs.Name)
+				}
+			} else {
+				s.logger.Error(err, "failed to get clusterrolebinding", "user", userNs.Name)
+			}
+		}
+	}
 }
 
 func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, portaljobs []sxwl.PortalTrainningJob) {
@@ -158,25 +189,6 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 				}
 			}
 			if !exists {
-				// create
-				datasetID := job.DatasetId
-				exist, done, err := s.checkDatasetExistence(ctx, string(user), datasetID, job.DatasetIsPublic)
-				if err != nil {
-					s.logger.Error(err, "failed to check dataset existence", "datasetID", datasetID)
-					continue
-				}
-				if !exist {
-					s.logger.Error(err, "dataset not exists", "datasetID", datasetID, "job", job)
-					continue
-				}
-				if !done {
-					s.logger.Info("Model is preparing.", "job", job)
-					continue
-				}
-				if job.DatasetIsPublic {
-					datasetID = datasetID + "-public"
-				}
-
 				newJob := v1beta1.FineTune{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      job.JobName,
@@ -186,12 +198,14 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 						},
 						Annotations: map[string]string{
-							v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
+							v1beta1.CPodModelstorageNameAnno:     job.TrainedModelName,
+							v1beta1.CPodDatasetlReadableNameAnno: job.DatasetName,
+							v1beta1.CPodDatasetSizeAnno:          fmt.Sprintf("%d", job.DatasetSize),
 						},
 					},
 					Spec: v1beta1.FineTuneSpec{
 						Model:          job.PretrainModelName,
-						DatasetStorage: datasetID,
+						DatasetStorage: job.DatasetId,
 						Upload:         s.uploadTrainedModel,
 						HyperParameters: map[string]string{
 							"n_epochs":                 job.Epochs,
@@ -277,124 +291,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					duration = job.StopTime
 				}
 
-				modelId := job.PretrainModelId
-				if job.PretrainModelId != "" {
-					// 判断指定的预训练模型是否存在
-					exists, done, err := s.checkModelExistence(ctx, string(user), job.PretrainModelId, job.PretrainModelIsPublic)
-					if err != nil {
-						s.logger.Error(err, "failed to check model existence", "modelid", job.PretrainModelId)
-						continue
-					}
-					if exists {
-						if !done {
-							s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							continue
-						}
-					} else { // modelstorage not exist
-						if s.autoDownloadResource {
-							s.logger.Info("model not exists , starting downloader task , task will be started when downloader task finish",
-								"jobname", job.JobName, "modelid", job.PretrainModelId)
-							// return preparing status during the downloader task.
-							s.addPreparingTrainningJob(job)
-							// create PVC
-							ossAK := os.Getenv("AK")
-							ossSK := os.Getenv("AS")
-							storageClassName := os.Getenv("STORAGECLASS")
-							ossPath := ResourceToOSSPath(Model, job.PretrainModelName)
-							pvcName := ModelPVCName(ossPath)
-							// storageName := ModelCRDName(ossPath)
-							modelSize := fmt.Sprintf("%d", job.PretrainModelSize)
-							// pvcsize is 1.2 * modelsize
-							pvcSize := fmt.Sprintf("%dMi", job.PretrainModelSize*12/10/1024/1024)
-							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-							if err != nil {
-								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("pvc created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							// create ModelStorage
-							err = s.createModelStorage(ctx, job.PretrainModelId, job.PretrainModelName, pvcName)
-							if err != nil {
-								s.logger.Error(err, "create modelstorage failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("modelstorage created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							// create DownloaderJob
-							err = s.createDownloaderJob(ctx, "model", pvcName, ModelDownloadJobName(ossPath), job.PretrainModelId, modelSize, job.PretrainModelUrl, ossAK, ossSK)
-							if err != nil {
-								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "modelid", job.PretrainModelId)
-								continue
-							} else {
-								s.logger.Info("downloader job created", "jobname", job.JobName, "modelid", job.PretrainModelId)
-							}
-							continue
-						}
-
-					}
-				}
-				if job.PretrainModelIsPublic {
-					modelId = modelId + v1beta1.CPodPublicStorageSuffix
-				}
-				datasetID := job.DatasetId
-				if job.DatasetId != "" {
-					// 判断指定的预训练模型是否存在
-					exists, done, err := s.checkDatasetExistence(ctx, string(user), job.DatasetId, job.DatasetIsPublic)
-					if err != nil {
-						s.logger.Error(err, "failed to check dataset existence", "datasetid", job.DatasetId, "job", job)
-						continue
-					}
-					if exists {
-						if !done {
-							s.logger.Info("Dataset is preparing.", "jobname", job.JobName, "datasetid", job.DatasetId)
-							continue
-						}
-					} else { // dataset not exist
-						if s.autoDownloadResource {
-							s.logger.Info("dataset not exists , starting downloader task , task will be started when downloader task finish",
-								"jobname", job.JobName, "datasetid", job.DatasetId)
-							// return preparing status during the downloader task.
-							s.addPreparingTrainningJob(job)
-							// create PVC
-							ossAK := os.Getenv("AK")
-							ossSK := os.Getenv("AS")
-							storageClassName := os.Getenv("STORAGECLASS")
-							ossPath := ResourceToOSSPath(Dataset, job.DatasetName)
-							pvcName := DatasetPVCName(ossPath)
-							datasetSize := fmt.Sprintf("%d", job.DatasetSize)
-							// pvcsize is 1.2 * datasetsize
-							pvcSize := fmt.Sprintf("%dMi", job.DatasetSize*12/10/1024/1024)
-							err := s.createPVC(ctx, pvcName, pvcSize, storageClassName)
-							if err != nil {
-								s.logger.Error(err, "create pvc failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("pvc created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							// create DatasetStorage
-							err = s.createDatasetStorage(ctx, job.DatasetId, job.DatasetName, pvcName)
-							if err != nil {
-								s.logger.Error(err, "create datasetstorage failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("datasetstorage created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							// create DownloaderJob
-							err = s.createDownloaderJob(ctx, "dataset", pvcName, DatasetDownloadJobName(ossPath), job.DatasetId, datasetSize, job.DatasetUrl, ossAK, ossSK)
-							if err != nil {
-								s.logger.Error(err, "create downloader job failed", "jobname", job.JobName, "datasetid", job.DatasetId)
-								continue
-							} else {
-								s.logger.Info("downloader job created", "jobname", job.JobName, "datasetid", job.DatasetId)
-							}
-							continue
-						}
-					}
-				}
-				if job.DatasetIsPublic {
-					datasetID = datasetID + "-public"
-				}
 				var gpuPerWorker int32 = 8
 				var replicas int32 = 1
 				if job.GpuNumber < 8 {
@@ -405,7 +301,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 				jobType, ok := jobTypeCheck(job.JobType)
 				if !ok {
 					s.logger.Info("invalid jobtype", "jobtype", job.JobType, "jobname", job.JobName)
-					s.addCreateFailedTrainningJob(job)
 					continue
 				}
 				var backoffLimit int32 = int32(job.BackoffLimit)
@@ -420,7 +315,12 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 						},
 						Annotations: map[string]string{
-							v1beta1.CPodModelstorageNameAnno: job.TrainedModelName,
+							v1beta1.CPodModelstorageNameAnno:          job.TrainedModelName,
+							v1beta1.CPodPreTrainModelReadableNameAnno: job.PretrainModelName,
+							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.PretrainModelSize),
+							v1beta1.CPodPreTrainModelTemplateAnno:     job.PretrainModelTemplate,
+							v1beta1.CPodDatasetlReadableNameAnno:      job.DatasetName,
+							v1beta1.CPodDatasetSizeAnno:               fmt.Sprintf("%d", job.DatasetSize),
 						},
 					},
 
@@ -429,9 +329,9 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						GPURequiredPerReplica: gpuPerWorker,
 						GPUType:               job.GpuType,
 						DatasetPath:           job.DatasetPath,
-						DatasetName:           datasetID,
+						DatasetName:           job.DatasetId,
 						PretrainModelPath:     job.PretrainModelPath,
-						PretrainModelName:     modelId,
+						PretrainModelName:     job.PretrainModelId,
 						CKPTPath:              job.CkptPath,
 						CKPTVolumeSize:        int32(job.CkptVol),
 						ModelSavePath:         job.ModelPath,
@@ -446,16 +346,12 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					},
 				}
 				if err = s.kubeClient.Create(ctx, &newJob); err != nil {
-					s.addCreateFailedTrainningJob(job)
 					s.logger.Error(err, "failed to create trainningjob", "job", newJob)
 				} else {
-					s.deleteCreateFailedTrainningJob(job.JobName)
-					s.deletePreparingTrainningJob(job.JobName)
 					s.logger.Info("trainningjob created", "job", newJob)
 				}
 			}
 		}
-
 	}
 
 	var totalCPodJobs v1beta1.CPodJobList
@@ -516,24 +412,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				if template == "" {
 					template = "default"
 				}
-				modelID := job.ModelId
-				exist, done, err := s.checkModelExistence(ctx, string(user), modelID, job.ModelIsPublic)
-				s.logger.Info("DEBUG", "modelid", modelID, "exist", exist, "done", done, "err", err)
-				if err != nil {
-					s.logger.Error(err, "failed to check model existence", "modelid", modelID)
-					continue
-				}
-				if !exist {
-					s.logger.Error(err, "model not exists", "modelid", modelID, "job", job)
-					continue
-				}
-				if !done {
-					s.logger.Info("Model is preparing.", "jobname", job.ServiceName, "modelid", modelID, "job", job)
-					continue
-				}
-				if job.ModelIsPublic {
-					modelID = modelID + v1beta1.CPodPublicStorageSuffix
-				}
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -543,6 +421,11 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						Labels: map[string]string{
 							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+						},
+						Annotations: map[string]string{
+							v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
+							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
+							v1beta1.CPodPreTrainModelTemplateAnno:     job.Template,
 						},
 					},
 					// TODO: fill PredictorSpec with infomation provided by portaljob
@@ -566,7 +449,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 										Env: []v1.EnvVar{
 											{
 												Name:  "STORAGE_URI",
-												Value: "modelstorage://" + modelID,
+												Value: "modelstorage://" + job.ModelId,
 											},
 											{
 												Name:  "API_PORT",
@@ -592,6 +475,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 								},
 							},
 						},
+						ModelIsPublic: job.ModelIsPublic,
 					},
 				}
 				if job.GpuNumber > 1 {
@@ -612,10 +496,8 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 
 				if err = s.kubeClient.Create(ctx, &newJob); err != nil {
-					s.addCreateFailedInferenceJob(job)
 					s.logger.Error(err, "failed to create inference job", "job", newJob)
 				} else {
-					s.deleteCreateFailedInferenceJob(job.ServiceName)
 					s.logger.Info("inference job created", "job", newJob)
 				}
 			}
@@ -646,92 +528,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 			s.logger.Info("inference job deleted", "jobid", cpodInferenceJob.Name)
 		}
 	}
-}
-
-func (s *SyncJob) getCreateFailedTrainningJobs() []sxwl.PortalTrainningJob {
-	res := []sxwl.PortalTrainningJob{}
-	s.createFailedJobs.mu.RLock()
-	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mtj {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addCreateFailedTrainningJob(j sxwl.PortalTrainningJob) {
-	if _, ok := s.createFailedJobs.mtj[j.JobName]; ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mtj[j.JobName] = j
-}
-
-// 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedTrainningJob(j string) {
-	if _, ok := s.createFailedJobs.mtj[j]; !ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mtj, j)
-}
-
-func (s *SyncJob) getPreparingTrainningJobs() []sxwl.PortalTrainningJob {
-	res := []sxwl.PortalTrainningJob{}
-	s.preparingJobs.mu.RLock()
-	defer s.preparingJobs.mu.RUnlock()
-	for _, v := range s.preparingJobs.mtj {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addPreparingTrainningJob(j sxwl.PortalTrainningJob) {
-	if _, ok := s.preparingJobs.mtj[j.JobName]; ok {
-		return
-	}
-	s.preparingJobs.mu.Lock()
-	defer s.preparingJobs.mu.Unlock()
-	s.preparingJobs.mtj[j.JobName] = j
-}
-
-func (s *SyncJob) deletePreparingTrainningJob(j string) {
-	if _, ok := s.preparingJobs.mtj[j]; !ok {
-		return
-	}
-	s.preparingJobs.mu.Lock()
-	defer s.preparingJobs.mu.Unlock()
-	delete(s.preparingJobs.mtj, j)
-}
-
-func (s *SyncJob) getCreateFailedInferenceJobs() []sxwl.PortalInferenceJob {
-	res := []sxwl.PortalInferenceJob{}
-	s.createFailedJobs.mu.RLock()
-	defer s.createFailedJobs.mu.RUnlock()
-	for _, v := range s.createFailedJobs.mij {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (s *SyncJob) addCreateFailedInferenceJob(j sxwl.PortalInferenceJob) {
-	if _, ok := s.createFailedJobs.mij[j.ServiceName]; ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	s.createFailedJobs.mij[j.ServiceName] = j
-}
-
-// 如果任务创建成功了，将其从失败任务列表中删除
-func (s *SyncJob) deleteCreateFailedInferenceJob(j string) {
-	if _, ok := s.createFailedJobs.mij[j]; !ok {
-		return
-	}
-	s.createFailedJobs.mu.Lock()
-	defer s.createFailedJobs.mu.Unlock()
-	delete(s.createFailedJobs.mij, j)
 }
 
 // 检查模型是否存在
