@@ -25,6 +25,7 @@ type ServiceContext struct {
 	JupyterlabModel  model.SysJupyterlabModel
 	UserBalanceModel model.UserBalanceModel
 	UserBillingModel model.UserBillingModel
+	RechargeModel    model.UserRechargeModel
 	EmailSender      email.Emailer
 	DB               sqlx.SqlConn
 }
@@ -66,6 +67,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		JupyterlabModel:  model.NewSysJupyterlabModel(conn),
 		UserBalanceModel: model.NewUserBalanceModel(conn),
 		UserBillingModel: model.NewUserBillingModel(conn),
+		RechargeModel:    model.NewUserRechargeModel(conn),
 		EmailSender:      emailSender,
 		DB:               conn,
 	}

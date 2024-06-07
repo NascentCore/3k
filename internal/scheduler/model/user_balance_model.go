@@ -22,6 +22,8 @@ type (
 		FindOneById(ctx context.Context, data *UserBalance) (*UserBalance, error)
 		FindAll(ctx context.Context, orderBy string) ([]*UserBalance, error)
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*UserBalance, error)
+		GetBalance(ctx context.Context, session sqlx.Session, userID string) (float64, error)
+		SetBalance(ctx context.Context, session sqlx.Session, userID string, balance float64) error
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*UserBalance, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
 	}
@@ -138,6 +140,38 @@ func (m *defaultUserBalanceModel) FindPageListByPage(ctx context.Context, select
 	default:
 		return nil, err
 	}
+}
+
+func (m *defaultUserBalanceModel) GetBalance(ctx context.Context, session sqlx.Session, userID string) (float64, error) {
+	// Build the query
+	query, args, err := m.AllFieldsBuilder().Where("new_user_id = ?", userID).ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	// Execute the query within the session
+	var balance UserBalance
+	err = session.QueryRowCtx(ctx, &balance, query, args...)
+	if err != nil {
+		return 0, err
+	}
+
+	return balance.Balance, nil
+}
+
+func (m *defaultUserBalanceModel) SetBalance(ctx context.Context, session sqlx.Session, userID string, balance float64) error {
+	updateBuilder := m.UpdateBuilder().Set("balance", balance).Where(squirrel.Eq{"new_user_id": userID})
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = session.ExecCtx(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UpdateColsByCond -

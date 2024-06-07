@@ -7,6 +7,7 @@ import (
 var (
 	ErrNotAdmin = errors.New("您没有管理员权限")
 	ErrDBFind   = errors.New("数据库查询错误")
+	ErrDB       = errors.New("数据库错误")
 )
 
 var (
@@ -15,7 +16,12 @@ var (
 	ErrSystem          = errors.New("系统错误，请稍后再试")
 )
 
-var (
+const (
 	MsgBalanceAddSuccess = "余额充值成功"
 	MsgJobsDelSuccess    = "全部任务已终止"
+)
+
+const (
+	DescRechargeRegister = "注册充值"
+	DescRechargeAdmin    = "管理员充值"
 )

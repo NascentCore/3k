@@ -215,6 +215,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/pay/recharge",
+				Handler: RechargeListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/resource/baseimages",
 				Handler: baseImageListHandler(serverCtx),
 			},
