@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
@@ -56,25 +55,25 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	}
 
 	// check model is in list
-	_, ok := l.svcCtx.Config.FinetuneModel[req.Model]
+	_, ok := l.svcCtx.Config.FinetuneModel[req.ModelName]
 	if !ok {
-		l.Errorf("finetune model %s is not supported userId: %s", req.Model, req.UserID)
-		return nil, fmt.Errorf("model: %s for finetune is not supported", req.Model)
+		l.Errorf("finetune model %s is not supported userId: %s", req.ModelName, req.UserID)
+		return nil, fmt.Errorf("model: %s for finetune is not supported", req.ModelName)
 	}
 
-	// template
-	template := ""
-	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.Model))
-	if err != nil {
-		l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.Model, err)
-		return nil, err
-	}
-	for file := range fileList {
-		if strings.Contains(file, "sxwl-infer-template-") {
-			template = storage.ExtractTemplate(file)
-			break
-		}
-	}
+	// // template
+	// template := ""
+	// fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.ModelName))
+	// if err != nil {
+	// 	l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
+	// 	return nil, err
+	// }
+	// for file := range fileList {
+	// 	if strings.Contains(file, "sxwl-infer-template-") {
+	// 		template = storage.ExtractTemplate(file)
+	// 		break
+	// 	}
+	// }
 
 	userJob := &model.SysUserJob{}
 	userJob.NewUserId = req.UserID
@@ -86,20 +85,21 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.JobName = orm.NullString(jobName)
 
 	// model
-	userJob.PretrainedModelName = orm.NullString(req.Model)
+	userJob.PretrainedModelName = orm.NullString(req.ModelName)
 
 	// dataset
-	datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile)
-	ok, datasetSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
-	if err != nil {
-		l.Errorf("dataset storage.ExistDir userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
-		return nil, err
-	}
-	if !ok {
-		l.Errorf("dataset not exists userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
-		return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
-	}
-	userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
+	// datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.DatasetName)
+	// ok, datasetSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
+	// if err != nil {
+	// 	l.Errorf("dataset storage.ExistDir userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
+	// 	return nil, err
+	// }
+	// if !ok {
+	// 	l.Errorf("dataset not exists userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
+	// 	return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
+	// }
+	// userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
+	userJob.DatasetName = orm.NullString(req.DatasetId)
 
 	// job_type
 	userJob.JobType = orm.NullString(consts.JobTypeFinetune)
@@ -112,8 +112,8 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 			},
 		}))
 		if err != nil {
-			l.Errorf("finetune no gpu match model: %s userId: %s", req.Model, req.UserID)
-			return nil, fmt.Errorf("finetune no gpu match model: %s userId: %s", req.Model, req.UserID)
+			l.Errorf("finetune no gpu match model: %s userId: %s", req.ModelName, req.UserID)
+			return nil, fmt.Errorf("finetune no gpu match model: %s userId: %s", req.ModelName, req.UserID)
 		}
 		userJob.GpuType = cpodMain.GpuProd
 		userJob.GpuNumber = orm.NullInt64(1) // 无代码微调暂时都写1
@@ -136,7 +136,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 
 	// trainedModelName
 	if req.TrainedModelName == "" {
-		req.TrainedModelName = fmt.Sprintf("%s-%s", req.Model, time.Now().Format(consts.JobTimestampFormat))
+		req.TrainedModelName = fmt.Sprintf("%s-%s", req.ModelName, time.Now().Format(consts.JobTimestampFormat))
 	}
 
 	// time
@@ -179,15 +179,15 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	jsonAll["jobName"] = userJob.JobName.String
 	jsonAll["userId"] = req.UserID
 	jsonAll["datasetId"] = userJob.DatasetName.String
-	jsonAll["datasetName"] = req.TrainingFile
+	jsonAll["datasetName"] = req.DatasetName
 	jsonAll["datasetUrl"] = storage.OssPathToOssURL(
 		l.svcCtx.Config.OSS.Bucket,
-		storage.ResourceToOSSPath(consts.Dataset, req.TrainingFile))
-	jsonAll["datasetSize"] = datasetSize
+		storage.ResourceToOSSPath(consts.Dataset, req.DatasetName))
+	jsonAll["datasetSize"] = req.DatasetSize
 	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
-	jsonAll["pretrainedModelName"] = req.Model
+	jsonAll["pretrainedModelName"] = req.ModelName
 	jsonAll["pretrainedModelIsPublic"] = req.ModelIsPublic
-	jsonAll["pretrainedModelTemplate"] = template
+	jsonAll["pretrainedModelTemplate"] = req.ModelTemplate
 	jsonAll["trainedModelName"] = req.TrainedModelName
 	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
 	jsonAll["ckptVol"] = 0      // 改为数值型默认值

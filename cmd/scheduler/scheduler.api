@@ -20,6 +20,46 @@ type (
 )
 
 type (
+	Model {
+		ModelId       string `json:"model_id"` // 模型ID
+		ModelName     string `json:"model_name"` // 模型名字, owner/model
+		ModelPath     string `json:"model_path,optional"` // 模型的绑定路径
+		ModelSize     int64  `json:"model_size"` // 模型体积，单位字节
+		ModelIsPublic bool   `json:"model_is_public"` // 是否公共模型
+		ModelTemplate string `json:"model_template"` // 模型的推理模版
+	}
+	ModelOptional {
+		ModelId       string `json:"model_id,optional"` // 模型ID
+		ModelName     string `json:"model_name,optional"` // 模型名字, owner/model
+		ModelPath     string `json:"model_path,optional"` // 模型的绑定路径
+		ModelSize     int64  `json:"model_size"` // 模型体积，单位字节
+		ModelIsPublic bool   `json:"model_is_public,optional"` // 是否公共模型
+		ModelTemplate string `json:"model_template,optional"` // 模型的推理模版
+	}
+	Dataset {
+		DatasetId       string `json:"dataset_id"` // 数据集ID
+		DatasetName     string `json:"dataset_name"` // 数据集名字, owner/dataset
+		DatasetPath     string `json:"dataset_path,optional"` // 数据集的绑定路径
+		DatasetSize     int64  `json:"dataset_size"` // 数据集体积，单位字节
+		DatasetIsPublic bool   `json:"dataset_is_public"` // 是否公共数据集
+	}
+	DatasetOptional {
+		DatasetId       string `json:"dataset_id,optional"` // 数据集ID
+		DatasetName     string `json:"dataset_name,optional"` // 数据集名字, owner/dataset
+		DatasetPath     string `json:"dataset_path,optional"` // 数据集的绑定路径
+		DatasetSize     int64  `json:"dataset_size"` // 数据集体积，单位字节
+		DatasetIsPublic bool   `json:"dataset_is_public,optional"` // 是否公共数据集
+	}
+	Adapter {
+		AdapterId       string `json:"adapter_id"` // 适配器ID
+		AdapterName     string `json:"adapter_name"` // 适配器名字, owner/adapter
+		AdapterPath     string `json:"adapter_path,optional"` // 适配器的绑定路径
+		AdapterSize     int64  `json:"adapter_size"` // 适配器体积，单位字节
+		AdapterIsPublic bool   `json:"adapter_is_public"` // 是否公共适配器
+	}
+)
+
+type (
 	GPUStateInfo {
 		Temp      int    `json:"temp"`
 		MemUsage  int    `json:"mem_usage"`
@@ -167,29 +207,31 @@ type (
 
 type (
 	JobCreateReq {
-		GpuNumber               int64             `json:"gpuNumber"`
-		GpuType                 string            `json:"gpuType"`
-		CkptPath                string            `json:"ckptPath"`
-		CkptVol                 int64             `json:"ckptVol"`
-		ModelPath               string            `json:"modelPath"`
-		ModelVol                int64             `json:"modelVol"`
-		ImagePath               string            `json:"imagePath"`
-		JobType                 string            `json:"jobType"`
-		StopType                int64             `json:"stopType,optional"`
-		StopTime                int64             `json:"stopTime,optional"`
-		PretrainedModelId       string            `json:"pretrainedModelId,optional"`
-		PretrainedModelName     string            `json:"pretrainedModelName,optional"`
-		PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
-		PretrainedModelIsPublic bool              `json:"modelIsPublic,optional"`
-		DatasetId               string            `json:"datasetId,optional"`
-		DatasetName             string            `json:"datasetName,optional"`
-		DatasetPath             string            `json:"datasetPath,optional"`
-		DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
-		TrainedModelName        string            `json:"trainedModelName,optional"`
-		RunCommand              string            `json:"runCommand,optional"`
-		CallbackUrl             string            `json:"callbackUrl,optional,omitempty"`
-		Env                     map[string]string `json:"env,optional,omitempty"`
-		UserID                  string            `header:"Sx-User-ID"`
+		GpuNumber int64  `json:"gpuNumber"`
+		GpuType   string `json:"gpuType"`
+		CkptPath  string `json:"ckptPath"`
+		CkptVol   int64  `json:"ckptVol"`
+		ModelPath string `json:"modelPath"`
+		ModelVol  int64  `json:"modelVol"`
+		ImagePath string `json:"imagePath"`
+		JobType   string `json:"jobType"`
+		StopType  int64  `json:"stopType,optional"`
+		StopTime  int64  `json:"stopTime,optional"`
+		//               PretrainedModelId       string            `json:"pretrainedModelId,optional"`
+		//               PretrainedModelName     string            `json:"pretrainedModelName,optional"`
+		//               PretrainedModelPath     string            `json:"pretrainedModelPath,optional"`
+		//               PretrainedModelIsPublic bool              `json:"modelIsPublic,optional"`
+		ModelOptional
+		//  DatasetId               string            `json:"datasetId,optional"`
+		//  DatasetName             string            `json:"datasetName,optional"`
+		//  DatasetPath             string            `json:"datasetPath,optional"`
+		//  DatasetIsPublic         bool              `json:"datasetIsPublic,optional"`
+		DatasetOptional
+		TrainedModelName string            `json:"trainedModelName,optional"`
+		RunCommand       string            `json:"runCommand,optional"`
+		CallbackUrl      string            `json:"callbackUrl,optional,omitempty"`
+		Env              map[string]string `json:"env,optional,omitempty"`
+		UserID           string            `header:"Sx-User-ID"`
 	}
 	JobCreateResp {
 		JobId string `json:"job_id"`
@@ -198,16 +240,18 @@ type (
 
 type (
 	FinetuneReq {
-		TrainingFile     string                 `json:"training_file"`
-		DatasetIsPublic  bool                   `json:"dataset_is_public"`
-		Model            string                 `json:"model"`
-		ModelIsPublic    bool                   `json:"model_is_public"`
+		UserID string `header:"Sx-User-ID"`
+		//            TrainingFile     string                 `json:"training_file"`
+		//            DatasetIsPublic  bool                   `json:"dataset_is_public"`
+		//            Model            string                 `json:"model"`
+		//            ModelIsPublic    bool                   `json:"model_is_public"`
+		Model
+		Dataset
 		GpuModel         string                 `json:"gpu_model,optional"`
 		GpuCount         int64                  `json:"gpu_count,optional"`
 		TrainedModelName string                 `json:"trainedModelName,optional"`
 		Hyperparameters  map[string]interface{} `json:"hyperparameters,optional,omitempty"`
 		Config           map[string]interface{} `json:"config,optional,omitempty"`
-		UserID           string                 `header:"Sx-User-ID"`
 	}
 	FinetuneResp {
 		JobId string `json:"job_id"`
@@ -295,21 +339,23 @@ type (
 
 type (
 	SysInference {
-		ServiceName   string `json:"service_name"`
-		Status        string `json:"status"`
-		ModelName     string `json:"model_name"`
-		ModelId       string `json:"model_id"`
-		ModelSize     int64  `json:"model_size"`
-		ModelIsPublic bool   `json:"model_is_public"`
-		Url           string `json:"url"`
-		StartTime     string `json:"start_time"` // 推理服务启动时间
-		EndTime       string `json:"end_time"` // 推理服务终止时间
+		ServiceName string `json:"service_name"`
+		Status      string `json:"status"`
+		//                 ModelName     string `json:"model_name"`
+		//                 ModelId       string `json:"model_id"`
+		//                 ModelSize     int64  `json:"model_size"`
+		//                 ModelIsPublic bool   `json:"model_is_public"`
+		Model
+		Url       string `json:"url"`
+		StartTime string `json:"start_time"` // 推理服务启动时间
+		EndTime   string `json:"end_time"` // 推理服务终止时间
 	}
 	InferenceDeployReq {
-		ModelName string `json:"model_name"`
-		GpuModel  string `json:"gpu_model,optional"`
-		GpuCount  int64  `json:"gpu_count,optional"`
-		UserID    string `header:"Sx-User-ID"`
+		//  ModelName string `json:"model_name"`
+		Model
+		GpuModel string `json:"gpu_model,optional"`
+		GpuCount int64  `json:"gpu_count,optional"`
+		UserID   string `header:"Sx-User-ID"`
 	}
 	InferenceDeployResp {
 		ServiceName string `json:"service_name"`
@@ -344,22 +390,16 @@ type (
 		CpodId        string `json:"cpod_id"`
 		UserId        string `json:"user_id"`
 	}
-	// PretrainedModels {
-	//  PretrainedModelId   string `json:"pretrainedModelId"`
-	//  PretrainedModelName string `json:"pretrainedModelName"`
-	//  PretrainedModelPath string `json:"pretrainedModelPath"`
-	// }
 	JupyterLab {
-		JobName        string `json:"jobName"`
-		InstanceName   string `json:"instanceName"`
-		CPUCount       string `json:"cpuCount"`
-		Memory         string `json:"memory"`
-		GPUCount       int    `json:"gpuCount"`
-		GPUProduct     string `json:"gpuProduct"`
-		DataVolumeSize string `json:"dataVolumeSize"`
-		//                             PretrainedModels []PretrainedModels `json:"pretrainedModels"`
-		Resource JupyterResource `json:"resource"`
-		UserID   string          `json:"userId"`
+		JobName        string          `json:"jobName"`
+		InstanceName   string          `json:"instanceName"`
+		CPUCount       string          `json:"cpuCount"`
+		Memory         string          `json:"memory"`
+		GPUCount       int             `json:"gpuCount"`
+		GPUProduct     string          `json:"gpuProduct"`
+		DataVolumeSize string          `json:"dataVolumeSize"`
+		Resource       JupyterResource `json:"resource"`
+		UserID         string          `json:"userId"`
 	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
@@ -586,45 +626,24 @@ type (
 
 // /job/jupyterlab
 type (
-	JupyterModel {
-		ModelId       string `json:"model_id"`
-		ModelName     string `json:"model_name"`
-		ModelPath     string `json:"model_path"`
-		ModelIsPublic bool   `json:"model_is_public"`
-	}
-	JupyterDataset {
-		DatasetId       string `json:"dataset_id"`
-		DatasetName     string `json:"dataset_name"`
-		DatasetPath     string `json:"dataset_path"`
-		DatasetIsPublic bool   `json:"dataset_is_public"`
-	}
-	JupyterAdapter {
-		AdapterId       string `json:"adapter_id"`
-		AdapterName     string `json:"adapter_name"`
-		AdapterPath     string `json:"adapter_path"`
-		AdapterIsPublic bool   `json:"adapter_is_public"`
-	}
 	JupyterResource {
-		Models   []JupyterModel   `json:"models,optional"`
-		Datasets []JupyterDataset `json:"datasets,optional"`
-		Adapters []JupyterAdapter `json:"adapters,optional"`
+		Models   []Model   `json:"models,optional"`
+		Datasets []Dataset `json:"datasets,optional"`
+		Adapters []Adapter `json:"adapters,optional"`
 	}
 	Jupyterlab {
-		ID             int64  `json:"id,optional"`
-		JobName        string `json:"job_name,optional"`
-		InstanceName   string `json:"instance_name"`
-		CPUCount       int64  `json:"cpu_count"`
-		Memory         int64  `json:"memory"`
-		GPUCount       int64  `json:"gpu_count,optional"`
-		GPUProduct     string `json:"gpu_product,optional"`
-		DataVolumeSize int64  `json:"data_volume_size"`
-		//                             Models         []JupyterModel   `json:"models,optional"`
-		//                             Datasets       []JupyterDataset `json:"datasets,optional"`
-		//                             Adapters       []JupyterAdapter `json:"adapters,optional"`
-		Resource JupyterResource `json:"resource"`
-		URL      string          `json:"url,optional"`
-		UserId   string          `json:"user_id,optional"`
-		Status   string          `json:"status,optional"`
+		ID             int64           `json:"id,optional"`
+		JobName        string          `json:"job_name,optional"`
+		InstanceName   string          `json:"instance_name"`
+		CPUCount       int64           `json:"cpu_count"`
+		Memory         int64           `json:"memory"`
+		GPUCount       int64           `json:"gpu_count,optional"`
+		GPUProduct     string          `json:"gpu_product,optional"`
+		DataVolumeSize int64           `json:"data_volume_size"`
+		Resource       JupyterResource `json:"resource"`
+		URL            string          `json:"url,optional"`
+		UserId         string          `json:"user_id,optional"`
+		Status         string          `json:"status,optional"`
 	}
 	JupyterlabCreateReq {
 		Jupyterlab

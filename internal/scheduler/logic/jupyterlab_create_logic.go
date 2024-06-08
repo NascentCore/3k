@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
+	uuid2 "sxwl/3k/pkg/uuid"
 
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -72,12 +72,18 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		}
 	}
 
-	newUUID, err := uuid.NewRandom()
+	// newUUID, err := uuid.NewRandom()
+	// if err != nil {
+	// 	l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
+	// 	return nil, err
+	// }
+	// jobName := "jupyter-" + newUUID.String()
+	jobName, err := uuid2.WithPrefix("jupyter")
 	if err != nil {
-		l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
-		return nil, err
+		l.Errorf("create jupyter job name err=%s", err)
+		return nil, ErrSystem
 	}
-	jobName := "jupyter-" + newUUID.String()
+
 	var billingStatus int64 = model.BillingStatusComplete
 	if req.GPUProduct != "" {
 		billingStatus = model.BillingStatusContinue
