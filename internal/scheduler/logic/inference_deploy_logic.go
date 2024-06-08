@@ -3,12 +3,9 @@ package logic
 import (
 	"context"
 	"fmt"
-	"strings"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
-	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
-	"sxwl/3k/pkg/storage"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -36,7 +33,7 @@ func NewInferenceDeployLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (resp *types.InferenceDeployResp, err error) {
 	BalanceModel := l.svcCtx.UserBalanceModel
 	InferenceModel := l.svcCtx.InferenceModel
-	CpodCacheModel := l.svcCtx.CpodCacheModel
+	// CpodCacheModel := l.svcCtx.CpodCacheModel
 
 	// check balance
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -68,65 +65,72 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	}
 	serviceName := "infer-" + newUUID.String()
 
-	// model
-	var modelSize, modelPublic int64
-	var modelOSSPath, modelId, template string
-	if l.svcCtx.Config.OSS.LocalMode {
-		cacheModel, err := CpodCacheModel.FindOneByQuery(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
-			squirrel.And{squirrel.Eq{"data_type": model.CacheModel}, squirrel.Eq{"data_name": req.ModelName}},
-		))
-		if err != nil {
-			l.Errorf("model not exists userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
-			return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
-		}
-		modelSize = cacheModel.DataSize
-		modelId = cacheModel.DataId
-		template = cacheModel.Template
-		modelPublic = cacheModel.Public
+	// // model
+	// var modelSize, modelPublic int64
+	// var modelOSSPath, modelId, template string
+	// if l.svcCtx.Config.OSS.LocalMode {
+	// 	cacheModel, err := CpodCacheModel.FindOneByQuery(l.ctx, CpodCacheModel.AllFieldsBuilder().Where(
+	// 		squirrel.And{squirrel.Eq{"data_type": model.CacheModel}, squirrel.Eq{"data_name": req.ModelName}},
+	// 	))
+	// 	if err != nil {
+	// 		l.Errorf("model not exists userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
+	// 		return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
+	// 	}
+	// 	modelSize = cacheModel.DataSize
+	// 	modelId = cacheModel.DataId
+	// 	template = cacheModel.Template
+	// 	modelPublic = cacheModel.Public
+	// } else {
+	// 	ossPath := storage.ResourceToOSSPath(consts.Model, req.ModelName)
+	// 	ok, size, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, ossPath)
+	// 	if err != nil {
+	// 		l.Errorf("model storage.ExistDir userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
+	// 		return nil, err
+	// 	}
+	// 	if !ok {
+	// 		l.Errorf("model not exists userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
+	// 		return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
+	// 	}
+	// 	modelSize = size
+	// 	modelOSSPath = ossPath
+	// 	modelId = storage.ModelCRDName(ossPath)
+	// 	isPublic := storage.ResourceIsPublic(req.ModelName)
+	// 	if isPublic {
+	// 		modelPublic = model.CachePublic
+	// 	} else {
+	// 		modelPublic = model.CachePrivate
+	// 	}
+	// 	// template
+	// 	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
+	// 	if err != nil {
+	// 		l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
+	// 		return nil, err
+	// 	}
+	// 	for file := range fileList {
+	// 		if strings.Contains(file, "sxwl-infer-template-") {
+	// 			template = storage.ExtractTemplate(file)
+	// 			break
+	// 		}
+	// 	}
+	// }
+
+	var modelPublic int64
+	if req.ModelIsPublic {
+		modelPublic = model.CachePublic
 	} else {
-		ossPath := storage.ResourceToOSSPath(consts.Model, req.ModelName)
-		ok, size, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, ossPath)
-		if err != nil {
-			l.Errorf("model storage.ExistDir userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
-			return nil, err
-		}
-		if !ok {
-			l.Errorf("model not exists userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
-			return nil, fmt.Errorf("model not exists model: %s", req.ModelName)
-		}
-		modelSize = size
-		modelOSSPath = ossPath
-		modelId = storage.ModelCRDName(ossPath)
-		isPublic := storage.ResourceIsPublic(req.ModelName)
-		if isPublic {
-			modelPublic = model.CachePublic
-		} else {
-			modelPublic = model.CachePrivate
-		}
-		// template
-		fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, modelOSSPath)
-		if err != nil {
-			l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
-			return nil, err
-		}
-		for file := range fileList {
-			if strings.Contains(file, "sxwl-infer-template-") {
-				template = storage.ExtractTemplate(file)
-				break
-			}
-		}
+		modelPublic = model.CachePrivate
 	}
 
 	infer := &model.SysInference{
 		ServiceName:   serviceName,
 		NewUserId:     req.UserID,
 		ModelName:     orm.NullString(req.ModelName),
-		ModelId:       orm.NullString(modelId),
-		ModelSize:     orm.NullInt64(modelSize),
+		ModelId:       orm.NullString(req.ModelId),
+		ModelSize:     orm.NullInt64(req.ModelSize),
 		ModelPublic:   orm.NullInt64(modelPublic),
 		GpuType:       orm.NullString(req.GpuModel),
 		GpuNumber:     orm.NullInt64(req.GpuCount),
-		Template:      orm.NullString(template),
+		Template:      orm.NullString(req.ModelTemplate),
 		BillingStatus: model.BillingStatusContinue,
 	}
 

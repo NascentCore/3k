@@ -1227,6 +1227,40 @@
     }
   },
   "definitions": {
+    "Adapter": {
+      "type": "object",
+      "properties": {
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        }
+      },
+      "title": "Adapter",
+      "required": [
+        "adapter_id",
+        "adapter_name",
+        "adapter_size",
+        "adapter_is_public"
+      ]
+    },
     "BalanceAddReq": {
       "type": "object",
       "properties": {
@@ -1676,6 +1710,71 @@
         "message"
       ]
     },
+    "Dataset": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        }
+      },
+      "title": "Dataset",
+      "required": [
+        "dataset_id",
+        "dataset_name",
+        "dataset_size",
+        "dataset_is_public"
+      ]
+    },
+    "DatasetOptional": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        }
+      },
+      "title": "DatasetOptional",
+      "required": [
+        "dataset_size"
+      ]
+    },
     "DiskInfo": {
       "type": "object",
       "properties": {
@@ -1697,19 +1796,53 @@
     "FinetuneReq": {
       "type": "object",
       "properties": {
-        "training_file": {
-          "type": "string"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "dataset_is_public": {
-          "type": "boolean",
-          "format": "boolean"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
         },
-        "model": {
-          "type": "string"
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
         },
         "model_is_public": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
         },
         "gpu_model": {
           "type": "string"
@@ -1728,13 +1861,7 @@
           "$ref": "#/definitions/mapstringinterface"
         }
       },
-      "title": "FinetuneReq",
-      "required": [
-        "training_file",
-        "dataset_is_public",
-        "model",
-        "model_is_public"
-      ]
+      "title": "FinetuneReq"
     },
     "FinetuneResp": {
       "type": "object",
@@ -1922,8 +2049,31 @@
     "InferenceDeployReq": {
       "type": "object",
       "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
         "model_name": {
-          "type": "string"
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
         },
         "gpu_model": {
           "type": "string"
@@ -1933,10 +2083,7 @@
           "format": "int64"
         }
       },
-      "title": "InferenceDeployReq",
-      "required": [
-        "model_name"
-      ]
+      "title": "InferenceDeployReq"
     },
     "InferenceDeployResp": {
       "type": "object",
@@ -2217,31 +2364,53 @@
           "type": "integer",
           "format": "int64"
         },
-        "pretrainedModelId": {
-          "type": "string"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "pretrainedModelName": {
-          "type": "string"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
         },
-        "pretrainedModelPath": {
-          "type": "string"
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
         },
-        "modelIsPublic": {
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": " 是否公共模型"
         },
-        "datasetId": {
-          "type": "string"
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
         },
-        "datasetName": {
-          "type": "string"
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
         },
-        "datasetPath": {
-          "type": "string"
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
         },
-        "datasetIsPublic": {
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": " 是否公共数据集"
         },
         "trainedModelName": {
           "type": "string"
@@ -2418,56 +2587,6 @@
         "message"
       ]
     },
-    "JupyterAdapter": {
-      "type": "object",
-      "properties": {
-        "adapter_id": {
-          "type": "string"
-        },
-        "adapter_name": {
-          "type": "string"
-        },
-        "adapter_path": {
-          "type": "string"
-        },
-        "adapter_is_public": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "JupyterAdapter",
-      "required": [
-        "adapter_id",
-        "adapter_name",
-        "adapter_path",
-        "adapter_is_public"
-      ]
-    },
-    "JupyterDataset": {
-      "type": "object",
-      "properties": {
-        "dataset_id": {
-          "type": "string"
-        },
-        "dataset_name": {
-          "type": "string"
-        },
-        "dataset_path": {
-          "type": "string"
-        },
-        "dataset_is_public": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "JupyterDataset",
-      "required": [
-        "dataset_id",
-        "dataset_name",
-        "dataset_path",
-        "dataset_is_public"
-      ]
-    },
     "JupyterLab": {
       "type": "object",
       "properties": {
@@ -2513,50 +2632,25 @@
         "userId"
       ]
     },
-    "JupyterModel": {
-      "type": "object",
-      "properties": {
-        "model_id": {
-          "type": "string"
-        },
-        "model_name": {
-          "type": "string"
-        },
-        "model_path": {
-          "type": "string"
-        },
-        "model_is_public": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "JupyterModel",
-      "required": [
-        "model_id",
-        "model_name",
-        "model_path",
-        "model_is_public"
-      ]
-    },
     "JupyterResource": {
       "type": "object",
       "properties": {
         "models": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JupyterModel"
+            "$ref": "#/definitions/Model"
           }
         },
         "datasets": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JupyterDataset"
+            "$ref": "#/definitions/Dataset"
           }
         },
         "adapters": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/JupyterAdapter"
+            "$ref": "#/definitions/Adapter"
           }
         }
       },
@@ -2945,6 +3039,80 @@
       "required": [
         "size",
         "usage"
+      ]
+    },
+    "Model": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        }
+      },
+      "title": "Model",
+      "required": [
+        "model_id",
+        "model_name",
+        "model_size",
+        "model_is_public",
+        "model_template"
+      ]
+    },
+    "ModelOptional": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        }
+      },
+      "title": "ModelOptional",
+      "required": [
+        "model_size"
       ]
     },
     "ModelUrlReq": {
@@ -3494,19 +3662,31 @@
         "status": {
           "type": "string"
         },
-        "model_name": {
-          "type": "string"
-        },
         "model_id": {
-          "type": "string"
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
         },
         "model_size": {
           "type": "integer",
-          "format": "int64"
+          "format": "int64",
+          "description": " 模型体积，单位字节"
         },
         "model_is_public": {
           "type": "boolean",
-          "format": "boolean"
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
         },
         "url": {
           "type": "string"
@@ -3524,10 +3704,6 @@
       "required": [
         "service_name",
         "status",
-        "model_name",
-        "model_id",
-        "model_size",
-        "model_is_public",
         "url",
         "start_time",
         "end_time"

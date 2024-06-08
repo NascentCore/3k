@@ -5,12 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
-	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
-	"sxwl/3k/pkg/storage"
 	uuid2 "sxwl/3k/pkg/uuid"
 	"time"
 
@@ -72,19 +69,19 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		}
 	}
 
-	// template
-	template := ""
-	fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.PretrainedModelName))
-	if err != nil {
-		l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.PretrainedModelName, err)
-		return nil, err
-	}
-	for file := range fileList {
-		if strings.Contains(file, "sxwl-infer-template-") {
-			template = storage.ExtractTemplate(file)
-			break
-		}
-	}
+	// // template
+	// template := ""
+	// fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.PretrainedModelName))
+	// if err != nil {
+	// 	l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.PretrainedModelName, err)
+	// 	return nil, err
+	// }
+	// for file := range fileList {
+	// 	if strings.Contains(file, "sxwl-infer-template-") {
+	// 		template = storage.ExtractTemplate(file)
+	// 		break
+	// 	}
+	// }
 
 	userJob := &model.SysUserJob{}
 	_ = copier.Copy(userJob, req)
@@ -95,11 +92,11 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		return nil, ErrSystem
 	}
 	userJob.JobName = orm.NullString(jobName)
-	if req.PretrainedModelId != "" {
-		userJob.PretrainedModelName = orm.NullString(req.PretrainedModelId)
+	if req.ModelName != "" {
+		userJob.PretrainedModelName = orm.NullString(req.ModelName)
 	}
-	if req.DatasetId != "" {
-		userJob.DatasetName = orm.NullString(req.DatasetId)
+	if req.ModelName != "" {
+		userJob.DatasetName = orm.NullString(req.ModelName)
 	}
 	userJob.CreateTime = orm.NullTime(time.Now())
 	userJob.UpdateTime = orm.NullTime(time.Now())
@@ -121,9 +118,9 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	jsonAll["userId"] = req.UserID
 	jsonAll["jobName"] = userJob.JobName.String
 	jsonAll["backoffLimit"] = 1
-	jsonAll["pretrainModelIsPublic"] = req.PretrainedModelIsPublic
+	jsonAll["pretrainModelIsPublic"] = req.ModelIsPublic
 	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
-	jsonAll["pretrainModelTemplate"] = template
+	jsonAll["pretrainModelTemplate"] = req.ModelTemplate
 
 	bytes, err = json.Marshal(jsonAll)
 	if err != nil {
