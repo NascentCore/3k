@@ -908,24 +908,27 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) error {
 	// 处理预训练模型的挂载点
 	models := []v1beta1.Model{}
-	for _, pm := range *job.PretrainedModels {
-		_, done, err := s.checkModelExistence(ctx, namespace, pm.PretrainedModelId, pm.PretrainedModelIsPublic)
-		if err != nil {
-			s.logger.Error(err, "failed to check model existence", "modelid", pm.PretrainedModelId)
-			continue
+	if job.PretrainedModels != nil {
+		for _, pm := range *job.PretrainedModels {
+			_, done, err := s.checkModelExistence(ctx, namespace, pm.PretrainedModelId, pm.PretrainedModelIsPublic)
+			if err != nil {
+				s.logger.Error(err, "failed to check model existence", "modelid", pm.PretrainedModelId)
+				continue
+			}
+			if !done {
+				s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", pm.PretrainedModelId)
+				continue
+			}
+			modelID := pm.PretrainedModelId
+			if pm.PretrainedModelIsPublic {
+				modelID = modelID + "-public"
+			}
+			models = append(models, v1beta1.Model{
+				ModelStorage: modelID,
+				MountPath:    pm.PretrainedModelPath,
+			})
+
 		}
-		if !done {
-			s.logger.Info("Model is preparing.", "jobname", job.JobName, "modelid", pm.PretrainedModelId)
-			continue
-		}
-		modelID := pm.PretrainedModelId
-		if pm.PretrainedModelIsPublic {
-			modelID = modelID + "-public"
-		}
-		models = append(models, v1beta1.Model{
-			ModelStorage: modelID,
-			MountPath:    pm.PretrainedModelPath,
-		})
 
 	}
 
