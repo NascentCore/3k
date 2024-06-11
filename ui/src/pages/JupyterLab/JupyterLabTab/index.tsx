@@ -75,6 +75,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             dataIndex: 'action',
             key: 'action',
             align: 'center', 
+            width: 300,
             render: (_, record) => (
               <>
                 <Space>

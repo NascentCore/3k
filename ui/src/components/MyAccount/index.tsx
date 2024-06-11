@@ -1,4 +1,4 @@
-import { apiGetPayBalance, apiGetPayBilling } from '@/services';
+import { apiGetPayBalance, apiGetPayBilling, apiPostPayBalance } from '@/services';
 import { useIntl, useModel } from '@umijs/max';
 import { Button, Drawer, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -7,6 +7,14 @@ import BillHistory from './BillHistory';
 
 const Content = () => {
   const intl = useIntl();
+  useEffect(() => {
+    apiPostPayBalance({
+      data: {
+        user_id: 'user-1110d54c-1f15-430e-9fac-60d3ee511b5c',
+        amount: 10,
+      },
+    });
+  }, []);
   const items = [
     {
       key: '1',

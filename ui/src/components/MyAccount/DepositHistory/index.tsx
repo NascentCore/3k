@@ -1,9 +1,15 @@
-import { useIntl } from '@umijs/max';
+import { useApiGetPayRecharge } from '@/services';
+import { useIntl, useModel } from '@umijs/max';
 import { Table } from 'antd';
 import React from 'react';
 
 const Index: React.FC = () => {
   const intl = useIntl();
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState || {};
+  const { data } = useApiGetPayRecharge({
+    params: { user_id: currentUser?.user_id, page: 1, page_size: 10000 },
+  });
   return (
     <>
       <Table
@@ -11,20 +17,10 @@ const Index: React.FC = () => {
           {
             title: intl.formatMessage({
               id: 'xxx',
-              defaultMessage: 'ID',
-            }),
-            dataIndex: 'xxx',
-            key: 'xxx',
-            align: 'center',
-            width: 150,
-          },
-          {
-            title: intl.formatMessage({
-              id: 'xxx',
               defaultMessage: '充值时间',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'created_at',
+            key: 'created_at',
             align: 'center',
             width: 150,
           },
@@ -33,8 +29,8 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: '充值备注',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'description',
+            key: 'description',
             align: 'center',
             width: 150,
           },
@@ -43,8 +39,8 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: '充值金额',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'amount',
+            key: 'amount',
             align: 'center',
             width: 150,
           },
@@ -53,13 +49,13 @@ const Index: React.FC = () => {
               id: 'xxx',
               defaultMessage: '账户余额',
             }),
-            dataIndex: 'xxx',
-            key: 'xxx',
+            dataIndex: 'after_balance',
+            key: 'after_balance',
             align: 'center',
             width: 150,
           },
         ]}
-        dataSource={[]}
+        dataSource={data?.data || []}
         loading={false}
         scroll={{ y: 'calc(100vh - 100px)' }}
       />

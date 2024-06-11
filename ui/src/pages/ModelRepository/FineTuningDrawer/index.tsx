@@ -2,7 +2,12 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, apiResourceDatasets, useApiGetGpuType } from '@/services';
+import {
+  apiFinetunes,
+  apiResourceDatasets,
+  useApiGetGpuType,
+  useResourceDatasetsOptions,
+} from '@/services';
 import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { history } from '@umijs/max';
@@ -25,19 +30,7 @@ const Content = ({ record, onCancel }) => {
     },
   });
 
-  const [resourceDatasetsOption, setResourceDatasets] = useState([]);
-  useEffect(() => {
-    apiResourceDatasets({}).then((res) => {
-      setResourceDatasets(
-        concatArray(res?.public_list, res?.user_list).map((x) => ({
-          ...x,
-          label: x.name,
-          value: x.name,
-          key: x.id,
-        })),
-      );
-    });
-  }, []);
+  const resourceDatasetsOption = useResourceDatasetsOptions();
 
   const { data: gpuTypeOptions } = useApiGetGpuType({});
 
@@ -48,14 +41,28 @@ const Content = ({ record, onCancel }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
+      const currentModel = record;
+      const currentDataSet = resourceDatasetsOption.find(
+        (x: any) => x.value === values.training_file,
+      );
       return apiFinetunes({
         data: {
           ...values,
           gpu_count: Number(values.gpu_count),
-          model_is_public: record.is_public,
-          dataset_is_public: resourceDatasetsOption.find(
-            (x: any) => x.value === values.training_file,
-          )?.is_public,
+          //
+          model_id: currentModel.id,
+          model_name: currentModel.name,
+          model_path: currentModel.path,
+          model_size: currentModel.size,
+          model_is_public: currentModel.is_public,
+          model_template: currentModel.template,
+          //
+          dataset_id: currentDataSet.id,
+          dataset_name: currentDataSet.name,
+          dataset_path: currentDataSet.path,
+          dataset_size: currentDataSet.size,
+          dataset_is_public: currentDataSet.public,
+          //
         },
       }).then((res) => {
         message.success(

@@ -2,10 +2,10 @@
  * @name 推理
  * @description 推理
  */
-import { apiGetInference, apiInference, useApiGetGpuType } from '@/services';
-import { Button, Drawer, Form, Input, Select, Space, Table, message } from 'antd';
-import { useEffect, useState } from 'react';
-import { history, Link } from '@umijs/max';
+import { apiInference, useGpuTypeOptions } from '@/services';
+import { Button, Drawer, Form, Input, Select, message } from 'antd';
+import { useState } from 'react';
+import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -18,20 +18,27 @@ const Content = ({ record, onCancel }) => {
     gpu_count: record?.inference_gpu_count || 1,
   });
 
-  const { data: gpuTypeOptions } = useApiGetGpuType({});
+  const gpuTypeOptions = useGpuTypeOptions({});
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
+      const currentModel = record;
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
       return apiInference({
         data: {
-          model_name: values.model_name,
           gpu_model: values.gpu_model,
           gpu_count: Number(values.gpu_count),
+          //
+          model_id: currentModel.id,
+          model_name: currentModel.name,
+          model_path: currentModel.path,
+          model_size: currentModel.size,
+          model_is_public: currentModel.is_public,
+          model_template: currentModel.template,
         },
       }).then((res) => {
         message.success(
@@ -81,7 +88,7 @@ const Content = ({ record, onCancel }) => {
         >
           <Select
             allowClear
-            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
+            options={gpuTypeOptions}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',

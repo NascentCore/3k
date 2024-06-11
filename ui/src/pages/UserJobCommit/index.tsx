@@ -4,6 +4,8 @@ import {
   useApiGetJobJupyterImage,
   useApiResourceDatasets,
   useApiResourceModels,
+  useResourceDatasetsOptions,
+  useResourceModelsOptions,
 } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
@@ -39,49 +41,8 @@ const Welcome: React.FC = () => {
     ),
     value: x.gpuProd,
   }));
-  const resourceModelsList = concatArray(
-    resourceModels?.public_list,
-    resourceModels?.user_list,
-  ).map((x) => ({
-    ...x,
-    label: (
-      <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-          }}
-        >
-          <span style={{ marginRight: 20 }}>{x.name}</span>
-          {/* <span>{formatFileSize(x.size)}</span> */}
-        </div>
-      </>
-    ),
-    value: x.id,
-    key: x.id,
-  }));
-  const resourceDatasetsList = concatArray(
-    resourceDatasets?.public_list,
-    resourceDatasets?.user_list,
-  ).map((x) => ({
-    ...x,
-    label: (
-      <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 12,
-          }}
-        >
-          <span style={{ marginRight: 20 }}>{x.name}</span>
-          {/* <span>{formatFileSize(x.size)}</span> */}
-        </div>
-      </>
-    ),
-    value: x.id,
-  }));
+  const resourceModelsOptions = useResourceModelsOptions();
+  const resourceDatasetsOption = useResourceDatasetsOptions();
 
   const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
     label: x.image_name,
@@ -96,6 +57,12 @@ const Welcome: React.FC = () => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log(values);
+      const currentModel: any = resourceModelsOptions.find(
+        (x: any) => x.value === values.pretrainedModelId,
+      );
+      const currentDataSet: any = resourceDatasetsOption.find(
+        (x: any) => x.value === values.datasetId,
+      );
       return apiPostUserJob({
         data: {
           ...values,
@@ -103,11 +70,19 @@ const Welcome: React.FC = () => {
           ckptVol: Number(values.ckptVol),
           gpuNumber: Number(values.gpuNumber),
           modelVol: Number(values.modelVol),
-          // pretrainedModelId datasetId
-          modelIsPublic: resourceModelsList.find((x: any) => x.value === values.pretrainedModelId)
-            ?.is_public,
-          datasetIsPublic: resourceDatasetsList.find((x: any) => x.value === values.datasetId)
-            ?.is_public,
+
+          model_id: currentModel?.id,
+          model_name: currentModel?.name,
+          model_path: currentModel?.path,
+          model_size: currentModel?.size,
+          model_is_public: currentModel?.is_public,
+          model_template: currentModel?.template,
+          //
+          dataset_id: currentDataSet?.id,
+          dataset_name: currentDataSet?.name,
+          dataset_path: currentDataSet?.path,
+          dataset_size: currentDataSet?.size,
+          dataset_is_public: currentDataSet?.public,
         },
       }).then(() => {
         message.success(
@@ -517,7 +492,7 @@ const Welcome: React.FC = () => {
               <Form.Item style={{ flex: 1 }} name="pretrainedModelId">
                 <Select
                   allowClear
-                  options={resourceModelsList}
+                  options={resourceModelsOptions}
                   placeholder={intl.formatMessage({
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',
@@ -571,7 +546,7 @@ const Welcome: React.FC = () => {
               <Form.Item style={{ flex: 1 }} name="datasetId">
                 <Select
                   allowClear
-                  options={resourceDatasetsList}
+                  options={resourceDatasetsOption}
                   placeholder={intl.formatMessage({
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',
