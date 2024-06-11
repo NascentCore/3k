@@ -8,5 +8,23 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: cpodjob
   name: jupyterlab-sample
+  namespace: user-fdf4b74e-97db-4022-9b33-24bbe940597d
 spec:
-  # TODO(user): Add fields here
+  cpuCount: "1"
+  memory: "1Gi"
+  replicas: 1
+  dataVolumeSize: "100Mi"
+  datasets:
+    - datasetStorage: dataset-storage-f90b82cc7ab88911
+      datasetSize: 104857600
+      datasetIspublic: true
+      name: llama-factory/alpaca_data_zh_short
+      mountPath: /datasets
+  models:
+    - modelStorage: model-storage-0ce92f029254ff34
+      modelIspublic: true
+      modelSize: 21474836480
+      name: google/gemma-2b-it
+      template: gemma
+      mountPath: /models
+

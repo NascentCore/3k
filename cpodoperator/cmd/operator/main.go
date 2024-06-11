@@ -88,7 +88,7 @@ func main() {
 	flag.StringVar(&inferenceWebuiImage, "inference-webui-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/chatui:v2.3", "inference webui image")
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	flag.StringVar(&inferencePrefix, "inference-prefix", "/inference/api", "the prefix of inference ingress path")
-	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5", "the image of jupyterlab")
+	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab-llamafactory:v13", "the image of jupyterlab")
 	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
 	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
 

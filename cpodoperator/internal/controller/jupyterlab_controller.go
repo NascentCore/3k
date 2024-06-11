@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"sync"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -116,11 +117,42 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	currentPhase := cpodv1beta1.JupyterLabJobPhasePending
-	if sts.Status.AvailableReplicas == 1 {
-		currentPhase = cpodv1beta1.JupyterLabJobPhaseRunning
+	if sts.Spec.Replicas != sts.Spec.Replicas {
+		logger.V(4).Info("update replicas")
+		if err := r.updateStsReplicas(ctx, jupyterlab, sts); err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed to update replicas:  %v", err)
+		}
 	}
+
+	var currentPhase cpodv1beta1.JupyterLabJobPhase
+
+	if jupyterlab.Spec.Replicas != nil {
+		if *jupyterlab.Spec.Replicas == 0 {
+			if sts.Status.AvailableReplicas == 1 {
+				currentPhase = cpodv1beta1.JupyterLabJobPhasePausing
+			} else {
+				currentPhase = cpodv1beta1.JupyterLabJobPhasePaused
+			}
+		} else {
+			if sts.Status.AvailableReplicas == 1 {
+				currentPhase = cpodv1beta1.JupyterLabJobPhaseRunning
+			} else {
+				currentPhase = cpodv1beta1.JupyterLabJobPhasePending
+			}
+		}
+	} else {
+		if sts.Status.AvailableReplicas == 1 {
+			currentPhase = cpodv1beta1.JupyterLabJobPhaseRunning
+		} else {
+			currentPhase = cpodv1beta1.JupyterLabJobPhasePending
+		}
+	}
+
 	jupyterlab.Status.Phase = currentPhase
+
+	if currentPhase == cpodv1beta1.JupyterLabJobPhasePausing || currentPhase == cpodv1beta1.JupyterLabJobPhasePending {
+		return ctrl.Result{Requeue: true}, nil
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -358,22 +390,50 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 
 	for _, model := range jupyterlab.Spec.Models {
 		modelstorage := &cpodv1.ModelStorage{}
-		if err := r.Client.Get(ctx, client.ObjectKey{Namespace: jupyterlab.Namespace, Name: model.ModelStorage}, modelstorage); err != nil {
-			return fmt.Errorf("failed to get model storage %v: %w", model.ModelStorage, err)
+		modelName := model.ModelStorage
+		if model.ModelIspublic {
+			modelName = modelName + v1beta1.CPodPublicStorageSuffix
+		}
+		if err := r.Client.Get(ctx, client.ObjectKey{Namespace: jupyterlab.Namespace, Name: modelName}, modelstorage); err != nil {
+			return fmt.Errorf("failed to get model storage %v: %w", modelName, err)
 		}
 
 		volmeMounts = append(volmeMounts, corev1.VolumeMount{
-			Name:      model.ModelStorage,
-			MountPath: model.MountPath,
+			Name:      modelName,
+			MountPath: filepath.Join(model.MountPath, model.Name),
 		})
 		volumes = append(volumes, corev1.Volume{
-			Name: model.ModelStorage,
+			Name: modelName,
 			VolumeSource: corev1.VolumeSource{
 				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
 					ClaimName: modelstorage.Spec.PVC,
 				},
 			},
 		})
+	}
+
+	for _, dataset := range jupyterlab.Spec.Datasets {
+		datasetstorage := &cpodv1.DataSetStorage{}
+		datasetName := dataset.DatasetStorage
+		if dataset.DatasetIspublic {
+			datasetName = datasetName + v1beta1.CPodPublicStorageSuffix
+		}
+		if err := r.Client.Get(ctx, client.ObjectKey{Namespace: jupyterlab.Namespace, Name: datasetName}, datasetstorage); err != nil {
+			return fmt.Errorf("failed to get model storage %v: %v", datasetName, err)
+		}
+		volmeMounts = append(volmeMounts, corev1.VolumeMount{
+			Name:      datasetName,
+			MountPath: filepath.Join(dataset.MountPath, dataset.Name),
+		})
+		volumes = append(volumes, corev1.Volume{
+			Name: datasetName,
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: datasetstorage.Spec.PVC,
+				},
+			},
+		})
+
 	}
 
 	sts := &appsv1.StatefulSet{
@@ -389,6 +449,7 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{"app": jupyterlab.Name},
 			},
+			Replicas: jupyterlab.Spec.Replicas,
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{"app": jupyterlab.Name},
@@ -416,11 +477,10 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 								},
 							},
 							Command: []string{
-								"jupyter",
-								"lab",
-								fmt.Sprintf("--ServerApp.base_url=/jupyterlab/%s/", jupyterlab.Name),
-								"--allow-root",
-								"--ip=0.0.0.0",
+								"sh",
+								"-c",
+								"/llamafactory/start.sh",
+								jupyterlab.Name,
 							},
 							VolumeMounts: volmeMounts,
 						},
@@ -492,7 +552,8 @@ func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cp
 				r.generateOwnerRefJuypterLab(ctx, jupyterlab),
 			},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/jupyterlab/" + jupyterlab.Name + "/$2",
+				"nginx.ingress.kubernetes.io/rewrite-target":  "/jupyterlab/" + jupyterlab.Name + "/$2",
+				"nginx.ingress.kubernetes.io/proxy-body-size": "1000m",
 			},
 		},
 		Spec: networkingv1.IngressSpec{
@@ -525,6 +586,12 @@ func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cp
 		return err
 	}
 	return nil
+}
+
+func (r JupyterLabReconciler) updateStsReplicas(ctx context.Context, jupypterlab *cpodv1beta1.JupyterLab, sts *appsv1.StatefulSet) error {
+	stsNew := sts.DeepCopy()
+	stsNew.Spec.Replicas = jupypterlab.Spec.Replicas
+	return r.Client.Update(ctx, stsNew)
 }
 
 func (r *JupyterLabReconciler) generateOwnerRefJuypterLab(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) metav1.OwnerReference {

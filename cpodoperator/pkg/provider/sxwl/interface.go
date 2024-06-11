@@ -21,6 +21,7 @@ type PortalJupyterLabJob struct {
 	DataVolumeSize string              `json:"dataVolumeSize"`
 	Resource       *JupyterLabResource `json:"resource"`
 	UserID         string              `json:"userId"`
+	Replicas       int32               `json:"replicas"`
 }
 
 type JupyterLabResource struct {

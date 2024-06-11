@@ -14,7 +14,6 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 
 	"github.com/go-logr/logr"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -156,20 +155,22 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 }
 
 func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.JupyterLabJobState, error) {
-	var statefulSets appsv1.StatefulSetList
+	var jupyterlabs v1beta1.JupyterLabList
 	states := []sxwl.JupyterLabJobState{}
-	err := co.kubeClient.List(ctx, &statefulSets, &client.MatchingLabels{
+	err := co.kubeClient.List(ctx, &jupyterlabs, &client.MatchingLabels{
 		"app": "jupyterlab",
 	})
 	if err != nil {
 		return states, err
 	}
 
-	for _, ss := range statefulSets.Items {
-		status := "notready"
-		if ss.Status.ReadyReplicas > 0 {
-			status = "ready"
+	for _, ss := range jupyterlabs.Items {
+
+		status := string(ss.Status.Phase)
+		if ss.Status.DataReady != true {
+			status = "DataPreparing"
 		}
+
 		state := sxwl.JupyterLabJobState{
 			JobName: ss.Name,
 			Status:  status,

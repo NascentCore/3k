@@ -33,6 +33,8 @@ spec:
               datasets:
                 items:
                   properties:
+                    datasetIspublic:
+                      type: boolean
                     datasetSize:
                       type: integer
                     datasetStorage:
@@ -56,6 +58,8 @@ spec:
                   properties:
                     isAdapter:
                       type: boolean
+                    modelIspublic:
+                      type: boolean
                     modelSize:
                       type: integer
                     modelStorage:
@@ -68,9 +72,16 @@ spec:
                       type: string
                   type: object
                 type: array
+              replicas:
+                format: int32
+                type: integer
+            required:
+            - replicas
             type: object
           status:
             properties:
+              dataReady:
+                type: boolean
               phase:
                 type: string
             type: object

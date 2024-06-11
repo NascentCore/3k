@@ -38,6 +38,8 @@ type JupyterLabSpec struct {
 
 	GPUProduct string `json:"gpuProduct,omitempty"`
 
+	Replicas *int32 `json:"replicas"`
+
 	DataVolumeSize string `json:"dataVolumeSize,omitempty"`
 
 	Models []Model `json:"models,omitempty"`
@@ -66,9 +68,11 @@ type Model struct {
 type JupyterLabJobPhase string
 
 const (
-	JupyterLabJobPhasePending JupyterLabJobPhase = "Pending"
-	JupyterLabJobPhaseRunning JupyterLabJobPhase = "Running"
-	JupyterLabJobPhaseFailed  JupyterLabJobPhase = "Failed"
+	JupyterLabJobPhasePending JupyterLabJobPhase = "Pending" // 启动中
+	JupyterLabJobPhasePaused  JupyterLabJobPhase = "Paused"  // 已暂停
+	JupyterLabJobPhasePausing JupyterLabJobPhase = "Pausing" // 暂停中
+	JupyterLabJobPhaseRunning JupyterLabJobPhase = "Running" //运行中
+	JupyterLabJobPhaseFailed  JupyterLabJobPhase = "Failed"  // 失败
 )
 
 // JuypterLabStatus defines the observed state of JuypterLab

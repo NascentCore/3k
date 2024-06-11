@@ -7,7 +7,6 @@ resources:
 - bases/cpod.cpod_datasetstorages.yaml
 - bases/cpod.cpod_inferences.yaml
 - bases/cpod.cpod_finetunes.yaml
-- bases/cpod.cpod_juypterlabs.yaml
 - bases/cpod.cpod_llamafactories.yaml
 - bases/cpod.cpod_jupyterlabs.yaml
 #+kubebuilder:scaffold:crdkustomizeresource

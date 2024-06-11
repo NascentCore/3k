@@ -689,9 +689,11 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				continue
 			}
 			found := false
+			var currentJob v1beta1.JupyterLab
 			for _, currentJob := range currentJupyterLabJobs.Items {
 				if currentJob.Name == job.JobName {
 					found = true
+					// currentJob = currentJob
 				}
 			}
 
@@ -701,6 +703,18 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				if err != nil {
 					s.logger.Error(err, "failed to create JupyterLab StatefulSet")
 				}
+			} else {
+				currnentRep := int32(0)
+				if currentJob.Spec.Replicas == nil {
+					currnentRep = 1
+				} else {
+					currnentRep = *currentJob.Spec.Replicas
+				}
+
+				if job.Replicas != currnentRep {
+
+				}
+
 			}
 		}
 
