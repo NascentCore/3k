@@ -108,6 +108,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		MemCount:       req.Memory,
 		DataVolumeSize: req.DataVolumeSize,
 		Resource:       string(jsonResource),
+		Replicas:       model.JupyterReplicasRunning,
 	}
 	_, err = JupyterlabModel.Insert(l.ctx, &jupyterInstance)
 	if err != nil {

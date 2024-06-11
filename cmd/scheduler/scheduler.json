@@ -2617,6 +2617,10 @@
         },
         "userId": {
           "type": "string"
+        },
+        "replicas": {
+          "type": "integer",
+          "format": "int32"
         }
       },
       "title": "JupyterLab",
@@ -2629,7 +2633,8 @@
         "gpuProduct",
         "dataVolumeSize",
         "resource",
-        "userId"
+        "userId",
+        "replicas"
       ]
     },
     "JupyterResource": {

@@ -380,6 +380,7 @@ type JupyterLab struct {
 	DataVolumeSize string          `json:"dataVolumeSize"`
 	Resource       JupyterResource `json:"resource"`
 	UserID         string          `json:"userId"`
+	Replicas       int             `json:"replicas"`
 }
 
 type JupyterResource struct {

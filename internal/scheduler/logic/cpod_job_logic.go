@@ -220,6 +220,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			// return nil, ErrSystem
 		}
 		jupyterlabResp.UserID = jupyterlab.NewUserId
+		jupyterlabResp.Replicas = int(jupyterlab.Replicas)
 
 		resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
 
