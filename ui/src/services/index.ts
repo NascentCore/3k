@@ -353,6 +353,25 @@ export const useApiGetPayBalance = (options?: { [key: string]: any }) =>
     return apiGetPayBalance(options);
   });
 
+// 充值
+export async function apiPostPayBalance(options?: { [key: string]: any }) {
+  return request('/api/pay/balance', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+// 充值记录
+export async function apiGetPayRecharge(options?: { [key: string]: any }) {
+  return request('/api/pay/recharge', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiGetPayRecharge = (options?: { [key: string]: any }) =>
+  useSWR(['/api/pay/recharge', options], ([, options]) => {
+    return apiGetPayRecharge(options);
+  });
+
 // 账单查询 /api/pay/billing?user_id=
 // {{baseUrl}}/api/pay/billing?user_id=<long>&start_time=<string>&end_time=<string>&job_id=<string>
 export async function apiGetPayBilling(options?: { [key: string]: any }) {
@@ -364,4 +383,25 @@ export async function apiGetPayBilling(options?: { [key: string]: any }) {
 export const useApiGetPayBilling = (options?: { [key: string]: any }) =>
   useSWR(['/api/pay/billing', options], ([, options]) => {
     return apiGetPayBilling(options);
+  });
+
+export async function apiClusterCpods(options?: { [key: string]: any }) {
+  return request('/api/cluster/cpods', {
+    method: 'GET',
+    ...(options || {}),
+  }).then((data) => { 
+    const groupedData = data.data.reduce((grouped: any, item: any) => {
+      const cpodId = item.cpod_id;
+      if (!grouped[cpodId]) {
+        grouped[cpodId] = [];
+      }
+      grouped[cpodId].push(item);
+      return grouped;
+    }, {});
+    return groupedData; 
+  });
+}
+export const useApiClusterCpods = (options?: { [key: string]: any }) =>
+  useSWR(['/api/cluster/cpods', options], ([, options]) => {
+    return apiClusterCpods(options);
   });

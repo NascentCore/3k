@@ -1,4 +1,4 @@
-import { apiGetPayBalance, apiGetPayBilling } from '@/services';
+import { apiGetPayBalance } from '@/services';
 import { useIntl, useModel } from '@umijs/max';
 import { Button, Drawer, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import BillHistory from './BillHistory';
 
 const Content = () => {
   const intl = useIntl();
+
   const items = [
     {
       key: '1',

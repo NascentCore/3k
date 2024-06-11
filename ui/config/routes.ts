@@ -107,6 +107,12 @@ export default [
   //   component: './LLaMAFactory',
   // },
   {
+    path: '/ClusterCpods',
+    name: 'ClusterCpods',
+    icon: 'UserSwitchOutlined',
+    component: './ClusterCpods',
+  },
+  {
     path: '*',
     layout: false,
     component: './404',

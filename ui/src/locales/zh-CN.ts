@@ -9,7 +9,7 @@ import JupyterLab from './zh-CN/JupyterLab';
 import oem from './zh-CN/oem';
 import Adapter from './zh-CN/adapter';
 import Dataseta from './zh-CN/dataset';
-import global from './zh-CN/global'
+import global from './zh-CN/global';
 
 export default {
   'menu.welcome': '欢迎',
@@ -25,6 +25,7 @@ export default {
   'menu.UserQuota': '用户配额',
   'menu.Dataset': '数据集',
   'menu.Adapter': '适配器',
+  'menu.ClusterCpods': '资源看板',
   ...global,
   ...oem,
   ...login,

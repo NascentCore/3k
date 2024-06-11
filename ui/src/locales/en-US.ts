@@ -25,6 +25,7 @@ export default {
   'menu.UserQuota': 'UserQuota',
   'menu.Dataset': 'Dataset',
   'menu.Adapter': 'Adapter',
+  'menu.ClusterCpods': 'ClusterCpods',
   ...global,
   ...oem,
   ...login,

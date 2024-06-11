@@ -7,7 +7,7 @@ import {
   useResourceDatasetsOptions,
   useResourceModelsOptions,
 } from '@/services';
-import { Button, Form, Input, Select, message } from 'antd';
+import { Button, Form, Input, Select, Space, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
@@ -34,9 +34,6 @@ const Index = ({ onChange, onCancel }: IProps) => {
       cpu_count: 2,
       memory: 2048,
       data_volume_size: 1024,
-      model_path: '/model',
-      adapter_path: '/adapter',
-      dataset_path: '/dataset',
     });
   }, []);
   const gpu_product_watch = Form.useWatch('gpu_product', form);
@@ -45,6 +42,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       console.log('Form values:', values);
+      return;
       return apiPostJobJupyterlab({
         data: {
           ...values,
@@ -53,9 +51,6 @@ const Index = ({ onChange, onCancel }: IProps) => {
           memory: Number(values.memory) * 1024 * 1024,
           data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
           gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
-          model_name: values.model_id
-            ? modelsOptions?.find((x: any) => x.id === values.model_id)?.label
-            : void 0,
         },
       }).then(() => {
         onChange();
@@ -170,7 +165,6 @@ const Index = ({ onChange, onCancel }: IProps) => {
             })}
           />
         </Form.Item>
-
         <Form.Item
           name="data_volume_size"
           label={intl.formatMessage({
@@ -189,16 +183,17 @@ const Index = ({ onChange, onCancel }: IProps) => {
             suffix="MB"
           />
         </Form.Item>
-
         <Form.Item
-          name="model_id"
+          name={['resource', 'models']}
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.model_id',
             defaultMessage: '挂载模型',
           })}
+          extra={'挂载路径: /model'}
         >
           <Select
             allowClear
+            mode="multiple"
             options={modelsOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
@@ -207,31 +202,16 @@ const Index = ({ onChange, onCancel }: IProps) => {
           />
         </Form.Item>
         <Form.Item
-          name="model_path"
-          label={intl.formatMessage({
-            id: 'pages.jupyterLab.AddJupyterLab.form.model_path',
-            defaultMessage: '模型挂载路径',
-          })}
-        >
-          <Input
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="adapter_id"
+          name={['resource', 'datasets']}
           label={intl.formatMessage({
             id: 'xxx',
             defaultMessage: '挂载适配器',
           })}
-          rules={[{ required: true }]}
+          extra={'挂载路径: /adapter'}
         >
           <Select
             allowClear
+            mode="multiple"
             options={adaptersOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
@@ -239,51 +219,23 @@ const Index = ({ onChange, onCancel }: IProps) => {
             })}
           />
         </Form.Item>
+
         <Form.Item
-          name="adapter_path"
-          label={intl.formatMessage({
-            id: 'pages.jupyterLab.AddJupyterLab.form.xxx',
-            defaultMessage: '适配器挂载路径',
-          })}
-        >
-          <Input
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="dataset_id"
+          name={['resource', 'adapters']}
           label={intl.formatMessage({
             id: 'xxx',
             defaultMessage: '挂载数据集',
           })}
-          rules={[{ required: true }]}
+          extra={'挂载路径: /dataset'}
         >
           <Select
             allowClear
+            mode="multiple"
             options={datasetsOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
-          />
-        </Form.Item>
-        <Form.Item
-          name="dataset_path"
-          label={intl.formatMessage({
-            id: 'pages.jupyterLab.AddJupyterLab.form.xxx',
-            defaultMessage: '数据集挂载路径',
-          })}
-        >
-          <Input
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
           />
         </Form.Item>
 
