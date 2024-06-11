@@ -28,6 +28,11 @@ const (
 	JupyterStatusFailed     = 4
 )
 
+const (
+	JupyterReplicasRunning = 1
+	JupyterReplicasStop    = 0
+)
+
 var (
 	JupyterStatusToDesc = map[int64]string{
 		JupyterStatusWaitDeploy: JupyterStatusDescWaitDeploy,

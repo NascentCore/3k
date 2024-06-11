@@ -341,17 +341,12 @@ type (
 	SysInference {
 		ServiceName string `json:"service_name"`
 		Status      string `json:"status"`
-		//                 ModelName     string `json:"model_name"`
-		//                 ModelId       string `json:"model_id"`
-		//                 ModelSize     int64  `json:"model_size"`
-		//                 ModelIsPublic bool   `json:"model_is_public"`
 		Model
 		Url       string `json:"url"`
 		StartTime string `json:"start_time"` // 推理服务启动时间
 		EndTime   string `json:"end_time"` // 推理服务终止时间
 	}
 	InferenceDeployReq {
-		//  ModelName string `json:"model_name"`
 		Model
 		GpuModel string `json:"gpu_model,optional"`
 		GpuCount int64  `json:"gpu_count,optional"`
@@ -400,6 +395,7 @@ type (
 		DataVolumeSize string          `json:"dataVolumeSize"`
 		Resource       JupyterResource `json:"resource"`
 		UserID         string          `json:"userId"`
+		Replicas       int             `json:"replicas"`
 	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`

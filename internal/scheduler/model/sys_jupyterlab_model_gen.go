@@ -54,6 +54,7 @@ type (
 		ModelName      string       `db:"model_name"`       // 挂载模型的名字
 		ModelPath      string       `db:"model_path"`       // 模型挂载路径
 		Resource       string       `db:"resource"`         // 挂载的资源
+		Replicas       int64        `db:"replicas"`         // 副本数：0关闭、1运行
 		Url            string       `db:"url"`              // URL
 		StartTime      sql.NullTime `db:"start_time"`       // 推理服务启动时间
 		EndTime        sql.NullTime `db:"end_time"`         // 推理服务终止时间
@@ -104,14 +105,14 @@ func (m *defaultSysJupyterlabModel) FindOneByJobName(ctx context.Context, jobNam
 }
 
 func (m *defaultSysJupyterlabModel) Insert(ctx context.Context, data *SysJupyterlab) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysJupyterlabRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.UserId, data.NewUserId, data.CpodId, data.Status, data.BillingStatus, data.InstanceName, data.GpuCount, data.GpuProd, data.CpuCount, data.MemCount, data.DataVolumeSize, data.ModelId, data.ModelName, data.ModelPath, data.Resource, data.Url, data.StartTime, data.EndTime)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysJupyterlabRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.UserId, data.NewUserId, data.CpodId, data.Status, data.BillingStatus, data.InstanceName, data.GpuCount, data.GpuProd, data.CpuCount, data.MemCount, data.DataVolumeSize, data.ModelId, data.ModelName, data.ModelPath, data.Resource, data.Replicas, data.Url, data.StartTime, data.EndTime)
 	return ret, err
 }
 
 func (m *defaultSysJupyterlabModel) Update(ctx context.Context, newData *SysJupyterlab) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysJupyterlabRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.JobName, newData.UserId, newData.NewUserId, newData.CpodId, newData.Status, newData.BillingStatus, newData.InstanceName, newData.GpuCount, newData.GpuProd, newData.CpuCount, newData.MemCount, newData.DataVolumeSize, newData.ModelId, newData.ModelName, newData.ModelPath, newData.Resource, newData.Url, newData.StartTime, newData.EndTime, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.JobName, newData.UserId, newData.NewUserId, newData.CpodId, newData.Status, newData.BillingStatus, newData.InstanceName, newData.GpuCount, newData.GpuProd, newData.CpuCount, newData.MemCount, newData.DataVolumeSize, newData.ModelId, newData.ModelName, newData.ModelPath, newData.Resource, newData.Replicas, newData.Url, newData.StartTime, newData.EndTime, newData.Id)
 	return err
 }
 
