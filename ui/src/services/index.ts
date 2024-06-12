@@ -53,6 +53,7 @@ export const useResourceModelsOptions = () => {
   const { data }: any = useApiResourceModels();
   const options = concatArray(data?.public_list, data?.user_list).map((item: any) => {
     return {
+      ...item,
       label: item.name,
       value: item.id,
       key: item.id,
@@ -83,6 +84,7 @@ export const useResourceDatasetsOptions = () => {
     ...x,
     label: x.name,
     value: x.id,
+    key: x.id,
   }));
   return options;
 };
@@ -389,7 +391,7 @@ export async function apiClusterCpods(options?: { [key: string]: any }) {
   return request('/api/cluster/cpods', {
     method: 'GET',
     ...(options || {}),
-  }).then((data) => { 
+  }).then((data) => {
     const groupedData = data.data.reduce((grouped: any, item: any) => {
       const cpodId = item.cpod_id;
       if (!grouped[cpodId]) {
@@ -398,7 +400,7 @@ export async function apiClusterCpods(options?: { [key: string]: any }) {
       grouped[cpodId].push(item);
       return grouped;
     }, {});
-    return groupedData; 
+    return groupedData;
   });
 }
 export const useApiClusterCpods = (options?: { [key: string]: any }) =>
