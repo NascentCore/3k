@@ -27,4 +27,10 @@ spec:
       name: google/gemma-2b-it
       template: gemma
       mountPath: /models
+    - modelStorage: adapter-storage-8543f3bef8eadf43
+      modelIspublic: false
+      isAdapter: true
+      modelSize: 178655500
+      name: user-fdf4b74e-97db-4022-9b33-24bbe940597d/Gemma-2b-Lora
+      mountPath: /adapters
 

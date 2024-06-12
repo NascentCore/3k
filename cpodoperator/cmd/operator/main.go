@@ -193,6 +193,7 @@ func main() {
 		Option: &controller.JupyterLabOption{
 			StorageClassName: storageClassName,
 			Image:            jupyterLabImage,
+			Domain:           inferenceIngressDomain,
 			OssOption: controller.OssOption{
 				OssAK:           OssAK,
 				OssAS:           OssAS,

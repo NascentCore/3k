@@ -46,6 +46,7 @@ import (
 type JupyterLabOption struct {
 	Image            string
 	StorageClassName string
+	Domain           string
 	OssOption        OssOption
 }
 
@@ -117,7 +118,7 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	if sts.Spec.Replicas != sts.Spec.Replicas {
+	if jupyterlab.Spec.Replicas != sts.Spec.Replicas {
 		logger.V(4).Info("update replicas")
 		if err := r.updateStsReplicas(ctx, jupyterlab, sts); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to update replicas:  %v", err)
@@ -529,8 +530,14 @@ func (r *JupyterLabReconciler) createService(ctx context.Context, jupyterlab *cp
 			Selector: map[string]string{"app": jupyterlab.Name},
 			Ports: []corev1.ServicePort{
 				{
+					Name:       "jupyterlab",
 					Port:       8888,
 					TargetPort: intstr.FromInt(8888),
+				},
+				{
+					Name:       "llamafactory",
+					Port:       7860,
+					TargetPort: intstr.FromInt(7860),
 				},
 			},
 			Type: corev1.ServiceTypeClusterIP,
@@ -543,7 +550,8 @@ func (r *JupyterLabReconciler) createService(ctx context.Context, jupyterlab *cp
 }
 
 func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) error {
-	pathType := networkingv1.PathTypeImplementationSpecific
+	ImplementationSpecificPathType := networkingv1.PathTypeImplementationSpecific
+	PrefixPathType := networkingv1.PathTypePrefix
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jupyterlab.Name + "-ing",
@@ -564,13 +572,34 @@ func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cp
 						HTTP: &networkingv1.HTTPIngressRuleValue{
 							Paths: []networkingv1.HTTPIngressPath{
 								{
-									PathType: &pathType,
+									PathType: &ImplementationSpecificPathType,
 									Path:     "/jupyterlab/" + jupyterlab.Name + "(/|$)(.*)",
 									Backend: networkingv1.IngressBackend{
 										Service: &networkingv1.IngressServiceBackend{
 											Name: jupyterlab.Name + "-svc",
 											Port: networkingv1.ServiceBackendPort{
 												Number: 8888,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				{
+					Host: fmt.Sprintf("%v.%v", jupyterlab.Name, r.Option.Domain),
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{
+							Paths: []networkingv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: &PrefixPathType,
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: jupyterlab.Name + "-svc",
+											Port: networkingv1.ServiceBackendPort{
+												Number: 7860,
 											},
 										},
 									},

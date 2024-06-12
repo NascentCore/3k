@@ -204,9 +204,10 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 						},
 					},
 					Spec: v1beta1.FineTuneSpec{
-						Model:          job.PretrainModelName,
-						DatasetStorage: job.DatasetId,
-						Upload:         s.uploadTrainedModel,
+						Model:           job.PretrainModelName,
+						DatasetStorage:  job.DatasetId,
+						DatasetIsPublic: job.DatasetIsPublic,
+						Upload:          s.uploadTrainedModel,
 						HyperParameters: map[string]string{
 							"n_epochs":                 job.Epochs,
 							"learning_rate_multiplier": job.LearningRate,
