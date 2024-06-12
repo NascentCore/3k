@@ -32,7 +32,7 @@ type (
 		ModelId       string `json:"model_id,optional"` // 模型ID
 		ModelName     string `json:"model_name,optional"` // 模型名字, owner/model
 		ModelPath     string `json:"model_path,optional"` // 模型的绑定路径
-		ModelSize     int64  `json:"model_size"` // 模型体积，单位字节
+		ModelSize     int64  `json:"model_size,optional"` // 模型体积，单位字节
 		ModelIsPublic bool   `json:"model_is_public,optional"` // 是否公共模型
 		ModelTemplate string `json:"model_template,optional"` // 模型的推理模版
 	}
@@ -47,7 +47,7 @@ type (
 		DatasetId       string `json:"dataset_id,optional"` // 数据集ID
 		DatasetName     string `json:"dataset_name,optional"` // 数据集名字, owner/dataset
 		DatasetPath     string `json:"dataset_path,optional"` // 数据集的绑定路径
-		DatasetSize     int64  `json:"dataset_size"` // 数据集体积，单位字节
+		DatasetSize     int64  `json:"dataset_size,optional"` // 数据集体积，单位字节
 		DatasetIsPublic bool   `json:"dataset_is_public,optional"` // 是否公共数据集
 	}
 	Adapter {
