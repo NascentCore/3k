@@ -27,9 +27,9 @@ const Welcome: React.FC = () => {
     stopTime: 0,
   });
   const { data: gpuTypeOptions } = useApiGetGpuType();
-  const { data: resourceModels }: any = useApiResourceModels();
-  const { data: resourceDatasets }: any = useApiResourceDatasets();
-  const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
+  // const { data: resourceModels }: any = useApiResourceModels();
+  // const { data: resourceDatasets }: any = useApiResourceDatasets();
+  // const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
 
   const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
     ...x,
@@ -44,10 +44,10 @@ const Welcome: React.FC = () => {
   const resourceModelsOptions = useResourceModelsOptions();
   const resourceDatasetsOption = useResourceDatasetsOptions();
 
-  const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
-    label: x.image_name,
-    value: x.image_name,
-  }));
+  // const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
+  //   label: x.image_name,
+  //   value: x.image_name,
+  // }));
 
   const gpuProdValue = Form.useWatch('gpuType', form);
   // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
@@ -57,33 +57,35 @@ const Welcome: React.FC = () => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log(values);
-      const currentModel: any = resourceModelsOptions.find(
-        (x: any) => x.value === values.pretrainedModelId,
-      );
+      const currentModel: any = resourceModelsOptions.find((x: any) => x.value === values.model_id);
       const currentDataSet: any = resourceDatasetsOption.find(
-        (x: any) => x.value === values.datasetId,
+        (x: any) => x.value === values.dataset_id,
       );
-      return apiPostUserJob({
-        data: {
-          ...values,
-          imagePath: values.imagePath[0],
-          ckptVol: Number(values.ckptVol),
-          gpuNumber: Number(values.gpuNumber),
-          modelVol: Number(values.modelVol),
+      console.log({ currentDataSet, currentModel });
+      const params = {
+        ...values,
+        // imagePath: values.imagePath[0],
+        ckptVol: Number(values.ckptVol),
+        gpuNumber: Number(values.gpuNumber),
+        modelVol: Number(values.modelVol),
 
-          model_id: currentModel?.id,
-          model_name: currentModel?.name,
-          model_path: currentModel?.path,
-          model_size: currentModel?.size,
-          model_is_public: currentModel?.is_public,
-          model_template: currentModel?.template,
-          //
-          dataset_id: currentDataSet?.id,
-          dataset_name: currentDataSet?.name,
-          dataset_path: currentDataSet?.path,
-          dataset_size: currentDataSet?.size,
-          dataset_is_public: currentDataSet?.public,
-        },
+        model_id: currentModel?.id,
+        model_name: currentModel?.name,
+        // model_path: currentModel?.path,
+        model_size: currentModel?.size,
+        model_is_public: currentModel?.is_public,
+        model_template: currentModel?.template,
+        //
+        dataset_id: currentDataSet?.id,
+        dataset_name: currentDataSet?.name,
+        // dataset_path: currentDataSet?.path,
+        dataset_size: currentDataSet?.size,
+        dataset_is_public: currentDataSet?.is_public,
+      };
+      console.log('params111', params);
+      return;
+      return apiPostUserJob({
+        data: params,
       }).then(() => {
         message.success(
           intl.formatMessage({
@@ -371,7 +373,7 @@ const Welcome: React.FC = () => {
               },
             ]}
           >
-            <Select
+            {/* <Select
               mode="tags"
               maxCount={1}
               options={jobJupyterImagesList}
@@ -380,7 +382,13 @@ const Welcome: React.FC = () => {
                 id: 'pages.UserJobCommit.form.placeholder',
                 defaultMessage: '请输入',
               })}
-            ></Select>
+            ></Select> */}
+            <Input
+              placeholder={intl.formatMessage({
+                id: 'pages.UserJobCommit.form.placeholder',
+                defaultMessage: '请输入',
+              })}
+            />
           </Form.Item>
 
           <Form.Item
@@ -489,7 +497,7 @@ const Welcome: React.FC = () => {
             }
           >
             <div style={{ display: 'flex', gap: 10 }}>
-              <Form.Item style={{ flex: 1 }} name="pretrainedModelId">
+              <Form.Item style={{ flex: 1 }} name="model_id">
                 <Select
                   allowClear
                   options={resourceModelsOptions}
@@ -501,7 +509,7 @@ const Welcome: React.FC = () => {
               </Form.Item>
               <Form.Item
                 style={{ flex: 1 }}
-                name="pretrainedModelPath"
+                name="model_path"
                 label={
                   <>
                     {intl.formatMessage({
@@ -543,7 +551,7 @@ const Welcome: React.FC = () => {
             }
           >
             <div style={{ display: 'flex', gap: 10 }}>
-              <Form.Item style={{ flex: 1 }} name="datasetId">
+              <Form.Item style={{ flex: 1 }} name="dataset_id">
                 <Select
                   allowClear
                   options={resourceDatasetsOption}
@@ -555,7 +563,7 @@ const Welcome: React.FC = () => {
               </Form.Item>
               <Form.Item
                 style={{ flex: 1 }}
-                name="datasetPath"
+                name="dataset_path"
                 label={
                   <>
                     {intl.formatMessage({

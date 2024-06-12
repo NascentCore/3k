@@ -61,7 +61,7 @@ const Content = ({ record, onCancel }) => {
           dataset_name: currentDataSet.name,
           dataset_path: currentDataSet.path,
           dataset_size: currentDataSet.size,
-          dataset_is_public: currentDataSet.public,
+          dataset_is_public: currentDataSet.is_public,
           //
         },
       }).then((res) => {
