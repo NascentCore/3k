@@ -27,9 +27,9 @@ const Welcome: React.FC = () => {
     stopTime: 0,
   });
   const { data: gpuTypeOptions } = useApiGetGpuType();
-  const { data: resourceModels }: any = useApiResourceModels();
-  const { data: resourceDatasets }: any = useApiResourceDatasets();
-  const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
+  // const { data: resourceModels }: any = useApiResourceModels();
+  // const { data: resourceDatasets }: any = useApiResourceDatasets();
+  // const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
 
   const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
     ...x,
@@ -44,10 +44,10 @@ const Welcome: React.FC = () => {
   const resourceModelsOptions = useResourceModelsOptions();
   const resourceDatasetsOption = useResourceDatasetsOptions();
 
-  const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
-    label: x.image_name,
-    value: x.image_name,
-  }));
+  // const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
+  //   label: x.image_name,
+  //   value: x.image_name,
+  // }));
 
   const gpuProdValue = Form.useWatch('gpuType', form);
   // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
@@ -66,7 +66,7 @@ const Welcome: React.FC = () => {
       return apiPostUserJob({
         data: {
           ...values,
-          imagePath: values.imagePath[0],
+          // imagePath: values.imagePath[0],
           ckptVol: Number(values.ckptVol),
           gpuNumber: Number(values.gpuNumber),
           modelVol: Number(values.modelVol),
@@ -371,7 +371,7 @@ const Welcome: React.FC = () => {
               },
             ]}
           >
-            <Select
+            {/* <Select
               mode="tags"
               maxCount={1}
               options={jobJupyterImagesList}
@@ -380,7 +380,13 @@ const Welcome: React.FC = () => {
                 id: 'pages.UserJobCommit.form.placeholder',
                 defaultMessage: '请输入',
               })}
-            ></Select>
+            ></Select> */}
+            <Input
+              placeholder={intl.formatMessage({
+                id: 'pages.UserJobCommit.form.placeholder',
+                defaultMessage: '请输入',
+              })}
+            />
           </Form.Item>
 
           <Form.Item
