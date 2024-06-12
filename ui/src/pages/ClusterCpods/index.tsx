@@ -9,7 +9,7 @@ const Index: React.FC = () => {
   const intl = useIntl();
   const { data, mutate, isLoading }: any = useApiClusterCpods();
   console.log(1111, { data });
-  const dataKeys = Object.keys(data);
+  const dataKeys = Object.keys(data || {});
   return (
     <PageContainer>
       {dataKeys.map((title) => (
