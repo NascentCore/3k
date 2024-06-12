@@ -82,8 +82,6 @@ const Welcome: React.FC = () => {
         dataset_size: currentDataSet?.size,
         dataset_is_public: currentDataSet?.is_public,
       };
-      console.log('params111', params);
-      return;
       return apiPostUserJob({
         data: params,
       }).then(() => {
