@@ -26,6 +26,8 @@ export default {
   'pages.jupyterLab.AddJupyterLab.form.data_volume_size': 'Data Volume Size',
   'pages.jupyterLab.AddJupyterLab.form.model_id': 'Mount Model',
   'pages.jupyterLab.AddJupyterLab.form.model_path': 'Model Mount Path',
+  'pages.jupyterLab.AddJupyterLab.form.datasets': 'Mount Adapters',
+  'pages.jupyterLab.AddJupyterLab.form.adapters': 'Mount Datasets',
   'pages.jupyterLab.ImageManagementTab.table.image_name': 'Image Name',
   'pages.jupyterLab.ImageManagementTab.table.create_time': 'Creation Time',
   'pages.jupyterLab.ImageManagementTab.table.push_time': 'Update Time',

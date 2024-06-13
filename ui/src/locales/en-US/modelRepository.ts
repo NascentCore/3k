@@ -3,6 +3,9 @@
  */
 
 export default {
+  'pages.modelRepository.tab.title.public': 'Public Models',
+  'pages.modelRepository.tab.title.user': 'Private Models',
+
   'pages.modelRepository.table.column.id': 'Model Name',
   'pages.modelRepository.table.column.owner': 'Owner',
   'pages.modelRepository.table.column.size': 'Model Size',

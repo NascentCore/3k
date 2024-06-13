@@ -10,6 +10,8 @@ import oem from './zh-CN/oem';
 import Adapter from './zh-CN/adapter';
 import Dataseta from './zh-CN/dataset';
 import global from './zh-CN/global';
+import myAccount from './zh-CN/myAccount';
+import clusterCpods from './zh-CN/clusterCpods';
 
 export default {
   'menu.welcome': '欢迎',
@@ -38,4 +40,6 @@ export default {
   ...JupyterLab,
   ...Adapter,
   ...Dataseta,
+  ...myAccount,
+  ...clusterCpods,
 };

@@ -3,6 +3,9 @@
  */
 
 export default {
+  'pages.modelRepository.tab.title.public': '公共模型',
+  'pages.modelRepository.tab.title.user': '私有模型',
+
   'pages.modelRepository.table.column.id': '模型名称',
   'pages.modelRepository.table.column.owner': '所有者',
   'pages.modelRepository.table.column.size': '模型体积',

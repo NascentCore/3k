@@ -78,7 +78,10 @@ const Index: React.FC = () => {
   const items = [
     {
       key: '1',
-      label: '公共模型',
+      label: intl.formatMessage({
+        id: 'pages.modelRepository.tab.title.public',
+        defaultMessage: '公共模型',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.public_list || []} loading={isLoading} />
@@ -87,7 +90,10 @@ const Index: React.FC = () => {
     },
     {
       key: '2',
-      label: '私有模型',
+      label: intl.formatMessage({
+        id: 'pages.modelRepository.tab.title.user',
+        defaultMessage: '私有模型',
+      }),
       children: (
         <>
           <TabTable dataSource={data?.user_list || []} loading={isLoading} />

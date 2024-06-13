@@ -66,11 +66,8 @@ const Index: React.FC = () => {
       <Drawer
         width={1000}
         title={intl.formatMessage({
-          id: 'xxx',
-          defaultMessage: intl.formatMessage({
-            id: 'pages.myAccount.drawer.title.Account',
-            defaultMessage: '账单信息',
-          }),
+          id: 'pages.myAccount.drawer.title.Account',
+          defaultMessage: '账单信息',
         })}
         placement="right"
         onClose={() => setOpen(false)}

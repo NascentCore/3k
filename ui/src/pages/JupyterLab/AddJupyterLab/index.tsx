@@ -204,7 +204,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name={['resource', 'datasets']}
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.datasets',
             defaultMessage: '挂载适配器',
           })}
           extra={'挂载路径: /adapter'}
@@ -223,7 +223,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
         <Form.Item
           name={['resource', 'adapters']}
           label={intl.formatMessage({
-            id: 'xxx',
+            id: 'pages.jupyterLab.AddJupyterLab.form.adapters',
             defaultMessage: '挂载数据集',
           })}
           extra={'挂载路径: /dataset'}

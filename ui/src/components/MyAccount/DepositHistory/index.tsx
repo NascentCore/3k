@@ -16,7 +16,7 @@ const Index: React.FC = () => {
         columns={[
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.DepositHistory.table.column.created_at',
               defaultMessage: '充值时间',
             }),
             dataIndex: 'created_at',
@@ -26,7 +26,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.DepositHistory.table.column.description',
               defaultMessage: '充值备注',
             }),
             dataIndex: 'description',
@@ -36,7 +36,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.DepositHistory.table.column.amount',
               defaultMessage: '充值金额',
             }),
             dataIndex: 'amount',
@@ -46,7 +46,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.DepositHistory.table.column.after_balance',
               defaultMessage: '账户余额',
             }),
             dataIndex: 'after_balance',

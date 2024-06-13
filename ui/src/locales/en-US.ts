@@ -10,6 +10,8 @@ import oem from './en-US/oem';
 import Adapter from './en-US/adapter';
 import Dataseta from './en-US/dataset';
 import global from './en-US/global';
+import myAccount from './en-US/myAccount';
+import clusterCpods from './en-US/clusterCpods';
 
 export default {
   'menu.welcome': 'Welcome',
@@ -38,4 +40,6 @@ export default {
   ...JupyterLab,
   ...Adapter,
   ...Dataseta,
+  ...myAccount,
+  ...clusterCpods,
 };
