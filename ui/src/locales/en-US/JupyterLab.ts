@@ -2,7 +2,7 @@
  * 开发实验室 国际化
  */
 export default {
-  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab Instance',
+  'pages.jupyterLab.tab.title.jupyterLabExample': 'Instance',
   'pages.jupyterLab.tab.title.imageManagement': 'Image Management',
   'pages.jupyterLab.tab.createJupyterLabInstanceButton': 'Create JupyterLab Instance',
   'pages.jupyterLab.JupyterLabTab.table.column.instance_name': 'Instance Name',
