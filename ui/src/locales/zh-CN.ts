@@ -28,6 +28,8 @@ export default {
   'menu.Dataset': '数据集',
   'menu.Adapter': '适配器',
   'menu.ClusterCpods': '资源看板',
+  'nav.title.Price': '价格',
+  'nav.title.Document': '文档',
   ...global,
   ...oem,
   ...login,

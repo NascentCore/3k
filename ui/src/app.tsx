@@ -2,7 +2,7 @@ import { Footer, SelectLang, AvatarDropdown, AvatarName } from '@/components';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { history } from '@umijs/max';
+import { history, useIntl } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import React from 'react';
@@ -49,6 +49,7 @@ export async function getInitialState(): Promise<{
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  const intl = useIntl();
   return {
     actionsRender: () => [
       <>
@@ -58,7 +59,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             window.open('https://sxwl.ai/pricing');
           }}
         >
-          价格
+          {intl.formatMessage({
+            id: 'nav.title.Price',
+            defaultMessage: '价格',
+          })}
         </Button>
       </>,
       <>
@@ -68,7 +72,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             window.open('https://sxwl.ai/docs/cloud');
           }}
         >
-          文档
+          {intl.formatMessage({
+            id: 'nav.title.Document',
+            defaultMessage: '文档',
+          })}
         </Button>
       </>,
       <SelectLang key="SelectLang" />,

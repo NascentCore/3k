@@ -28,6 +28,8 @@ export default {
   'menu.Dataset': 'Dataset',
   'menu.Adapter': 'Adapter',
   'menu.ClusterCpods': 'ClusterCpods',
+  'nav.title.Price': 'Price',
+  'nav.title.Document': 'Document',
   ...global,
   ...oem,
   ...login,
