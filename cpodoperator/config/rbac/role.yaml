@@ -149,6 +149,14 @@ rules:
 - apiGroups:
   - cpod.cpod
   resources:
+  - datasetstorages/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cpod.cpod
+  resources:
   - finetunes
   verbs:
   - create

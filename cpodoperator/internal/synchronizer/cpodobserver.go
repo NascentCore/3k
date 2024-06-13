@@ -24,7 +24,6 @@ const (
 	InferenceJobDeploying     = "deploying"
 	InferenceJobDeployed      = "deployed"
 	InferenceJobFailed        = "failed"
-	JupyterLabJobFailed       = "failed"
 )
 
 type CPodObserver struct {

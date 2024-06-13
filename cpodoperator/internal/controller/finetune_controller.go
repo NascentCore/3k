@@ -57,7 +57,9 @@ type FineTuneReconciler struct {
 //+kubebuilder:rbac:groups=cpod.cpod,resources=cpodjobs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cpod.cpod,resources=cpodjobs/finalizers,verbs=update
 //+kubebuilder:rbac:groups=cpod.cpod,resources=modelstorages,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=cpod.cpod,resources=modelstorages/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cpod.cpod,resources=datasetstorages,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=cpod.cpod,resources=datasetstorages/status,verbs=get;update;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -191,7 +193,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, nil
 	} else {
 		if cond := util.GetCondition(cpodjob.Status, cpodv1beta1.JobDataPreparing); cond != nil {
-			if cond.Status == v1.ConditionTrue {
+			if cond.Status == v1.ConditionFalse {
 				finetune.Status.Phase = cpodv1beta1.PhasePreparingData
 				if err := r.Client.Status().Update(ctx, finetune); err != nil {
 					return ctrl.Result{}, err
@@ -238,13 +240,6 @@ func (r *FineTuneReconciler) validateFineTune(ctx context.Context, finetune *cpo
 
 	if finetunepkg.CheckModelWhetherSupport(finetune.Spec.Model) == nil {
 		return fmt.Errorf("model is not support"), nil
-	}
-
-	if err := r.Client.Get(ctx, types.NamespacedName{Namespace: finetune.Namespace, Name: finetune.Spec.DatasetStorage}, &cpodv1.DataSetStorage{}); err != nil {
-		if apierrors.IsNotFound(err) {
-			return fmt.Errorf("dataset storage not found"), nil
-		}
-		return nil, err
 	}
 
 	return nil, nil
@@ -430,7 +425,7 @@ func CopyPublicDatasetStorage(ctx context.Context, kubeClient client.Client, pub
 			// TODO: update modelstorage status
 			datasetStorageCopy.Status.Phase = "done"
 			if err := kubeClient.Status().Update(ctx, datasetStorageCopy); err != nil {
-				return fmt.Errorf("failed to update model storage status")
+				return fmt.Errorf("failed to update model storage status: %v", err)
 			}
 			return nil
 		}

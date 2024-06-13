@@ -13,6 +13,7 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"knative.dev/pkg/ptr"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -144,7 +145,7 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
 						{
 							Kind:      "ServiceAccount",
 							Name:      "default",
-							Namespace: userNs.Namespace,
+							Namespace: userNs.Name,
 						},
 					},
 					RoleRef: rbacv1.RoleRef{
@@ -154,7 +155,7 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
 					},
 				}
 				if err = s.kubeClient.Create(ctx, &newClusterRoleBinding); err != nil {
-					s.logger.Error(err, "failed to create clusterrolebinding", "user", userNs.Name)
+					s.logger.Error(err, "failed to create clusterrolebinding", "user", userNs.Name, "clusterrolebinding", newClusterRoleBinding)
 				} else {
 					s.logger.Info("clusterrolebinding created", "user", userNs.Name)
 				}
@@ -792,6 +793,7 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 			},
 		},
 		Spec: v1beta1.JupyterLabSpec{
+			Replicas:       ptr.Int32(1),
 			GPUCount:       job.GPUCount,
 			Memory:         job.Memory,
 			CPUCount:       job.CPUCount,
