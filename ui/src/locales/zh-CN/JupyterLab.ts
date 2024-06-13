@@ -2,7 +2,7 @@
  * 开发实验室 国际化
  */
 export default {
-  'pages.jupyterLab.tab.title.jupyterLabExample': 'JupyterLab实例',
+  'pages.jupyterLab.tab.title.jupyterLabExample': '实例',
   'pages.jupyterLab.tab.title.imageManagement': '镜像管理',
   'pages.jupyterLab.tab.createJupyterLabInstanceButton': '创建JupyterLab实例',
   'pages.jupyterLab.JupyterLabTab.table.column.instance_name': '实例名称',

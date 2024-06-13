@@ -14,7 +14,7 @@ const Index: React.FC = () => {
     <PageContainer>
       {dataKeys.map((title) => (
         <>
-          <Card title={<>集群id: {title}</>}>
+          <Card title={<>集群id: {title}</>} style={{ marginBottom: 15 }}>
             <Table
               columns={[
                 {

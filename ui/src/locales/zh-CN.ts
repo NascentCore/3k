@@ -20,7 +20,7 @@ export default {
   'menu.Grafana': '系统资源看板',
   'menu.Tensorboard': '训练看板(TensorBoard)',
   'menu.Jupyterlalb': '开发实验室(JupyterLab)',
-  'menu.JupyterLab': '开发实验室(JupyterLab)',
+  'menu.JupyterLab': '开发实验室',
   'menu.ClusterInformation': '集群信息',
   'menu.UserQuota': '用户配额',
   'menu.Dataset': '数据集',
