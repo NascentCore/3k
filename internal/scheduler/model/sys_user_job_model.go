@@ -14,6 +14,40 @@ const (
 	JobDeleted = 1
 )
 
+type JobJson struct {
+	JobName               string `json:"jobName"`
+	JobType               string `json:"jobType"`
+	CkptPath              string `json:"ckptPath"`
+	CkptVol               int64  `json:"ckptVol"`
+	ModelPath             string `json:"modelPath"`
+	ModelVol              int64  `json:"modelVol"`
+	GpuNumber             int64  `json:"gpuNumber"`
+	GpuType               string `json:"gpuType"`
+	ImagePath             string `json:"imagePath"`
+	PretrainModelId       string `json:"pretrainedModelId"`
+	PretrainModelName     string `json:"pretrainedModelName"`
+	PretrainModelIsPublic bool   `json:"pretrainModelIsPublic"`
+	PretrainModelSize     int64  `json:"pretrainedModelSize"`
+	PretrainModelPath     string `json:"pretrainedModelPath"`
+	PretrainModelUrl      string `json:"pretrainedModelUrl"`
+	PretrainModelTemplate string `json:"pretrainModelTemplate"`
+	DatasetId             string `json:"datasetId"`
+	DatasetName           string `json:"datasetName"`
+	DatasetIsPublic       bool   `json:"datasetIsPublic"`
+	DatasetSize           int64  `json:"datasetSize"`
+	DatasetPath           string `json:"datasetPath"`
+	DatasetUrl            string `json:"datasetUrl"`
+	RunCommand            string `json:"runCommand"`
+	StopTime              int64  `json:"stopTime"`
+	StopType              int64  `json:"stopType"`
+	BackoffLimit          int64  `json:"backoffLimit"`
+	Epochs                string `json:"epochs"`
+	LearningRate          string `json:"learningRate"`
+	BatchSize             string `json:"batchSize"`
+	UserID                string `json:"userId"`
+	TrainedModelName      string `json:"trainedModelName"`
+}
+
 var _ SysUserJobModel = (*customSysUserJobModel)(nil)
 
 type (

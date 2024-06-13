@@ -241,16 +241,12 @@ type (
 type (
 	FinetuneReq {
 		UserID string `header:"Sx-User-ID"`
-		//            TrainingFile     string                 `json:"training_file"`
-		//            DatasetIsPublic  bool                   `json:"dataset_is_public"`
-		//            Model            string                 `json:"model"`
-		//            ModelIsPublic    bool                   `json:"model_is_public"`
 		Model
 		Dataset
 		GpuModel         string                 `json:"gpu_model,optional"`
 		GpuCount         int64                  `json:"gpu_count,optional"`
 		TrainedModelName string                 `json:"trainedModelName,optional"`
-		Hyperparameters  map[string]interface{} `json:"hyperparameters,optional,omitempty"`
+		Hyperparameters  map[string]string      `json:"hyperparameters,optional,omitempty"`
 		Config           map[string]interface{} `json:"config,optional,omitempty"`
 	}
 	FinetuneResp {

@@ -61,20 +61,6 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		return nil, fmt.Errorf("model: %s for finetune is not supported", req.ModelName)
 	}
 
-	// // template
-	// template := ""
-	// fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.ModelName))
-	// if err != nil {
-	// 	l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.ModelName, err)
-	// 	return nil, err
-	// }
-	// for file := range fileList {
-	// 	if strings.Contains(file, "sxwl-infer-template-") {
-	// 		template = storage.ExtractTemplate(file)
-	// 		break
-	// 	}
-	// }
-
 	userJob := &model.SysUserJob{}
 	userJob.NewUserId = req.UserID
 	jobName, err := uuid2.WithPrefix("finetune")
@@ -83,25 +69,8 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		return nil, err
 	}
 	userJob.JobName = orm.NullString(jobName)
-
-	// model
 	userJob.PretrainedModelName = orm.NullString(req.ModelName)
-
-	// dataset
-	// datasetOSSPath := storage.ResourceToOSSPath(consts.Dataset, req.DatasetName)
-	// ok, datasetSize, err := storage.ExistDir(l.svcCtx.Config.OSS.Bucket, datasetOSSPath)
-	// if err != nil {
-	// 	l.Errorf("dataset storage.ExistDir userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
-	// 	return nil, err
-	// }
-	// if !ok {
-	// 	l.Errorf("dataset not exists userID: %s dataset: %s err: %s", req.UserID, req.TrainingFile, err)
-	// 	return nil, fmt.Errorf("dataset not exists dataset: %s", req.TrainingFile)
-	// }
-	// userJob.DatasetName = orm.NullString(storage.DatasetCRDName(datasetOSSPath))
 	userJob.DatasetName = orm.NullString(req.DatasetId)
-
-	// job_type
 	userJob.JobType = orm.NullString(consts.JobTypeFinetune)
 
 	// fill gpu
@@ -144,7 +113,6 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	// billing_status
 	userJob.BillingStatus = model.BillingStatusContinue
-
 	// Hyperparameters
 	epochs, ok := req.Hyperparameters[config.ParamEpochs]
 	if !ok {
@@ -160,44 +128,34 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	}
 
 	// json_all
-	createReq := types.JobCreateReq{}
-	_ = copier.Copy(&createReq, &userJob)
-
-	jsonAll := make(map[string]any)
-	bytes, err := json.Marshal(createReq)
-	if err != nil {
-		l.Errorf("marshal userJob userId: %s err: %s", req.UserID, err)
-		return nil, err
+	jsonAll := &model.JobJson{
+		JobName:               jobName,
+		JobType:               consts.JobTypeFinetune,
+		GpuNumber:             req.GpuCount,
+		GpuType:               req.GpuModel,
+		PretrainModelId:       req.ModelId,
+		PretrainModelName:     req.ModelName,
+		PretrainModelIsPublic: req.ModelIsPublic,
+		PretrainModelSize:     req.ModelSize,
+		PretrainModelPath:     req.ModelPath,
+		PretrainModelUrl: storage.OssPathToOssURL(
+			l.svcCtx.Config.OSS.Bucket,
+			storage.ResourceToOSSPath(consts.Model, req.ModelName)),
+		PretrainModelTemplate: req.ModelTemplate,
+		DatasetUrl: storage.OssPathToOssURL(
+			l.svcCtx.Config.OSS.Bucket,
+			storage.ResourceToOSSPath(consts.Dataset, req.DatasetName)),
+		BackoffLimit: 1,
+		Epochs:       epochs,
+		LearningRate: learningRate,
+		BatchSize:    batchSize,
+		UserID:       req.UserID,
 	}
 
-	err = json.Unmarshal(bytes, &jsonAll)
-	if err != nil {
-		l.Errorf("unmarshal userId: %s err: %s", req.UserID, err)
-		return nil, err
-	}
+	// copy the other parts of req
+	_ = copier.Copy(jsonAll, req)
 
-	jsonAll["jobName"] = userJob.JobName.String
-	jsonAll["userId"] = req.UserID
-	jsonAll["datasetId"] = userJob.DatasetName.String
-	jsonAll["datasetName"] = req.DatasetName
-	jsonAll["datasetUrl"] = storage.OssPathToOssURL(
-		l.svcCtx.Config.OSS.Bucket,
-		storage.ResourceToOSSPath(consts.Dataset, req.DatasetName))
-	jsonAll["datasetSize"] = req.DatasetSize
-	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
-	jsonAll["pretrainedModelName"] = req.ModelName
-	jsonAll["pretrainedModelIsPublic"] = req.ModelIsPublic
-	jsonAll["pretrainedModelTemplate"] = req.ModelTemplate
-	jsonAll["trainedModelName"] = req.TrainedModelName
-	jsonAll["backoffLimit"] = 1 // 重试次数，默认为1
-	jsonAll["ckptVol"] = 0      // 改为数值型默认值
-	jsonAll["modelVol"] = 0     // 改为数值型默认值
-	jsonAll["stopType"] = 0     // 改为数值型默认值
-	jsonAll["epochs"] = epochs
-	jsonAll["batchSize"] = batchSize
-	jsonAll["learningRate"] = learningRate
-
-	bytes, err = json.Marshal(jsonAll)
+	bytes, err := json.Marshal(jsonAll)
 	if err != nil {
 		l.Errorf("marshal jsonAll userId: %s err: %s", req.UserID, err)
 		return nil, err

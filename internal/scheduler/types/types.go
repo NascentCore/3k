@@ -170,7 +170,7 @@ type FinetuneReq struct {
 	GpuModel         string                 `json:"gpu_model,optional"`
 	GpuCount         int64                  `json:"gpu_count,optional"`
 	TrainedModelName string                 `json:"trainedModelName,optional"`
-	Hyperparameters  map[string]interface{} `json:"hyperparameters,optional,omitempty"`
+	Hyperparameters  map[string]string      `json:"hyperparameters,optional,omitempty"`
 	Config           map[string]interface{} `json:"config,optional,omitempty"`
 }
 

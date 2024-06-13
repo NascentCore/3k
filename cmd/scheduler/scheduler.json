@@ -1770,10 +1770,7 @@
           "description": " 是否公共数据集"
         }
       },
-      "title": "DatasetOptional",
-      "required": [
-        "dataset_size"
-      ]
+      "title": "DatasetOptional"
     },
     "DiskInfo": {
       "type": "object",
@@ -3115,10 +3112,7 @@
           "description": " 模型的推理模版"
         }
       },
-      "title": "ModelOptional",
-      "required": [
-        "model_size"
-      ]
+      "title": "ModelOptional"
     },
     "ModelUrlReq": {
       "type": "object",
