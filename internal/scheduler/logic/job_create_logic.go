@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/storage"
 	uuid2 "sxwl/3k/pkg/uuid"
 	"time"
 
@@ -69,20 +71,6 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 		}
 	}
 
-	// // template
-	// template := ""
-	// fileList, err := storage.ListFiles(l.svcCtx.Config.OSS.Bucket, storage.ResourceToOSSPath(consts.Model, req.PretrainedModelName))
-	// if err != nil {
-	// 	l.Errorf("model storage.ListFiles userID: %s model: %s err: %s", req.UserID, req.PretrainedModelName, err)
-	// 	return nil, err
-	// }
-	// for file := range fileList {
-	// 	if strings.Contains(file, "sxwl-infer-template-") {
-	// 		template = storage.ExtractTemplate(file)
-	// 		break
-	// 	}
-	// }
-
 	userJob := &model.SysUserJob{}
 	_ = copier.Copy(userJob, req)
 	userJob.NewUserId = req.UserID
@@ -102,27 +90,29 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	userJob.UpdateTime = orm.NullTime(time.Now())
 	userJob.BillingStatus = model.BillingStatusContinue
 
-	jsonAll := make(map[string]any)
-	bytes, err := json.Marshal(req)
-	if err != nil {
-		l.Errorf("marshal userJob userId: %s err: %s", req.UserID, err)
-		return nil, err
+	// jsonAll := make(map[string]any)
+	jsonAll := &model.JobJson{
+		JobName:               jobName,
+		PretrainModelId:       req.ModelId,
+		PretrainModelName:     req.ModelName,
+		PretrainModelIsPublic: req.ModelIsPublic,
+		PretrainModelSize:     req.ModelSize,
+		PretrainModelPath:     req.ModelPath,
+		PretrainModelUrl: storage.OssPathToOssURL(
+			l.svcCtx.Config.OSS.Bucket,
+			storage.ResourceToOSSPath(consts.Model, req.ModelName)),
+		PretrainModelTemplate: req.ModelTemplate,
+		DatasetUrl: storage.OssPathToOssURL(
+			l.svcCtx.Config.OSS.Bucket,
+			storage.ResourceToOSSPath(consts.Dataset, req.DatasetName)),
+		BackoffLimit: 1,
+		UserID:       req.UserID,
 	}
 
-	err = json.Unmarshal(bytes, &jsonAll)
-	if err != nil {
-		l.Errorf("unmarshal userId: %s err: %s", req.UserID, err)
-		return nil, err
-	}
+	// copy the other parts of req
+	_ = copier.Copy(jsonAll, req)
 
-	jsonAll["userId"] = req.UserID
-	jsonAll["jobName"] = userJob.JobName.String
-	jsonAll["backoffLimit"] = 1
-	jsonAll["pretrainModelIsPublic"] = req.ModelIsPublic
-	jsonAll["datasetIsPublic"] = req.DatasetIsPublic
-	jsonAll["pretrainModelTemplate"] = req.ModelTemplate
-
-	bytes, err = json.Marshal(jsonAll)
+	bytes, err := json.Marshal(jsonAll)
 	if err != nil {
 		l.Errorf("marshal jsonAll userId: %s err: %s", req.UserID, err)
 		return nil, err
