@@ -90,14 +90,14 @@ export default [
   {
     path: '/UserQuota',
     name: 'UserQuota',
-    icon: 'UserSwitchOutlined',
+    icon: 'SlidersOutlined',
     component: './UserQuota',
     access: 'adminRouteFilter',
   },
   {
     path: '/JupyterLab',
     name: 'JupyterLab',
-    icon: 'UserSwitchOutlined',
+    icon: 'ExperimentOutlined',
     component: './JupyterLab',
   },
   // {
@@ -109,7 +109,7 @@ export default [
   {
     path: '/ClusterCpods',
     name: 'ClusterCpods',
-    icon: 'UserSwitchOutlined',
+    icon: 'DashboardOutlined',
     component: './ClusterCpods',
   },
   {
