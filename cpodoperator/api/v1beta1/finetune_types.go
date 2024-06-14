@@ -42,9 +42,9 @@ type FineTuneSpec struct {
 type Phase string
 
 const (
-	PhasePreparingData Phase = "PreparingData"
+	PhasePreparingData Phase = "DataPreparing"
 	PhaseRunning       Phase = "Running"
-	PhaseFailed        Phase = "Invalid"
+	PhaseFailed        Phase = "Failed"
 	PhaseSucceeded     Phase = "Succeeded"
 )
 

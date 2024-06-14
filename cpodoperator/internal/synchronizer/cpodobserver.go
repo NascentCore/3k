@@ -172,7 +172,7 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 
 		state := sxwl.JupyterLabJobState{
 			JobName: ss.Name,
-			Status:  status,
+			Status:  strings.ToLower(status),
 			URL:     "/jupyterlab/" + ss.Name,
 		}
 		states = append(states, state)
@@ -223,7 +223,7 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 
 		stats = append(stats, sxwl.InferenceJobState{
 			ServiceName: inferenceJob.Name,
-			Status:      status,
+			Status:      strings.ToLower(status),
 			URL:         url,
 		})
 	}
