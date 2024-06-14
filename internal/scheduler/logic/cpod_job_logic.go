@@ -67,9 +67,9 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		return nil, err
 	}
 
-	activeJobs := make([]*model.SysUserJob, 0)    // 已经在运行中的任务
-	assignedJobs := make([]*model.SysUserJob, 0)  // 本次被分配的任务
-	assignedGPUs := make([]*model.SysCpodMain, 0) // 本次被分配任务的gpu
+	activeJobs := make([]*model.SysUserJob, 0)        // 已经在运行中的任务
+	assignedJobs := make([]*model.SysUserJob, 0)      // 本次被分配的任务
+	assignedGPUs := make(map[*model.SysCpodMain]bool) // 本次被分配任务的gpu
 
 	for _, job := range jobs {
 		if job.CpodId.String == "" {
@@ -77,7 +77,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 				if gpu.GpuProd == job.GpuType && gpu.GpuAllocatable.Int64 >= job.GpuNumber.Int64 {
 					assignedJobs = append(assignedJobs, job)
 					gpu.GpuAllocatable.Int64 -= job.GpuNumber.Int64
-					assignedGPUs = append(assignedGPUs, gpu)
+					assignedGPUs[gpu] = true
 					break
 				}
 			}
@@ -124,22 +124,6 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		resp.JobList = append(resp.JobList, cpodJobResp)
 	}
 
-	for _, gpu := range assignedGPUs {
-		_, err = CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().Where(squirrel.Eq{
-			"main_id": gpu.MainId,
-		}).SetMap(map[string]interface{}{
-			"gpu_allocatable": gpu.GpuAllocatable,
-			"update_time":     sql.NullTime{Time: time.Now(), Valid: true},
-		}))
-		if err != nil {
-			l.Logger.Errorf("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d err=%s",
-				gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64, err)
-			return nil, err
-		}
-		l.Logger.Infof("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d",
-			gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64)
-	}
-
 	// inference services
 	services, err := InferenceModel.FindAll(l.ctx, InferenceModel.AllFieldsBuilder().Where(
 		squirrel.Or{
@@ -167,27 +151,32 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			serviceResp.ModelIsPublic = true
 		}
 
-		// 新分配
+		switch service.Status {
+		case model.StatusNotAssigned:
+			for _, gpu := range gpus {
+				if gpu.GpuProd.String == service.GpuType.String && gpu.GpuAllocatable.Int64 >= service.GpuNumber.Int64 {
+					gpu.GpuAllocatable.Int64 -= service.GpuNumber.Int64
+					assignedGPUs[gpu] = true
 
-		// 老任务
+					// new assigned
+					_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
+						"id": service.Id,
+					}).SetMap(map[string]interface{}{
+						"cpod_id": req.CpodId,
+						"status":  model.StatusAssigned,
+					}))
+					if err != nil {
+						l.Errorf("inference assigned inferId=%d cpod_id=%s err=%s", service.Id, req.CpodId, err)
+						return nil, err
+					}
+					l.Infof("inference assigned inferId=%d cpod_id=%s", service.Id, req.CpodId)
 
-		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
-
-		// 新分配的部署更新cpod_id和status
-		// 2024-01-31 目前逻辑简单粗暴，把所有等待部署的任务都下发下去。更完善的方案应该是考虑到推理部署的GPU占用，不要超卖，否则cpod
-		// 运行不了那么多的推理部署。
-		if service.CpodId == "" && service.Status == model.StatusNotAssigned {
-			_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
-				"id": service.Id,
-			}).SetMap(map[string]interface{}{
-				"cpod_id": req.CpodId,
-				"status":  model.StatusAssigned,
-			}))
-			if err != nil {
-				l.Errorf("inference assigned inferId=%d cpod_id=%s err=%s", service.Id, req.CpodId, err)
-				return nil, err
+					resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
+					break
+				}
 			}
-			l.Infof("inference assigned inferId=%d cpod_id=%s", service.Id, req.CpodId)
+		default:
+			resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 		}
 	}
 
@@ -211,14 +200,6 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		jupyterlabResp.GPUCount = int(jupyterlab.GpuCount)
 		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
 		jupyterlabResp.DataVolumeSize = fs.BytesToMi(jupyterlab.DataVolumeSize)
-		// jupyterlabResp.PretrainedModels = make([]types.PretrainedModels, 0)
-		// if jupyterlab.ModelId != "" {
-		// 	jupyterlabResp.PretrainedModels = append(jupyterlabResp.PretrainedModels, types.PretrainedModels{
-		// 		PretrainedModelId:   jupyterlab.ModelId,
-		// 		PretrainedModelName: jupyterlab.ModelName,
-		// 		PretrainedModelPath: jupyterlab.ModelPath,
-		// 	})
-		// }
 		err = json.Unmarshal([]byte(jupyterlab.Resource), &jupyterlabResp.Resource)
 		if err != nil {
 			l.Errorf("json unmarshal jupyterlab: %d err: %s", jupyterlab.Id, err)
@@ -227,22 +208,50 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		jupyterlabResp.UserID = jupyterlab.NewUserId
 		jupyterlabResp.Replicas = int(jupyterlab.Replicas)
 
-		resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
+		switch jupyterlab.Status {
+		case model.StatusNotAssigned:
+			for _, gpu := range gpus {
+				if gpu.GpuProd.String == jupyterlab.GpuProd && gpu.GpuAllocatable.Int64 >= jupyterlab.GpuCount {
+					gpu.GpuAllocatable.Int64 -= jupyterlab.GpuCount
+					assignedGPUs[gpu] = true
 
-		// 新分配的部署更新cpod_id和status
-		if jupyterlab.CpodId == "" && jupyterlab.Status == model.StatusNotAssigned {
-			_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
-				"id": jupyterlab.Id,
-			}).SetMap(map[string]interface{}{
-				"cpod_id": req.CpodId,
-				"status":  model.StatusAssigned,
-			}))
-			if err != nil {
-				l.Errorf("jupyterlab assigned id=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)
-				return nil, err
+					// new assigned
+					_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+						"id": jupyterlab.Id,
+					}).SetMap(map[string]interface{}{
+						"cpod_id": req.CpodId,
+						"status":  model.StatusAssigned,
+					}))
+					if err != nil {
+						l.Errorf("jupyterlab assigned jupyterId=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)
+						return nil, err
+					}
+					l.Infof("jupyterlab assigned jupyterId=%d cpod_id=%s", jupyterlab.Id, req.CpodId)
+
+					resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
+					break
+				}
 			}
-			l.Infof("jupyterlab assigned id=%d cpod_id=%s", jupyterlab.Id, req.CpodId)
+		default:
+			resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
 		}
+	}
+
+	// update GPU usage
+	for gpu := range assignedGPUs {
+		_, err = CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().Where(squirrel.Eq{
+			"main_id": gpu.MainId,
+		}).SetMap(map[string]interface{}{
+			"gpu_allocatable": gpu.GpuAllocatable,
+			"update_time":     sql.NullTime{Time: time.Now(), Valid: true},
+		}))
+		if err != nil {
+			l.Logger.Errorf("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d err=%s",
+				gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64, err)
+			return nil, err
+		}
+		l.Logger.Infof("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d",
+			gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64)
 	}
 
 	return
