@@ -1,17 +1,14 @@
 import {
   apiPostJobJupyterlab,
-  useApiGetGpuType,
-  useApiResourceModels,
   useGpuTypeOptions,
   useResourceAdaptersOptions,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
 } from '@/services';
-import { Button, Form, Input, Select, Space, message } from 'antd';
+import { Button, Form, Input, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
-import { concatArray } from '@/utils';
 
 interface IProps {
   onChange: () => void;
