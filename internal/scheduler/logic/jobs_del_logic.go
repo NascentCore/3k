@@ -56,8 +56,9 @@ func (l *JobsDelLogic) JobsDel(req *types.JobsDelReq) (resp *types.JobsDelResp, 
 	_, err = InferModel.UpdateColsByCond(l.ctx, InferModel.UpdateBuilder().Where(
 		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
-		"status":   model.InferStatusStopped,
-		"end_time": orm.NullTime(time.Now()),
+		"status":        model.StatusDeleted,
+		"obtain_status": model.StatusObtainNotNeedSend,
+		"end_time":      orm.NullTime(time.Now()),
 	}))
 	if err != nil {
 		l.Errorf("inference stop user_id=%s err=%s", req.ToUser, err)
@@ -68,7 +69,7 @@ func (l *JobsDelLogic) JobsDel(req *types.JobsDelReq) (resp *types.JobsDelResp, 
 	_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(
 		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
-		"status":   model.JupyterStatusStopped,
+		"status":   model.StatusDeleted,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {

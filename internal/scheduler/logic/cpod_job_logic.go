@@ -59,11 +59,11 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	}
 
 	jobs, err := UserJobModel.Find(l.ctx, UserJobModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"obtain_status": model.JobStatusObtainNeedSend,
+		"obtain_status": model.StatusObtainNeedSend,
 		"deleted":       0,
 	}))
 	if err != nil {
-		l.Logger.Errorf("user_job find obtain_status=%d deleted=0 err=%s", model.JobStatusObtainNeedSend, err)
+		l.Logger.Errorf("user_job find obtain_status=%d deleted=0 err=%s", model.StatusObtainNeedSend, err)
 		return nil, err
 	}
 
@@ -143,8 +143,8 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	// inference services
 	services, err := InferenceModel.FindAll(l.ctx, InferenceModel.AllFieldsBuilder().Where(
 		squirrel.Or{
-			squirrel.Eq{"status": model.InferStatusWaitDeploy},
-			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.InferStatusStopped}},
+			squirrel.Eq{"status": model.StatusNotAssigned},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
 		},
 	), "")
 	if err != nil {
@@ -155,7 +155,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	for _, service := range services {
 		serviceResp := types.InferenceService{}
 		_ = copier.Copy(&serviceResp, service)
-		statusDesc, ok := model.InferStatusToDesc[service.Status]
+		statusDesc, ok := model.StatusToStr[service.Status]
 		if ok {
 			serviceResp.Status = statusDesc
 		}
@@ -166,17 +166,22 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		} else {
 			serviceResp.ModelIsPublic = true
 		}
+
+		// 新分配
+
+		// 老任务
+
 		resp.InferenceServiceList = append(resp.InferenceServiceList, serviceResp)
 
 		// 新分配的部署更新cpod_id和status
 		// 2024-01-31 目前逻辑简单粗暴，把所有等待部署的任务都下发下去。更完善的方案应该是考虑到推理部署的GPU占用，不要超卖，否则cpod
 		// 运行不了那么多的推理部署。
-		if service.CpodId == "" && service.Status == model.InferStatusWaitDeploy {
+		if service.CpodId == "" && service.Status == model.StatusNotAssigned {
 			_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
 				"id": service.Id,
 			}).SetMap(map[string]interface{}{
 				"cpod_id": req.CpodId,
-				"status":  model.InferStatusDeploying,
+				"status":  model.StatusAssigned,
 			}))
 			if err != nil {
 				l.Errorf("inference assigned inferId=%d cpod_id=%s err=%s", service.Id, req.CpodId, err)
@@ -189,8 +194,8 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	// jupyterlab
 	jupyterlabList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(
 		squirrel.Or{
-			squirrel.Eq{"status": model.JupyterStatusWaitDeploy},
-			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.JupyterStatusStopped}},
+			squirrel.Eq{"status": model.StatusNotAssigned},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
 		},
 	))
 	if err != nil {
@@ -225,12 +230,12 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
 
 		// 新分配的部署更新cpod_id和status
-		if jupyterlab.CpodId == "" && jupyterlab.Status == model.InferStatusWaitDeploy {
+		if jupyterlab.CpodId == "" && jupyterlab.Status == model.StatusNotAssigned {
 			_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
 				"id": jupyterlab.Id,
 			}).SetMap(map[string]interface{}{
 				"cpod_id": req.CpodId,
-				"status":  model.JupyterStatusDeploying,
+				"status":  model.StatusAssigned,
 			}))
 			if err != nil {
 				l.Errorf("jupyterlab assigned id=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)

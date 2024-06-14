@@ -66,7 +66,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	}
 
 	for _, jupyterlab := range jupyterList {
-		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.JupyterStatusStopped {
+		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.StatusDeleted {
 			l.Errorf("JupyterlabCreate name duplicate userId: %s name: %s", req.UserID, req.InstanceName)
 			return nil, fmt.Errorf("实例名字重复")
 		}
@@ -99,7 +99,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	jupyterInstance := model.SysJupyterlab{
 		JobName:        jobName,
 		NewUserId:      req.UserID,
-		Status:         model.JupyterStatusWaitDeploy,
+		Status:         model.StatusNotAssigned,
 		BillingStatus:  billingStatus,
 		InstanceName:   req.InstanceName,
 		GpuCount:       req.GPUCount,
@@ -108,7 +108,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		MemCount:       req.Memory,
 		DataVolumeSize: req.DataVolumeSize,
 		Resource:       string(jsonResource),
-		Replicas:       model.JupyterReplicasRunning,
+		Replicas:       model.ReplicasRunning,
 	}
 	_, err = JupyterlabModel.Insert(l.ctx, &jupyterInstance)
 	if err != nil {

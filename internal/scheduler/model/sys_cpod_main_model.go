@@ -9,15 +9,15 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-const (
-	JobStatusObtainNeedSend    = 0
-	JobStatusObtainNotNeedSend = 1
-	JobStatusWorkerRunning     = 0
-	JobStatusWorkerFail        = 1
-	JobStatusWorkerSuccess     = 2
-	JobStatusWorkerUrlSuccess  = 3
-	JobStatusWorkerPreparing   = 4
-)
+// const (
+// 	JobStatusObtainNeedSend    = 0
+// 	JobStatusObtainNotNeedSend = 1
+// 	JobStatusWorkerRunning     = 0
+// 	JobStatusWorkerFail        = 1
+// 	JobStatusWorkerSuccess     = 2
+// 	JobStatusWorkerUrlSuccess  = 3
+// 	JobStatusWorkerPreparing   = 4
+// )
 
 var _ SysCpodMainModel = (*customSysCpodMainModel)(nil)
 

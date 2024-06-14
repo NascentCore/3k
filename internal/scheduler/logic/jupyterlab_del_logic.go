@@ -42,7 +42,7 @@ func (l *JupyterlabDelLogic) JupyterlabDel(req *types.JupyterlabDeleteReq) (resp
 		return nil, err
 	}
 
-	if instance.Status == model.JupyterStatusStopped {
+	if instance.Status == model.StatusDeleted {
 		resp = &types.JupyterlabDeleteResp{
 			Message: fmt.Sprintf("jupyterlab: %s is already stopped", instance.JobName),
 		}
@@ -54,7 +54,7 @@ func (l *JupyterlabDelLogic) JupyterlabDel(req *types.JupyterlabDeleteReq) (resp
 			squirrel.Eq{"job_name": req.JobName},
 			squirrel.Eq{"new_user_id": req.UserID},
 		}).SetMap(map[string]interface{}{
-		"status":   model.JupyterStatusStopped,
+		"status":   model.StatusDeleted,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {
