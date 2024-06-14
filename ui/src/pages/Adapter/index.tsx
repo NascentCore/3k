@@ -62,7 +62,7 @@ const Index: React.FC = () => {
       key: '2',
       label: intl.formatMessage({
         id: 'pages.adapter.tabs.title.user',
-        defaultMessage: '用户适配器',
+        defaultMessage: '私有适配器',
       }),
       children: (
         <>

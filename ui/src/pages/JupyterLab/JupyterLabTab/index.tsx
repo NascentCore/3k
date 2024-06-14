@@ -74,11 +74,22 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             }),
             dataIndex: 'action',
             key: 'action',
-            align: 'center', 
-            width: 300,
+            align: 'center',
+            width: 600,
             render: (_, record) => (
               <>
                 <Space>
+                  {record?.status === 'Paused' && (
+                    <Button type={'link'} onClick={() => {}}>
+                      运行
+                    </Button>
+                  )}
+                  {record?.status === 'Running' && (
+                    <Button type={'link'} onClick={() => {}}>
+                      暂停
+                    </Button>
+                  )}
+
                   <Button
                     type={'link'}
                     onClick={() => {
