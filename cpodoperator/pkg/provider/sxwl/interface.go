@@ -41,7 +41,7 @@ type Model struct {
 	ModelID       string `json:"model_id"`
 	ModelName     string `json:"model_name"`
 	ModelSize     int    `json:"model_size"`
-	ModelPath     string `json:":model_path"`
+	ModelPath     string `json:"model_path"`
 	ModelTemplate string `json:"model_template"`
 	ModelIsPublic bool   `json:"model_is_public"`
 }
