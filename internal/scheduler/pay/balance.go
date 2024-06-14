@@ -47,25 +47,25 @@ func (bm *BalanceManager) Update() {
 	}
 
 	// 按用户聚合
-	userAmountMap := make(map[int64]float64)
-	userBillingMap := make(map[int64][]int64)
+	userAmountMap := make(map[string]float64)
+	userBillingMap := make(map[string][]int64)
 	for _, billing := range billingList {
-		_, ok := userAmountMap[billing.UserId]
+		_, ok := userAmountMap[billing.NewUserId]
 		if !ok {
-			userAmountMap[billing.UserId] = billing.Amount
-			userBillingMap[billing.UserId] = []int64{billing.Id}
+			userAmountMap[billing.NewUserId] = billing.Amount
+			userBillingMap[billing.NewUserId] = []int64{billing.Id}
 			continue
 		}
 
-		userAmountMap[billing.UserId] += billing.Amount
-		userBillingMap[billing.UserId] = append(userBillingMap[billing.UserId], billing.Id)
+		userAmountMap[billing.NewUserId] += billing.Amount
+		userBillingMap[billing.NewUserId] = append(userBillingMap[billing.NewUserId], billing.Id)
 	}
 
-	for userID, amount := range userAmountMap {
+	for newUserID, amount := range userAmountMap {
 		err = bm.svcCtx.DB.Transact(func(session sqlx.Session) error {
 			// 扣减用户余额
 			sql, args, err := BalanceModel.UpdateBuilder().Where(squirrel.Eq{
-				"user_id": userID,
+				"new_user_id": newUserID,
 			}).Set("balance", squirrel.Expr("balance - ?", amount)).ToSql()
 			if err != nil {
 				return err
@@ -80,12 +80,12 @@ func (bm *BalanceManager) Update() {
 				return err
 			}
 			if rowsAffected == 0 {
-				bm.Errorf("user %d userBalance not found", userID)
+				bm.Errorf("user %s userBalance not found", newUserID)
 			}
 
 			// 设置账单状态为已支付
 			sql, args, err = BillingModel.UpdateBuilder().Where(squirrel.Eq{
-				"id": userBillingMap[userID],
+				"id": userBillingMap[newUserID],
 			}).SetMap(map[string]interface{}{
 				"billing_status": model.BillingStatusPaid,
 				"payment_time":   orm.NullTime(time.Now()),
@@ -114,13 +114,13 @@ func (bm *BalanceManager) Update() {
 	}
 
 	// 用户欠费，终止任务
-	userIDList := make([]int64, 0)
+	userIDList := make([]string, 0)
 	for userID := range userAmountMap {
 		userIDList = append(userIDList, userID)
 	}
 
 	userBalanceList, err := BalanceModel.Find(bm.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": userIDList,
+		"new_user_id": userIDList,
 	}))
 	if err != nil {
 		bm.Errorf("userBalance Find err=%s", err)
