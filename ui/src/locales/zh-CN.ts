@@ -10,6 +10,8 @@ import oem from './zh-CN/oem';
 import Adapter from './zh-CN/adapter';
 import Dataseta from './zh-CN/dataset';
 import global from './zh-CN/global';
+import myAccount from './zh-CN/myAccount';
+import clusterCpods from './zh-CN/clusterCpods';
 
 export default {
   'menu.welcome': '欢迎',
@@ -26,6 +28,8 @@ export default {
   'menu.Dataset': '数据集',
   'menu.Adapter': '适配器',
   'menu.ClusterCpods': '资源看板',
+  'nav.title.Price': '价格',
+  'nav.title.Document': '文档',
   ...global,
   ...oem,
   ...login,
@@ -38,4 +42,6 @@ export default {
   ...JupyterLab,
   ...Adapter,
   ...Dataseta,
+  ...myAccount,
+  ...clusterCpods,
 };

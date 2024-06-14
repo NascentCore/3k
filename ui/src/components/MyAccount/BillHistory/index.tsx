@@ -16,7 +16,7 @@ const Index: React.FC = () => {
         columns={[
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.billing_id',
               defaultMessage: 'ID',
             }),
             dataIndex: 'billing_id',
@@ -26,7 +26,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.job_id',
               defaultMessage: '任务ID',
             }),
             dataIndex: 'job_id',
@@ -36,7 +36,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.job_type',
               defaultMessage: '任务类型',
             }),
             dataIndex: 'job_type',
@@ -44,29 +44,29 @@ const Index: React.FC = () => {
             align: 'center',
             width: 150,
           },
+          // {
+          //   title: intl.formatMessage({
+          //     id: 'xxx',
+          //     defaultMessage: 'GPU类型',
+          //   }),
+          //   dataIndex: 'xxx',
+          //   key: 'xxx',
+          //   align: 'center',
+          //   width: 150,
+          // },
+          // {
+          //   title: intl.formatMessage({
+          //     id: 'xxx',
+          //     defaultMessage: 'GPU数量',
+          //   }),
+          //   dataIndex: 'xxx',
+          //   key: 'xxx',
+          //   align: 'center',
+          //   width: 150,
+          // },
           {
             title: intl.formatMessage({
-              id: 'xxx',
-              defaultMessage: 'GPU类型',
-            }),
-            dataIndex: 'xxx',
-            key: 'xxx',
-            align: 'center',
-            width: 150,
-          },
-          {
-            title: intl.formatMessage({
-              id: 'xxx',
-              defaultMessage: 'GPU数量',
-            }),
-            dataIndex: 'xxx',
-            key: 'xxx',
-            align: 'center',
-            width: 150,
-          },
-          {
-            title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.billing_time',
               defaultMessage: '账单计费时间',
             }),
             dataIndex: 'billing_time',
@@ -76,7 +76,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.payment_time',
               defaultMessage: '账单生成时间',
             }),
             dataIndex: 'payment_time',
@@ -86,7 +86,7 @@ const Index: React.FC = () => {
           },
           {
             title: intl.formatMessage({
-              id: 'xxx',
+              id: 'pages.myAccount.BillHistory.table.column.amount',
               defaultMessage: '金额',
             }),
             dataIndex: 'amount',
