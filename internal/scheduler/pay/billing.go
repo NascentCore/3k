@@ -241,7 +241,7 @@ func (bm *BillingManager) Update() {
 			}
 			billingList = append(billingList, model.UserBilling{
 				BillingId:     billingID,
-				UserId:        jupyter.UserId,
+				NewUserId:     jupyter.NewUserId,
 				Amount:        amount,
 				BillingStatus: model.BillingStatusUnpaid,
 				JobId:         jupyter.JobName,
