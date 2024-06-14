@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/http"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
@@ -12,29 +11,34 @@ import (
 	"sxwl/3k/pkg/orm"
 	"time"
 
-	"github.com/zeromicro/go-zero/rest/httpc"
-
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type JobStatus string
 
-// 通用的任务状态定义
-const (
-	JobStatusCreated        JobStatus = "created"        // 任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
-	JobStatusCreateFailed   JobStatus = "createfailed"   // 任务在创建时直接失败（因为配置原因）
-	JobStatusRunning        JobStatus = "running"        // Pod全部创建成功，并正常运行
-	JobStatusPending        JobStatus = "pending"        // 因为资源不足，在等待
-	JobStatusErrorLoop      JobStatus = "crashloop"      // 进入crashloop
-	JobStatusModelUploaded  JobStatus = "modeluploaded"  // 模型文件（训练结果）已上传
-	JobStatusModelUploading JobStatus = "modeluploading" // 模型文件（训练结果）正在上传
-	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
-	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
-	JobStatusInvalid        JobStatus = "invalid"        // finetune的failed
-	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
-	JobStatusPreparing      JobStatus = "preparing"      // 正在准备任务所需资源
-)
+// // 通用的任务状态定义
+// // modeluploaded：  模型上传
+// // modeluploading： 训练完模型
+// // failed ： 运行失败
+// // succeeded： 运行成功
+// // running: 运行中
+// // created： 已创建
+// // DataPreparing: 数据准备中
+// const (
+// 	JobStatusDataPreparing  JobStatus = "datapreparing"  // 数据准备中
+// 	JobStatusCreated        JobStatus = "created"        // 任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
+// 	JobStatusCreateFailed   JobStatus = "createfailed"   // 任务在创建时直接失败（因为配置原因）
+// 	JobStatusRunning        JobStatus = "running"        // Pod全部创建成功，并正常运行
+// 	JobStatusPending        JobStatus = "pending"        // 因为资源不足，在等待
+// 	JobStatusErrorLoop      JobStatus = "crashloop"      // 进入crashloop
+// 	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
+// 	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
+// 	JobStatusModelUploaded  JobStatus = "modeluploaded"  // 模型文件（训练结果）已上传
+// 	JobStatusModelUploading JobStatus = "modeluploading" // 模型文件（训练结果）正在上传
+// 	JobStatusInvalid        JobStatus = "invalid"        // finetune的failed
+// 	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
+// )
 
 type CpodStatusLogic struct {
 	logx.Logger
@@ -53,7 +57,7 @@ func NewCpodStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CpodSt
 func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPODStatusResp, err error) {
 	CpodMainModel := l.svcCtx.CpodMainModel
 	UserJobModel := l.svcCtx.UserJobModel
-	FileURLModel := l.svcCtx.FileURLModel
+	// FileURLModel := l.svcCtx.FileURLModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	InferModel := l.svcCtx.InferenceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
@@ -122,13 +126,12 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 
 	// update sys_user_job
 	for _, job := range req.JobStatus {
-		dbWorkStatus, ok := statusToDBMap[job.JobStatus]
+		status, ok := model.StatusToInt[job.JobStatus]
 		if !ok {
-			l.Logger.Errorf("statusToDBMap not exists status=%s", job.JobStatus)
+			l.Logger.Errorf("StatusToInt not exists status=%s", job.JobStatus)
 			continue
 		}
 		userJobs, err := UserJobModel.Find(l.ctx, UserJobModel.AllFieldsBuilder().Where(squirrel.Eq{
-			"cpod_id":  req.CPODID,
 			"job_name": job.Name,
 		}))
 		if err != nil {
@@ -141,14 +144,13 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue
 		}
 
-		if userJobs[0].WorkStatus == int64(dbWorkStatus) {
-			l.Logger.Infof("user_job status same cpod_id=%s job_name=%s status=%d", req.CPODID, job.Name, dbWorkStatus)
+		if userJobs[0].WorkStatus == int64(status) {
+			// l.Logger.Infof("user_job status same cpod_id=%s job_name=%s status=%d", req.CPODID, job.Name, status)
 			continue
 		}
 
 		updateBuilder := UserJobModel.UpdateBuilder().Where(
 			squirrel.Eq{
-				"cpod_id":  req.CPODID,
 				"job_name": job.Name,
 			},
 		)
@@ -157,13 +159,13 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				Time:  time.Now(),
 				Valid: true,
 			},
-			"work_status": dbWorkStatus,
+			"work_status": status,
 		}
-		// 准备资源阶段继续下发任务
-		if dbWorkStatus == model.JobStatusWorkerPreparing {
-			setMap["obtain_status"] = model.JobStatusObtainNeedSend
-		} else {
-			setMap["obtain_status"] = model.JobStatusObtainNotNeedSend
+
+		// 终态不再下发
+		switch status {
+		case model.StatusFailed, model.StatusSucceeded:
+			setMap["obtain_status"] = model.StatusObtainNotNeedSend
 		}
 
 		result, err := UserJobModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
@@ -182,88 +184,111 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue // no update
 		}
 
-		// callback
-		if dbWorkStatus != model.JobStatusWorkerFail && dbWorkStatus != model.JobStatusWorkerUrlSuccess {
-			continue
-		}
-
-		callBackReq := types.JobCallBackReq{}
-		go func(cpodID, jobName string) {
-			logger := logx.WithContext(context.Background())
-			userJob, err := UserJobModel.FindOneByQuery(context.Background(),
-				UserJobModel.AllFieldsBuilder().Where(
-					squirrel.Eq{
-						"cpod_id":  cpodID,
-						"job_name": jobName,
-					},
-				),
-			)
-			if err != nil {
-				logger.Errorf("user_job findOne cpod_id=%s job_name=%s err=%s", cpodID, jobName, err)
-				return
-			}
-
-			if userJob.CallbackUrl.String == "" {
-				logger.Infof("user_job callback is empty cpod_id=%s job_name=%s", cpodID, jobName)
-				return
-			}
-
-			var url string
-			if dbWorkStatus == model.JobStatusWorkerUrlSuccess {
-				fileURL, err := FileURLModel.FindOneByQuery(context.Background(),
-					FileURLModel.AllFieldsBuilder().Where(
-						squirrel.Eq{
-							"job_name": jobName,
-						},
-					),
-				)
-				if err != nil {
-					logger.Errorf("file_url findOne job_name=%s err=%s", jobName, err)
-					return
-				}
-				url = fileURL.FileUrl.String
-			}
-
-			switch dbWorkStatus {
-			case model.JobStatusWorkerFail:
-				callBackReq.Status = consts.JobFail
-			case model.JobStatusWorkerUrlSuccess:
-				callBackReq.Status = consts.JobSuccess
-				callBackReq.URL = url
-				callBackReq.JobID = jobName
-			}
-
-			callBackResp, err := httpc.Do(context.Background(), http.MethodPost, userJob.CallbackUrl.String, callBackReq)
-			if err != nil {
-				logger.Errorf("callback job_name=%s url=%s err=%s", jobName, userJob.CallbackUrl.String, err)
-				return
-			}
-			logger.Infof("callback job_name=%s url=%s status=%s", jobName,
-				userJob.CallbackUrl.String, callBackResp.Status)
-		}(req.CPODID, job.Name)
+		// 2024-06-14 目前没有回调入口，暂时关闭
+		// // callback
+		// if dbWorkStatus != model.JobStatusWorkerFail && dbWorkStatus != model.JobStatusWorkerUrlSuccess {
+		// 	continue
+		// }
+		//
+		// callBackReq := types.JobCallBackReq{}
+		// go func(cpodID, jobName string) {
+		// 	logger := logx.WithContext(context.Background())
+		// 	userJob, err := UserJobModel.FindOneByQuery(context.Background(),
+		// 		UserJobModel.AllFieldsBuilder().Where(
+		// 			squirrel.Eq{
+		// 				"cpod_id":  cpodID,
+		// 				"job_name": jobName,
+		// 			},
+		// 		),
+		// 	)
+		// 	if err != nil {
+		// 		logger.Errorf("user_job findOne cpod_id=%s job_name=%s err=%s", cpodID, jobName, err)
+		// 		return
+		// 	}
+		//
+		// 	if userJob.CallbackUrl.String == "" {
+		// 		logger.Infof("user_job callback is empty cpod_id=%s job_name=%s", cpodID, jobName)
+		// 		return
+		// 	}
+		//
+		// 	var url string
+		// 	if dbWorkStatus == model.JobStatusWorkerUrlSuccess {
+		// 		fileURL, err := FileURLModel.FindOneByQuery(context.Background(),
+		// 			FileURLModel.AllFieldsBuilder().Where(
+		// 				squirrel.Eq{
+		// 					"job_name": jobName,
+		// 				},
+		// 			),
+		// 		)
+		// 		if err != nil {
+		// 			logger.Errorf("file_url findOne job_name=%s err=%s", jobName, err)
+		// 			return
+		// 		}
+		// 		url = fileURL.FileUrl.String
+		// 	}
+		//
+		// 	switch dbWorkStatus {
+		// 	case model.JobStatusWorkerFail:
+		// 		callBackReq.Status = consts.JobFail
+		// 	case model.JobStatusWorkerUrlSuccess:
+		// 		callBackReq.Status = consts.JobSuccess
+		// 		callBackReq.URL = url
+		// 		callBackReq.JobID = jobName
+		// 	}
+		//
+		// 	callBackResp, err := httpc.Do(context.Background(), http.MethodPost, userJob.CallbackUrl.String, callBackReq)
+		// 	if err != nil {
+		// 		logger.Errorf("callback job_name=%s url=%s err=%s", jobName, userJob.CallbackUrl.String, err)
+		// 		return
+		// 	}
+		// 	logger.Infof("callback job_name=%s url=%s status=%s", jobName,
+		// 		userJob.CallbackUrl.String, callBackResp.Status)
+		// }(req.CPODID, job.Name)
 	}
 
 	// update inference
-	for _, infer := range req.InferenceStatus {
+	for _, reqInfer := range req.InferenceStatus {
+		// get int status
+		status, ok := model.StatusToInt[reqInfer.Status]
+		if !ok {
+			l.Logger.Errorf("StatusToInt not exists status=%s", reqInfer.Status)
+			continue
+		}
+
+		// query the inference in db
+		infer, err := InferModel.FindOneByQuery(l.ctx, InferModel.AllFieldsBuilder().Where(squirrel.Eq{
+			"service_name": reqInfer.ServiceName,
+		}))
+		if err != nil {
+			l.Logger.Errorf("infer find service_name=%s err=%s", reqInfer.ServiceName, err)
+			return nil, err
+		}
+
+		// if status the same continue
+		if infer.Status == int64(status) {
+			continue
+		}
+
 		updateBuilder := InferModel.UpdateBuilder().Where(squirrel.Eq{
 			"service_name": infer.ServiceName,
-			"status":       model.InferStatusDeploying, // 只有在初始状态才接收cpod上报
+			// "status":       model.StatusPending, // 只在初始换
 		})
 
 		var setMap = map[string]interface{}{}
-		switch infer.Status {
-		case model.InferStatusDescDeployed:
+		switch status {
+		case model.StatusRunning:
 			setMap = map[string]interface{}{
 				"start_time": orm.NullTime(time.Now()),
-				"status":     model.InferStatusDeployed,
-				"url":        infer.URL,
+				"status":     status,
+				"url":        reqInfer.URL,
 			}
-		case model.InferStatusDescFailed:
+		case model.StatusSucceeded, model.StatusFailed:
 			setMap = map[string]interface{}{
-				"status": model.InferStatusFailed,
+				"end_time":      orm.NullTime(time.Now()),
+				"status":        status,
+				"obtain_status": model.StatusObtainNotNeedSend,
 			}
-		}
-		if len(setMap) == 0 {
+		default:
 			continue
 		}
 
@@ -283,42 +308,63 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		}
 	}
 
-	// update inference
-	for _, jupyter := range req.JupyterlabStatus {
+	// update jupyterlab
+	for _, reqJupyter := range req.JupyterlabStatus {
+		// get int status
+		status, ok := model.StatusToInt[reqJupyter.Status]
+		if !ok {
+			l.Logger.Errorf("StatusToInt not exists status=%s", reqJupyter.Status)
+			continue
+		}
+
+		// query the jupyterlab in db
+		jupyter, err := JupyterlabModel.FindOneByQuery(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(squirrel.Eq{
+			"job_name": reqJupyter.JobName,
+		}))
+		if err != nil {
+			l.Logger.Errorf("jupyter find job_name=%s err=%s", reqJupyter.JobName, err)
+			return nil, err
+		}
+
+		// if status the same continue
+		if jupyter.Status == int64(status) {
+			continue
+		}
+
 		updateBuilder := JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
-			"job_name": jupyter.JobName,
-			"status":   model.JupyterStatusDeploying,
+			"job_name": reqJupyter.JobName,
+			// "status":   model.JupyterStatusDeploying,
 		})
 
 		var setMap = map[string]interface{}{}
-		switch jupyter.Status {
-		case model.JupyterStatusDescReady:
+		switch status {
+		case model.StatusRunning:
 			setMap = map[string]interface{}{
 				"start_time": orm.NullTime(time.Now()),
-				"status":     model.JupyterStatusDeployed,
-				"url":        jupyter.URL,
+				"status":     status,
+				"url":        reqJupyter.URL,
 			}
-		case model.JupyterStatusDescFailed:
+		case model.StatusSucceeded, model.StatusFailed:
 			setMap = map[string]interface{}{
-				"status": model.JupyterStatusFailed,
+				"end_time": orm.NullTime(time.Now()),
+				"status":   status,
 			}
-		}
-		if len(setMap) == 0 {
+		default:
 			continue
 		}
 
 		result, err := JupyterlabModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
 		if err != nil {
-			l.Logger.Errorf("jupyter update cpod_id=%s name=%s err=%s", req.CPODID, jupyter.JobName, err)
+			l.Logger.Errorf("reqJupyter update cpod_id=%s name=%s err=%s", req.CPODID, reqJupyter.JobName, err)
 			return nil, err
 		}
 		rows, err := result.RowsAffected()
 		if err != nil {
-			l.Logger.Errorf("jupyter update cpod_id=%s name=%s RowsAffected err=%s", req.CPODID, jupyter.JobName, err)
+			l.Logger.Errorf("reqJupyter update cpod_id=%s name=%s RowsAffected err=%s", req.CPODID, reqJupyter.JobName, err)
 			return nil, err
 		}
 		if rows != 1 {
-			l.Logger.Errorf("jupyter update rows=%d cpod_id=%s name=%s err=%s", rows, req.CPODID, jupyter.JobName, err)
+			l.Logger.Errorf("reqJupyter update rows=%d cpod_id=%s name=%s err=%s", rows, req.CPODID, reqJupyter.JobName, err)
 			continue // no update
 		}
 	}
@@ -422,14 +468,15 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	return
 }
 
-var statusToDBMap = map[string]int{
-	string(JobStatusCreateFailed):  model.JobStatusWorkerFail,
-	string(JobStatusFailed):        model.JobStatusWorkerFail,
-	string(JobStatusInvalid):       model.JobStatusWorkerFail,
-	string(JobStatusSucceed):       model.JobStatusWorkerSuccess,
-	string(JobStatusModelUploaded): model.JobStatusWorkerUrlSuccess,
-	string(JobStatusPreparing):     model.JobStatusWorkerPreparing,
-}
+// var statusToDBMap = map[string]int{
+// 	string(JobStatusDataPreparing):  model.JobStatusWorkerPreparing,
+// 	string(JobStatusCreated):        model.JobStatusWorkerRunning,
+// 	string(JobStatusRunning):        model.JobStatusWorkerRunning,
+// 	string(JobStatusModelUploading): model.JobStatusWorkerRunning,
+// 	string(JobStatusFailed):         model.JobStatusWorkerFail,
+// 	string(JobStatusSucceed):        model.JobStatusWorkerSuccess,
+// 	string(JobStatusModelUploaded):  model.JobStatusWorkerUrlSuccess,
+// }
 
 var cacheTypeToDBMap = map[string]int{
 	consts.CacheModel:   model.CacheModel,

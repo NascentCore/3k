@@ -10,38 +10,38 @@ import (
 
 var _ SysJupyterlabModel = (*customSysJupyterlabModel)(nil)
 
-const (
-	JupyterStatusDescWaitDeploy = "waitdeploy"
-	JupyterStatusDescDeploying  = "deploying"
-	JupyterStatusDescDeployed   = "deployed"
-	JupyterStatusDescStopped    = "stopped"
-	JupyterStatusDescReady      = "ready"
-	JupyterStatusDescNotReady   = "notready"
-	JupyterStatusDescFailed     = "failed"
-)
-
-const (
-	JupyterStatusWaitDeploy = 0
-	JupyterStatusDeploying  = 1
-	JupyterStatusDeployed   = 2
-	JupyterStatusStopped    = 3
-	JupyterStatusFailed     = 4
-)
-
-const (
-	JupyterReplicasRunning = 1
-	JupyterReplicasStop    = 0
-)
-
-var (
-	JupyterStatusToDesc = map[int64]string{
-		JupyterStatusWaitDeploy: JupyterStatusDescWaitDeploy,
-		JupyterStatusDeploying:  JupyterStatusDescDeploying,
-		JupyterStatusDeployed:   JupyterStatusDescDeployed,
-		JupyterStatusStopped:    JupyterStatusDescStopped,
-		JupyterStatusFailed:     JupyterStatusDescFailed,
-	}
-)
+// const (
+// 	JupyterStatusDescWaitDeploy = "waitdeploy"
+// 	JupyterStatusDescDeploying  = "deploying"
+// 	JupyterStatusDescDeployed   = "deployed"
+// 	JupyterStatusDescStopped    = "stopped"
+// 	JupyterStatusDescReady      = "ready"
+// 	JupyterStatusDescNotReady   = "notready"
+// 	JupyterStatusDescFailed     = "failed"
+// )
+//
+// const (
+// 	JupyterStatusWaitDeploy = 0
+// 	JupyterStatusDeploying  = 1
+// 	JupyterStatusDeployed   = 2
+// 	JupyterStatusStopped    = 3
+// 	JupyterStatusFailed     = 4
+// )
+//
+// const (
+// 	JupyterReplicasRunning = 1
+// 	JupyterReplicasStop    = 0
+// )
+//
+// var (
+// 	JupyterStatusToDesc = map[int64]string{
+// 		JupyterStatusWaitDeploy: JupyterStatusDescWaitDeploy,
+// 		JupyterStatusDeploying:  JupyterStatusDescDeploying,
+// 		JupyterStatusDeployed:   JupyterStatusDescDeployed,
+// 		JupyterStatusStopped:    JupyterStatusDescStopped,
+// 		JupyterStatusFailed:     JupyterStatusDescFailed,
+// 	}
+// )
 
 type (
 	// SysJupyterlabModel is an interface to be customized, add more methods here,

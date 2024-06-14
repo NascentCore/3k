@@ -36,7 +36,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 			"new_user_id": req.UserID,
 		},
 		squirrel.NotEq{
-			"status": model.JupyterStatusStopped,
+			"status": model.StatusDeleted,
 		},
 	})
 	jupyterlabs, err := JupyterlabModel.Find(l.ctx, selectBuilder)
@@ -55,7 +55,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 		if jupyterlab.Url != "" {
 			jupyterlabResp.URL = fmt.Sprintf("%s%s?token=%s", l.svcCtx.Config.K8S.BaseUrl, jupyterlab.Url, jupyterlab.JobName)
 		}
-		statusDesc, ok := model.JupyterStatusToDesc[jupyterlab.Status]
+		statusDesc, ok := model.StatusToStr[jupyterlab.Status]
 		if ok {
 			jupyterlabResp.Status = statusDesc
 		}

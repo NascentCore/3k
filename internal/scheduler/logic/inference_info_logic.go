@@ -49,7 +49,7 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 	for _, infer := range infers {
 		inferResp := types.SysInference{}
 		_ = copier.Copy(&inferResp, &infer)
-		statusDesc, ok := model.InferStatusToDesc[infer.Status]
+		statusDesc, ok := model.StatusToStr[infer.Status]
 		if ok {
 			inferResp.Status = statusDesc
 		}

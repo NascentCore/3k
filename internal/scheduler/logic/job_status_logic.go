@@ -40,7 +40,7 @@ func (l *JobStatusLogic) JobStatus(req *types.JobStatusReq) (resp *types.JobStat
 	resp = &types.JobStatusResp{}
 
 	switch job.WorkStatus {
-	case model.JobStatusWorkerUrlSuccess:
+	case model.StatusSucceeded:
 		fileURL, err := FileURLModel.FindOneByQuery(l.ctx,
 			FileURLModel.AllFieldsBuilder().Where(
 				squirrel.Eq{
@@ -54,7 +54,7 @@ func (l *JobStatusLogic) JobStatus(req *types.JobStatusReq) (resp *types.JobStat
 		}
 		resp.URL = fileURL.FileUrl.String
 		resp.Status = consts.JobSuccess
-	case model.JobStatusWorkerFail:
+	case model.StatusFailed:
 		resp.Status = consts.JobFail
 	default:
 		resp.Status = consts.JobWorking

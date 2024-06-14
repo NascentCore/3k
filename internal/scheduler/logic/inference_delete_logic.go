@@ -42,7 +42,7 @@ func (l *InferenceDeleteLogic) InferenceDelete(req *types.InferenceDeleteReq) (r
 		return nil, err
 	}
 
-	if service.Status == model.InferStatusStopped {
+	if service.Status == model.StatusDeleted {
 		resp = &types.InferenceDeleteResp{
 			Message: fmt.Sprintf("service_name: %s is already stopped", req.ServiceName),
 		}
@@ -54,8 +54,9 @@ func (l *InferenceDeleteLogic) InferenceDelete(req *types.InferenceDeleteReq) (r
 			squirrel.Eq{"service_name": req.ServiceName},
 			squirrel.Eq{"new_user_id": req.UserID},
 		}).SetMap(map[string]interface{}{
-		"status":   model.InferStatusStopped,
-		"end_time": orm.NullTime(time.Now()),
+		"status":        model.StatusDeleted,
+		"obtain_status": model.StatusObtainNotNeedSend,
+		"end_time":      orm.NullTime(time.Now()),
 	}))
 	if err != nil {
 		l.Errorf("update inference service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)

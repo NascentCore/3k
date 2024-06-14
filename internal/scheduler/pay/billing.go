@@ -75,7 +75,7 @@ func (bm *BillingManager) Update() {
 
 		startTime := time.GetNearestMinute(job.CreateTime.Time)
 		endTime := time.GetNearestMinute(job.UpdateTime.Time)
-		if job.WorkStatus == model.JobStatusWorkerRunning {
+		if job.WorkStatus == model.StatusRunning {
 			endTime = time.GetNearestMinute(time2.Now())
 		}
 		lastBilling, err := UserBillingModel.FindOneByQuery(bm.ctx, UserBillingModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -112,7 +112,7 @@ func (bm *BillingManager) Update() {
 			})
 		}
 
-		if job.WorkStatus > model.JobStatusWorkerRunning {
+		if job.WorkStatus > model.StatusRunning {
 			completeJobs = append(completeJobs, job.JobId)
 		}
 	}
@@ -145,7 +145,7 @@ func (bm *BillingManager) Update() {
 
 		startTime := time.GetNearestMinute(infer.StartTime.Time)
 		endTime := time.GetNearestMinute(infer.EndTime.Time)
-		if infer.Status == model.InferStatusDeployed {
+		if infer.Status == model.StatusRunning {
 			endTime = time.GetNearestMinute(time2.Now())
 		}
 		lastBilling, err := UserBillingModel.FindOneByQuery(bm.ctx, UserBillingModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -182,7 +182,7 @@ func (bm *BillingManager) Update() {
 			})
 		}
 
-		if infer.Status > model.InferStatusDeployed {
+		if infer.Status > model.StatusRunning {
 			completeInfers = append(completeInfers, infer.Id)
 		}
 	}
@@ -217,7 +217,7 @@ func (bm *BillingManager) Update() {
 
 		startTime := time.GetNearestMinute(jupyter.StartTime.Time)
 		endTime := time.GetNearestMinute(jupyter.EndTime.Time)
-		if jupyter.Status == model.JupyterStatusDeployed {
+		if jupyter.Status == model.StatusRunning {
 			endTime = time.GetNearestMinute(time2.Now())
 		}
 		lastBilling, err := UserBillingModel.FindOneByQuery(bm.ctx, UserBillingModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -254,7 +254,7 @@ func (bm *BillingManager) Update() {
 			})
 		}
 
-		if jupyter.Status > model.JupyterStatusDeployed {
+		if jupyter.Status > model.StatusRunning {
 			completeJupyters = append(completeJupyters, jupyter.Id)
 		}
 	}
