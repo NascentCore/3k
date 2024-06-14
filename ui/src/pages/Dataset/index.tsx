@@ -72,7 +72,7 @@ const Index: React.FC = () => {
       key: '2',
       label: intl.formatMessage({
         id: 'pages.dataset.tabs.title.user',
-        defaultMessage: '用户数据集',
+        defaultMessage: '私有数据集',
       }),
       children: (
         <>

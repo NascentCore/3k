@@ -1,8 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, Space, Table, Tabs } from 'antd';
+import { Card, Table } from 'antd';
 import React from 'react';
 import { useApiClusterCpods } from '@/services';
-import { formatFileSize } from '@/utils';
 import { useIntl } from '@umijs/max';
 
 const Index: React.FC = () => {
@@ -57,6 +56,9 @@ const Index: React.FC = () => {
                   key: 'gpu_mem',
                   align: 'center',
                   width: 150,
+                  render: (text) => {
+                    return `${text} MB`;
+                  },
                 },
                 {
                   title: intl.formatMessage({

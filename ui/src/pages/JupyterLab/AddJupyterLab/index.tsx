@@ -1,17 +1,14 @@
 import {
   apiPostJobJupyterlab,
-  useApiGetGpuType,
-  useApiResourceModels,
   useGpuTypeOptions,
   useResourceAdaptersOptions,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
 } from '@/services';
-import { Button, Form, Input, Select, Space, message } from 'antd';
+import { Button, Form, Input, Select, message } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
-import { concatArray } from '@/utils';
 
 interface IProps {
   onChange: () => void;
@@ -42,16 +39,50 @@ const Index = ({ onChange, onCancel }: IProps) => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       console.log('Form values:', values);
-      return;
-      return apiPostJobJupyterlab({
-        data: {
-          ...values,
-          user_id: currentUser?.user_id,
-          cpu_count: Number(values.cpu_count),
-          memory: Number(values.memory) * 1024 * 1024,
-          data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
-          gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
+      const models = modelsOptions
+        .filter((x) => values.resource.models?.includes(x.value))
+        ?.map((x) => ({
+          model_id: x.id,
+          model_name: x.name,
+          model_size: x.size,
+          model_is_public: x.is_public,
+          model_template: x.template,
+          model_path: '/models',
+        }));
+      const datasets = datasetsOptions
+        .filter((x) => values.resource.datasets?.includes(x.value))
+        ?.map((x) => ({
+          dataset_id: x.id,
+          dataset_name: x.name,
+          dataset_size: x.size,
+          dataset_is_public: x.is_public,
+          dataset_path: '/datasets',
+        }));
+      const adapters = adaptersOptions
+        .filter((x) => values.resource.adapters?.includes(x.value))
+        ?.map((x) => ({
+          adapter_id: x.id,
+          adapter_name: x.name,
+          adapter_size: x.size,
+          adapter_is_public: x.is_public,
+          adapter_path: '/adapters',
+        }));
+      const params = {
+        ...values,
+        user_id: currentUser?.user_id,
+        cpu_count: Number(values.cpu_count),
+        memory: Number(values.memory) * 1024 * 1024,
+        data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
+        gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
+        resource: {
+          models,
+          datasets,
+          adapters,
         },
+      };
+      console.log('Form submit:', params);
+      return apiPostJobJupyterlab({
+        data: params,
       }).then(() => {
         onChange();
         message.success(
@@ -189,7 +220,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
             id: 'pages.jupyterLab.AddJupyterLab.form.model_id',
             defaultMessage: '挂载模型',
           })}
-          extra={'挂载路径: /model'}
+          extra={'挂载路径: /models'}
         >
           <Select
             allowClear
@@ -205,14 +236,14 @@ const Index = ({ onChange, onCancel }: IProps) => {
           name={['resource', 'datasets']}
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.datasets',
-            defaultMessage: '挂载适配器',
+            defaultMessage: '挂载数据集',
           })}
-          extra={'挂载路径: /adapter'}
+          extra={'挂载路径: /datasets'}
         >
           <Select
             allowClear
             mode="multiple"
-            options={adaptersOptions}
+            options={datasetsOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
@@ -224,14 +255,14 @@ const Index = ({ onChange, onCancel }: IProps) => {
           name={['resource', 'adapters']}
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.adapters',
-            defaultMessage: '挂载数据集',
+            defaultMessage: '挂载适配器',
           })}
-          extra={'挂载路径: /dataset'}
+          extra={'挂载路径: /adapters'}
         >
           <Select
             allowClear
             mode="multiple"
-            options={datasetsOptions}
+            options={adaptersOptions}
             placeholder={intl.formatMessage({
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',

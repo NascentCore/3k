@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
-import { apiDeleteJobJupyterlab, apiGetJobJupyterlab, useApiGetJobJupyterlab } from '@/services';
-import { formatFileSize, getToken } from '@/utils';
+import { apiDeleteJobJupyterlab } from '@/services';
+import { formatFileSize } from '@/utils';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
@@ -74,11 +74,22 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             }),
             dataIndex: 'action',
             key: 'action',
-            align: 'center', 
-            width: 300,
+            align: 'center',
+            width: 600,
             render: (_, record) => (
               <>
                 <Space>
+                  {record?.status === 'Paused' && (
+                    <Button type={'link'} onClick={() => {}}>
+                      运行
+                    </Button>
+                  )}
+                  {record?.status === 'Running' && (
+                    <Button type={'link'} onClick={() => {}}>
+                      暂停
+                    </Button>
+                  )}
+
                   <Button
                     type={'link'}
                     onClick={() => {
