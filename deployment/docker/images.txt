@@ -1,0 +1,1 @@
+juicedata/juicefs-csi-driver:v0.24.0
