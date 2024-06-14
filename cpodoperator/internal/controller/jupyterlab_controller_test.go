@@ -30,7 +30,7 @@ import (
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 )
 
-var _ = Describe("JuypterLab Controller", func() {
+var _ = Describe("JupyterLab Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,13 +40,13 @@ var _ = Describe("JuypterLab Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		juypterlab := &cpodv1beta1.JuypterLab{}
+		jupyterlab := &cpodv1beta1.JupyterLab{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind JuypterLab")
-			err := k8sClient.Get(ctx, typeNamespacedName, juypterlab)
+			By("creating the custom resource for the Kind JupyterLab")
+			err := k8sClient.Get(ctx, typeNamespacedName, jupyterlab)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &cpodv1beta1.JuypterLab{
+				resource := &cpodv1beta1.JupyterLab{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,16 +59,16 @@ var _ = Describe("JuypterLab Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &cpodv1beta1.JuypterLab{}
+			resource := &cpodv1beta1.JupyterLab{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance JuypterLab")
+			By("Cleanup the specific resource instance JupyterLab")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &JuypterLabReconciler{
+			controllerReconciler := &JupyterLabReconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

@@ -7,4 +7,5 @@ resources:
 - cpod_v1beta1_finetune.yaml
 - cpod_v1beta1_juypterlab.yaml
 - cpod_v1beta1_llamafactory.yaml
+- cpod_v1beta1_jupyterlab.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

@@ -39,7 +39,6 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	mpiv2 "github.com/kubeflow/mpi-operator/pkg/apis/kubeflow/v2beta1"
 	tov1 "github.com/kubeflow/training-operator/pkg/apis/kubeflow.org/v1"
-	//+kubebuilder:scaffold:imports
 )
 
 var (
@@ -89,7 +88,7 @@ func main() {
 	flag.StringVar(&inferenceWebuiImage, "inference-webui-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/chatui:v2.3", "inference webui image")
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	flag.StringVar(&inferencePrefix, "inference-prefix", "/inference/api", "the prefix of inference ingress path")
-	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab:v5", "the image of jupyterlab")
+	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab-llamafactory:v13", "the image of jupyterlab")
 	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
 	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
 
@@ -188,15 +187,22 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "FineTune")
 		os.Exit(1)
 	}
-	if err = (&controller.JuypterLabReconciler{
+	if err = (&controller.JupyterLabReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 		Option: &controller.JupyterLabOption{
 			StorageClassName: storageClassName,
 			Image:            jupyterLabImage,
+			Domain:           inferenceIngressDomain,
+			OssOption: controller.OssOption{
+				OssAK:           OssAK,
+				OssAS:           OssAS,
+				DownloaderImage: downloaderImage,
+				BucketName:      OssBucketName,
+			},
 		},
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "JuypterLab")
+		setupLog.Error(err, "unable to create controller", "controller", "JupyterLab")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

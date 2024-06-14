@@ -969,7 +969,11 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 	}
 
 	preTrainModelStoreage := cpodv1.ModelStorage{}
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: cpodjob.Spec.PretrainModelName}, &preTrainModelStoreage); err != nil {
+	preTrainModelName := cpodjob.Spec.PretrainModelName
+	if cpodjob.Spec.PretrainModelIsPublic {
+		preTrainModelName = preTrainModelName + v1beta1.CPodPublicStorageSuffix
+	}
+	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: preTrainModelName}, &preTrainModelStoreage); err != nil {
 		return err
 	}
 
@@ -1198,7 +1202,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 					return fmt.Errorf("public dataset %s is not done", cpodjob.Spec.DatasetName)
 				}
 				if err := CopyPublicDatasetStorage(ctx, c.Client, cpodjob.Spec.DatasetName, cpodjob.Namespace); err != nil {
-					return fmt.Errorf("failed to copy public model %s: %v", cpodjob.Spec.PretrainModelName, err)
+					return fmt.Errorf("failed to copy public model %s: %v", cpodjob.Spec.DatasetName, err)
 				}
 				return nil
 			} else {
@@ -1206,7 +1210,7 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 			}
 		}
 		if ds.Status.Phase != "done" {
-			return fmt.Errorf("public dataset copy  %s is not done", cpodjob.Spec.DatasetName)
+			return fmt.Errorf("public dataset copy %s is not done", cpodjob.Spec.DatasetName)
 		}
 		return nil
 	}
@@ -1318,7 +1322,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 						Namespace: namespace,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
-						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
@@ -1380,7 +1384,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 						Namespace: namespace,
 					},
 					Spec: corev1.PersistentVolumeSpec{
-						AccessModes:  []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						AccessModes:  []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
 						MountOptions: []string{fmt.Sprintf("subdir=/datasets/%s", dataName)},
 						Capacity: corev1.ResourceList{
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
@@ -1413,7 +1417,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 						Namespace: namespace,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
-						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),

@@ -18,16 +18,40 @@ type PortalJupyterLabJob struct {
 	GPUCount   int    `json:"gpuCount"`
 	GPUProduct string `json:"gpuProduct"`
 	// MIB
-	DataVolumeSize   string              `json:"dataVolumeSize"`
-	PretrainedModels *[]PretrainedModels `json:"pretrainedModels"`
-	UserID           string              `json:"userId"`
+	DataVolumeSize string              `json:"dataVolumeSize"`
+	Resource       *JupyterLabResource `json:"resource"`
+	UserID         string              `json:"userId"`
+	Replicas       int32               `json:"replicas"`
 }
 
-type PretrainedModels struct {
-	PretrainedModelId       string `json:"pretrainedModelId"`
-	PretrainedModelName     string `json:"pretrainedModelName"`
-	PretrainedModelPath     string `json:"pretrainedModelPath"`
-	PretrainedModelIsPublic bool   `json:"pretrainedModelIsPublic"`
+type JupyterLabResource struct {
+	Models   []Model   `json:"models"`
+	Datasets []Dataset `json:"datasets"`
+	Adapters []Adapter `json:"adapters"`
+}
+
+type Dataset struct {
+	DatasetID       string `json:"dataset_id"`
+	DatasetName     string `json:"dataset_name"`
+	DatasetSize     int    `json:"dataset_size"`
+	DatasetPath     string `json:"dataset_path"`
+	DatasetIsPublic bool   `json:"dataset_is_public"`
+}
+type Model struct {
+	ModelID       string `json:"model_id"`
+	ModelName     string `json:"model_name"`
+	ModelSize     int    `json:"model_size"`
+	ModelPath     string `json:":model_path"`
+	ModelTemplate string `json:"model_template"`
+	ModelIsPublic bool   `json:"model_is_public"`
+}
+
+type Adapter struct {
+	AdapterID       string `json:"adapter_id"`
+	AdapterName     string `json:"adapter_name"`
+	AdapterSize     int    `json:"adapter_size"`
+	AdapterPath     string `json:"adapter_path"`
+	AdapterIsPublic bool   `json:"adapter_is_public"`
 }
 
 type PortalTrainningJob struct {
