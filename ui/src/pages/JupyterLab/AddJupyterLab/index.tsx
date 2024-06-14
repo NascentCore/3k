@@ -50,7 +50,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
           model_size: x.size,
           model_is_public: x.is_public,
           model_template: x.template,
-          model_path: '/model',
+          model_path: '/models',
         }));
       const datasets = datasetsOptions
         .filter((x) => values.resource.datasets?.includes(x.value))
@@ -59,7 +59,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
           dataset_name: x.name,
           dataset_size: x.size,
           dataset_is_public: x.is_public,
-          dataset_path: '/dataset',
+          dataset_path: '/datasets',
         }));
       const adapters = adaptersOptions
         .filter((x) => values.resource.adapters?.includes(x.value))
@@ -68,7 +68,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
           adapter_name: x.name,
           adapter_size: x.size,
           adapter_is_public: x.is_public,
-          adapter_path: '/adapter',
+          adapter_path: '/adapters',
         }));
       const params = {
         ...values,
@@ -223,7 +223,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
             id: 'pages.jupyterLab.AddJupyterLab.form.model_id',
             defaultMessage: '挂载模型',
           })}
-          extra={'挂载路径: /model'}
+          extra={'挂载路径: /models'}
         >
           <Select
             allowClear
@@ -241,7 +241,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
             id: 'pages.jupyterLab.AddJupyterLab.form.datasets',
             defaultMessage: '挂载数据集',
           })}
-          extra={'挂载路径: /dataset'}
+          extra={'挂载路径: /datasets'}
         >
           <Select
             allowClear
@@ -260,7 +260,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
             id: 'pages.jupyterLab.AddJupyterLab.form.adapters',
             defaultMessage: '挂载适配器',
           })}
-          extra={'挂载路径: /adapter'}
+          extra={'挂载路径: /adapters'}
         >
           <Select
             allowClear
