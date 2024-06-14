@@ -42,7 +42,6 @@ const Index = ({ onChange, onCancel }: IProps) => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       console.log('Form values:', values);
-      return;
       return apiPostJobJupyterlab({
         data: {
           ...values,
