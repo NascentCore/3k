@@ -200,6 +200,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/job/jupyterlab/pause",
+				Handler: jupyterlabPauseHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/job/jupyterlab/resume",
+				Handler: jupyterlabResumeHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/pay/balance",
 				Handler: BalanceAddHandler(serverCtx),
 			},

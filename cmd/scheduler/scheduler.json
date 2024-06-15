@@ -310,6 +310,72 @@
         ]
       }
     },
+    "/api/job/jupyterlab/pause": {
+      "post": {
+        "summary": "暂停jupyterlab实例",
+        "operationId": "jupyterlabPause",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabPauseReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/jupyterlab/resume": {
+      "post": {
+        "summary": "恢复jupyterlab实例",
+        "operationId": "jupyterlabResume",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JupyterlabResumeReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/pay/balance": {
       "get": {
         "summary": "余额查询",
@@ -1852,7 +1918,7 @@
           "type": "string"
         },
         "hyperparameters": {
-          "$ref": "#/definitions/mapstringinterface"
+          "type": "object"
         },
         "config": {
           "$ref": "#/definitions/mapstringinterface"
@@ -2970,6 +3036,30 @@
       "title": "JupyterlabListResp",
       "required": [
         "data"
+      ]
+    },
+    "JupyterlabPauseReq": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabPauseReq",
+      "required": [
+        "job_name"
+      ]
+    },
+    "JupyterlabResumeReq": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        }
+      },
+      "title": "JupyterlabResumeReq",
+      "required": [
+        "job_name"
       ]
     },
     "JupyterlabStatus": {
