@@ -657,6 +657,14 @@ type (
 	JupyterlabDeleteResp {
 		Message string `json:"message"`
 	}
+	JupyterlabPauseReq {
+		JobName string `json:"job_name"`
+		UserID  string `header:"Sx-User-ID"`
+	}
+	JupyterlabResumeReq {
+		JobName string `json:"job_name"`
+		UserID  string `header:"Sx-User-ID"`
+	}
 )
 
 type (
@@ -847,6 +855,14 @@ service scheduler-api {
 	@doc "删除jupyterlab实例"
 	@handler jupyterlabDel
 	delete /job/jupyterlab (JupyterlabDeleteReq) returns (JupyterlabDeleteResp)
+
+	@doc "暂停jupyterlab实例"
+	@handler jupyterlabPause
+	post /job/jupyterlab/pause (JupyterlabPauseReq) returns (BaseResp)
+
+	@doc "恢复jupyterlab实例"
+	@handler jupyterlabResume
+	post /job/jupyterlab/resume (JupyterlabResumeReq) returns (BaseResp)
 
 	@doc "构建镜像"
 	@handler jupyterlabImageCreate

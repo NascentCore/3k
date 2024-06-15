@@ -483,6 +483,16 @@ type JupyterlabListResp struct {
 	Data []Jupyterlab `json:"data"`
 }
 
+type JupyterlabPauseReq struct {
+	JobName string `json:"job_name"`
+	UserID  string `header:"Sx-User-ID"`
+}
+
+type JupyterlabResumeReq struct {
+	JobName string `json:"job_name"`
+	UserID  string `header:"Sx-User-ID"`
+}
+
 type JupyterlabStatus struct {
 	JobName string `json:"job_name"`
 	Status  string `json:"status"`

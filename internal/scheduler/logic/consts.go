@@ -16,6 +16,11 @@ var (
 	ErrSystem          = errors.New("系统错误，请稍后再试")
 )
 
+var (
+	ErrJupyterNotFound = errors.New("jupyterlab不存在")
+	ErrJupyterNotOwner = errors.New("jupyterlab不属于您")
+)
+
 const (
 	MsgBalanceAddSuccess = "余额充值成功"
 	MsgJobsDelSuccess    = "全部任务已终止"
@@ -24,4 +29,9 @@ const (
 const (
 	DescRechargeRegister = "注册充值"
 	DescRechargeAdmin    = "管理员充值"
+)
+
+const (
+	MsgJupyterStop   = "jupyterlab已暂停"
+	MsgJupyterResume = "jupyterlab已启动"
 )
