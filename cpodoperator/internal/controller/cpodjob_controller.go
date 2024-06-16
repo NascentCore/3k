@@ -1247,7 +1247,13 @@ func (c *CPodJobReconciler) prepareDataset(ctx context.Context, cpodjob *v1beta1
 }
 
 func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, dataName string, dataSize int64, template, namespace string, storageClassName string) (*cpodv1.ModelStorage, error) {
-	ossPath := util.ResourceToOSSPath("model", dataName)
+	modelType := "model"
+	path := "models"
+	if strings.HasPrefix(dataID, "adapter") {
+		modelType = "adapter"
+		path = "adapters"
+	}
+	ossPath := util.ResourceToOSSPath(modelType, dataName)
 
 	pvcName := util.ModelPVCName(ossPath)
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
@@ -1264,7 +1270,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 					},
 					Spec: corev1.PersistentVolumeSpec{
 						AccessModes:  []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
-						MountOptions: []string{fmt.Sprintf("subdir=/models/%s", dataName)},
+						MountOptions: []string{fmt.Sprintf("subdir=/%s/%s", path, dataName)},
 						Capacity: corev1.ResourceList{
 							corev1.ResourceStorage: resource.MustParse(pvcSize),
 						},
@@ -1489,13 +1495,24 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 
 // dataType: model、dataset
 func CreateDownloadJob(ctx context.Context, kubeclient client.Client, OssOption OssOption, dataType string, dataID, dataName string, dataSize int64, userId string, namespace string) error {
-	ossPath := util.ResourceToOSSPath(dataType, dataName)
+	realDataType := dataType
+	if realDataType == "model" {
+		if strings.HasPrefix(dataID, "adapter") {
+			realDataType = "adapter"
+		}
+	}
+	ossPath := util.ResourceToOSSPath(realDataType, dataName)
 
 	var pvcName string
 	targetDir := "datasets"
 	if dataType == "model" {
-		pvcName = util.ModelPVCName(ossPath)
-		targetDir = "models"
+		if strings.HasPrefix(dataID, "adapter") {
+			pvcName = util.AdapterPVCName(ossPath)
+			targetDir = "adapters"
+		} else {
+			pvcName = util.ModelPVCName(ossPath)
+			targetDir = "models"
+		}
 	} else {
 		pvcName = util.DatasetPVCName(ossPath)
 	}

@@ -366,11 +366,6 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 
 	for _, cpodTrainningJob := range totalCPodJobs.Items {
 		// do nothing if job has reached a no more change status
-		status, _ := parseStatus(cpodTrainningJob.Status)
-		if status == v1beta1.JobFailed || status == v1beta1.JobModelUploaded ||
-			status == v1beta1.JobSucceeded || status == v1beta1.JobModelUploading {
-			continue
-		}
 		exists := false
 		for _, job := range portaljobs {
 			if cpodTrainningJob.Name == job.JobName {

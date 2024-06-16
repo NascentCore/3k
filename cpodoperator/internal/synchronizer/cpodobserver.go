@@ -12,17 +12,17 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	"github.com/NascentCore/cpodoperator/pkg/resource"
+	"github.com/NascentCore/cpodoperator/pkg/util"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
 	InferenceJobDataPreparing = "dataPreparing"
-	InferenceJobDeploying     = "deploying"
-	InferenceJobDeployed      = "deployed"
+	InferenceJobDeploying     = "pending"
+	InferenceJobDeployed      = "running"
 	InferenceJobFailed        = "failed"
 )
 
@@ -84,24 +84,22 @@ func (co *CPodObserver) Start(ctx context.Context) {
 	co.logger.Info("upload payload refreshed")
 }
 
-func parseStatus(s v1beta1.CPodJobStatus) (v1beta1.JobConditionType, string) {
-	conditions := s.Conditions
-	if len(conditions) == 0 {
-		return v1beta1.JobCreated, "no status"
-	}
-	condMap := map[v1beta1.JobConditionType]v1beta1.JobCondition{}
-	for _, cond := range conditions {
-		condMap[cond.Type] = cond
-	}
-	// order : modeluploaded , modeluploading , failed , succeeded , running , created
-	checkOrder := []v1beta1.JobConditionType{v1beta1.JobModelUploaded, v1beta1.JobModelUploading, v1beta1.JobFailed,
-		v1beta1.JobSucceeded, v1beta1.JobRunning, v1beta1.JobCreated, v1beta1.JobDataPreparing}
-	for _, checker := range checkOrder {
-		if condMap[checker].Status == v1.ConditionTrue {
-			return checker, condMap[checker].Message
+func parseStatus(cpodjob v1beta1.CPodJob) v1beta1.Phase {
+	if util.IsFinshed(cpodjob.Status) {
+		if util.IsSucceeded(cpodjob.Status) && (!cpodjob.Spec.UploadModel) || (cpodjob.Spec.UploadModel && util.IsModelUploaded(cpodjob.Status)) {
+			return v1beta1.PhaseSucceeded
+		} else if util.IsFailed(cpodjob.Status) {
+			return v1beta1.PhaseFailed
+		} else {
+			return v1beta1.PhaseRunning
 		}
 	}
-	return v1beta1.JobCreated, "unknow status"
+	if cond := util.GetCondition(cpodjob.Status, v1beta1.JobDataPreparing); cond != nil {
+		if cond.Status == corev1.ConditionFalse {
+			return v1beta1.PhasePreparingData
+		}
+	}
+	return v1beta1.PhaseRunning
 }
 
 func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.TrainningJobState, error) {
@@ -115,21 +113,8 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 
 	stats := []sxwl.TrainningJobState{}
 	for _, cpodjob := range cpodjobs.Items {
-		status, info := parseStatus(cpodjob.Status)
+		status := parseStatus(cpodjob)
 		// it'a time limit job
-		if cpodjob.Spec.Duration > 0 {
-			createTime := cpodjob.CreationTimestamp.Time
-			if createTime.Add(time.Duration(cpodjob.Spec.Duration) * time.Minute).Before(time.Now()) {
-				// TODO: add new status  TimeUp
-				if status == v1beta1.JobRunning {
-					info = "timeup when running"
-					status = v1beta1.JobSucceeded
-				} else {
-					info = "timeup job not running"
-					status = v1beta1.JobFailed
-				}
-			}
-		}
 		Name := cpodjob.Name
 		JobType := cpodjob.Spec.JobType
 
@@ -147,7 +132,6 @@ func (co *CPodObserver) getTrainningJobStates(ctx context.Context) ([]sxwl.Train
 			JobType:   JobType,
 			// TODO: synch defination with portal
 			JobStatus: v1beta1.JobConditionType(strings.ToLower(string(status))),
-			Info:      info,
 		})
 	}
 	return stats, nil
@@ -157,7 +141,7 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 	var jupyterlabs v1beta1.JupyterLabList
 	states := []sxwl.JupyterLabJobState{}
 	err := co.kubeClient.List(ctx, &jupyterlabs, &client.MatchingLabels{
-		"app": "jupyterlab",
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 	})
 	if err != nil {
 		return states, err
@@ -172,7 +156,7 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 
 		state := sxwl.JupyterLabJobState{
 			JobName: ss.Name,
-			Status:  status,
+			Status:  strings.ToLower(status),
 			URL:     "/jupyterlab/" + ss.Name,
 		}
 		states = append(states, state)
@@ -223,7 +207,7 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 
 		stats = append(stats, sxwl.InferenceJobState{
 			ServiceName: inferenceJob.Name,
-			Status:      status,
+			Status:      strings.ToLower(status),
 			URL:         url,
 		})
 	}

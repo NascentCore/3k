@@ -39,6 +39,7 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
+	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 )
@@ -104,8 +105,12 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 				return ctrl.Result{}, fmt.Errorf("failed to create service: %w", err)
 			}
 
-			if err := r.createIngress(ctx, jupyterlab); err != nil {
-				return ctrl.Result{}, fmt.Errorf("failed to create ingress: %w", err)
+			if err := r.createJupyterlabIngress(ctx, jupyterlab); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to create juypterlab ingress: %w", err)
+			}
+
+			if err := r.createLlamafactoryIngress(ctx, jupyterlab); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to create llamafactory ingress: %w", err)
 			}
 			if err := r.createSts(ctx, jupyterlab); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to create sts: %w", err)
@@ -161,9 +166,12 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 func (r *JupyterLabReconciler) prepareData(ctx context.Context, jupyterlab *v1beta1.JupyterLab) error {
 	wg := sync.WaitGroup{}
 	errChan := make(chan error, len(jupyterlab.Spec.Models)+len(jupyterlab.Spec.Datasets))
+	logrus.Debug("DEBUG AAA1", jupyterlab.Spec.Models)
 	for _, model := range jupyterlab.Spec.Models {
 		wg.Add(1)
+		logrus.Debug("DEBUG AAA2", model)
 		go func(model v1beta1.Model) {
+			logrus.Debug("DEBUG AAA3", model)
 			defer wg.Done()
 			if err := r.prepareModel(ctx, *jupyterlab, model); err != nil {
 				errChan <- err
@@ -184,6 +192,8 @@ func (r *JupyterLabReconciler) prepareData(ctx context.Context, jupyterlab *v1be
 
 	}
 
+	wg.Wait()
+
 	if len(errChan) > 0 {
 		for err := range errChan {
 			if err != nil {
@@ -192,7 +202,6 @@ func (r *JupyterLabReconciler) prepareData(ctx context.Context, jupyterlab *v1be
 		}
 	}
 	return nil
-
 }
 
 func (r *JupyterLabReconciler) prepareModel(ctx context.Context, juypterlab v1beta1.JupyterLab, model v1beta1.Model) error {
@@ -480,8 +489,7 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 							Command: []string{
 								"sh",
 								"-c",
-								"/llamafactory/start.sh",
-								jupyterlab.Name,
+								fmt.Sprintf("/llamafactory/start.sh %v", jupyterlab.Name),
 							},
 							VolumeMounts: volmeMounts,
 						},
@@ -549,12 +557,58 @@ func (r *JupyterLabReconciler) createService(ctx context.Context, jupyterlab *cp
 	return nil
 }
 
-func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) error {
-	ImplementationSpecificPathType := networkingv1.PathTypeImplementationSpecific
+func (r *JupyterLabReconciler) createLlamafactoryIngress(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) error {
 	PrefixPathType := networkingv1.PathTypePrefix
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      jupyterlab.Name + "-ing",
+			Name:      jupyterlab.Name + "-lf-ing",
+			Namespace: jupyterlab.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				r.generateOwnerRefJuypterLab(ctx, jupyterlab),
+			},
+			Annotations: map[string]string{
+				"nginx.ingress.kubernetes.io/rewrite-target":  "/jupyterlab/" + jupyterlab.Name + "/$2",
+				"nginx.ingress.kubernetes.io/proxy-body-size": "1000m",
+			},
+		},
+		Spec: networkingv1.IngressSpec{
+			IngressClassName: ptr.To("nginx"),
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: fmt.Sprintf("%v.%v", jupyterlab.Name, r.Option.Domain),
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{
+							Paths: []networkingv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: &PrefixPathType,
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: jupyterlab.Name + "-svc",
+											Port: networkingv1.ServiceBackendPort{
+												Number: 7860,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := r.Client.Create(ctx, ingress); err != nil && !apierrors.IsAlreadyExists(err) {
+		return err
+	}
+	return nil
+}
+
+func (r *JupyterLabReconciler) createJupyterlabIngress(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) error {
+	ImplementationSpecificPathType := networkingv1.PathTypeImplementationSpecific
+	ingress := &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      jupyterlab.Name + "-jl-ing",
 			Namespace: jupyterlab.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				r.generateOwnerRefJuypterLab(ctx, jupyterlab),
@@ -579,27 +633,6 @@ func (r *JupyterLabReconciler) createIngress(ctx context.Context, jupyterlab *cp
 											Name: jupyterlab.Name + "-svc",
 											Port: networkingv1.ServiceBackendPort{
 												Number: 8888,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-				{
-					Host: fmt.Sprintf("%v.%v", jupyterlab.Name, r.Option.Domain),
-					IngressRuleValue: networkingv1.IngressRuleValue{
-						HTTP: &networkingv1.HTTPIngressRuleValue{
-							Paths: []networkingv1.HTTPIngressPath{
-								{
-									Path:     "/",
-									PathType: &PrefixPathType,
-									Backend: networkingv1.IngressBackend{
-										Service: &networkingv1.IngressServiceBackend{
-											Name: jupyterlab.Name + "-svc",
-											Port: networkingv1.ServiceBackendPort{
-												Number: 7860,
 											},
 										},
 									},
