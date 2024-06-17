@@ -566,8 +566,7 @@ func (r *JupyterLabReconciler) createLlamafactoryIngress(ctx context.Context, ju
 				r.generateOwnerRefJuypterLab(ctx, jupyterlab),
 			},
 			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target":  "/jupyterlab/" + jupyterlab.Name + "/$2",
-				"nginx.ingress.kubernetes.io/proxy-body-size": "1000m",
+				"kubernetes.io/ingress.class": "nginx",
 			},
 		},
 		Spec: networkingv1.IngressSpec{
