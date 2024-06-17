@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -185,17 +186,23 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 	}
 
 	if util.IsSucceeded(cpodjob.Status) && cpodjob.Spec.UploadModel && cpodjob.Spec.ModelSavePath != "" {
-		var userID, jobName string
-		var ok bool
-		if userID, ok = cpodjob.Labels[v1beta1.CPodUserIDLabel]; !ok {
-			return ctrl.Result{}, nil
+		preTrainModelStoreage := cpodv1.ModelStorage{}
+		preTrainModelName := cpodjob.Spec.PretrainModelName
+		if cpodjob.Spec.PretrainModelIsPublic {
+			preTrainModelName = preTrainModelName + v1beta1.CPodPublicStorageSuffix
 		}
-		jobName = cpodjob.Name
-		if strings.HasSuffix(jobName, "-cpodjob") {
-			jobName, _ = strings.CutSuffix(jobName, "-cpodjob")
+		if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: preTrainModelName}, &preTrainModelStoreage); err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed to get pretrainmodel %v", err)
 		}
 
-		err := c.uploadSavedModel(ctx, cpodjob, userID, jobName)
+		readableModelstorageName := preTrainModelStoreage.Spec.ModelName + "-" + time.Now().String()
+		if cpodjob.Annotations != nil {
+			if name, ok := cpodjob.Annotations[v1beta1.CPodModelstorageNameAnno]; ok && name != "" {
+				readableModelstorageName = name
+			}
+		}
+
+		err := c.uploadSavedModel(ctx, cpodjob, readableModelstorageName)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -749,7 +756,7 @@ func (c *CPodJobReconciler) generateOwnerRefCPodJob(ctx context.Context, cpodjob
 	}
 }
 
-func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob, userID, jobName string) error {
+func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob, modelName string) error {
 	uploadJob := &batchv1.Job{}
 	uploadJobName := cpodjob.Name + "-upload"
 	completion := int32(1)
@@ -790,7 +797,7 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 									VolumeMounts: []corev1.VolumeMount{
 										{
 											Name:      "modelsave-pv",
-											MountPath: v1beta1.MODELUPLOADER_PVC_MOUNT_PATH,
+											MountPath: filepath.Join(v1beta1.MODELUPLOADER_PVC_MOUNT_PATH, modelName),
 										},
 									},
 								},
@@ -887,7 +894,7 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 	}
 	return &cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      generateModelstorageName(cpodjob),
+			Name:      generateModelstorageName(cpodjob, readableModelstorageName),
 			Namespace: cpodjob.Namespace,
 			Labels:    cpodjob.Labels,
 			Annotations: map[string]string{
@@ -917,7 +924,14 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 		return err
 	}
 
-	modelstorageName := generateModelstorageName(cpodjob)
+	readableModelstorageName := preTrainModelStoreage.Spec.ModelName + "-" + time.Now().String()
+	if cpodjob.Annotations != nil {
+		if name, ok := cpodjob.Annotations[v1beta1.CPodModelstorageNameAnno]; ok && name != "" {
+			readableModelstorageName = name
+		}
+	}
+
+	modelstorageName := generateModelstorageName(cpodjob, readableModelstorageName)
 	modelstorage := cpodv1.ModelStorage{}
 
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err != nil {
@@ -939,14 +953,10 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 
 }
 
-func generateModelstorageName(cpodjob *v1beta1.CPodJob) string {
+func generateModelstorageName(cpodjob *v1beta1.CPodJob, modelName string) string {
 	modelstorageName := cpodjob.Name + "-modelsavestorage"
-	jobName := cpodjob.Name
-	if strings.HasSuffix(jobName, "-cpodjob") {
-		jobName, _ = strings.CutSuffix(jobName, "-cpodjob")
-	}
 	if userId, ok := cpodjob.Labels[v1beta1.CPodUserIDLabel]; ok {
-		modelstorageName = util.ModelCRDName(fmt.Sprintf(util.OSSUserModelPath, "user-"+userId+"/"+jobName))
+		modelstorageName = util.ModelCRDName(fmt.Sprintf(util.OSSUserModelPath, filepath.Join(userId, modelName)))
 	}
 	return modelstorageName
 }

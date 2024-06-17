@@ -261,11 +261,6 @@ func (r *FineTuneReconciler) CPodJobName(finetune *cpodv1beta1.FineTune) string 
 	return finetune.Name + "-cpodjob"
 }
 
-func (r *FineTuneReconciler) createCPodJob(ctx context.Context, finetune *cpodv1beta1.FineTune) error {
-	return nil
-
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (r *FineTuneReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
