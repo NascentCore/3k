@@ -57,8 +57,13 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	}
 
 	// check name unique
-	jupyterList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"new_user_id": req.UserID,
+	jupyterList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{
+			"new_user_id": req.UserID,
+		},
+		squirrel.NotEq{
+			"status": model.StatusDeleted,
+		},
 	}))
 	if err != nil {
 		l.Errorf("JupyterlabCreate find userId: %s err: %s", req.UserID, err)
@@ -72,12 +77,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		}
 	}
 
-	// newUUID, err := uuid.NewRandom()
-	// if err != nil {
-	// 	l.Errorf("new uuid userId: %s err: %s", req.UserID, err)
-	// 	return nil, err
-	// }
-	// jobName := "jupyter-" + newUUID.String()
+	// create job id
 	jobName, err := uuid2.WithPrefix("jupyter")
 	if err != nil {
 		l.Errorf("create jupyter job name err=%s", err)
