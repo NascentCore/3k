@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
@@ -105,7 +106,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 
 	// trainedModelName
 	if req.TrainedModelName == "" {
-		req.TrainedModelName = fmt.Sprintf("%s-%s", req.ModelName, time.Now().Format(consts.JobTimestampFormat))
+		req.TrainedModelName = fmt.Sprintf("%s-%s", strings.Split(req.ModelName, "/")[1], time.Now().Format(consts.JobTimestampFormat))
 	}
 
 	// time
