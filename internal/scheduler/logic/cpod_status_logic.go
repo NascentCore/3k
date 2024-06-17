@@ -17,29 +17,6 @@ import (
 
 type JobStatus string
 
-// // 通用的任务状态定义
-// // modeluploaded：  模型上传
-// // modeluploading： 训练完模型
-// // failed ： 运行失败
-// // succeeded： 运行成功
-// // running: 运行中
-// // created： 已创建
-// // DataPreparing: 数据准备中
-// const (
-// 	JobStatusDataPreparing  JobStatus = "datapreparing"  // 数据准备中
-// 	JobStatusCreated        JobStatus = "created"        // 任务在Cpod中被创建（在K8S中被创建），pod在启动过程中
-// 	JobStatusCreateFailed   JobStatus = "createfailed"   // 任务在创建时直接失败（因为配置原因）
-// 	JobStatusRunning        JobStatus = "running"        // Pod全部创建成功，并正常运行
-// 	JobStatusPending        JobStatus = "pending"        // 因为资源不足，在等待
-// 	JobStatusErrorLoop      JobStatus = "crashloop"      // 进入crashloop
-// 	JobStatusSucceed        JobStatus = "succeeded"      // 所有工作成功完成
-// 	JobStatusFailed         JobStatus = "failed"         // 在中途以失败中止
-// 	JobStatusModelUploaded  JobStatus = "modeluploaded"  // 模型文件（训练结果）已上传
-// 	JobStatusModelUploading JobStatus = "modeluploading" // 模型文件（训练结果）正在上传
-// 	JobStatusInvalid        JobStatus = "invalid"        // finetune的failed
-// 	JobStatusUnknown        JobStatus = "unknown"        // 无法获取任务状态，状态未知
-// )
-
 type CpodStatusLogic struct {
 	logx.Logger
 	ctx    context.Context
@@ -331,6 +308,12 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue
 		}
 
+		// if jupyterlab is deleted continue 终态不再更新
+		switch jupyter.Status {
+		case model.StatusDeleted, model.StatusFailed, model.StatusSucceeded:
+			continue
+		}
+
 		updateBuilder := JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
 			"job_name": reqJupyter.JobName,
 			// "status":   model.JupyterStatusDeploying,
@@ -468,24 +451,14 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	return
 }
 
-// var statusToDBMap = map[string]int{
-// 	string(JobStatusDataPreparing):  model.JobStatusWorkerPreparing,
-// 	string(JobStatusCreated):        model.JobStatusWorkerRunning,
-// 	string(JobStatusRunning):        model.JobStatusWorkerRunning,
-// 	string(JobStatusModelUploading): model.JobStatusWorkerRunning,
-// 	string(JobStatusFailed):         model.JobStatusWorkerFail,
-// 	string(JobStatusSucceed):        model.JobStatusWorkerSuccess,
-// 	string(JobStatusModelUploaded):  model.JobStatusWorkerUrlSuccess,
-// }
-
 var cacheTypeToDBMap = map[string]int{
 	consts.CacheModel:   model.CacheModel,
 	consts.CacheDataSet: model.CacheDataset,
 	consts.CacheImage:   model.CacheImage,
 }
 
-var dbToCacheTypeMap = map[int]string{
-	model.CacheModel:   consts.CacheModel,
-	model.CacheDataset: consts.CacheDataSet,
-	model.CacheImage:   consts.CacheImage,
-}
+// var dbToCacheTypeMap = map[int]string{
+// 	model.CacheModel:   consts.CacheModel,
+// 	model.CacheDataset: consts.CacheDataSet,
+// 	model.CacheImage:   consts.CacheImage,
+// }
