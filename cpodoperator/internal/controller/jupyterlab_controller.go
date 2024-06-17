@@ -117,7 +117,6 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			}
 
 			jupyterlab.Status.Phase = cpodv1beta1.JupyterLabJobPhasePending
-			// TODO: update status
 			return ctrl.Result{Requeue: true}, nil
 		}
 		return ctrl.Result{}, err
