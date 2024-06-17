@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
@@ -64,10 +65,10 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	}
 
 	if req.TrainedModelName == "" {
-		req.TrainedModelName, err = uuid2.WithPrefix("model")
-		if err != nil {
-			l.Errorf("create trained model name err=%s", err)
-			return nil, ErrSystem
+		if strings.Contains(req.ModelName, "/") {
+			req.TrainedModelName = fmt.Sprintf("%s-%s", strings.Split(req.ModelName, "/")[1], time.Now().Format(consts.JobTimestampFormat))
+		} else {
+			req.TrainedModelName = fmt.Sprintf("%s-%s", "model", time.Now().Format(consts.JobTimestampFormat))
 		}
 	}
 
