@@ -754,49 +754,6 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 	uploadJobName := cpodjob.Name + "-upload"
 	completion := int32(1)
 	parallelism := int32(1)
-	// 拷贝secret
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: v1beta1.K8S_SECRET_NAME_FOR_OSS}, &corev1.Secret{}); err != nil {
-		if apierrors.IsNotFound(err) {
-			publicSecret := &corev1.Secret{}
-			if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: v1beta1.K8S_SECRET_NAME_FOR_OSS}, publicSecret); err != nil {
-				if apierrors.IsNotFound(err) {
-					return fmt.Errorf("public secret %s not found", v1beta1.K8S_SECRET_NAME_FOR_OSS)
-				}
-				return fmt.Errorf("failed to get public secret %s: %v", v1beta1.K8S_SECRET_NAME_FOR_OSS, err)
-			}
-			secret := publicSecret.DeepCopy()
-			secret.Namespace = cpodjob.Namespace
-			secret.ResourceVersion = ""
-			secret.UID = ""
-			if err := c.Client.Create(ctx, secret); err != nil {
-				return fmt.Errorf("failed to copy secret %s", v1beta1.K8S_SECRET_NAME_FOR_OSS)
-			}
-		} else {
-			return fmt.Errorf("failed to get secret %s", v1beta1.K8S_SECRET_NAME_FOR_OSS)
-		}
-	}
-
-	// 拷贝 cm
-	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: v1beta1.K8S_CPOD_CM}, &corev1.ConfigMap{}); err != nil {
-		if apierrors.IsNotFound(err) {
-			publicCm := &corev1.ConfigMap{}
-			if err := c.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: v1beta1.K8S_CPOD_CM}, publicCm); err != nil {
-				if apierrors.IsNotFound(err) {
-					return fmt.Errorf("public configmap %s not found", v1beta1.K8S_CPOD_CM)
-				}
-				return fmt.Errorf("failed to get public configmap %s: %v", v1beta1.K8S_CPOD_CM, err)
-			}
-			cm := publicCm.DeepCopy()
-			cm.Namespace = cpodjob.Namespace
-			cm.ResourceVersion = ""
-			cm.UID = ""
-			if err := c.Client.Create(ctx, cm); err != nil {
-				return fmt.Errorf("failed to copy configmap %s", v1beta1.K8S_CPOD_CM)
-			}
-		} else {
-			return fmt.Errorf("failed to get configmap %s", v1beta1.K8S_CPOD_CM)
-		}
-	}
 
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: uploadJobName}, uploadJob); err != nil {
 		if apierrors.IsNotFound(err) {
@@ -819,33 +776,16 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 									Name:            "uploadjob",
 									Image:           c.Option.ModelUploadJobImage,
 									ImagePullPolicy: corev1.PullAlways,
-									Command: []string{
-										"./modeluploadjob",
-										"user-" + userID,
-										jobName,
-										c.Option.OssOption.BucketName,
-									},
-									Env: []corev1.EnvVar{
-										{
-											Name: "access_key",
-											ValueFrom: &corev1.EnvVarSource{
-												ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-													LocalObjectReference: corev1.LocalObjectReference{
-														Name: "cpod-info",
-													},
-													Key: "access_key",
-												},
-											},
-										},
-									},
-									EnvFrom: []corev1.EnvFromSource{
-										{
-											SecretRef: &corev1.SecretEnvSource{
-												LocalObjectReference: corev1.LocalObjectReference{
-													Name: v1beta1.K8S_SECRET_NAME_FOR_OSS,
-												},
-											},
-										},
+									Args: []string{
+										"oss",
+										"-r",
+										"model",
+										"-u",
+										cpodjob.Namespace,
+										"--access_id",
+										c.Option.OssOption.OssAK,
+										"--access_key",
+										c.Option.OssOption.OssAS,
 									},
 									VolumeMounts: []corev1.VolumeMount{
 										{
