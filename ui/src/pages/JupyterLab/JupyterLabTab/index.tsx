@@ -118,7 +118,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                         );
                       }}
                     >
-                      运行
+                      启动
                     </Button>
                   )}
                   {['running'].includes(record?.status) && (
