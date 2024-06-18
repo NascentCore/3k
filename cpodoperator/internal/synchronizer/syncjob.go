@@ -686,11 +686,11 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				continue
 			}
 			found := false
-			var currentJob v1beta1.JupyterLab
-			for _, currentJob := range currentJupyterLabJobs.Items {
-				if currentJob.Name == job.JobName {
+			var currentJob *v1beta1.JupyterLab
+			for i, jl := range currentJupyterLabJobs.Items {
+				if jl.Name == job.JobName {
 					found = true
-					// currentJob = currentJob
+					currentJob = &currentJupyterLabJobs.Items[i]
 				}
 			}
 
@@ -698,7 +698,7 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				// 创建新的JupyterLab任务
 				err := s.createJupyterLab(ctx, string(UserID), job)
 				if err != nil {
-					s.logger.Error(err, "failed to create JupyterLab StatefulSet")
+					s.logger.Error(err, "failed to create JupyterLab")
 				}
 			} else {
 				currnentRep := int32(0)
@@ -709,7 +709,9 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 				}
 
 				if job.Replicas != currnentRep {
-
+					if err := s.updateJupyterLabReplicas(ctx, currentJob, int(job.Replicas)); err != nil {
+						s.logger.Error(err, "failed to update  JupyterLab replicas")
+					}
 				}
 
 			}
@@ -741,6 +743,11 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 	}
 }
 
+func (s *SyncJob) updateJupyterLabReplicas(ctx context.Context, jupyterlab *v1beta1.JupyterLab, replicas int) error {
+	jupyterlab.Spec.Replicas = ptr.Int32(int32(replicas))
+	return s.kubeClient.Update(ctx, jupyterlab)
+}
+
 func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sxwl.PortalJupyterLabJob) error {
 	// 处理预训练模型的挂载点
 	models := []v1beta1.Model{}
@@ -750,7 +757,7 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 			ModelStorage:  model.ModelID,
 			ModelIspublic: model.ModelIsPublic,
 			ModelSize:     model.ModelSize,
-			MountPath:     model.ModelPath,
+			MountPath:     "",
 		})
 	}
 
@@ -761,7 +768,7 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 			ModelStorage:  adapter.AdapterID,
 			ModelIspublic: adapter.AdapterIsPublic,
 			ModelSize:     adapter.AdapterSize,
-			MountPath:     adapter.AdapterPath,
+			MountPath:     "",
 		})
 
 	}
@@ -773,7 +780,7 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 			DatasetStorage:  dataset.DatasetID,
 			DatasetIspublic: dataset.DatasetIsPublic,
 			DatasetSize:     dataset.DatasetSize,
-			MountPath:       dataset.DatasetPath,
+			MountPath:       "",
 		})
 
 	}
