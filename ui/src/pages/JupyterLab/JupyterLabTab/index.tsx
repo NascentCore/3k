@@ -2,13 +2,40 @@ import React from 'react';
 import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
 import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
-import { apiDeleteJobJupyterlab } from '@/services';
+import {
+  apiDeleteJobJupyterlab,
+  apiPostJobJupyterlabPause,
+  apiPostJobJupyterlabResume,
+} from '@/services';
 import { formatFileSize } from '@/utils';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
   const [buildingImageOpen, setBuildingImageOpen] = React.useState(false);
   const [buildingImageRecord, setBuildingImageRecord] = React.useState({});
+
+  const statusMap: any = {
+    pending: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pending',
+      defaultMessage: '启动中',
+    }),
+    paused: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.paused',
+      defaultMessage: '已暂停',
+    }),
+    pausing: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pausing',
+      defaultMessage: '暂停中',
+    }),
+    running: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.running',
+      defaultMessage: '运行中',
+    }),
+    failed: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.failed',
+      defaultMessage: '失败',
+    }),
+  };
 
   return (
     <>
@@ -66,6 +93,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             key: 'status',
             align: 'center',
             width: 100,
+            render: (text) => statusMap[text],
           },
           {
             title: intl.formatMessage({
@@ -79,13 +107,31 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             render: (_, record) => (
               <>
                 <Space>
-                  {record?.status === 'Paused' && (
-                    <Button type={'link'} onClick={() => {}}>
+                  {record?.status === 'paused' && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        apiPostJobJupyterlabPause({ data: { job_name: record?.job_name } }).then(
+                          () => {
+                            mutate();
+                          },
+                        );
+                      }}
+                    >
                       运行
                     </Button>
                   )}
-                  {record?.status === 'Running' && (
-                    <Button type={'link'} onClick={() => {}}>
+                  {record?.status === 'running' && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        apiPostJobJupyterlabResume({ data: { job_name: record?.job_name } }).then(
+                          () => {
+                            mutate();
+                          },
+                        );
+                      }}
+                    >
                       暂停
                     </Button>
                   )}
