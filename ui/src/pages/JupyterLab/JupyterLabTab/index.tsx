@@ -107,21 +107,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
             render: (_, record) => (
               <>
                 <Space>
-                  {record?.status === 'paused' && (
-                    <Button
-                      type={'link'}
-                      onClick={() => {
-                        apiPostJobJupyterlabPause({ data: { job_name: record?.job_name } }).then(
-                          () => {
-                            mutate();
-                          },
-                        );
-                      }}
-                    >
-                      运行
-                    </Button>
-                  )}
-                  {record?.status === 'running' && (
+                  {['paused'].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -132,55 +118,79 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                         );
                       }}
                     >
+                      运行
+                    </Button>
+                  )}
+                  {['running'].includes(record?.status) && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        apiPostJobJupyterlabPause({ data: { job_name: record?.job_name } }).then(
+                          () => {
+                            mutate();
+                          },
+                        );
+                      }}
+                    >
                       暂停
                     </Button>
                   )}
 
-                  <Button
-                    type={'link'}
-                    onClick={() => {
-                      window.open(record?.url);
-                    }}
-                  >
-                    JupyterLab
-                  </Button>
-                  <Button
-                    type={'link'}
-                    onClick={() => {
-                      window.open(record?.url);
-                    }}
-                  >
-                    LLaMA-Factory
-                  </Button>
-                  <Button
-                    type={'link'}
-                    onClick={() => {
-                      setBuildingImageOpen(true);
-                      setBuildingImageRecord(record);
-                    }}
-                  >
-                    {intl.formatMessage({
-                      id: 'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn',
-                      defaultMessage: '构建镜像',
-                    })}
-                  </Button>
-                  <Popconfirm
-                    title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
-                    description={intl.formatMessage({
-                      id: 'pages.global.confirm.delete.description',
-                    })}
-                    onConfirm={() => {
-                      apiDeleteJobJupyterlab({ data: { job_name: record?.job_name } }).then(() => {
-                        mutate();
-                      });
-                    }}
-                    okText={intl.formatMessage({ id: 'pages.global.confirm.okText' })}
-                    cancelText={intl.formatMessage({ id: 'pages.global.confirm.cancelText' })}
-                  >
-                    <Button type="link">
-                      {intl.formatMessage({ id: 'pages.global.confirm.delete.button' })}
+                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        window.open(record?.url);
+                      }}
+                    >
+                      JupyterLab
                     </Button>
-                  </Popconfirm>
+                  )}
+                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        window.open(record?.url);
+                      }}
+                    >
+                      LLaMA-Factory
+                    </Button>
+                  )}
+                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                    <Button
+                      type={'link'}
+                      onClick={() => {
+                        setBuildingImageOpen(true);
+                        setBuildingImageRecord(record);
+                      }}
+                    >
+                      {intl.formatMessage({
+                        id: 'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn',
+                        defaultMessage: '构建镜像',
+                      })}
+                    </Button>
+                  )}
+                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                    <Popconfirm
+                      title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
+                      description={intl.formatMessage({
+                        id: 'pages.global.confirm.delete.description',
+                      })}
+                      onConfirm={() => {
+                        apiDeleteJobJupyterlab({ data: { job_name: record?.job_name } }).then(
+                          () => {
+                            mutate();
+                          },
+                        );
+                      }}
+                      okText={intl.formatMessage({ id: 'pages.global.confirm.okText' })}
+                      cancelText={intl.formatMessage({ id: 'pages.global.confirm.cancelText' })}
+                    >
+                      <Button type="link">
+                        {intl.formatMessage({ id: 'pages.global.confirm.delete.button' })}
+                      </Button>
+                    </Popconfirm>
+                  )}
                 </Space>
               </>
             ),
