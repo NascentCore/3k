@@ -334,6 +334,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				"end_time": orm.NullTime(time.Now()),
 				"status":   status,
 			}
+		case model.StatusDataPreparing, model.StatusPaused, model.StatusPausing:
+			setMap = map[string]interface{}{
+				"status": status,
+			}
 		default:
 			continue
 		}
