@@ -50,8 +50,11 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	resp.JobList = make([]map[string]interface{}, 0)
 	resp.InferenceServiceList = make([]types.InferenceService, 0)
 
-	gpus, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"cpod_id": req.CpodId,
+	gpus, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{
+			"cpod_id": req.CpodId,
+		},
+		squirrel.Expr("update_time > NOW() - INTERVAL 30 MINUTE"),
 	}))
 	if err != nil {
 		l.Logger.Errorf("cpod_main find cpod_id=%s err=%s", req.CpodId, err)
@@ -193,6 +196,9 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	}
 
 	for _, jupyterlab := range jupyterlabList {
+		if model.FinalStatus(jupyterlab.Status) {
+			continue
+		}
 		jupyterlabResp := types.JupyterLab{}
 		_ = copier.Copy(&jupyterlabResp, jupyterlab)
 		jupyterlabResp.CPUCount = strconv.FormatInt(jupyterlab.CpuCount, 10)
