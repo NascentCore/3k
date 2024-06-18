@@ -32,6 +32,15 @@ const (
 	StatusDeleted       = 9 // 终止删除
 )
 
+func FinalStatus(status int64) bool {
+	switch status {
+	case StatusDeleted, StatusFailed, StatusSucceeded:
+		return true
+	default:
+		return false
+	}
+}
+
 const (
 	StatusObtainNeedSend    = 0 // 需要下发
 	StatusObtainNotNeedSend = 1 // 不需要下发
