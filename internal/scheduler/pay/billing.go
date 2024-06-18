@@ -203,7 +203,9 @@ func (bm *BillingManager) Update() {
 
 	for _, jupyter := range jupyters {
 		if jupyter.GpuProd == "" {
-			continue // 没有占用GPU的jupyterlab跳过
+			// 没有占用GPU的jupyterlab，结算，跳过
+			completeJupyters = append(completeJupyters, jupyter.Id)
+			continue
 		}
 		price, ok := prices[jupyter.GpuProd]
 		if !ok {
@@ -214,8 +216,13 @@ func (bm *BillingManager) Update() {
 		if !jupyter.StartTime.Valid {
 			continue // 没部署成功，跳过
 		}
-
 		startTime := time.GetNearestMinute(jupyter.StartTime.Time)
+
+		// 没终止，也不在运行状态，不计算订单
+		if !jupyter.EndTime.Valid && jupyter.Status != model.StatusRunning {
+			continue
+		}
+
 		endTime := time.GetNearestMinute(jupyter.EndTime.Time)
 		if jupyter.Status == model.StatusRunning {
 			endTime = time.GetNearestMinute(time2.Now())
