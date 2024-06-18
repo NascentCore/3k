@@ -246,9 +246,13 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue
 		}
 
+		// if jupyterlab is deleted continue 终态不再更新
+		if model.FinalStatus(infer.Status) {
+			continue
+		}
+
 		updateBuilder := InferModel.UpdateBuilder().Where(squirrel.Eq{
 			"service_name": infer.ServiceName,
-			// "status":       model.StatusPending, // 只在初始换
 		})
 
 		var setMap = map[string]interface{}{}
@@ -309,14 +313,12 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		}
 
 		// if jupyterlab is deleted continue 终态不再更新
-		switch jupyter.Status {
-		case model.StatusDeleted, model.StatusFailed, model.StatusSucceeded:
+		if model.FinalStatus(jupyter.Status) {
 			continue
 		}
 
 		updateBuilder := JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
 			"job_name": reqJupyter.JobName,
-			// "status":   model.JupyterStatusDeploying,
 		})
 
 		var setMap = map[string]interface{}{}
