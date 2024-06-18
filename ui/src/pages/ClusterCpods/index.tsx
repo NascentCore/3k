@@ -65,7 +65,7 @@ const Index: React.FC = () => {
                     id: 'pages.ClusterCpods.table.column.gpu_total',
                     defaultMessage: 'GPU总数',
                   }),
-                  dataIndex: 'gpu数量',
+                  dataIndex: 'gpu_total',
                   key: 'gpu_total',
                   align: 'center',
                   width: 150,

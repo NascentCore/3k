@@ -19,6 +19,49 @@ const Welcome: React.FC = () => {
     },
   });
 
+  const statusMap: any = {
+    0: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.0',
+      defaultMessage: '未下发',
+    }),
+    1: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.1',
+      defaultMessage: '已下发',
+    }),
+    2: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.2',
+      defaultMessage: '数据准备中',
+    }),
+    3: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.3',
+      defaultMessage: '启动中',
+    }),
+    4: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.4',
+      defaultMessage: '已暂停',
+    }),
+    5: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.5',
+      defaultMessage: '暂停中',
+    }),
+    6: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.6',
+      defaultMessage: '运行中',
+    }),
+    7: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.7',
+      defaultMessage: '运行失败',
+    }),
+    8: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.8',
+      defaultMessage: '运行成功',
+    }),
+    9: intl.formatMessage({
+      id: 'pages.userJob.table.column.workStatus.status.9',
+      defaultMessage: '终止删除',
+    }),
+  };
+
   return (
     <PageContainer>
       <Table
@@ -108,34 +151,7 @@ const Welcome: React.FC = () => {
             align: 'center',
             width: 100,
             render: (text) => {
-              if (text === 1) {
-                return (
-                  <>
-                    {intl.formatMessage({
-                      id: 'pages.userJob.table.column.workStatus.status.1',
-                      // defaultMessage: '运行失败',
-                    })}
-                  </>
-                );
-              } else if (text === 2) {
-                return (
-                  <>
-                    {intl.formatMessage({
-                      id: 'pages.userJob.table.column.workStatus.status.2',
-                      // defaultMessage: '运行成功',
-                    })}
-                  </>
-                );
-              } else {
-                return (
-                  <>
-                    {intl.formatMessage({
-                      id: 'pages.userJob.table.column.workStatus.status.3',
-                      // defaultMessage: '运行中',
-                    })}
-                  </>
-                );
-              }
+              return statusMap[text];
             },
           },
           {

@@ -330,6 +330,22 @@ export async function apiPostJobJupyterlab(options?: { [key: string]: any }) {
   });
 }
 
+// jupyterlab 暂停
+export async function apiPostJobJupyterlabPause(options?: { [key: string]: any }) {
+  return request('/api/job/jupyterlab/pause', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+// jupyterlab 启动
+export async function apiPostJobJupyterlabResume(options?: { [key: string]: any }) {
+  return request('/api/job/jupyterlab/resume', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 // 基础镜像列表
 export async function apiGetResourceBaseimages(options?: { [key: string]: any }) {
   return request('/api/resource/baseimages', {
