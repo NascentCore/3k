@@ -443,7 +443,7 @@
     },
     "/api/pay/billing": {
       "get": {
-        "summary": "账单记录",
+        "summary": "账单明细",
         "operationId": "BillingList",
         "responses": {
           "200": {
@@ -483,6 +483,54 @@
             "in": "query",
             "required": false,
             "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/pay/billing/tasks": {
+      "get": {
+        "summary": "聚合账单",
+        "operationId": "BillingTasks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BillingTasksResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "tags": [
@@ -1451,6 +1499,48 @@
       "title": "BillingListResp",
       "required": [
         "data"
+      ]
+    },
+    "BillingTasksReq": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "BillingTasksReq",
+      "required": [
+        "user_id",
+        "page",
+        "page_size"
+      ]
+    },
+    "BillingTasksResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaskBilling"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "BillingTasksResp",
+      "required": [
+        "data",
+        "total"
       ]
     },
     "BuildImageReq": {
@@ -3795,6 +3885,43 @@
         "status",
         "url",
         "start_time",
+        "end_time"
+      ]
+    },
+    "TaskBilling": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": " 用户ID"
+        },
+        "job_id": {
+          "type": "string",
+          "description": " 关联任务id"
+        },
+        "job_type": {
+          "type": "string",
+          "description": " 关联任务类型（例如：finetune、inference）"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 消费金额"
+        },
+        "begin_time": {
+          "type": "string"
+        },
+        "end_time": {
+          "type": "string"
+        }
+      },
+      "title": "TaskBilling",
+      "required": [
+        "user_id",
+        "job_id",
+        "job_type",
+        "amount",
+        "begin_time",
         "end_time"
       ]
     },
