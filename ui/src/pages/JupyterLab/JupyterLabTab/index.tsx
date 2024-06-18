@@ -170,7 +170,9 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       })}
                     </Button>
                   )}
-                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                  {['pending', 'paused', 'pausing', 'running', 'failed'].includes(
+                    record?.status,
+                  ) && (
                     <Popconfirm
                       title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
                       description={intl.formatMessage({
