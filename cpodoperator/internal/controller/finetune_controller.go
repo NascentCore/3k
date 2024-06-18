@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	finetunepkg "github.com/NascentCore/cpodoperator/pkg/finetune"
 	"github.com/NascentCore/cpodoperator/pkg/util"
@@ -175,6 +176,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	if util.IsFinshed(cpodjob.Status) {
 		if util.IsSucceeded(cpodjob.Status) && (!finetune.Spec.Upload || (finetune.Spec.Upload && util.IsModelUploaded(cpodjob.Status))) {
+			logrus.Info("DEBUG1 READY")
 			finetune.Status.Phase = cpodv1beta1.PhaseSucceeded
 			modelstorageName := cpodjob.Name + "-modelsavestorage"
 			if userId, ok := finetune.Labels[v1beta1.CPodUserIDLabel]; ok {
@@ -182,10 +184,12 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			finetune.Status.ModelStorage = modelstorageName
 		} else if util.IsFailed(cpodjob.Status) {
+			logrus.Info("DEBUG1 Failed")
 			finetune.Status.Phase = cpodv1beta1.PhaseFailed
 			finetune.Status.FailureMessage = util.GetCondition(cpodjob.Status, cpodv1beta1.JobFailed).Message
 		} else {
-			return ctrl.Result{Requeue: true}, nil
+			logrus.Info("DEBUG2 Uploading")
+			return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 		}
 		if err := r.Client.Status().Update(ctx, finetune); err != nil {
 			return ctrl.Result{}, err
@@ -208,7 +212,8 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			return ctrl.Result{Requeue: true}, nil
 		}
-		return ctrl.Result{Requeue: true}, nil
+		logrus.Info("DEBUG3 RUNNING")
+		return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 	}
 }
 

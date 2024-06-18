@@ -204,7 +204,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 
 		err := c.uploadSavedModel(ctx, cpodjob, readableModelstorageName)
 		if err != nil {
-			return ctrl.Result{}, err
+			return ctrl.Result{RequeueAfter: 10 * time.Second}, err
 		}
 	}
 
@@ -818,9 +818,10 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 				},
 			})
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create upload job")
 			}
 			util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobModelUploading, corev1.ConditionTrue, "UploadingModel", "modelupload job is running")
+			return fmt.Errorf("need to listen job status ")
 		}
 		return err
 	}
