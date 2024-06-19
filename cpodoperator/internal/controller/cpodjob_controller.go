@@ -1404,7 +1404,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 						Namespace: namespace,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
-						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
