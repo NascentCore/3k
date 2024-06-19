@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Drawer, Popconfirm, Space, Table } from 'antd';
+import { Button, Drawer, Popconfirm, Space, Table, message } from 'antd';
 import { useIntl } from '@umijs/max';
 import BuildingImage from './BuildingImage';
 import {
@@ -8,6 +8,8 @@ import {
   apiPostJobJupyterlabResume,
 } from '@/services';
 import { formatFileSize } from '@/utils';
+import PauseButton from './PauseButton';
+import RunButton from './RunButton';
 
 const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const intl = useIntl();
@@ -15,6 +17,18 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
   const [buildingImageRecord, setBuildingImageRecord] = React.useState({});
 
   const statusMap: any = {
+    notassigned: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.notassigned',
+      defaultMessage: '未下发',
+    }),
+    assigned: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.assigned',
+      defaultMessage: '已下发',
+    }),
+    datapreparing: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.datapreparing',
+      defaultMessage: '数据准备中',
+    }),
     pending: intl.formatMessage({
       id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pending',
       defaultMessage: '启动中',
@@ -34,6 +48,10 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
     failed: intl.formatMessage({
       id: 'pages.jupyterLab.JupyterLabTab.table.column.status.failed',
       defaultMessage: '失败',
+    }),
+    succeeded: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.succeeded',
+      defaultMessage: '运行成功',
     }),
   };
 
@@ -108,35 +126,22 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
               <>
                 <Space>
                   {['paused'].includes(record?.status) && (
-                    <Button
-                      type={'link'}
-                      onClick={() => {
-                        apiPostJobJupyterlabResume({ data: { job_name: record?.job_name } }).then(
-                          () => {
-                            mutate();
-                          },
-                        );
-                      }}
-                    >
-                      启动
-                    </Button>
+                    <RunButton mutate={mutate} record={record} />
                   )}
                   {['running'].includes(record?.status) && (
-                    <Button
-                      type={'link'}
-                      onClick={() => {
-                        apiPostJobJupyterlabPause({ data: { job_name: record?.job_name } }).then(
-                          () => {
-                            mutate();
-                          },
-                        );
-                      }}
-                    >
-                      暂停
-                    </Button>
+                    <PauseButton mutate={mutate} record={record} />
                   )}
 
-                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                  {[
+                    'notassigned',
+                    'assigned',
+                    'datapreparing',
+                    'pending',
+                    'pausing',
+                    'running',
+                    'failed',
+                    'succeeded',
+                  ].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -146,17 +151,35 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       JupyterLab
                     </Button>
                   )}
-                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                  {[
+                    'notassigned',
+                    'assigned',
+                    'datapreparing',
+                    'pending',
+                    'pausing',
+                    'running',
+                    'failed',
+                    'succeeded',
+                  ].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
-                        window.open(record?.url);
+                        window.open(`//${record.job_name}.llm.sxal.ai:30004`);
                       }}
                     >
                       LLaMA-Factory
                     </Button>
                   )}
-                  {['pending', 'pausing', 'running', 'failed'].includes(record?.status) && (
+                  {[
+                    'notassigned',
+                    'assigned',
+                    'datapreparing',
+                    'pending',
+                    'pausing',
+                    'running',
+                    'failed',
+                    'succeeded',
+                  ].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -170,14 +193,19 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       })}
                     </Button>
                   )}
-                  {['pending', 'paused', 'pausing', 'running', 'failed'].includes(
-                    record?.status,
-                  ) && (
+                  {[
+                    'notassigned',
+                    'assigned',
+                    'datapreparing',
+                    'pending',
+                    'paused',
+                    'pausing',
+                    'running',
+                    'failed',
+                    'succeeded',
+                  ].includes(record?.status) && (
                     <Popconfirm
                       title={intl.formatMessage({ id: 'pages.global.confirm.title' })}
-                      description={intl.formatMessage({
-                        id: 'pages.global.confirm.delete.description',
-                      })}
                       onConfirm={() => {
                         apiDeleteJobJupyterlab({ data: { job_name: record?.job_name } }).then(
                           () => {

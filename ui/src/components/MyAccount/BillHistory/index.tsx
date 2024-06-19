@@ -1,29 +1,42 @@
-import { useApiGetPayBilling } from '@/services';
+import { useApiGetPayBilling, useApiGetPayBillingTasks } from '@/services';
 import { useIntl, useModel } from '@umijs/max';
 import { Table } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 
 const Index: React.FC = () => {
   const intl = useIntl();
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
-  const { data, isLoading } = useApiGetPayBilling({
-    params: { user_id: currentUser?.user_id },
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const handleTableChange = (pagination: any) => {
+    setPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+  const { data, isLoading } = useApiGetPayBillingTasks({
+    params: { user_id: currentUser?.user_id, page: page, page_size: pageSize },
   });
   return (
     <>
       <Table
+        pagination={{
+          current: page,
+          pageSize,
+          total: data?.total,
+          showTotal: (total) => `共 ${total} 条`,
+        }}
         columns={[
-          {
-            title: intl.formatMessage({
-              id: 'pages.myAccount.BillHistory.table.column.billing_id',
-              defaultMessage: 'ID',
-            }),
-            dataIndex: 'billing_id',
-            key: 'billing_id',
-            align: 'center',
-            width: 150,
-          },
+          // {
+          //   title: intl.formatMessage({
+          //     id: 'pages.myAccount.BillHistory.table.column.billing_id',
+          //     defaultMessage: 'ID',
+          //   }),
+          //   dataIndex: 'billing_id',
+          //   key: 'billing_id',
+          //   align: 'center',
+          //   width: 150,
+          // },
           {
             title: intl.formatMessage({
               id: 'pages.myAccount.BillHistory.table.column.job_id',
@@ -37,7 +50,7 @@ const Index: React.FC = () => {
           {
             title: intl.formatMessage({
               id: 'pages.myAccount.BillHistory.table.column.job_type',
-              defaultMessage: '任务类型',
+              defaultMessage: '服务名称',
             }),
             dataIndex: 'job_type',
             key: 'job_type',
@@ -66,21 +79,21 @@ const Index: React.FC = () => {
           // },
           {
             title: intl.formatMessage({
-              id: 'pages.myAccount.BillHistory.table.column.billing_time',
-              defaultMessage: '账单计费时间',
+              id: 'pages.myAccount.BillHistory.table.column.begin_time',
+              defaultMessage: '开始时间',
             }),
-            dataIndex: 'billing_time',
-            key: 'billing_time',
+            dataIndex: 'begin_time',
+            key: 'begin_time',
             align: 'center',
             width: 150,
           },
           {
             title: intl.formatMessage({
-              id: 'pages.myAccount.BillHistory.table.column.payment_time',
-              defaultMessage: '账单生成时间',
+              id: 'pages.myAccount.BillHistory.table.column.end_time',
+              defaultMessage: '结束时间',
             }),
-            dataIndex: 'payment_time',
-            key: 'payment_time',
+            dataIndex: 'end_time',
+            key: 'end_time',
             align: 'center',
             width: 150,
           },
@@ -97,8 +110,9 @@ const Index: React.FC = () => {
         ]}
         dataSource={data?.data || []}
         loading={isLoading}
-        scroll={{ y: 'calc(100vh - 100px)' }}
+        scroll={{ y: 'calc(100vh - 320px)' }}
       />
+      <p style={{ textAlign: 'right' }}>目前仅支持查询最近一个月内的账单记录</p>
     </>
   );
 };

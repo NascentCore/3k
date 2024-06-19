@@ -398,11 +398,23 @@ export async function apiGetPayBilling(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
 export const useApiGetPayBilling = (options?: { [key: string]: any }) =>
   useSWR(['/api/pay/billing', options], ([, options]) => {
     return apiGetPayBilling(options);
   });
 
+// 查询用户账单
+export async function apiGetPayBillingTasks(options?: { [key: string]: any }) {
+  return request('/api/pay/billing/tasks', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+export const useApiGetPayBillingTasks = (options?: { [key: string]: any }) =>
+  useSWR(['/api/pay/billing/tasks', options], ([, options]) => {
+    return apiGetPayBillingTasks(options);
+  });
 export async function apiClusterCpods(options?: { [key: string]: any }) {
   return request('/api/cluster/cpods', {
     method: 'GET',
