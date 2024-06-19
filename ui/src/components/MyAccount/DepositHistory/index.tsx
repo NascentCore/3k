@@ -57,7 +57,7 @@ const Index: React.FC = () => {
         ]}
         dataSource={data?.data || []}
         loading={false}
-        scroll={{ y: 'calc(100vh - 100px)' }}
+        scroll={{ y: 'calc(100vh - 300px)' }}
       />
     </>
   );
