@@ -1205,8 +1205,11 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 		path = "adapters"
 	}
 	ossPath := util.ResourceToOSSPath(modelType, dataName)
-
 	pvcName := util.ModelPVCName(ossPath)
+	if modelType == "adapter" {
+		pvcName = util.AdapterPVCName(ossPath)
+	}
+
 	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
 
 	if namespace == v1beta1.CPodPublicNamespace {
