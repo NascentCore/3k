@@ -63,6 +63,7 @@ type JupyterLabReconciler struct {
 //+kubebuilder:rbac:groups=cpod.cpod,resources=jupyterlabs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cpod.cpod,resources=jupyterlabs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cpod.cpod,resources=jupyterlabs/finalizers,verbs=update
+//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -448,9 +449,15 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 		if err := r.Client.Get(ctx, client.ObjectKey{Namespace: jupyterlab.Namespace, Name: datasetName}, datasetstorage); err != nil {
 			return fmt.Errorf("failed to get model storage %v: %v", datasetName, err)
 		}
+
+		datasetMountpath := dataset.MountPath
+		if datasetMountpath == "" {
+			datasetMountpath = "/datasets"
+		}
+
 		volmeMounts = append(volmeMounts, corev1.VolumeMount{
 			Name:      datasetName,
-			MountPath: filepath.Join(dataset.MountPath, dataset.Name),
+			MountPath: filepath.Join(datasetMountpath, dataset.Name),
 		})
 		volumes = append(volumes, corev1.Volume{
 			Name: datasetName,
