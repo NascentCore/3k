@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -407,9 +408,26 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 			return fmt.Errorf("failed to get model storage %v: %w", modelName, err)
 		}
 
+		mountPathPrefix := model.MountPath
+		if mountPathPrefix == "" {
+			if model.IsAdapter {
+				mountPathPrefix = "/workspace/saves/Custom/lora"
+			} else {
+				mountPathPrefix = "/models"
+			}
+		}
+
+		secondPath := model.Name
+		if model.IsAdapter {
+			parts := strings.Split(secondPath, "/")
+			if len(parts) > 0 {
+				secondPath = parts[len(parts)-1]
+			}
+		}
+
 		volmeMounts = append(volmeMounts, corev1.VolumeMount{
 			Name:      modelName,
-			MountPath: filepath.Join(model.MountPath, model.Name),
+			MountPath: filepath.Join(mountPathPrefix, secondPath),
 		})
 		volumes = append(volumes, corev1.Volume{
 			Name: modelName,
@@ -565,9 +583,7 @@ func (r *JupyterLabReconciler) createLlamafactoryIngress(ctx context.Context, ju
 			OwnerReferences: []metav1.OwnerReference{
 				r.generateOwnerRefJuypterLab(ctx, jupyterlab),
 			},
-			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "nginx",
-			},
+			Annotations: map[string]string{},
 		},
 		Spec: networkingv1.IngressSpec{
 			IngressClassName: ptr.To("nginx"),

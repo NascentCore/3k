@@ -62,6 +62,7 @@ type NodeInfo struct {
 	GPUInfo        `json:"gpu_info"`     // GPU信息
 	GPUTotal       int                   `json:"gpu_total"`       // GPU总量
 	GPUAllocatable int                   `json:"gpu_allocatable"` // 可用GPU总量（暂时先不管个体信息）
+	GPUUsed        int                   `json:"gpu_used"`        // 已用GPU总量（暂时先不管个体信息）
 	GPUState       []GPUState            `json:"gpu_state"`       // GPU状态信息对应到每张卡
 	CPUInfo        `json:"cpu_info"`     // CPU信息
 	MemInfo        `json:"mem_info"`     // 内存信息

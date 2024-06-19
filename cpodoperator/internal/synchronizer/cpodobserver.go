@@ -253,14 +253,31 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 			for i := 0; i < gpuCnt; i++ {
 				t.GPUState = append(t.GPUState, resource.GPUState{})
 			}
-			tmp := node.Status.Allocatable["nvidia.com/gpu"].DeepCopy()
-			if i, ok := (&tmp).AsInt64(); ok {
-				t.GPUAllocatable = int(i)
-			}
 		}
 		t.MemInfo.Size = int(node.Status.Capacity.Memory().Value() / 1024 / 1024)
 		info.Nodes = append(info.Nodes, t)
 	}
+
+	pods := &corev1.PodList{}
+	if err := co.kubeClient.List(ctx, pods); err != nil {
+		return info, err
+	}
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			if gpu, ok := container.Resources.Requests["nvidia.com/gpu"]; ok {
+				for i, node := range info.Nodes {
+					if node.Name == pod.Spec.NodeName {
+						info.Nodes[i].GPUUsed += int(gpu.Value())
+					}
+				}
+			}
+		}
+	}
+
+	for i, _ := range info.Nodes {
+		info.Nodes[i].GPUAllocatable = info.Nodes[i].GPUTotal - info.Nodes[i].GPUUsed
+	}
+
 	// stat gpus in cpod
 	statTotal := map[[2]string]int{}
 	statAlloc := map[[2]string]int{}
