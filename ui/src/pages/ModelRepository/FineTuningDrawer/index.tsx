@@ -2,18 +2,12 @@
  * @name 微调
  * @description 微调
  */
-import {
-  apiFinetunes,
-  apiResourceDatasets,
-  useApiGetGpuType,
-  useResourceDatasetsOptions,
-} from '@/services';
+import { apiFinetunes, useApiGetGpuType, useResourceDatasetsOptions } from '@/services';
 import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
-import { concatArray } from '@/utils';
 
 const Content = ({ record, onCancel }) => {
   const intl = useIntl();

@@ -4,10 +4,11 @@ import React from 'react';
 import FineTuningDrawer from './FineTuningDrawer';
 import InferenceDrawer from './InferenceDrawer';
 import { useApiResourceModels } from '@/services';
-import { formatFileSize } from '@/utils';
+import { formatFileSize, removeUserIdPrefixFromPath } from '@/utils';
 import { useIntl } from '@umijs/max';
 
 const TabTable = ({ dataSource, loading }: any) => {
+  console.log('dataSource', dataSource);
   const intl = useIntl();
   return (
     <Table
@@ -21,6 +22,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           key: 'name',
           align: 'center',
           width: 150,
+          render: (_) => removeUserIdPrefixFromPath(_),
         },
         {
           title: intl.formatMessage({
@@ -73,7 +75,7 @@ const TabTable = ({ dataSource, loading }: any) => {
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  const { data, mutate, isLoading }: any = useApiResourceModels();
+  const { data, isLoading }: any = useApiResourceModels();
 
   const items = [
     {

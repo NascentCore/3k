@@ -1,20 +1,16 @@
 import {
   apiPostUserJob,
   useApiGetGpuType,
-  useApiGetJobJupyterImage,
-  useApiResourceDatasets,
-  useApiResourceModels,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
 } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
-import { Flex, Form, Input, Radio, Select, Space, Tooltip, message } from 'antd';
+import { Form, Input, Select, Tooltip, message } from 'antd';
 import React, { useState } from 'react';
 import { useIntl } from '@umijs/max';
 import { QuestionCircleFilled } from '@ant-design/icons';
 import AsyncButton from '@/components/AsyncButton';
-import { concatArray, formatFileSize } from '@/utils';
 
 const Welcome: React.FC = () => {
   const intl = useIntl();

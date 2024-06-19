@@ -1,4 +1,4 @@
-import { concatArray } from '@/utils';
+import { concatArray, removeUserIdPrefixFromPath } from '@/utils';
 import { request } from '@umijs/max';
 import useSWR from 'swr';
 
@@ -54,7 +54,7 @@ export const useResourceModelsOptions = () => {
   const options = concatArray(data?.public_list, data?.user_list).map((item: any) => {
     return {
       ...item,
-      label: item.name,
+      label: removeUserIdPrefixFromPath(item.name),
       value: item.id,
       key: item.id,
     };
@@ -82,7 +82,7 @@ export const useResourceDatasetsOptions = () => {
   const { data }: any = useApiResourceDatasets();
   const options = concatArray(data?.public_list, data?.user_list).map((x) => ({
     ...x,
-    label: x.name,
+    label: removeUserIdPrefixFromPath(x.name),
     value: x.id,
     key: x.id,
   }));
@@ -101,8 +101,9 @@ export const useResourceAdaptersOptions = () => {
   const { data }: any = useApiResourceAdapters();
   const options = concatArray(data?.public_list, data?.user_list).map((x) => ({
     ...x,
-    label: x.name,
+    label: removeUserIdPrefixFromPath(x.name),
     value: x.id,
+    key: x.id,
   }));
   return options;
 };
