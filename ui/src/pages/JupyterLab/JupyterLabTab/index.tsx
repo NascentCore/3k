@@ -132,16 +132,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                     <PauseButton mutate={mutate} record={record} />
                   )}
 
-                  {[
-                    'notassigned',
-                    'assigned',
-                    'datapreparing',
-                    'pending',
-                    'pausing',
-                    'running',
-                    'failed',
-                    'succeeded',
-                  ].includes(record?.status) && (
+                  {['running'].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -151,16 +142,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       JupyterLab
                     </Button>
                   )}
-                  {[
-                    'notassigned',
-                    'assigned',
-                    'datapreparing',
-                    'pending',
-                    'pausing',
-                    'running',
-                    'failed',
-                    'succeeded',
-                  ].includes(record?.status) && (
+                  {['running'].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -170,16 +152,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       LLaMA-Factory
                     </Button>
                   )}
-                  {[
-                    'notassigned',
-                    'assigned',
-                    'datapreparing',
-                    'pending',
-                    'pausing',
-                    'running',
-                    'failed',
-                    'succeeded',
-                  ].includes(record?.status) && (
+                  {['running'].includes(record?.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {

@@ -2,7 +2,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Table, Tabs } from 'antd';
 import React from 'react';
 import { useApiResourceDatasets } from '@/services';
-import { formatFileSize } from '@/utils';
+import { formatFileSize, removeUserIdPrefixFromPath } from '@/utils';
 import { useIntl } from '@umijs/max';
 
 const TabTable = ({ dataSource, loading }: any) => {
@@ -19,6 +19,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           key: 'name',
           align: 'center',
           width: 150,
+          render: (_) => removeUserIdPrefixFromPath(_),
         },
         {
           title: intl.formatMessage({
@@ -53,7 +54,7 @@ const TabTable = ({ dataSource, loading }: any) => {
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  const { data, mutate, isLoading }: any = useApiResourceDatasets();
+  const { data, isLoading }: any = useApiResourceDatasets();
 
   const items = [
     {

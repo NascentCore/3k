@@ -25,6 +25,7 @@ export async function getInitialState(): Promise<{
     try {
       const res = await apiAuthInfo();
       user = res.user;
+      (window as any).__user = user || {};
       return res.user;
     } catch (error) {
       history.push(loginPath);

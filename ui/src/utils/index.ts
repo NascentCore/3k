@@ -36,3 +36,17 @@ export const concatArray = (arr1: any[], arr2: any[]) => {
   const _arr2 = arr2 || [];
   return [..._arr1, ..._arr2];
 };
+
+interface WindowWithUser extends Window {
+  __user?: {
+    user_id?: string;
+  };
+}
+export const removeUserIdPrefixFromPath = (str: string): string => {
+  const windowWithUser = window as WindowWithUser;
+  const user_id = windowWithUser.__user?.user_id;
+  if (typeof user_id === 'string' && str.startsWith(user_id + '/')) {
+    return str.substring(user_id.length + 1);
+  }
+  return str;
+};
