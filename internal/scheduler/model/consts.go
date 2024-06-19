@@ -64,7 +64,7 @@ var StatusToInt = map[string]int{
 }
 
 var StatusToStr = map[int64]string{
-	StatusNotAssigned:   StrStatusPaused,
+	StatusNotAssigned:   StrStatusNotAssigned,
 	StatusAssigned:      StrStatusAssigned,
 	StatusDataPreparing: StrStatusDataPreparing,
 	StatusPending:       StrStatusPending,
