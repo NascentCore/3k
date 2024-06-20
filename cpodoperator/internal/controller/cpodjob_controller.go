@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"math"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -156,7 +157,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 				err = c.CreateBaseJob(ctx, cpodjob)
 				if err != nil {
 					logger.Error(err, "unable to create baseJob")
-					return ctrl.Result{}, err
+					return ctrl.Result{RequeueAfter: 20 * time.Second}, err
 				}
 				// TODO: @sxwl-donggang update the condition of cpodjob
 				return ctrl.Result{Requeue: true}, nil
@@ -1210,7 +1211,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 		pvcName = util.AdapterPVCName(ossPath)
 	}
 
-	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
+	pvcSize := fmt.Sprintf("%dMi", int(math.Ceil(float64(dataSize)*12/10/1024/1024)))
 
 	if namespace == v1beta1.CPodPublicNamespace {
 		pvcSize = "100Mi"
@@ -1331,7 +1332,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 	ossPath := util.ResourceToOSSPath("dataset", dataName)
 
 	pvcName := util.DatasetPVCName(ossPath)
-	pvcSize := fmt.Sprintf("%dMi", dataSize*12/10/1024/1024)
+	pvcSize := fmt.Sprintf("%dMi", int(math.Ceil(float64(dataSize)*12/10/1024/1024)))
 
 	if namespace == v1beta1.CPodPublicNamespace {
 		pvcSize = "100Mi"
