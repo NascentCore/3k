@@ -198,10 +198,10 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 	stats := []sxwl.InferenceJobState{}
 	for _, inferenceJob := range inferenceJobs.Items {
 		status := InferenceJobDeploying
-		if !inferenceJob.Status.DataReady {
-			status = InferenceJobDataPreparing
-		} else if inferenceJob.Status.Ready {
+		if inferenceJob.Status.Ready {
 			status = InferenceJobDeployed
+		} else if !inferenceJob.Status.DataReady {
+			status = InferenceJobDataPreparing
 		}
 		url := "/inference/" + inferenceJob.Name
 
