@@ -269,6 +269,10 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				"status":        status,
 				"obtain_status": model.StatusObtainNotNeedSend,
 			}
+		case model.StatusDataPreparing:
+			setMap = map[string]interface{}{
+				"status": status,
+			}
 		default:
 			continue
 		}
