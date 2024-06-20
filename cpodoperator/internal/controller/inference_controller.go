@@ -74,6 +74,14 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	inferenceDeepcopy := inference.DeepCopy()
+	defer func() {
+		if !equality.Semantic.DeepEqual(inference.Status, inferenceDeepcopy.Status) {
+			if err := i.Client.Status().Update(ctx, inferenceDeepcopy); err != nil {
+				logger.Error(err, "unable to update CPodJob status")
+				reterr = err
+			}
+		}
+	}()
 
 	inferenceService := &kservev1beta1.InferenceService{}
 	if err := i.Get(ctx, types.NamespacedName{Namespace: inference.Namespace, Name: i.getInferenceServiceName(inference)}, inferenceService); err != nil {
@@ -102,14 +110,6 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 		return ctrl.Result{}, err
 	}
-	defer func() {
-		if !equality.Semantic.DeepEqual(inference.Status, inferenceDeepcopy.Status) {
-			if err := i.Client.Status().Update(ctx, inferenceDeepcopy); err != nil {
-				logger.Error(err, "unable to update CPodJob status")
-				reterr = err
-			}
-		}
-	}()
 
 	inferenceDeepcopy.Status.Ready = inferenceServiceReadiness(inferenceService.Status)
 	if !inferenceDeepcopy.Status.Ready {
