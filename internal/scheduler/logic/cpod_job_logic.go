@@ -216,27 +216,35 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 
 		switch jupyterlab.Status {
 		case model.StatusNotAssigned:
-			for _, gpu := range gpus {
-				if gpu.GpuProd.String == jupyterlab.GpuProd && gpu.GpuAllocatable.Int64 >= jupyterlab.GpuCount {
-					gpu.GpuAllocatable.Int64 -= jupyterlab.GpuCount
-					assignedGPUs[gpu] = true
-
-					// new assigned
-					_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
-						"id": jupyterlab.Id,
-					}).SetMap(map[string]interface{}{
-						"cpod_id": req.CpodId,
-						"status":  model.StatusAssigned,
-					}))
-					if err != nil {
-						l.Errorf("jupyterlab assigned jupyterId=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)
-						return nil, err
+			assigned := false
+			if jupyterlab.GpuProd == "" {
+				assigned = true
+			} else {
+				for _, gpu := range gpus {
+					if gpu.GpuProd.String == jupyterlab.GpuProd && gpu.GpuAllocatable.Int64 >= jupyterlab.GpuCount {
+						gpu.GpuAllocatable.Int64 -= jupyterlab.GpuCount
+						assignedGPUs[gpu] = true
+						assigned = true
+						break
 					}
-					l.Infof("jupyterlab assigned jupyterId=%d cpod_id=%s", jupyterlab.Id, req.CpodId)
-
-					resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
-					break
 				}
+			}
+
+			// new assigned
+			if assigned {
+				_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+					"id": jupyterlab.Id,
+				}).SetMap(map[string]interface{}{
+					"cpod_id": req.CpodId,
+					"status":  model.StatusAssigned,
+				}))
+				if err != nil {
+					l.Errorf("jupyterlab assigned jupyterId=%d cpod_id=%s err=%s", jupyterlab.Id, req.CpodId, err)
+					return nil, err
+				}
+				l.Infof("jupyterlab assigned jupyterId=%d cpod_id=%s", jupyterlab.Id, req.CpodId)
+
+				resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
 			}
 		default:
 			resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
