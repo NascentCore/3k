@@ -8,6 +8,46 @@ import { useIntl } from '@umijs/max';
 const Welcome: React.FC = () => {
   const intl = useIntl();
   const { data: inferenceList, mutate, isLoading } = useApiGetInference();
+
+  const statusMap: any = {
+    notassigned: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.notassigned',
+      defaultMessage: '未下发',
+    }),
+    assigned: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.assigned',
+      defaultMessage: '已下发',
+    }),
+    datapreparing: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.datapreparing',
+      defaultMessage: '数据准备中',
+    }),
+    pending: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pending',
+      defaultMessage: '启动中',
+    }),
+    paused: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.paused',
+      defaultMessage: '已暂停',
+    }),
+    pausing: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pausing',
+      defaultMessage: '暂停中',
+    }),
+    running: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.running',
+      defaultMessage: '运行中',
+    }),
+    failed: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.failed',
+      defaultMessage: '失败',
+    }),
+    succeeded: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.succeeded',
+      defaultMessage: '运行成功',
+    }),
+  };
+
   return (
     <PageContainer>
       <Table
@@ -41,6 +81,7 @@ const Welcome: React.FC = () => {
             key: 'status',
             align: 'center',
             width: 150,
+            render: (text) => statusMap[text],
           },
           {
             title: intl.formatMessage({
@@ -76,7 +117,7 @@ const Welcome: React.FC = () => {
             render: (_, record) => (
               <>
                 <Space>
-                  {record.status === 'deployed' && (
+                  {['running'].includes(record.status) && (
                     <Button
                       type={'link'}
                       onClick={() => {
@@ -90,7 +131,17 @@ const Welcome: React.FC = () => {
                     </Button>
                   )}
 
-                  {record.status !== 'stopped' && (
+                  {[
+                    'notassigned',
+                    'assigned',
+                    'datapreparing',
+                    'pending',
+                    'paused',
+                    'paused',
+                    'pausing',
+                    'running',
+                    'succeeded',
+                  ].includes(record.status) && (
                     <Popconfirm
                       title={intl.formatMessage({
                         id: 'pages.global.confirm.title',
