@@ -315,16 +315,16 @@ type JobCallBackReq struct {
 }
 
 type JobCreateReq struct {
-	GpuNumber int64  `json:"gpuNumber"`
-	GpuType   string `json:"gpuType"`
-	CkptPath  string `json:"ckptPath"`
-	CkptVol   int64  `json:"ckptVol"`
-	ModelPath string `json:"modelPath"`
-	ModelVol  int64  `json:"modelVol"`
-	ImagePath string `json:"imagePath"`
-	JobType   string `json:"jobType"`
-	StopType  int64  `json:"stopType,optional"`
-	StopTime  int64  `json:"stopTime,optional"`
+	GpuNumber        int64  `json:"gpuNumber"`
+	GpuType          string `json:"gpuType"`
+	CkptPath         string `json:"ckptPath"`
+	CkptVol          int64  `json:"ckptVol"`
+	CreatedModelPath string `json:"modelPath"`
+	CreatedModelVol  int64  `json:"modelVol"`
+	ImagePath        string `json:"imagePath"`
+	JobType          string `json:"jobType"`
+	StopType         int64  `json:"stopType,optional"`
+	StopTime         int64  `json:"stopTime,optional"`
 	ModelOptional
 	DatasetOptional
 	TrainedModelName string            `json:"trainedModelName,optional"`

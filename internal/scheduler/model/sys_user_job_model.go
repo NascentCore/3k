@@ -19,8 +19,8 @@ type JobJson struct {
 	JobType               string `json:"jobType"`
 	CkptPath              string `json:"ckptPath"`
 	CkptVol               int64  `json:"ckptVol"`
-	ModelPath             string `json:"modelPath"`
-	ModelVol              int64  `json:"modelVol"`
+	CreatedModelPath      string `json:"modelPath"`
+	CreatedModelVol       int64  `json:"modelVol"`
 	GpuNumber             int64  `json:"gpuNumber"`
 	GpuType               string `json:"gpuType"`
 	ImagePath             string `json:"imagePath"`
