@@ -91,7 +91,6 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	userJob.UpdateTime = orm.NullTime(time.Now())
 	userJob.BillingStatus = model.BillingStatusContinue
 
-	// jsonAll := make(map[string]any)
 	jsonAll := &model.JobJson{
 		JobName:               jobName,
 		PretrainModelId:       req.ModelId,
