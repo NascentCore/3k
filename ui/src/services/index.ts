@@ -2,6 +2,14 @@ import { concatArray, removeUserIdPrefixFromPath } from '@/utils';
 import { request } from '@umijs/max';
 import useSWR from 'swr';
 
+const swrConfig = {
+  revalidateIfStale: false,
+  revalidateOnFocus: false,
+  revalidateOnReconnect: false,
+  shouldRetryOnError: false,
+  refreshInterval: 1000 * 60 * 60,
+};
+
 // 登录接了 /auth/login
 export async function apiAuthLogin(options?: { [key: string]: any }) {
   return request('/api/user/login', {
@@ -43,12 +51,16 @@ export async function apiResourceModels(options?: { [key: string]: any }) {
 
 // 模型列表
 export const useApiResourceModels = (options?: { [key: string]: any }) =>
-  useSWR(['/api/resource/models', options], ([url, data]) => {
-    return request(url, {
-      method: 'GET',
-      ...(data || {}),
-    });
-  });
+  useSWR(
+    ['/api/resource/models', options],
+    ([url, data]) => {
+      return request(url, {
+        method: 'GET',
+        ...(data || {}),
+      });
+    },
+    swrConfig,
+  );
 export const useResourceModelsOptions = () => {
   const { data }: any = useApiResourceModels();
   const options = concatArray(data?.public_list, data?.user_list).map((item: any) => {
@@ -71,12 +83,16 @@ export async function apiResourceDatasets(options?: { [key: string]: any }) {
 }
 // 数据集列表
 export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
-  useSWR(['/api/resource/datasets', options], ([url, data]) => {
-    return request(url, {
-      method: 'GET',
-      ...(data || {}),
-    });
-  });
+  useSWR(
+    ['/api/resource/datasets', options],
+    ([url, data]) => {
+      return request(url, {
+        method: 'GET',
+        ...(data || {}),
+      });
+    },
+    swrConfig,
+  );
 
 export const useResourceDatasetsOptions = () => {
   const { data }: any = useApiResourceDatasets();
@@ -96,7 +112,8 @@ export async function apiResourceAdapters(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
-export const useApiResourceAdapters = () => useSWR(['/api/resource/adapters'], apiResourceAdapters);
+export const useApiResourceAdapters = () =>
+  useSWR(['/api/resource/adapters'], apiResourceAdapters, swrConfig);
 export const useResourceAdaptersOptions = () => {
   const { data }: any = useApiResourceAdapters();
   const options = concatArray(data?.public_list, data?.user_list).map((x) => ({
@@ -185,12 +202,16 @@ export async function apiDeleteUserJob(options?: { [key: string]: any }) {
 
 // GPU 列表查询
 export const useApiGetGpuType = (options?: { [key: string]: any }) =>
-  useSWR(['/api/resource/gpus', options], ([url, data]) => {
-    return request(url, {
-      method: 'GET',
-      ...(data || {}),
-    });
-  });
+  useSWR(
+    ['/api/resource/gpus', options],
+    ([url, data]) => {
+      return request(url, {
+        method: 'GET',
+        ...(data || {}),
+      });
+    },
+    swrConfig,
+  );
 export const useGpuTypeOptions = () => {
   const { data }: any = useApiGetGpuType();
   const options = data?.map((x: any) => ({
