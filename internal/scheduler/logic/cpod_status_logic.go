@@ -246,7 +246,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			continue
 		}
 
-		// if jupyterlab is deleted continue 终态不再更新
+		// if inference is deleted continue 终态不再更新
 		if model.FinalStatus(infer.Status) {
 			continue
 		}
