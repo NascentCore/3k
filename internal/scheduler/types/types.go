@@ -306,6 +306,7 @@ type Job struct {
 	UpdateTime          string `json:"updateTime"`
 	UserId              string `json:"userId"`
 	WorkStatus          int    `json:"workStatus"`
+	TensorURL           string `json:"tensor_url"`
 }
 
 type JobCallBackReq struct {
