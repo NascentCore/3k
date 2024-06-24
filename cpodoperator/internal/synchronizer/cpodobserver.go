@@ -150,7 +150,9 @@ func (co *CPodObserver) getJupyterLabJobStates(ctx context.Context) ([]sxwl.Jupy
 	for _, ss := range jupyterlabs.Items {
 
 		status := string(ss.Status.Phase)
-		if ss.Status.DataReady != true {
+		if ss.Status.Phase == v1beta1.JupyterLabJobPhaseRunning {
+			status = string(v1beta1.JupyterLabJobPhaseRunning)
+		} else if ss.Status.DataReady != true {
 			status = "DataPreparing"
 		}
 

@@ -274,14 +274,14 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	}
 
 	// 检查 logs PVC 是否存在
-	exists, err := c.checkPVCExists(ctx, "logs", cpodjob.Namespace)
+	exists, err := c.checkPVCExists(ctx, "log-volume-tensorboard-0", cpodjob.Namespace)
 	if err != nil {
 		logger.Info("Warning: checking if 'logs' PVC exists: %v", err)
 	}
 	if !exists {
 		logger.Info("Warning:'logs' PVC does not exist in namespace %s", "namespace", cpodjob.Namespace)
 	} else {
-		addVolume("logs", "logs", "/logs")
+		addVolume("logs", "log-volume-tensorboard-0", "/logs")
 	}
 
 	if cpodjob.Spec.CKPTPath != "" && cpodjob.Spec.CKPTVolumeSize != 0 {
@@ -788,6 +788,8 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 										"oss",
 										"-r",
 										"model",
+										"-d",
+										filepath.Join(v1beta1.MODELUPLOADER_PVC_MOUNT_PATH, modelName),
 										"-u",
 										cpodjob.Namespace,
 										"--access_id",

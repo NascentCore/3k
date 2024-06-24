@@ -317,6 +317,7 @@ func CopyPublicModelStorage(ctx context.Context, kubeClient client.Client, publi
 			pvCopy.ResourceVersion = ""
 			pvCopy.Spec.CSI.VolumeHandle = pvName
 			pvCopy.UID = ""
+			pvCopy.Spec.PersistentVolumeReclaimPolicy = v1.PersistentVolumeReclaimDelete
 			logrus.Info("DEBUG", "pv", pvCopy, "pvName", pvName)
 			if err := kubeClient.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
 				logrus.Info("DEBUG1", "pv", pvCopy)
@@ -395,6 +396,7 @@ func CopyPublicDatasetStorage(ctx context.Context, kubeClient client.Client, pub
 			pvCopy.ResourceVersion = ""
 			pvCopy.Spec.CSI.VolumeHandle = pvName
 			pvCopy.UID = ""
+			pvCopy.Spec.PersistentVolumeReclaimPolicy = v1.PersistentVolumeReclaimDelete
 			if err := kubeClient.Create(ctx, pvCopy); err != nil && !apierrors.IsAlreadyExists(err) {
 				return fmt.Errorf("failed to create pv")
 			}
