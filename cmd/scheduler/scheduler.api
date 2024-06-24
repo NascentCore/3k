@@ -318,6 +318,7 @@ type (
 		UpdateTime          string `json:"updateTime"`
 		UserId              string `json:"userId"`
 		WorkStatus          int    `json:"workStatus"`
+		TensorURL           string `json:"tensor_url"`
 	}
 	JobGetResp {
 		Content       []Job `json:"content"`
