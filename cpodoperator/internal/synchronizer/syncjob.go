@@ -13,11 +13,14 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"knative.dev/pkg/ptr"
 
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,9 +48,10 @@ type SyncJob struct {
 	uploadTrainedModel   bool
 	autoDownloadResource bool
 	inferImage           string
+	storageClassName     string
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage string) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage, storageClassName string) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -67,6 +71,7 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		uploadTrainedModel:   uploadTrainedModel,
 		autoDownloadResource: autoDownloadReource,
 		inferImage:           inferImage,
+		storageClassName:     storageClassName,
 	}
 }
 
@@ -93,22 +98,24 @@ func (s *SyncJob) Start(ctx context.Context) {
 	}
 	s.logger.Info("assigned trainning job", "jobs", portalTrainningJobs, "users", users)
 	s.logger.Info("assigned inference job", "jobs", portalInferenceJobs)
-	s.syncUsers(ctx, users)
-	s.processTrainningJobs(ctx, users, portalTrainningJobs)
-	s.processFinetune(ctx, users, portalTrainningJobs)
-	s.processInferenceJobs(ctx, users, portalInferenceJobs)
-	s.processJupyterLabJobs(ctx, portalJupyterLabJobs, users)
+	readyUsers := s.syncUsers(ctx, users)
+	s.logger.Info("initially succeed users", "users", readyUsers)
+	s.processTrainningJobs(ctx, readyUsers, portalTrainningJobs)
+	s.processFinetune(ctx, readyUsers, portalTrainningJobs)
+	s.processInferenceJobs(ctx, readyUsers, portalInferenceJobs)
+	s.processJupyterLabJobs(ctx, portalJupyterLabJobs, readyUsers)
 
 }
 
-func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
+func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) []sxwl.UserID {
+	var readyUser []sxwl.UserID
 	var users v1.NamespaceList
 	err := s.kubeClient.List(ctx, &users, client.HasLabels{
 		v1beta1.CPodUserNamespaceLabel,
 	})
 	if err != nil {
 		s.logger.Error(err, "failed to list users")
-		return
+		return readyUser
 	}
 	for _, user := range userIDs {
 		exists := false
@@ -156,14 +163,159 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) {
 				}
 				if err = s.kubeClient.Create(ctx, &newClusterRoleBinding); err != nil {
 					s.logger.Error(err, "failed to create clusterrolebinding", "user", userNs.Name, "clusterrolebinding", newClusterRoleBinding)
+					continue
 				} else {
 					s.logger.Info("clusterrolebinding created", "user", userNs.Name)
 				}
 			} else {
 				s.logger.Error(err, "failed to get clusterrolebinding", "user", userNs.Name)
+				continue
+			}
+
+		}
+
+		var tensorboard appsv1.StatefulSet
+		if err := s.kubeClient.Get(ctx, types.NamespacedName{Namespace: userNs.Name, Name: "tensorboard"}, &tensorboard); err != nil {
+			if kerrors.IsNotFound(err) {
+				// 创建 svc
+				if err := s.kubeClient.Create(ctx, &v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "tensorboard-svc",
+						Namespace: userNs.Name,
+					},
+					Spec: v1.ServiceSpec{
+						Selector: map[string]string{
+							"app": "tensorboard",
+						},
+						Ports: []v1.ServicePort{
+							{
+								Port:       6006,
+								TargetPort: intstr.FromInt32(6006),
+							},
+						},
+					},
+				}); err != nil && !kerrors.IsAlreadyExists(err) {
+					s.logger.Error(err, "failed to init tensorboard svc", "user", userNs.Name)
+					continue
+				}
+				// 创建 ing
+
+				pathType := networkingv1.PathTypeImplementationSpecific
+				if err := s.kubeClient.Create(ctx, &networkingv1.Ingress{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "tensorboard-ing",
+						Namespace: userNs.Name,
+						Annotations: map[string]string{
+							"nginx.ingress.kubernetes.io/rewrite-target": fmt.Sprintf("/tensorboard/%v/$2", userNs.Name),
+						},
+					},
+					Spec: networkingv1.IngressSpec{
+						IngressClassName: ptr.String("nginx"),
+						Rules: []networkingv1.IngressRule{
+							{
+								IngressRuleValue: networkingv1.IngressRuleValue{
+									HTTP: &networkingv1.HTTPIngressRuleValue{
+										Paths: []networkingv1.HTTPIngressPath{
+											{
+												PathType: &pathType,
+												Path:     fmt.Sprintf("/tensorboard/%v(/|$)(.*)", userNs.Name),
+												Backend: networkingv1.IngressBackend{
+													Service: &networkingv1.IngressServiceBackend{
+														Name: "tensorboard-svc",
+														Port: networkingv1.ServiceBackendPort{
+															Number: 6006,
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}); err != nil && !kerrors.IsAlreadyExists(err) {
+					s.logger.Error(err, "failed to init tensorboard svc", "user", userNs.Name)
+					continue
+				}
+
+				if err := s.kubeClient.Create(ctx, &v1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: userNs.Name,
+						Name:      "log-volume-tensorboard-0",
+					},
+					Spec: v1.PersistentVolumeClaimSpec{
+						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
+						StorageClassName: &s.storageClassName,
+						Resources: v1.ResourceRequirements{
+							Requests: v1.ResourceList{
+								v1.ResourceStorage: resource.MustParse("10Gi"),
+							},
+						},
+					},
+				}); err != nil && !kerrors.IsAlreadyExists(err) {
+					s.logger.Error(err, "failed to init tensorboard pvc", "user", userNs.Name)
+					continue
+				}
+				// 创建 deploy
+				if err := s.kubeClient.Create(ctx, &appsv1.StatefulSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: userNs.Name,
+						Name:      "tensorboard",
+					},
+					Spec: appsv1.StatefulSetSpec{
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{
+								"app": "tensorboard",
+							},
+						},
+						Template: v1.PodTemplateSpec{
+							ObjectMeta: metav1.ObjectMeta{
+								Labels: map[string]string{
+									"app": "tensorboard",
+								},
+							},
+							Spec: v1.PodSpec{
+								Containers: []v1.Container{
+									{
+										Name:  "tensorboard",
+										Image: "dockerhub.kubekey.local/kubesphereio/tensorflow:latest",
+										Command: []string{
+											"tensorboard", "--logdir", "/logs", "--host", "0.0.0.0", "--path_prefix", fmt.Sprintf("/tensorboard/%v/", userNs.Name),
+										},
+										VolumeMounts: []v1.VolumeMount{
+											{
+												Name:      "log-volume",
+												MountPath: "/logs",
+											},
+										},
+									},
+								},
+								Volumes: []v1.Volume{
+									{
+										Name: "log-volume",
+										VolumeSource: v1.VolumeSource{
+											PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
+												ClaimName: "log-volume-tensorboard-0",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				}); err != nil && !kerrors.IsAlreadyExists(err) {
+					s.logger.Error(err, "failed to init tensorboard statefulset", "user", userNs.Name)
+					continue
+				}
+			} else {
+				s.logger.Error(err, "failed to get sts ", "user", userNs.Name)
+				continue
 			}
 		}
+		readyUser = append(readyUser, sxwl.UserID(userNs.Name))
 	}
+	return readyUser
 }
 
 func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, portaljobs []sxwl.PortalTrainningJob) {

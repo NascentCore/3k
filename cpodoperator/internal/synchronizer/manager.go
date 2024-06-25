@@ -27,9 +27,9 @@ type Manager struct {
 	period time.Duration
 }
 
-func NewManager(cpodId, inferImage string, uploadTrainedModel, autoDownloadResource bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
+func NewManager(cpodId, inferImage, storageClassName string, uploadTrainedModel, autoDownloadResource bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
 	ch := make(chan sxwl.HeartBeatPayload, 1)
-	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel, autoDownloadResource, inferImage)
+	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel, autoDownloadResource, inferImage, storageClassName)
 	uploader := NewUploader(ch, scheduler, period, logger.WithName("uploader"))
 	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch, logger.WithName("cpodobserver"))
 	return &Manager{

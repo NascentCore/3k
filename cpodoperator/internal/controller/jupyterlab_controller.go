@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -94,7 +95,8 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	if !jupyterlab.Status.DataReady {
 		if err := r.prepareData(ctx, jupyterlab); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to prepare data: %w", err)
+			jupyterlab.Status.DataReady = false
+			return ctrl.Result{RequeueAfter: 20 * time.Second}, fmt.Errorf("failed to prepare data: %w", err)
 		}
 		jupyterlab.Status.DataReady = true
 	}
@@ -386,6 +388,10 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 			Name:      "workspace",
 			MountPath: "/workspace",
 		},
+		{
+			Name:      "logs",
+			MountPath: "/logs",
+		},
 	}
 
 	volumes := []corev1.Volume{
@@ -394,6 +400,14 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 			VolumeSource: corev1.VolumeSource{
 				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
 					ClaimName: workerSpacePVCName,
+				},
+			},
+		},
+		{
+			Name: "logs",
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: "log-volume-tensorboard-0",
 				},
 			},
 		},
