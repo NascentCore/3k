@@ -44,7 +44,7 @@ func (l *JobGetLogic) JobGet(req *types.JobGetReq) (resp *types.JobGetResp, err 
 		job.CreateTime = userJob.CreateTime.Time.Format(time.DateTime)
 		job.UpdateTime = userJob.UpdateTime.Time.Format(time.DateTime)
 		job.UserId = userJob.NewUserId
-		job.TensorURL = fmt.Sprintf("%s/%s/#timeseries", l.svcCtx.Config.K8S.BaseUrl, req.UserID)
+		job.TensorURL = fmt.Sprintf("%s/tensorboard/%s/#timeseries", l.svcCtx.Config.K8S.BaseUrl, req.UserID)
 		resp.Content = append(resp.Content, job)
 	}
 
