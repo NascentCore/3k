@@ -172,11 +172,19 @@ const Welcome: React.FC = () => {
             fixed: 'right',
             dataIndex: 'action',
             key: 'action',
-            width: 200,
+            width: 300,
             align: 'center',
             render: (_, record) => (
               <>
                 <Space>
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      window.open(record.tensor_url);
+                    }}
+                  >
+                    TensorBoard
+                  </Button>
                   <DetailModel record={record} />
                   <Popconfirm
                     title={intl.formatMessage({
