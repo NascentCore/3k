@@ -36,6 +36,8 @@ spec:
             type: object
           spec:
             properties:
+              autoMerge:
+                type: boolean
               config:
                 additionalProperties:
                   type: string

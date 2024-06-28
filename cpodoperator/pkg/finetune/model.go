@@ -13,7 +13,7 @@ type Model struct {
 	RequireGPUType  string
 }
 
-func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, hyperparameters, configs []string) string {
+func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge bool, hyperparameters, configs []string) string {
 
 	trainStrings := []string{
 		"accelerate",
@@ -69,7 +69,11 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, hyperp
 		res += v + " "
 	}
 
-	return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
+	if merge {
+		return res + fmt.Sprintf(" && python src/export_model.py --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
+	}
+
+	return res
 }
 
 var SupportModels = []Model{

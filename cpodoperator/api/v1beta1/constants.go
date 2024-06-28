@@ -26,6 +26,8 @@ const (
 	CPodDatasetSizeAnno               = "cpod.cpod/cpod-dataset-size"
 	CPodDatasetlReadableNameAnno      = "cpod.cpod/cpod-dataset-readable-name"
 	CPodPublicSharedPVC               = "shared-pvc"
+
+	CPodAutoMergeAnno = "cpod.cpod/cpod-auto-merge"
 )
 
 const (
