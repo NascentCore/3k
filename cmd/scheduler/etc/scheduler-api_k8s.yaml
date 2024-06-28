@@ -24,7 +24,7 @@ OSS:
   UserAdapterPrefix: "adapters/"
   FinetuneTagFile: "sxwl-can-fine-tune.md"
   InferenceTagFile: "sxwl-can-inference.md"
-  LocalMode: Yes
+  LocalMode: No
 
 BannedCpod:
   9943a3c744bbb47e3a553d46559aea49: ""
