@@ -3,7 +3,7 @@
  * @description 微调
  */
 import { apiFinetunes, useApiGetGpuType, useResourceDatasetsOptions } from '@/services';
-import { Button, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
+import { Button, Checkbox, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
 import { useState } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
@@ -39,25 +39,29 @@ const Content = ({ record, onCancel }) => {
       const currentDataSet = resourceDatasetsOption.find(
         (x: any) => x.value === values.training_file,
       );
+      const params = {
+        ...values,
+        model_saved_type: values.model_saved_type ? 'full' : 'lora',
+        gpu_count: Number(values.gpu_count),
+        //
+        model_id: currentModel.id,
+        model_name: currentModel.name,
+        model_path: currentModel.path,
+        model_size: currentModel.size,
+        model_is_public: currentModel.is_public,
+        model_template: currentModel.template,
+        //
+        dataset_id: currentDataSet.id,
+        dataset_name: currentDataSet.name,
+        dataset_path: currentDataSet.path,
+        dataset_size: currentDataSet.size,
+        dataset_is_public: currentDataSet.is_public,
+        //
+      };
+      console.log('params', params);
+      return;
       return apiFinetunes({
-        data: {
-          ...values,
-          gpu_count: Number(values.gpu_count),
-          //
-          model_id: currentModel.id,
-          model_name: currentModel.name,
-          model_path: currentModel.path,
-          model_size: currentModel.size,
-          model_is_public: currentModel.is_public,
-          model_template: currentModel.template,
-          //
-          dataset_id: currentDataSet.id,
-          dataset_name: currentDataSet.name,
-          dataset_path: currentDataSet.path,
-          dataset_size: currentDataSet.size,
-          dataset_is_public: currentDataSet.is_public,
-          //
-        },
+        data: params,
       }).then((res) => {
         message.success(
           intl.formatMessage({
@@ -162,7 +166,14 @@ const Content = ({ record, onCancel }) => {
             allowClear
           />
         </Form.Item>
-
+        <Form.Item
+          name="model_saved_type"
+          valuePropName="checked"
+          label={<div></div>}
+          colon={false}
+        >
+          <Checkbox>微调后保存完整模型（默认保存Lora）</Checkbox>
+        </Form.Item>
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
             Hyperparameters

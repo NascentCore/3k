@@ -74,7 +74,7 @@ const Welcome: React.FC = () => {
             dataIndex: 'jobName',
             key: 'jobName',
             align: 'center',
-            width: 150,
+            width: 300,
           },
           {
             title: intl.formatMessage({

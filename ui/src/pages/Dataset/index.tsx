@@ -18,7 +18,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           dataIndex: 'name',
           key: 'name',
           align: 'center',
-          width: 150,
+          width: 300,
           render: (_) => removeUserIdPrefixFromPath(_),
         },
         {
