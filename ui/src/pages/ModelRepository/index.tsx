@@ -21,7 +21,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           dataIndex: 'name',
           key: 'name',
           align: 'center',
-          width: 150,
+          width: 250,
           render: (_) => removeUserIdPrefixFromPath(_),
         },
         {
@@ -32,7 +32,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           dataIndex: 'owner',
           key: 'owner',
           align: 'center',
-          width: 150,
+          width: 350,
         },
         {
           title: intl.formatMessage({
