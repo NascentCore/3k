@@ -341,6 +341,10 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 					exists = true
 				}
 			}
+			autoMerge := true
+			if job.ModelSavedType == "lora" {
+				autoMerge = false
+			}
 			if !exists {
 				newJob := v1beta1.FineTune{
 					ObjectMeta: metav1.ObjectMeta{
@@ -368,6 +372,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 						},
 						GPUCount:   int32(job.GpuNumber),
 						GPUProduct: job.GpuType,
+						AutoMerge:  autoMerge,
 					},
 				}
 

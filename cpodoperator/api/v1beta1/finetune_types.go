@@ -37,6 +37,7 @@ type FineTuneSpec struct {
 	Upload          bool              `json:"upload,omitempty"`
 	GPUCount        int32             `json:"gpuCount,omitempty"`
 	GPUProduct      string            `json:"gpuProduct,omitempty"`
+	AutoMerge       bool              `json:"autoMerge,omitempty"`
 }
 
 type Phase string

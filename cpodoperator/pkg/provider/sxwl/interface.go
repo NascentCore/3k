@@ -90,6 +90,7 @@ type PortalTrainningJob struct {
 	BatchSize             string `json:"batchSize"`
 	UserID                string `json:"userId"`
 	TrainedModelName      string `json:"trainedModelName,optional"`
+	ModelSavedType        string `json:"model_saved_type"`
 }
 
 type PortalInferenceJob struct {
