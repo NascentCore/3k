@@ -59,7 +59,6 @@ const Content = ({ record, onCancel }) => {
         //
       };
       console.log('params', params);
-      return;
       return apiFinetunes({
         data: params,
       }).then((res) => {
