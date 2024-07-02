@@ -40,7 +40,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge 
 	}
 
 	baseParam := []string{
-		"src/train_bash.py",
+		"src/train.py",
 		"--do_train=True",
 		"--model_name_or_path=/data/model",
 		"--dataset=dataset",
@@ -80,7 +80,7 @@ var SupportModels = []Model{
 	{
 		Name:             "ZhipuAI/chatglm3-6b",
 		ModelStorageName: "model-storage-10e872cd960e38cb",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "alpaca",
 		LoRATarget:       "query_key_value",
 		Targetmodelsize:  30720,
@@ -89,7 +89,7 @@ var SupportModels = []Model{
 	{
 		Name:             "meta-llama/Llama-2-7b",
 		ModelStorageName: "model-storage-6deacca0bbad927d",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -98,7 +98,7 @@ var SupportModels = []Model{
 	{
 		Name:             "baichuan-inc/Baichuan2-7B-Chat",
 		ModelStorageName: "model-storage-cfa5be686c53f1a2",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "alpaca",
 		LoRATarget:       "W_pack",
 		Targetmodelsize:  30720,
@@ -107,7 +107,7 @@ var SupportModels = []Model{
 	{
 		Name:             "IDEA-CCNL/Ziya-LLaMA-13B-v1",
 		ModelStorageName: "model-storage-3f7baf1d50fdab32",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -116,7 +116,7 @@ var SupportModels = []Model{
 	{
 		Name:             "google/gemma-2b-it",
 		ModelStorageName: "model-storage-0ce92f029254ff34",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "gemma",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -125,7 +125,7 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mistral-7B-v0.1",
 		ModelStorageName: "model-storage-e306a7d8b79c7e8f",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -134,7 +134,7 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mistral-7B-Instruct-v0.1",
 		ModelStorageName: "model-storage-9b268c705d2aafee",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -143,15 +143,24 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mixtral-8x7B-Instruct-v0.1",
 		ModelStorageName: "model-storage-57e056b59249bceb",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v10",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
 		Template:         "mistral",
+		LoRATarget:       "q_proj,v_proj",
+		Targetmodelsize:  102400,
+		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
+	},
+	{
+		Name:             "meta-llama/Meta-Llama-3-8B-Instruct",
+		ModelStorageName: "model-storage-f5b8963792864b06",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Template:         "llama3",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  102400,
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
 }
 
-func CheckModelWhetherSupport(modelName string) *Model {
+func CheckModelWhetherSupport(supportModels []Model, modelName string) *Model {
 	for _, model := range SupportModels {
 		if model.Name == modelName {
 			return &model
