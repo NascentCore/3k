@@ -513,6 +513,16 @@ type JupyterlabStatus struct {
 	URL     string `json:"url"`
 }
 
+type JupyterlabUpdateReq struct {
+	UserID         string `header:"Sx-User-ID"`
+	JobName        string `json:"job_name"`
+	CPUCount       int64  `json:"cpu_count"`
+	Memory         int64  `json:"memory"`
+	GPUCount       int64  `json:"gpu_count"`
+	GPUProduct     string `json:"gpu_product"`
+	DataVolumeSize int64  `json:"data_volume_size"`
+}
+
 type LoginReq struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
