@@ -352,6 +352,14 @@ export async function apiPostJobJupyterlab(options?: { [key: string]: any }) {
   });
 }
 
+// 修改jupyterlab实例
+export async function apiPutJobJupyterlab(options?: { [key: string]: any }) {
+  return request('/api/job/jupyterlab', {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}
+
 // jupyterlab 暂停
 export async function apiPostJobJupyterlabPause(options?: { [key: string]: any }) {
   return request('/api/job/jupyterlab/pause', {

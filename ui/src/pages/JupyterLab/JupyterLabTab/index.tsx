@@ -11,7 +11,7 @@ import { formatFileSize } from '@/utils';
 import PauseButton from './PauseButton';
 import RunButton from './RunButton';
 
-const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
+const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading, editBtnOnClick }: any) => {
   const intl = useIntl();
   const [buildingImageOpen, setBuildingImageOpen] = React.useState(false);
   const [buildingImageRecord, setBuildingImageRecord] = React.useState({});
@@ -163,6 +163,14 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading }: any) => {
                       {intl.formatMessage({
                         id: 'pages.jupyterLab.JupyterLabTab.table.column.action.buildBtn',
                         defaultMessage: '构建镜像',
+                      })}
+                    </Button>
+                  )}
+                  {['paused'].includes(record?.status) && (
+                    <Button type={'link'} onClick={() => editBtnOnClick(record)}>
+                      {intl.formatMessage({
+                        id: 'pages.jupyterLab.JupyterLabTab.table.column.action.updateBtn',
+                        defaultMessage: '修改镜像',
                       })}
                     </Button>
                   )}

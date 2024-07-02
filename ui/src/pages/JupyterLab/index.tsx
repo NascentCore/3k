@@ -14,6 +14,8 @@ const Index: React.FC = () => {
     console.log(key);
   };
 
+  const [addJupterLabType, setAddJupyterLabType] = React.useState('add');
+  const [addJupterLabRecord, setAddJupterLabRecord] = React.useState(void 0);
   const [addJupterLabOpen, setAddJupyterLabOpen] = React.useState(false);
   const {
     data: tableDataSourceRes_1,
@@ -38,6 +40,11 @@ const Index: React.FC = () => {
           tableDataSourceRes={tableDataSourceRes_1}
           mutate={mutate_1}
           isLoading={isLoading_1}
+          editBtnOnClick={(recode: any) => {
+            setAddJupyterLabType('edit');
+            setAddJupterLabRecord(recode);
+            setAddJupyterLabOpen(true);
+          }}
         />
       ),
     },
@@ -62,7 +69,11 @@ const Index: React.FC = () => {
         <div style={{ position: 'relative' }}>
           <Button
             style={{ position: 'absolute', right: 0, top: 5, zIndex: 10 }}
-            onClick={() => setAddJupyterLabOpen(true)}
+            onClick={() => {
+              setAddJupyterLabType('add');
+              setAddJupterLabRecord(void 0);
+              setAddJupyterLabOpen(true);
+            }}
           >
             {intl.formatMessage({
               id: 'pages.jupyterLab.tab.createJupyterLabInstanceButton',
@@ -75,7 +86,10 @@ const Index: React.FC = () => {
       <Drawer
         width={1000}
         title={intl.formatMessage({
-          id: 'pages.jupyterLab.tab.createJupyterLabInstanceButton',
+          id:
+            addJupterLabType === 'add'
+              ? 'pages.jupyterLab.tab.createJupyterLabInstanceButton'
+              : 'pages.jupyterLab.tab.updateJupyterLabInstanceButton',
           defaultMessage: '创建JupyterLab实例',
         })}
         placement="right"
@@ -84,6 +98,8 @@ const Index: React.FC = () => {
       >
         {addJupterLabOpen && (
           <AddJupyterLab
+            addJupterLabType={addJupterLabType}
+            addJupterLabRecord={addJupterLabRecord}
             onChange={() => {
               setAddJupyterLabOpen(false);
               mutate_1();
