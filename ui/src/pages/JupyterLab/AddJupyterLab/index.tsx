@@ -1,5 +1,6 @@
 import {
   apiPostJobJupyterlab,
+  apiPutJobJupyterlab,
   useGpuTypeOptions,
   useResourceAdaptersOptions,
   useResourceDatasetsOptions,
@@ -13,9 +14,11 @@ import AsyncButton from '@/components/AsyncButton';
 interface IProps {
   onChange: () => void;
   onCancel: () => void;
+  addJupterLabType: any;
+  addJupterLabRecord: any;
 }
 
-const Index = ({ onChange, onCancel }: IProps) => {
+const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IProps) => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
   const intl = useIntl();
@@ -25,74 +28,116 @@ const Index = ({ onChange, onCancel }: IProps) => {
   const datasetsOptions = useResourceDatasetsOptions();
   const adaptersOptions = useResourceAdaptersOptions();
 
+  const editDisabled = addJupterLabType === 'edit';
+
   const [form] = Form.useForm();
   useEffect(() => {
-    form.setFieldsValue({
-      cpu_count: 2,
-      memory: 2048,
-      data_volume_size: 1024,
-    });
-  }, []);
+    if (addJupterLabRecord) {
+      form.setFieldsValue({
+        instance_name: addJupterLabRecord.instance_name,
+        cpu_count: addJupterLabRecord.cpu_count,
+        memory: addJupterLabRecord.memory / 1024 / 1024,
+        gpu_count: addJupterLabRecord.gpu_count,
+        gpu_product: addJupterLabRecord.gpu_product,
+        data_volume_size: addJupterLabRecord.data_volume_size / 1024 / 1024,
+        resource: {
+          models: addJupterLabRecord.resource?.models?.map((x) => x.model_id) || [],
+          datasets: addJupterLabRecord.resource?.datasets?.map((x) => x.dataset_id) || [],
+          adapters: addJupterLabRecord.resource?.adapters?.map((x) => x.adapter_id) || [],
+        },
+      });
+    } else {
+      form.setFieldsValue({
+        cpu_count: 2,
+        memory: 2048,
+        data_volume_size: 1024,
+      });
+    }
+  }, [addJupterLabRecord]);
   const gpu_product_watch = Form.useWatch('gpu_product', form);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
-      console.log('Form values:', values);
-      const models = modelsOptions
-        .filter((x) => values.resource.models?.includes(x.value))
-        ?.map((x) => ({
-          model_id: x.id,
-          model_name: x.name,
-          model_size: x.size,
-          model_is_public: x.is_public,
-          model_template: x.template,
-          model_path: '/models',
-        }));
-      const datasets = datasetsOptions
-        .filter((x) => values.resource.datasets?.includes(x.value))
-        ?.map((x) => ({
-          dataset_id: x.id,
-          dataset_name: x.name,
-          dataset_size: x.size,
-          dataset_is_public: x.is_public,
-          dataset_path: '/datasets',
-        }));
-      const adapters = adaptersOptions
-        .filter((x) => values.resource.adapters?.includes(x.value))
-        ?.map((x) => ({
-          adapter_id: x.id,
-          adapter_name: x.name,
-          adapter_size: x.size,
-          adapter_is_public: x.is_public,
-          adapter_path: '/adapters',
-        }));
-      const params = {
-        ...values,
-        user_id: currentUser?.user_id,
-        cpu_count: Number(values.cpu_count),
-        memory: Number(values.memory) * 1024 * 1024,
-        data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
-        gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
-        resource: {
-          models,
-          datasets,
-          adapters,
-        },
-      };
-      console.log('Form submit:', params);
-      return apiPostJobJupyterlab({
-        data: params,
-      }).then(() => {
-        onChange();
-        message.success(
-          intl.formatMessage({
-            id: 'pages.global.form.submit.success',
-            defaultMessage: '添加成功',
-          }),
-        );
-        onCancel();
-      });
+      if (addJupterLabType === 'add') {
+        console.log('Form values:', values);
+        const models = modelsOptions
+          .filter((x) => values.resource.models?.includes(x.value))
+          ?.map((x) => ({
+            model_id: x.id,
+            model_name: x.name,
+            model_size: x.size,
+            model_is_public: x.is_public,
+            model_template: x.template,
+            model_path: '/models',
+          }));
+        const datasets = datasetsOptions
+          .filter((x) => values.resource.datasets?.includes(x.value))
+          ?.map((x) => ({
+            dataset_id: x.id,
+            dataset_name: x.name,
+            dataset_size: x.size,
+            dataset_is_public: x.is_public,
+            dataset_path: '/datasets',
+          }));
+        const adapters = adaptersOptions
+          .filter((x) => values.resource.adapters?.includes(x.value))
+          ?.map((x) => ({
+            adapter_id: x.id,
+            adapter_name: x.name,
+            adapter_size: x.size,
+            adapter_is_public: x.is_public,
+            adapter_path: '/adapters',
+          }));
+        const params = {
+          ...values,
+          user_id: currentUser?.user_id,
+          cpu_count: Number(values.cpu_count),
+          memory: Number(values.memory) * 1024 * 1024,
+          data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
+          gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
+          resource: {
+            models,
+            datasets,
+            adapters,
+          },
+        };
+        console.log('Form submit:', params);
+        return apiPostJobJupyterlab({
+          data: params,
+        }).then(() => {
+          onChange();
+          message.success(
+            intl.formatMessage({
+              id: 'pages.global.form.submit.success',
+              defaultMessage: '添加成功',
+            }),
+          );
+          onCancel();
+        });
+      }
+      if (addJupterLabType === 'edit') {
+        console.log('Form values:', values);
+        const params = {
+          job_name: addJupterLabRecord.job_name,
+          gpu_product: values.gpu_product,
+          cpu_count: Number(values.cpu_count),
+          memory: Number(values.memory) * 1024 * 1024,
+          data_volume_size: Number(values.data_volume_size) * 1024 * 1024,
+          gpu_count: values.gpu_count ? Number(values.gpu_count) : void 0,
+        };
+        console.log('Form update:', params);
+        return apiPutJobJupyterlab({ data: params }).then(() => {
+          onChange();
+          message.success(
+            intl.formatMessage({
+              id: 'pages.global.form.submit.success',
+              defaultMessage: '操作成功',
+            }),
+          );
+          onCancel();
+        });
+      }
     });
   };
 
@@ -124,6 +169,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
             allowClear
           />
         </Form.Item>
@@ -210,6 +256,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
             allowClear
             suffix="MB"
           />
@@ -230,6 +277,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
           />
         </Form.Item>
         <Form.Item
@@ -248,6 +296,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
           />
         </Form.Item>
 
@@ -267,6 +316,7 @@ const Index = ({ onChange, onCancel }: IProps) => {
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
           />
         </Form.Item>
 
