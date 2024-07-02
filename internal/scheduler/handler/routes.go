@@ -199,6 +199,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: jupyterlabDelHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPut,
+				Path:    "/job/jupyterlab",
+				Handler: jupyterlabUpdateHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/job/jupyterlab/pause",
 				Handler: jupyterlabPauseHandler(serverCtx),

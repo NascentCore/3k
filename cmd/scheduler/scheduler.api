@@ -651,6 +651,15 @@ type (
 	JupyterlabDeleteResp {
 		Message string `json:"message"`
 	}
+	JupyterlabUpdateReq {
+		UserID         string `header:"Sx-User-ID"`
+		JobName        string `json:"job_name"`
+		CPUCount       int64  `json:"cpu_count"`
+		Memory         int64  `json:"memory"`
+		GPUCount       int64  `json:"gpu_count"`
+		GPUProduct     string `json:"gpu_product"`
+		DataVolumeSize int64  `json:"data_volume_size"`
+	}
 	JupyterlabPauseReq {
 		JobName string `json:"job_name"`
 		UserID  string `header:"Sx-User-ID"`
@@ -867,6 +876,10 @@ service scheduler-api {
 	@doc "删除jupyterlab实例"
 	@handler jupyterlabDel
 	delete /job/jupyterlab (JupyterlabDeleteReq) returns (JupyterlabDeleteResp)
+
+	@doc "更新jupyterlab实例"
+	@handler jupyterlabUpdate
+	put /job/jupyterlab (JupyterlabUpdateReq) returns (BaseResp)
 
 	@doc "暂停jupyterlab实例"
 	@handler jupyterlabPause
