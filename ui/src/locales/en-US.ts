@@ -22,7 +22,7 @@ export default {
   'menu.Grafana': 'Grafana',
   'menu.Tensorboard': 'TensorBoard',
   'menu.Jupyterlalb': 'JupyterLab',
-  'menu.JupyterLab': 'JupyterLab',
+  'menu.JupyterLab': 'Pods',
   'menu.ClusterInformation': 'ClusterInformation',
   'menu.UserQuota': 'UserQuota',
   'menu.Dataset': 'Dataset',

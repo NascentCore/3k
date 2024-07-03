@@ -20,5 +20,6 @@ export default {
   'pages.userJob.table.column.workStatus.status.9': 'Terminated',
   'pages.userJob.table.column.createTime': 'Creation Time',
   'pages.userJob.table.column.action': 'Action',
-  'pages.userJob.table.column.action.detail': 'Detail',
+  'pages.userJob.table.column.action.detail': 'Logs',
+  'pages.userJob.table.column.action.tensorboard': 'TensorBoard',
 };
