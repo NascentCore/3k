@@ -20,5 +20,6 @@ export default {
   'pages.userJob.table.column.workStatus.status.9': '终止删除',
   'pages.userJob.table.column.createTime': '创建时间',
   'pages.userJob.table.column.action': '操作',
-  'pages.userJob.table.column.action.detail': '详情',
+  'pages.userJob.table.column.action.detail': '任务日志',
+  'pages.userJob.table.column.action.tensorboard': '训练指标',
 };

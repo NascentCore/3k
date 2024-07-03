@@ -267,7 +267,9 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             id: 'pages.jupyterLab.AddJupyterLab.form.model_id',
             defaultMessage: '挂载模型',
           })}
-          extra={'挂载路径: /models'}
+          extra={`${intl.formatMessage({
+            id: 'pages.UserJobCommit.form.pretrainedModelPath',
+          })}: /models`}
         >
           <Select
             allowClear
@@ -286,7 +288,9 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             id: 'pages.jupyterLab.AddJupyterLab.form.datasets',
             defaultMessage: '挂载数据集',
           })}
-          extra={'挂载路径: /datasets'}
+          extra={`${intl.formatMessage({
+            id: 'pages.UserJobCommit.form.pretrainedModelPath',
+          })}: /datasets`}
         >
           <Select
             allowClear
@@ -306,7 +310,9 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             id: 'pages.jupyterLab.AddJupyterLab.form.adapters',
             defaultMessage: '挂载适配器',
           })}
-          extra={'挂载路径: /adapters'}
+          extra={`${intl.formatMessage({
+            id: 'pages.UserJobCommit.form.pretrainedModelPath',
+          })}: /adapters`}
         >
           <Select
             allowClear

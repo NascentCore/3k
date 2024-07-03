@@ -30,7 +30,9 @@ const Index = ({ mutate, record }: any) => {
         cancelText={intl.formatMessage({ id: 'pages.global.confirm.cancelText' })}
       >
         <Button type={'link'} disabled={disabled}>
-          暂停
+          {intl.formatMessage({
+            id: 'pages.jupyterLab.JupyterLabTab.table.column.action.pauseBtn',
+          })}
         </Button>
       </Popconfirm>
     </>
