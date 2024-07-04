@@ -31,12 +31,14 @@ type GPUInfo struct {
 // 节点的CPU相关信息
 type CPUInfo struct {
 	Cores int `json:"cores"` // 逻辑核心数量
+	Used  int `json:"used"`  // 使用核心数量
 	Usage int `json:"usage"` // 使用率（%） 0——100
 }
 
 // 节点的内存相关信息
 type MemInfo struct {
 	Size  int `json:"size"`  // 内存大小 MB
+	Used  int `json:"used"`  // 内存使用 MB
 	Usage int `json:"usage"` // 内存使用 MB
 }
 

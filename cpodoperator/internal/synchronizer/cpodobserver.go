@@ -256,7 +256,7 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 				t.GPUState = append(t.GPUState, resource.GPUState{})
 			}
 		}
-		t.MemInfo.Size = int(node.Status.Capacity.Memory().Value() / 1024 / 1024)
+		t.MemInfo.Size = int(node.Status.Allocatable.Memory().Value() / 1024 / 1024)
 		info.Nodes = append(info.Nodes, t)
 	}
 
@@ -270,6 +270,8 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 				for i, node := range info.Nodes {
 					if node.Name == pod.Spec.NodeName {
 						info.Nodes[i].GPUUsed += int(gpu.Value())
+						info.Nodes[i].MemInfo.Used += int(container.Resources.Requests.Memory().Value() / 1024 / 1024)
+						info.Nodes[i].CPUInfo.Used += int(container.Resources.Requests.Cpu().Value())
 					}
 				}
 			}
