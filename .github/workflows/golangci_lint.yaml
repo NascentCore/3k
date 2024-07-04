@@ -1,3 +1,5 @@
+# golangci-lint results are shown as annotations on the PR page:
+# https://github.com/sensu/sensu-go/issues/3926
 name: golangci-lint
 on:
   push:
