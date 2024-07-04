@@ -55,7 +55,8 @@ var downloadCmd = &cobra.Command{
 		if token == "" {
 			log.Fatal("Please set token in ~/.sxwlctl.yaml")
 		}
-		accessID, accessKey, userID, err := auth.GetAccessByToken(token)
+
+		accessID, accessKey, userID, _, err := auth.GetAccessByToken(token)
 		if err != nil {
 			log.Fatal("Please check token and auth_url in config file")
 		}

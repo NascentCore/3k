@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func GetAccessByToken(token string) (id, key string, userID string, err error) {
+func GetAccessByToken(token string) (id, key string, userID string, isAdmin bool, err error) {
 	// Create a new request using http.NewRequest
 	req, err := http.NewRequest("GET", viper.GetString("auth_url"), nil)
 	if err != nil {
@@ -42,5 +42,5 @@ func GetAccessByToken(token string) (id, key string, userID string, err error) {
 		return
 	}
 
-	return response.AccessID, response.AccessKey, response.UserID, err
+	return response.AccessID, response.AccessKey, response.UserID, response.IsAdmin, err
 }

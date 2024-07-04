@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -88,6 +89,9 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, nil
 	}
 
+	supportModels, _ := r.getSupportModels(ctx)
+	logger.Info("support models", "models", supportModels)
+
 	validateErr, recoverableErr := r.validateFineTune(ctx, finetune)
 	if validateErr != nil {
 		logger.Error(validateErr, "validate finetune error")
@@ -112,7 +116,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if err := r.Get(ctx, types.NamespacedName{Namespace: finetune.Namespace, Name: r.CPodJobName(finetune)}, cpodjob); err != nil {
 		if apierrors.IsNotFound(err) {
 			var modelConfig *finetunepkg.Model
-			if modelConfig = finetunepkg.CheckModelWhetherSupport(finetune.Spec.Model); modelConfig == nil {
+			if modelConfig = finetunepkg.CheckModelWhetherSupport(supportModels, finetune.Spec.Model); modelConfig == nil {
 				logger.Error(fmt.Errorf("model not support"), "model not support")
 				return ctrl.Result{}, nil
 			}
@@ -244,10 +248,6 @@ func (r *FineTuneReconciler) validateFineTune(ctx context.Context, finetune *cpo
 
 	if finetune.Spec.DatasetStorage == "" {
 		return fmt.Errorf("dataset is required"), nil
-	}
-
-	if finetunepkg.CheckModelWhetherSupport(finetune.Spec.Model) == nil {
-		return fmt.Errorf("model is not support"), nil
 	}
 
 	return nil, nil
@@ -438,4 +438,31 @@ func CopyPublicDatasetStorage(ctx context.Context, kubeClient client.Client, pub
 	}
 
 	return nil
+}
+
+func (r *FineTuneReconciler) getSupportModels(ctx context.Context) ([]finetunepkg.Model, error) {
+	cm := v1.ConfigMap{}
+	res := finetunepkg.SupportModels
+	if err := r.Get(ctx, types.NamespacedName{Namespace: cpodv1beta1.CPodPublicNamespace, Name: "support-models"}, &cm); err != nil {
+		return res, nil
+	}
+	models := make([]finetunepkg.Model, 0)
+	if modelsValue, ok := cm.Data["models"]; ok {
+		if err := json.Unmarshal([]byte(modelsValue), &models); err != nil {
+			return res, nil
+		}
+		for _, m := range models {
+			exist := false
+			for _, existM := range res {
+				if m.Name == existM.Name {
+					exist = true
+				}
+			}
+			if !exist {
+				res = append(res, m)
+			}
+		}
+		return res, nil
+	}
+	return res, nil
 }

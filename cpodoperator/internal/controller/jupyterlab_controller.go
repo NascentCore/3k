@@ -126,11 +126,10 @@ func (r *JupyterLabReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	if jupyterlab.Spec.Replicas != sts.Spec.Replicas {
-		logger.V(4).Info("update replicas")
-		if err := r.updateStsReplicas(ctx, jupyterlab, sts); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to update replicas:  %v", err)
-		}
+	if err := r.updateSts(ctx, jupyterlab, sts); err != nil {
+		logger.Error(err, "failed to update sts", "sts", sts, "jupyterlab", jupyterlab)
+		logrus.Info("failed to update sts", "sts", sts, "jupyterlab", jupyterlab)
+		return ctrl.Result{}, fmt.Errorf("failed to update sts: %w", err)
 	}
 
 	var currentPhase cpodv1beta1.JupyterLabJobPhase
@@ -685,10 +684,43 @@ func (r *JupyterLabReconciler) createJupyterlabIngress(ctx context.Context, jupy
 	return nil
 }
 
-func (r JupyterLabReconciler) updateStsReplicas(ctx context.Context, jupypterlab *cpodv1beta1.JupyterLab, sts *appsv1.StatefulSet) error {
+func (r *JupyterLabReconciler) updateSts(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab, sts *appsv1.StatefulSet) error {
 	stsNew := sts.DeepCopy()
-	stsNew.Spec.Replicas = jupypterlab.Spec.Replicas
-	return r.Client.Update(ctx, stsNew)
+	tReplicas := jupyterlab.Spec.Replicas
+	rReplicas := sts.Spec.Replicas
+	if tReplicas != nil && rReplicas != nil && *tReplicas != *rReplicas {
+		stsNew.Spec.Replicas = tReplicas
+	}
+
+	rGPUResource := sts.Spec.Template.Spec.Containers[0].Resources.Limits["nvidia.com/gpu"]
+	if resource.NewQuantity(int64(jupyterlab.Spec.GPUCount), resource.DecimalSI).Value() != rGPUResource.Value() {
+		stsNew.Spec.Template.Spec.Containers[0].Resources.Limits["nvidia.com/gpu"] = *resource.NewQuantity(int64(jupyterlab.Spec.GPUCount), resource.DecimalSI)
+	}
+
+	tCPU := resource.MustParse(jupyterlab.Spec.CPUCount)
+	rCPU := sts.Spec.Template.Spec.Containers[0].Resources.Limits[corev1.ResourceCPU]
+	if tCPU.Value() != rCPU.Value() {
+		stsNew.Spec.Template.Spec.Containers[0].Resources.Limits[corev1.ResourceCPU] = tCPU
+		stsNew.Spec.Template.Spec.Containers[0].Resources.Requests[corev1.ResourceCPU] = tCPU
+	}
+
+	tMemory := resource.MustParse(jupyterlab.Spec.Memory)
+	rMemory := sts.Spec.Template.Spec.Containers[0].Resources.Limits[corev1.ResourceMemory]
+	if tMemory.Value() != rMemory.Value() {
+		stsNew.Spec.Template.Spec.Containers[0].Resources.Limits[corev1.ResourceMemory] = tMemory
+		stsNew.Spec.Template.Spec.Containers[0].Resources.Requests[corev1.ResourceMemory] = tMemory
+	}
+
+	tDataVolumeSize := resource.MustParse(jupyterlab.Spec.DataVolumeSize)
+	rDataVolumeSize := sts.Spec.VolumeClaimTemplates[0].Spec.Resources.Requests[v1.ResourceStorage]
+	if tDataVolumeSize.Value() != rDataVolumeSize.Value() {
+		stsNew.Spec.VolumeClaimTemplates[0].Spec.Resources.Requests[v1.ResourceStorage] = tDataVolumeSize
+	}
+
+	if !equality.Semantic.DeepEqual(sts.Spec, stsNew) {
+		return r.Client.Update(ctx, stsNew)
+	}
+	return nil
 }
 
 func (r *JupyterLabReconciler) generateOwnerRefJuypterLab(ctx context.Context, jupyterlab *cpodv1beta1.JupyterLab) metav1.OwnerReference {

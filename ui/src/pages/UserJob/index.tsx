@@ -183,7 +183,9 @@ const Welcome: React.FC = () => {
                       window.open(record.tensor_url);
                     }}
                   >
-                    TensorBoard
+                    {intl.formatMessage({
+                        id: 'pages.userJob.table.column.action.tensorboard',
+                      })}
                   </Button>
                   <DetailModel record={record} />
                   <Popconfirm
