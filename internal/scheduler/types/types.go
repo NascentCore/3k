@@ -741,6 +741,7 @@ type UploaderAccessResp struct {
 	AccessID  string `json:"access_id"`
 	AccessKey string `json:"access_key"`
 	UserID    string `json:"user_id"`
+	IsAdmin   bool   `json:"is_admin"`
 }
 
 type User struct {
