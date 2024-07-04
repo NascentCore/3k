@@ -11,6 +11,7 @@ import (
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
+	"k8s.io/apimachinery/pkg/api/equality"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -592,7 +593,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 										Image: s.inferImage,
 										Command: []string{
 											"python",
-											"src/api_demo.py",
+											"src/api.py",
 											"--model_name_or_path",
 											"/mnt/models",
 											"--infer_backend",
@@ -858,19 +859,9 @@ func (s *SyncJob) processJupyterLabJobs(ctx context.Context, portalJobs []sxwl.P
 					s.logger.Error(err, "failed to create JupyterLab")
 				}
 			} else {
-				currnentRep := int32(0)
-				if currentJob.Spec.Replicas == nil {
-					currnentRep = 1
-				} else {
-					currnentRep = *currentJob.Spec.Replicas
+				if err := s.UpdateJupyterlab(ctx, job, currentJob); err != nil {
+					s.logger.Error(err, "failed to update JupyterLab", "job", job, "currentJob", currentJob)
 				}
-
-				if job.Replicas != currnentRep {
-					if err := s.updateJupyterLabReplicas(ctx, currentJob, int(job.Replicas)); err != nil {
-						s.logger.Error(err, "failed to update  JupyterLab replicas")
-					}
-				}
-
 			}
 		}
 
@@ -964,4 +955,51 @@ func (s *SyncJob) createJupyterLab(ctx context.Context, namespace string, job sx
 	}
 
 	return s.kubeClient.Create(ctx, &juypterlab)
+}
+
+func (s *SyncJob) UpdateJupyterlab(ctx context.Context, targetJupyterlab sxwl.PortalJupyterLabJob, jupyterlab *v1beta1.JupyterLab) error {
+	tRelicas := targetJupyterlab.Replicas
+	rReplicas := int32(1)
+	newJupyterlab := jupyterlab.DeepCopy()
+	if jupyterlab.Spec.Replicas != nil {
+		rReplicas = *jupyterlab.Spec.Replicas
+	}
+	if tRelicas != int32(rReplicas) {
+		newJupyterlab.Spec.Replicas = &tRelicas
+	}
+
+	tCPUCount := targetJupyterlab.CPUCount
+	rCPUCount := jupyterlab.Spec.CPUCount
+	if tCPUCount != rCPUCount {
+		newJupyterlab.Spec.CPUCount = tCPUCount
+	}
+
+	tGPUCount := targetJupyterlab.GPUCount
+	rGPUCount := jupyterlab.Spec.GPUCount
+	if tGPUCount != rGPUCount {
+		newJupyterlab.Spec.GPUCount = tGPUCount
+	}
+
+	tGPUProduct := targetJupyterlab.GPUProduct
+	rGPUProduct := jupyterlab.Spec.GPUProduct
+	if tGPUProduct != rGPUProduct {
+		newJupyterlab.Spec.GPUProduct = tGPUProduct
+	}
+
+	tMemory := targetJupyterlab.Memory
+	rMemory := jupyterlab.Spec.Memory
+	if tMemory != rMemory {
+		newJupyterlab.Spec.Memory = tMemory
+	}
+
+	tDataVolumeSize := targetJupyterlab.DataVolumeSize
+	rDataVolumeSize := jupyterlab.Spec.DataVolumeSize
+	if tDataVolumeSize != rDataVolumeSize {
+		newJupyterlab.Spec.DataVolumeSize = tDataVolumeSize
+	}
+
+	if !equality.Semantic.DeepEqual(jupyterlab.Spec, newJupyterlab.Spec) {
+		return s.kubeClient.Update(ctx, newJupyterlab)
+	}
+	return nil
 }
