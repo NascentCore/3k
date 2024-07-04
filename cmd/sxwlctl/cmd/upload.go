@@ -21,6 +21,8 @@ var (
 	dir      string
 	resource string
 	template string
+	public   bool
+	owner    string
 	verbose  bool
 )
 
@@ -37,9 +39,34 @@ var uploadCmd = &cobra.Command{
 	Short: "upload",
 	Long:  `上传本地模型、数据集、适配器`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// check dir
 		if !fs.IsDirExist(dir) {
 			fmt.Println("Please input a correct local dir")
 			os.Exit(1)
+		}
+
+		token := viper.GetString("token")
+		if token == "" {
+			fmt.Println("Please input a sxwl token")
+			os.Exit(1)
+		}
+		accessID, accessKey, userID, isAdmin, err := auth.GetAccessByToken(token)
+		if err != nil {
+			fmt.Println("Please check token and auth_url in config file")
+			os.Exit(1)
+		}
+
+		if public {
+			// only admin could upload public resource
+			if !isAdmin {
+				fmt.Println("Only admin could upload public resource")
+				os.Exit(1)
+			}
+
+			if owner == "" {
+				fmt.Println("Please set owner when uploading public resource")
+				os.Exit(1)
+			}
 		}
 
 		switch resource {
@@ -68,17 +95,6 @@ var uploadCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		token := viper.GetString("token")
-		if token == "" {
-			fmt.Println("Please input a sxwl token")
-			os.Exit(1)
-		}
-		accessID, accessKey, userID, err := auth.GetAccessByToken(token)
-		if err != nil {
-			fmt.Println("Please check token and auth_url in config file")
-			os.Exit(1)
-		}
-
 		conf := Config{
 			Endpoint:  "https://oss-cn-beijing.aliyuncs.com",
 			AccessID:  accessID,
@@ -90,16 +106,32 @@ var uploadCmd = &cobra.Command{
 		storage.InitClient(accessID, accessKey)
 
 		start := time.Now()
-		prefix := ""
+		prefixFormat := ""
 		switch resource {
 		case consts.Model:
-			prefix = fmt.Sprintf(consts.OSSUserModelPath, userID)
+			if public {
+				prefixFormat = consts.OSSPublicModelPath
+			} else {
+				prefixFormat = consts.OSSUserModelPath
+			}
 		case consts.Dataset:
-			prefix = fmt.Sprintf(consts.OSSUserDatasetPath, userID)
+			if public {
+				prefixFormat = consts.OSSPublicDatasetPath
+			} else {
+				prefixFormat = consts.OSSUserDatasetPath
+			}
 		case consts.Adapter:
-			prefix = fmt.Sprintf(consts.OSSUserAdapterPath, userID)
+			if public {
+				prefixFormat = consts.OSSPublicAdapterPath
+			} else {
+				prefixFormat = consts.OSSUserAdapterPath
+			}
 		}
-		// size, err := upload(conf, path.Join(prefix, filepath.Base(dir)), dir)
+		if !public {
+			owner = userID
+		}
+		prefix := fmt.Sprintf(prefixFormat, owner)
+
 		size, err := storage.UploadDir(conf.Bucket, dir, path.Join(prefix, filepath.Base(dir)), verbose)
 		if err != nil {
 			fmt.Printf("upload err: %s\n", err)
@@ -116,5 +148,7 @@ func init() {
 	uploadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
 	uploadCmd.Flags().StringVarP(&template, "template", "t", "", "模型推理使用的template")
-	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs[true|false]")
+	uploadCmd.Flags().BoolVar(&public, "public", false, "上传至公共空间")
+	uploadCmd.Flags().StringVar(&owner, "owner", "", "公共资源的所有者，仅在--public时需要")
+	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")
 }

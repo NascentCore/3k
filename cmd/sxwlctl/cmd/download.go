@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ var downloadCmd = &cobra.Command{
 		if token == "" {
 			log.Fatal("Please set token in ~/.sxwlctl.yaml")
 		}
-		accessID, accessKey, _, err := auth.GetAccessByToken(token)
+		accessID, accessKey, _, _, err := auth.GetAccessByToken(token)
 		if err != nil {
 			log.Fatal("Please check token and auth_url in config file")
 		}

@@ -24,10 +24,19 @@ func NewUploaderAccessLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UploaderAccessLogic) UploaderAccess(req *types.UploaderAccessReq) (resp *types.UploaderAccessResp, err error) {
+	UserModel := l.svcCtx.UserModel
+
+	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
+	if err != nil {
+		l.Errorf("UserModel.IsAdmin userID=%s err=%s", req.UserID, err)
+		return nil, ErrNotAdmin
+	}
+
 	resp = &types.UploaderAccessResp{
 		AccessID:  l.svcCtx.Config.OSSAccess.UploadAccessID,
 		AccessKey: l.svcCtx.Config.OSSAccess.UploadAccessKey,
 		UserID:    req.UserID,
+		IsAdmin:   isAdmin,
 	}
 
 	return
