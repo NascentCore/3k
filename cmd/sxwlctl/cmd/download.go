@@ -55,7 +55,8 @@ var downloadCmd = &cobra.Command{
 		if token == "" {
 			log.Fatal("Please set token in ~/.sxwlctl.yaml")
 		}
-		accessID, accessKey, _, _, err := auth.GetAccessByToken(token)
+
+		accessID, accessKey, userID, _, err := auth.GetAccessByToken(token)
 		if err != nil {
 			log.Fatal("Please check token and auth_url in config file")
 		}
@@ -84,11 +85,11 @@ var downloadCmd = &cobra.Command{
 		ossPath := ""
 		switch resource {
 		case consts.Model:
-			ossPath = fmt.Sprintf(consts.OSSUserModelPath, name)
+			ossPath = fmt.Sprintf(consts.OSSUserModelPath, fmt.Sprintf("%s/%s", userID, name))
 		case consts.Dataset:
-			ossPath = fmt.Sprintf(consts.OSSUserDatasetPath, name)
+			ossPath = fmt.Sprintf(consts.OSSUserDatasetPath, fmt.Sprintf("%s/%s", userID, name))
 		case consts.Adapter:
-			ossPath = fmt.Sprintf(consts.OSSUserAdapterPath, name)
+			ossPath = fmt.Sprintf(consts.OSSUserAdapterPath, fmt.Sprintf("%s/%s", userID, name))
 		}
 		size, err := storage.DownloadDir(conf.Bucket, path.Join(outDir, name), ossPath, verbose)
 		if err != nil {
@@ -102,7 +103,7 @@ func init() {
 	rootCmd.AddCommand(downloadCmd)
 	downloadCmd.Flags().SortFlags = false
 	downloadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
-	downloadCmd.Flags().StringVarP(&name, "name", "n", "model", "资源名称，可从页面上复制")
+	downloadCmd.Flags().StringVarP(&name, "name", "n", "", "资源名称，可从页面上复制")
 	downloadCmd.Flags().StringVarP(&outDir, "out_dir", "o", "./", "输出目录")
 	downloadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs[true|false]")
 }
