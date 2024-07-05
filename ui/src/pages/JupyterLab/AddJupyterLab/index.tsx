@@ -50,7 +50,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
       form.setFieldsValue({
         cpu_count: 2,
         memory: 2048,
-        data_volume_size: 1024,
+        data_volume_size: 102400,
       });
     }
   }, [addJupterLabRecord]);
@@ -249,6 +249,10 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             defaultMessage: '数据卷大小',
           })}
           rules={[{ required: true }]}
+          extra={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.data_volume_size_tips',
+            defaultMessage: '数据卷创建之后大小无法修改，请创建合适大小的数据卷',
+          })}
         >
           <Input
             type="number"
