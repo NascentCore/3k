@@ -256,7 +256,6 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
-            disabled={editDisabled}
             allowClear
             suffix="MB"
           />
