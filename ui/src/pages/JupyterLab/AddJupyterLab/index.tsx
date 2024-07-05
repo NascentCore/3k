@@ -249,6 +249,10 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             defaultMessage: '数据卷大小',
           })}
           rules={[{ required: true }]}
+          extra={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.data_volume_size_tips',
+            defaultMessage: '数据卷创建之后大小无法修改，请创建合适大小的数据卷',
+          })}
         >
           <Input
             type="number"
@@ -256,6 +260,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
               id: 'pages.global.form.placeholder',
               defaultMessage: '请输入',
             })}
+            disabled={editDisabled}
             allowClear
             suffix="MB"
           />
