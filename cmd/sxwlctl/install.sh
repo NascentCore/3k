@@ -4,8 +4,10 @@
 OS=$(uname -s)
 
 # Define the download URLs for each OS
-URL_MACOS="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-darwin.tar.gz"
-URL_LINUX="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-linux.tar.gz"
+URL_MACOS_ARM="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-darwin-arm64.zip"
+URL_MACOS_AMD="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-darwin-amd64.zip"
+URL_LINUX="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-linux-amd64.zip"
+URL_WINDOWS="https://sxwl-ai.oss-cn-beijing.aliyuncs.com/artifacts/tools/sxwlctl-windows-amd64.zip"
 
 # Function to download and install sxwlctl
 install_sxwlctl() {
@@ -16,10 +18,16 @@ install_sxwlctl() {
     curl -sL $url -o $file_name
 
     echo "Extracting sxwlctl..."
-    tar -xzf $file_name
+    unzip -q $file_name
 
-    echo "Installing sxwlctl..."
-    sudo mv sxwlctl /usr/local/bin/
+    if [ "$OS" = "MINGW" ] || [ "$OS" = "MSYS" ] || [ "$OS" = "CYGWIN" ]; then
+        # For Windows, move to a directory that's in the PATH
+        echo "Installing sxwlctl.exe..."
+        mv sxwlctl.exe /usr/local/bin/
+    else
+        echo "Installing sxwlctl..."
+        sudo mv sxwlctl /usr/local/bin/
+    fi
 
     echo "Cleaning up..."
     rm $file_name
@@ -51,12 +59,21 @@ EOL
 # Determine the correct URL and file name based on the OS
 case "$OS" in
     Darwin)
-        URL=$URL_MACOS
-        FILE_NAME="sxwlctl-darwin.tar.gz"
+        if [ "$(uname -m)" = "arm64" ]; then
+            URL=$URL_MACOS_ARM
+            FILE_NAME="sxwlctl-darwin-arm64.zip"
+        else
+            URL=$URL_MACOS_AMD
+            FILE_NAME="sxwlctl-darwin-amd64.zip"
+        fi
         ;;
     Linux)
         URL=$URL_LINUX
-        FILE_NAME="sxwlctl-linux.tar.gz"
+        FILE_NAME="sxwlctl-linux-amd64.zip"
+        ;;
+    MINGW*|MSYS*|CYGWIN*)
+        URL=$URL_WINDOWS
+        FILE_NAME="sxwlctl-windows-amd64.zip"
         ;;
     *)
         echo "Unsupported operating system: $OS"

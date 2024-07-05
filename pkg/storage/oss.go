@@ -368,8 +368,10 @@ func UploadDir(bucketName, localDirPath, ossDirPath string, verbose bool) (int64
 			return err
 		}
 
+		// Update total bytes
+		totalBytes += info.Size()
+
 		if verbose {
-			totalBytes += info.Size()
 			log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", info.Size())
 		}
 
