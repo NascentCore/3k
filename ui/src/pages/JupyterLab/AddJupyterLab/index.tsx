@@ -50,7 +50,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
       form.setFieldsValue({
         cpu_count: 2,
         memory: 2048,
-        data_volume_size: 1024,
+        data_volume_size: 102400,
       });
     }
   }, [addJupterLabRecord]);
