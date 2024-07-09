@@ -38,6 +38,7 @@ type FineTuneSpec struct {
 	GPUCount        int32             `json:"gpuCount,omitempty"`
 	GPUProduct      string            `json:"gpuProduct,omitempty"`
 	AutoMerge       bool              `json:"autoMerge,omitempty"`
+	FinetuneType    FinetuneType      `json:"finetuneType,omitempty"`
 }
 
 type Phase string
@@ -47,6 +48,13 @@ const (
 	PhaseRunning       Phase = "Running"
 	PhaseFailed        Phase = "Failed"
 	PhaseSucceeded     Phase = "Succeeded"
+)
+
+type FinetuneType string
+
+const (
+	FinetuneTypeLora FinetuneType = "lora"
+	FintuneTypeFull  FinetuneType = "pt"
 )
 
 // FineTuneStatus defines the observed state of FineTune

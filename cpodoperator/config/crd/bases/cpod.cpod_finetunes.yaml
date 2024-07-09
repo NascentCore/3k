@@ -46,6 +46,8 @@ spec:
                 type: string
               datasetIsPublic:
                 type: boolean
+              finetuneType:
+                type: string
               gpuCount:
                 format: int32
                 type: integer
