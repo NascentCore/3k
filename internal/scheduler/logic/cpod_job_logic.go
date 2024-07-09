@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"sxwl/3k/internal/scheduler/model"
-	"sxwl/3k/pkg/utils/fs"
+	"sxwl/3k/pkg/storage"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -35,7 +35,7 @@ func NewCpodJobLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CpodJobLo
 }
 
 func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, err error) {
-	CpodMainModel := l.svcCtx.CpodMainModel
+	CpodNodeModel := l.svcCtx.CpodNodeModel
 	UserJobModel := l.svcCtx.UserJobModel
 	InferenceModel := l.svcCtx.InferenceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
@@ -50,14 +50,14 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	resp.JobList = make([]map[string]interface{}, 0)
 	resp.InferenceServiceList = make([]types.InferenceService, 0)
 
-	gpus, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.And{
+	nodes, err := CpodNodeModel.Find(l.ctx, CpodNodeModel.AllFieldsBuilder().Where(squirrel.And{
 		squirrel.Eq{
 			"cpod_id": req.CpodId,
 		},
-		squirrel.Expr("update_time > NOW() - INTERVAL 30 MINUTE"),
+		squirrel.Expr("updated_at > NOW() - INTERVAL 30 MINUTE"),
 	}))
 	if err != nil {
-		l.Logger.Errorf("cpod_main find cpod_id=%s err=%s", req.CpodId, err)
+		l.Logger.Errorf("CpodNodeModel Find cpod_id=%s err=%s", req.CpodId, err)
 		return nil, err
 	}
 
@@ -70,17 +70,24 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		return nil, err
 	}
 
-	activeJobs := make([]*model.SysUserJob, 0)        // 已经在运行中的任务
-	assignedJobs := make([]*model.SysUserJob, 0)      // 本次被分配的任务
-	assignedGPUs := make(map[*model.SysCpodMain]bool) // 本次被分配任务的gpu
+	activeJobs := make([]*model.SysUserJob, 0)         // 已经在运行中的任务
+	assignedJobs := make([]*model.SysUserJob, 0)       // 本次被分配的任务
+	assignedNodes := make(map[*model.SysCpodNode]bool) // 本次被分配任务的node
 
+	// finetune and cpodjob
 	for _, job := range jobs {
 		if job.CpodId.String == "" {
-			for _, gpu := range gpus {
-				if gpu.GpuProd == job.GpuType && gpu.GpuAllocatable.Int64 >= job.GpuNumber.Int64 {
+			for _, node := range nodes {
+				// CPU: 1
+				// Memory: 无限制
+				if node.CpuAllocatable < 1 {
+					continue
+				}
+				if node.GpuProd == job.GpuType.String && node.GpuAllocatable >= job.GpuNumber.Int64 {
 					assignedJobs = append(assignedJobs, job)
-					gpu.GpuAllocatable.Int64 -= job.GpuNumber.Int64
-					assignedGPUs[gpu] = true
+					node.GpuAllocatable -= job.GpuNumber.Int64
+					node.CpuAllocatable -= 1
+					assignedNodes[node] = true
 					break
 				}
 			}
@@ -156,10 +163,17 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 
 		switch service.Status {
 		case model.StatusNotAssigned:
-			for _, gpu := range gpus {
-				if gpu.GpuProd.String == service.GpuType.String && gpu.GpuAllocatable.Int64 >= service.GpuNumber.Int64 {
-					gpu.GpuAllocatable.Int64 -= service.GpuNumber.Int64
-					assignedGPUs[gpu] = true
+			for _, node := range nodes {
+				// CPU: 4
+				// Memory: 50G
+				if node.CpuAllocatable < 4 || node.MemAllocatable < storage.GBToBytes(50) {
+					continue
+				}
+				if node.GpuProd == service.GpuType.String && node.GpuAllocatable >= service.GpuNumber.Int64 {
+					node.GpuAllocatable -= service.GpuNumber.Int64
+					node.CpuAllocatable -= 4
+					node.MemAllocatable -= storage.GBToBytes(50)
+					assignedNodes[node] = true
 
 					// new assigned
 					_, err = InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(squirrel.Eq{
@@ -202,10 +216,10 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		jupyterlabResp := types.JupyterLab{}
 		_ = copier.Copy(&jupyterlabResp, jupyterlab)
 		jupyterlabResp.CPUCount = strconv.FormatInt(jupyterlab.CpuCount, 10)
-		jupyterlabResp.Memory = fs.BytesToMi(jupyterlab.MemCount)
+		jupyterlabResp.Memory = storage.BytesToHumanReadable(jupyterlab.MemCount)
 		jupyterlabResp.GPUCount = int(jupyterlab.GpuCount)
 		jupyterlabResp.GPUProduct = jupyterlab.GpuProd
-		jupyterlabResp.DataVolumeSize = fs.BytesToMi(jupyterlab.DataVolumeSize)
+		jupyterlabResp.DataVolumeSize = storage.BytesToHumanReadable(jupyterlab.DataVolumeSize)
 		err = json.Unmarshal([]byte(jupyterlab.Resource), &jupyterlabResp.Resource)
 		if err != nil {
 			l.Errorf("json unmarshal jupyterlab: %d err: %s", jupyterlab.Id, err)
@@ -220,10 +234,15 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			if jupyterlab.GpuProd == "" {
 				assigned = true
 			} else {
-				for _, gpu := range gpus {
-					if gpu.GpuProd.String == jupyterlab.GpuProd && gpu.GpuAllocatable.Int64 >= jupyterlab.GpuCount {
-						gpu.GpuAllocatable.Int64 -= jupyterlab.GpuCount
-						assignedGPUs[gpu] = true
+				for _, node := range nodes {
+					if node.CpuAllocatable < jupyterlab.CpuCount || node.MemAllocatable < jupyterlab.MemCount {
+						continue
+					}
+					if node.GpuProd == jupyterlab.GpuProd && node.GpuAllocatable >= jupyterlab.GpuCount {
+						node.GpuAllocatable -= jupyterlab.GpuCount
+						node.CpuAllocatable -= jupyterlab.CpuCount
+						node.MemAllocatable -= jupyterlab.MemCount
+						assignedNodes[node] = true
 						assigned = true
 						break
 					}
@@ -252,20 +271,21 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	}
 
 	// update GPU usage
-	for gpu := range assignedGPUs {
-		_, err = CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().Where(squirrel.Eq{
-			"main_id": gpu.MainId,
+	for node := range assignedNodes {
+		_, err = CpodNodeModel.UpdateColsByCond(l.ctx, CpodNodeModel.UpdateBuilder().Where(squirrel.Eq{
+			"id": node.Id,
 		}).SetMap(map[string]interface{}{
-			"gpu_allocatable": gpu.GpuAllocatable,
-			"update_time":     sql.NullTime{Time: time.Now(), Valid: true},
+			"gpu_allocatable": node.GpuAllocatable,
+			"cpu_allocatable": node.CpuAllocatable,
+			"mem_allocatable": node.MemAllocatable,
 		}))
 		if err != nil {
-			l.Logger.Errorf("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d err=%s",
-				gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64, err)
+			l.Logger.Errorf("CpodNodeModel assigned id=%d gpu_allocatable=%d cpu_allocatable=%d mem_allocatable=%d err=%s",
+				node.Id, node.GpuAllocatable, node.CpuAllocatable, node.MemAllocatable, err)
 			return nil, err
 		}
-		l.Logger.Infof("cpod_main assigned main_id=%d gpu_allocatable=%d gpu_total=%d",
-			gpu.MainId, gpu.GpuAllocatable.Int64, gpu.GpuTotal.Int64)
+		l.Logger.Infof("CpodNodeModel assigned id=%d gpu_allocatable=%d cpu_allocatable=%d mem_allocatable=%d",
+			node.Id, node.GpuAllocatable, node.CpuAllocatable, node.MemAllocatable)
 	}
 
 	return

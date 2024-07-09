@@ -92,6 +92,7 @@ type CPODStatusResp struct {
 
 type CPUInfo struct {
 	Cores int `json:"cores"`
+	Used  int `json:"used"`
 	Usage int `json:"usage"`
 }
 
@@ -535,6 +536,7 @@ type LoginResp struct {
 
 type MemInfo struct {
 	Size  int `json:"size"`
+	Used  int `json:"used"`
 	Usage int `json:"usage"`
 }
 

@@ -78,6 +78,7 @@ type (
 	}
 	CPUInfo {
 		Cores int `json:"cores"`
+		Used  int `json:"used"`
 		Usage int `json:"usage"`
 	}
 	NetworkInfo {
@@ -90,6 +91,7 @@ type (
 	}
 	MemInfo {
 		Size  int `json:"size"`
+		Used  int `json:"used"`
 		Usage int `json:"usage"`
 	}
 	NodeInfo {

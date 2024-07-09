@@ -9,7 +9,10 @@ import (
 	"sxwl/3k/internal/scheduler/types"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/orm"
+	"sxwl/3k/pkg/storage"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,9 +35,8 @@ func NewCpodStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CpodSt
 }
 
 func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPODStatusResp, err error) {
-	CpodMainModel := l.svcCtx.CpodMainModel
+	CpodNodeModel := l.svcCtx.CpodNodeModel
 	UserJobModel := l.svcCtx.UserJobModel
-	// FileURLModel := l.svcCtx.FileURLModel
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	InferModel := l.svcCtx.InferenceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
@@ -45,59 +47,60 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		return nil, fmt.Errorf("cpod is illegal")
 	}
 
-	// update sys_main_job or insert
-	for _, gpu := range req.ResourceInfo.GPUSummaries {
-		cpodMains, err := CpodMainModel.Find(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.Eq{
-			"cpod_id":  req.CPODID,
-			"gpu_prod": gpu.Prod,
+	// update sys_cpod_node
+	for _, node := range req.ResourceInfo.Nodes {
+		cpodNode, err := CpodNodeModel.FindOneByQuery(l.ctx, CpodNodeModel.AllFieldsBuilder().Where(squirrel.Eq{
+			"cpod_id":   req.CPODID,
+			"node_name": node.Name,
 		}))
-		if err != nil {
-			l.Logger.Errorf("cpod_main find cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+		if err != nil && !errors.Is(err, model.ErrNotFound) {
+			l.Logger.Errorf("CpodNodeModel FindOneByQuery cpod_id=%s node=%s err=%s", req.CPODID, node.Name, err)
 			return nil, err
 		}
 
-		if len(cpodMains) == 0 { // new record insert
-			cpodMain := model.SysCpodMain{
-				CpodId:         sql.NullString{String: req.CPODID, Valid: true},
-				CpodVersion:    sql.NullString{String: req.ResourceInfo.CPODVersion, Valid: true},
-				GpuVendor:      sql.NullString{String: gpu.Vendor, Valid: true},
-				GpuProd:        sql.NullString{String: gpu.Prod, Valid: true},
-				GpuMem:         sql.NullInt64{Int64: int64(gpu.MemSize)},
-				GpuTotal:       sql.NullInt64{Int64: int64(gpu.Total), Valid: true},
-				GpuAllocatable: sql.NullInt64{Int64: int64(gpu.Allocatable), Valid: true},
-				CreateTime:     sql.NullTime{Time: time.Now(), Valid: true},
-				UpdateTime:     sql.NullTime{Time: time.Now(), Valid: true},
-				UserId:         orm.NullString(req.UserID),
+		if cpodNode == nil {
+			// insert
+			cpodNode = &model.SysCpodNode{
+				CpodId:         req.CPODID,
+				CpodVersion:    req.ResourceInfo.CPODVersion,
+				UserId:         req.UserID,
+				NodeName:       node.Name,
+				GpuVendor:      node.GPUInfo.Vendor,
+				GpuProd:        node.GPUInfo.Prod,
+				GpuMem:         storage.MBToBytes(int64(node.GPUInfo.MemSize)),
+				GpuTotal:       int64(node.GPUTotal),
+				GpuAllocatable: int64(node.GPUAllocatable),
+				CpuTotal:       int64(node.CPUInfo.Cores),
+				CpuAllocatable: int64(node.CPUInfo.Cores - node.CPUInfo.Used),
+				MemTotal:       storage.MBToBytes(int64(node.MemInfo.Size)),
+				MemAllocatable: storage.MBToBytes(int64(node.MemInfo.Size - node.MemInfo.Used)),
 			}
-			_, err := CpodMainModel.Insert(l.ctx, &cpodMain)
+			_, err = CpodNodeModel.Insert(l.ctx, cpodNode)
 			if err != nil {
-				l.Logger.Errorf("cpod_main insert err=%s", err)
+				l.Logger.Errorf("CpodNodeModel Insert err=%s", err)
 				return nil, err
 			}
-			l.Logger.Infof("cpod_main insert cpod_main cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
-		} else if len(cpodMains) == 1 { // already exists update
-			_, err := CpodMainModel.UpdateColsByCond(l.ctx, CpodMainModel.UpdateBuilder().SetMap(map[string]interface{}{
-				"gpu_total":       gpu.Total,
-				"gpu_allocatable": gpu.Allocatable,
-				"gpu_mem":         gpu.MemSize,
-				"user_id":         req.UserID,
-				"update_time": sql.NullTime{
-					Time:  time.Now(),
-					Valid: true,
-				},
+			l.Logger.Infof("CpodNodeModel insert cpod_id=%s node_name=%s", req.CPODID, node.Name)
+		} else {
+			// update
+			_, err := CpodNodeModel.UpdateColsByCond(l.ctx, CpodNodeModel.UpdateBuilder().SetMap(map[string]interface{}{
+				"gpu_vendor":      node.GPUInfo.Vendor,
+				"gpu_prod":        node.GPUInfo.Prod,
+				"gpu_mem":         storage.MBToBytes(int64(node.GPUInfo.MemSize)),
+				"gpu_total":       node.GPUTotal,
+				"gpu_allocatable": node.GPUAllocatable,
+				"cpu_total":       node.CPUInfo.Cores,
+				"cpu_allocatable": node.CPUInfo.Cores - node.CPUInfo.Used,
+				"mem_total":       storage.MBToBytes(int64(node.MemInfo.Size)),
+				"mem_allocatable": storage.MBToBytes(int64(node.MemInfo.Size - node.MemInfo.Used)),
 			}).Where(squirrel.Eq{
-				"cpod_id":  req.CPODID,
-				"gpu_prod": gpu.Prod,
+				"cpod_id":   req.CPODID,
+				"node_name": node.Name,
 			}))
 			if err != nil {
-				l.Logger.Errorf("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s err=%s", req.CPODID, gpu.Prod, err)
+				l.Logger.Errorf("CpodNodeModel UpdateColsByCond cpod_id=%s node_name=%s err=%s", req.CPODID, node.Name, err)
 				return nil, err
 			}
-
-			l.Logger.Infof("cpod_main UpdateColsByCond cpod_id=%s gpu_prod=%s total=%d alloc=%d", req.CPODID, gpu.Prod,
-				gpu.Total, gpu.Allocatable)
-		} else { // multi duplicate records log
-			l.Logger.Infof("cpod_main multi duplicate rows cpod_id=%s gpu_prod=%s", req.CPODID, gpu.Prod)
 		}
 	}
 
@@ -160,67 +163,6 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			l.Logger.Errorf("user_job update rows=%d cpod_id=%s job_name=%s err=%s", rows, req.CPODID, job.Name, err)
 			continue // no update
 		}
-
-		// 2024-06-14 目前没有回调入口，暂时关闭
-		// // callback
-		// if dbWorkStatus != model.JobStatusWorkerFail && dbWorkStatus != model.JobStatusWorkerUrlSuccess {
-		// 	continue
-		// }
-		//
-		// callBackReq := types.JobCallBackReq{}
-		// go func(cpodID, jobName string) {
-		// 	logger := logx.WithContext(context.Background())
-		// 	userJob, err := UserJobModel.FindOneByQuery(context.Background(),
-		// 		UserJobModel.AllFieldsBuilder().Where(
-		// 			squirrel.Eq{
-		// 				"cpod_id":  cpodID,
-		// 				"job_name": jobName,
-		// 			},
-		// 		),
-		// 	)
-		// 	if err != nil {
-		// 		logger.Errorf("user_job findOne cpod_id=%s job_name=%s err=%s", cpodID, jobName, err)
-		// 		return
-		// 	}
-		//
-		// 	if userJob.CallbackUrl.String == "" {
-		// 		logger.Infof("user_job callback is empty cpod_id=%s job_name=%s", cpodID, jobName)
-		// 		return
-		// 	}
-		//
-		// 	var url string
-		// 	if dbWorkStatus == model.JobStatusWorkerUrlSuccess {
-		// 		fileURL, err := FileURLModel.FindOneByQuery(context.Background(),
-		// 			FileURLModel.AllFieldsBuilder().Where(
-		// 				squirrel.Eq{
-		// 					"job_name": jobName,
-		// 				},
-		// 			),
-		// 		)
-		// 		if err != nil {
-		// 			logger.Errorf("file_url findOne job_name=%s err=%s", jobName, err)
-		// 			return
-		// 		}
-		// 		url = fileURL.FileUrl.String
-		// 	}
-		//
-		// 	switch dbWorkStatus {
-		// 	case model.JobStatusWorkerFail:
-		// 		callBackReq.Status = consts.JobFail
-		// 	case model.JobStatusWorkerUrlSuccess:
-		// 		callBackReq.Status = consts.JobSuccess
-		// 		callBackReq.URL = url
-		// 		callBackReq.JobID = jobName
-		// 	}
-		//
-		// 	callBackResp, err := httpc.Do(context.Background(), http.MethodPost, userJob.CallbackUrl.String, callBackReq)
-		// 	if err != nil {
-		// 		logger.Errorf("callback job_name=%s url=%s err=%s", jobName, userJob.CallbackUrl.String, err)
-		// 		return
-		// 	}
-		// 	logger.Infof("callback job_name=%s url=%s status=%s", jobName,
-		// 		userJob.CallbackUrl.String, callBackResp.Status)
-		// }(req.CPODID, job.Name)
 	}
 
 	// update inference
@@ -466,9 +408,3 @@ var cacheTypeToDBMap = map[string]int{
 	consts.CacheDataSet: model.CacheDataset,
 	consts.CacheImage:   model.CacheImage,
 }
-
-// var dbToCacheTypeMap = map[int]string{
-// 	model.CacheModel:   consts.CacheModel,
-// 	model.CacheDataset: consts.CacheDataSet,
-// 	model.CacheImage:   consts.CacheImage,
-// }
