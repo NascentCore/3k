@@ -186,6 +186,7 @@ type FinetuneReq struct {
 	Hyperparameters  map[string]string      `json:"hyperparameters,optional,omitempty"`
 	Config           map[string]interface{} `json:"config,optional,omitempty"`
 	ModelSavedType   string                 `json:"model_saved_type"`
+	FinetuneType     string                 `json:"finetune_type,optional"`
 }
 
 type FinetuneResp struct {
