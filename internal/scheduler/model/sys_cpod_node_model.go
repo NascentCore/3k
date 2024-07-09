@@ -26,10 +26,17 @@ type (
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysCpodNode, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysCpodNode, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
+		GpuTypeAndPrice(ctx context.Context) ([]*GPUTypePrice, error)
 	}
 
 	customSysCpodNodeModel struct {
 		*defaultSysCpodNodeModel
+	}
+
+	GPUTypePrice struct {
+		GPUProd        string  `json:"gpu_prod" db:"gpu_prod"`
+		GPUAllocatable int64   `json:"gpu_allocatable" db:"gpu_allocatable"`
+		Amount         float64 `json:"amount" db:"amount"`
 	}
 )
 
@@ -169,4 +176,20 @@ func (m *defaultSysCpodNodeModel) UpdateColsByCond(ctx context.Context, updateBu
 	}
 
 	return m.conn.ExecCtx(ctx, query, args...)
+}
+
+func (m *defaultSysCpodNodeModel) GpuTypeAndPrice(ctx context.Context) ([]*GPUTypePrice, error) {
+	gpuPrices := make([]*GPUTypePrice, 0)
+	err := m.conn.QueryRowsCtx(ctx, &gpuPrices, `select distinct c.gpu_prod, c.gpu_allocatable, p.amount
+		from sys_cpod_node c,
+		sys_price p
+		where c.gpu_prod != ''
+		AND c.gpu_prod = p.gpu_prod
+		AND c.updated_at > NOW() - INTERVAL 30 MINUTE;
+	`)
+	if err != nil {
+		return nil, err
+	}
+
+	return gpuPrices, nil
 }
