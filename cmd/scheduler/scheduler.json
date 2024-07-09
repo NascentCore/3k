@@ -1964,6 +1964,9 @@
         },
         "model_saved_type": {
           "type": "string"
+        },
+        "finetune_type": {
+          "type": "string"
         }
       },
       "title": "FinetuneReq",

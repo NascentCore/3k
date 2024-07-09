@@ -108,7 +108,6 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	if req.TrainedModelName == "" {
 		req.TrainedModelName = fmt.Sprintf("%s-%s", strings.Split(req.ModelName, "/")[1], time.Now().Format(consts.JobTimestampFormat))
 	}
-
 	// time
 	userJob.CreateTime = sql.NullTime{Time: time.Now(), Valid: true}
 	userJob.UpdateTime = sql.NullTime{Time: time.Now(), Valid: true}
@@ -126,6 +125,10 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	learningRate, ok := req.Hyperparameters[config.ParamLearningRate]
 	if !ok {
 		learningRate = "5e-5"
+	}
+	// finetuneType
+	if req.FinetuneType == "" {
+		req.FinetuneType = "lora"
 	}
 
 	// json_all

@@ -47,6 +47,7 @@ type JobJson struct {
 	UserID                string `json:"userId"`
 	TrainedModelName      string `json:"trainedModelName"`
 	ModelSavedType        string `json:"model_saved_type"`
+	FinetuneType          string `json:"finetuneType"`
 }
 
 var _ SysUserJobModel = (*customSysUserJobModel)(nil)
