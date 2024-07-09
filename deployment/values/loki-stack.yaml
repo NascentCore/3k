@@ -5,7 +5,7 @@ loki:
     tag: 2.6.1
   persistence:
     enabled: true
-    storageClassName: ceph-filesystem
+    storageClassName: juicefs-sc
     accessModes:
     - ReadWriteOnce
     size: 100Gi

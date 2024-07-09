@@ -22,6 +22,19 @@ grafana:
         url: http://loki-stack.loki-stack.svc.cluster.local:3100
         access: proxy
         isDefault: false
+  grafana.ini:
+    auth.anonymous:
+      enabled: true
+      org_name: "Main Org."
+      org_role: Viewer
+  service:
+    type: NodePort
+    nodePort: 30000
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClassName: juicefs-sc
+    accessMode: ReadWriteOnce
 
 kube-state-metrics:
   image:

@@ -20492,7 +20492,8 @@ data:
         "ingressGateway" : "knative-serving/knative-ingress-gateway",
         "ingressService" : "istio-ingressgateway.istio-system.svc.cluster.local",
         "ingressDomain"  : "example.com",
-        "ingressClassName" : "nginx"
+        "ingressClassName" : "nginx",
+        "domainTemplate" : "{{ .Name }}.{{ .IngressDomain }}"
     }
   logger: |-
     {

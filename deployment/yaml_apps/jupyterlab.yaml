@@ -8,8 +8,10 @@ spec:
   ports:
   - port: 8888
     targetPort: 8888
+    nodePort: 30002
   selector:
     app: jupyterlab
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,7 +32,8 @@ spec:
         env:
         - name: JUPYTER_TOKEN
           value: "jupyterlab"
-        image: dockerhub.kubekey.local/kubesphereio/jupyterlab:v5
+          #image: dockerhub.kubekey.local/kubesphereio/jupyterlab:v5
+        image: dockerhub.kubekey.local/kubesphereio/jupyterlab-llamafactory:v1
         ports:
         - containerPort: 8888
         resources:

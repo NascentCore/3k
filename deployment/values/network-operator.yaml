@@ -16,8 +16,8 @@ operator:
 ofedDriver:
   deploy: true
   repository: dockerhub.kubekey.local/kubesphereio
-  repoConfig:
-    name: repo-config
+  #repoConfig:
+  #  name: repo-config
 
 nvPeerDriver:
   deploy: false
