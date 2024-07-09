@@ -24,9 +24,9 @@ func NewGpuTypeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GpuTypeLo
 }
 
 func (l *GpuTypeLogic) GpuType(req *types.GPUTypeReq) (resp []types.GPUTypeResp, err error) {
-	CpodMainModel := l.svcCtx.CpodMainModel
+	CpodNodeModel := l.svcCtx.CpodNodeModel
 
-	gpuPrices, err := CpodMainModel.GpuTypeAndPrice(l.ctx)
+	gpuPrices, err := CpodNodeModel.GpuTypeAndPrice(l.ctx)
 	if err != nil {
 		return nil, err
 	}

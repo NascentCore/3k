@@ -42,7 +42,7 @@ func NewFinetuneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Finetune
 func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneResp, err error) {
 	BalanceModel := l.svcCtx.UserBalanceModel
 	UserJobModel := l.svcCtx.UserJobModel
-	CpodMainModel := l.svcCtx.CpodMainModel
+	CpodNodeModel := l.svcCtx.CpodNodeModel
 
 	// check balance
 	balance, err := BalanceModel.FindOneByQuery(l.ctx, BalanceModel.AllFieldsBuilder().Where(squirrel.Eq{
@@ -76,16 +76,16 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 
 	// fill gpu
 	if req.GpuModel == "" {
-		cpodMain, err := CpodMainModel.FindOneByQuery(l.ctx, CpodMainModel.AllFieldsBuilder().Where(squirrel.And{
+		cpodNode, err := CpodNodeModel.FindOneByQuery(l.ctx, CpodNodeModel.AllFieldsBuilder().Where(squirrel.And{
 			squirrel.GtOrEq{
-				"update_time": orm.NullTime(time.Now().Add(-30 * time.Minute)),
+				"updated_at": orm.NullTime(time.Now().Add(-30 * time.Minute)),
 			},
 		}))
 		if err != nil {
 			l.Errorf("finetune no gpu match model: %s userId: %s", req.ModelName, req.UserID)
 			return nil, fmt.Errorf("finetune no gpu match model: %s userId: %s", req.ModelName, req.UserID)
 		}
-		userJob.GpuType = cpodMain.GpuProd
+		userJob.GpuType = orm.NullString(cpodNode.GpuProd)
 		userJob.GpuNumber = orm.NullInt64(1) // 无代码微调暂时都写1
 	} else {
 		userJob.GpuType = orm.NullString(req.GpuModel)

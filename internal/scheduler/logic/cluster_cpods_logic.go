@@ -27,21 +27,21 @@ func NewClusterCpodsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Clus
 }
 
 func (l *ClusterCpodsLogic) ClusterCpods(req *types.BaseReq) (resp *types.ClusterCpodsResp, err error) {
-	CpodModel := l.svcCtx.CpodMainModel
-	cpods, err := CpodModel.Find(l.ctx, CpodModel.AllFieldsBuilder().Where(
-		squirrel.Expr("update_time > NOW() - INTERVAL 30 MINUTE"),
+	CpodNodeModel := l.svcCtx.CpodNodeModel
+	nodes, err := CpodNodeModel.Find(l.ctx, CpodNodeModel.AllFieldsBuilder().Where(
+		squirrel.Expr("updated_at > NOW() - INTERVAL 30 MINUTE"),
 	))
 	if err != nil {
-		l.Errorf("find active cpods err: %s", err)
+		l.Errorf("find active nodes err: %s", err)
 		return nil, ErrDBFind
 	}
 
 	resp = &types.ClusterCpodsResp{Data: make([]types.CpodInfo, 0)}
-	for _, cpod := range cpods {
+	for _, node := range nodes {
 		cpodInfo := types.CpodInfo{}
-		_ = copier.Copy(&cpodInfo, cpod)
-		cpodInfo.CreateTime = cpod.CreateTime.Time.Format(time.DateTime)
-		cpodInfo.UpdateTime = cpod.UpdateTime.Time.Format(time.DateTime)
+		_ = copier.Copy(&cpodInfo, node)
+		cpodInfo.CreateTime = node.CreatedAt.Format(time.DateTime)
+		cpodInfo.UpdateTime = node.UpdatedAt.Format(time.DateTime)
 		resp.Data = append(resp.Data, cpodInfo)
 	}
 
