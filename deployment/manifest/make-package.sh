@@ -31,4 +31,3 @@ mv 3k.tar.gz ./packages
 # 打包离线包
 cd ..
 tar -zcf 3k-artifacts.tar.gz artifacts
-mv 3k-artifacts.tar.gz ${ARTIFACT_DIR}
