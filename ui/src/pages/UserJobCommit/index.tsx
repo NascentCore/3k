@@ -1,6 +1,6 @@
 import {
   apiPostUserJob,
-  useApiGetGpuType,
+  useGpuTypeOptions,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
 } from '@/services';
@@ -22,31 +22,11 @@ const Welcome: React.FC = () => {
     gpuNumber: 1,
     stopTime: 0,
   });
-  const { data: gpuTypeOptions } = useApiGetGpuType();
-  // const { data: resourceModels }: any = useApiResourceModels();
-  // const { data: resourceDatasets }: any = useApiResourceDatasets();
-  // const { data: jobJupyterImages }: any = useApiGetJobJupyterImage();
-
-  const gpuTypeOptionsList = gpuTypeOptions?.map((x) => ({
-    ...x,
-    label: (
-      <>
-        <span style={{ marginRight: 20 }}>{x.gpuProd}</span>
-        <span>{x.amount}元/时/个</span>
-      </>
-    ),
-    value: x.gpuProd,
-  }));
+  const gpuTypeOptions = useGpuTypeOptions();
   const resourceModelsOptions = useResourceModelsOptions();
   const resourceDatasetsOption = useResourceDatasetsOptions();
 
-  // const jobJupyterImagesList = jobJupyterImages?.data?.map((x) => ({
-  //   label: x.image_name,
-  //   value: x.image_name,
-  // }));
-
   const gpuProdValue = Form.useWatch('gpuType', form);
-  // console.log({ gpuTypeOptions, resourceModels, resourceDatasets, gpuProdValue });
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -330,7 +310,7 @@ const Welcome: React.FC = () => {
               >
                 <Select
                   allowClear
-                  options={gpuTypeOptionsList}
+                  options={gpuTypeOptions}
                   placeholder={intl.formatMessage({
                     id: 'pages.UserJobCommit.form.placeholder',
                     defaultMessage: '请输入',

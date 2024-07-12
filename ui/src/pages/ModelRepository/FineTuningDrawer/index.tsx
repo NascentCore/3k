@@ -2,7 +2,11 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, useApiGetGpuType, useResourceDatasetsOptions } from '@/services';
+import {
+  apiFinetunes,
+  useGpuTypeOptions,
+  useResourceDatasetsOptions,
+} from '@/services';
 import { Button, Checkbox, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
 import { useState } from 'react';
 import { history } from '@umijs/max';
@@ -27,7 +31,7 @@ const Content = ({ record, onCancel }) => {
 
   const resourceDatasetsOption = useResourceDatasetsOptions();
 
-  const { data: gpuTypeOptions } = useApiGetGpuType({});
+  const gpuTypeOptions = useGpuTypeOptions();
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
   const finetuneTypeValue = Form.useWatch('finetune_type', form);
@@ -130,25 +134,7 @@ const Content = ({ record, onCancel }) => {
         >
           <Select
             allowClear
-            options={[
-              ...(gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []),
-              {
-                label: `A100 (${intl.formatMessage({
-                  id: 'pages.golbal.gpu.select.option.disabled.placeholder',
-                  defaultMessage: '充值超过 10000 可选',
-                })})`,
-                value: 'A100',
-                disabled: true,
-              },
-              {
-                label: `H100 (${intl.formatMessage({
-                  id: 'pages.golbal.gpu.select.option.disabled.placeholder',
-                  defaultMessage: '充值超过 10000 可选',
-                })})`,
-                value: 'H100',
-                disabled: true,
-              },
-            ]}
+            options={gpuTypeOptions}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',
