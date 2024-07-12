@@ -13,4 +13,5 @@ export default {
   'pages.global.form.placeholder': 'Please enter',
   'pages.global.form.select.placeholder': 'Please select',
   'pages.golbal.table.column.action': 'Action',
+  'pages.golbal.gpu.select.option.disabled.placeholder': 'Recharge over 10000 can be selected',
 };

@@ -13,4 +13,5 @@ export default {
   'pages.global.form.placeholder': '请输入',
   'pages.global.form.select.placeholder': '请选择',
   'pages.golbal.table.column.action': '操作',
+  'pages.golbal.gpu.select.option.disabled.placeholder': '充值超过 10000 可选',
 };

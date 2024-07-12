@@ -130,9 +130,25 @@ const Content = ({ record, onCancel }) => {
         >
           <Select
             allowClear
-            options={
-              gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
-            }
+            options={[
+              ...(gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []),
+              {
+                label: `A100 (${intl.formatMessage({
+                  id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+                  defaultMessage: '充值超过 10000 可选',
+                })})`,
+                value: 'A100',
+                disabled: true,
+              },
+              {
+                label: `H100 (${intl.formatMessage({
+                  id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+                  defaultMessage: '充值超过 10000 可选',
+                })})`,
+                value: 'H100',
+                disabled: true,
+              },
+            ]}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',
