@@ -1,5 +1,5 @@
 import { concatArray, removeUserIdPrefixFromPath } from '@/utils';
-import { request } from '@umijs/max';
+import { request, useIntl } from '@umijs/max';
 import useSWR from 'swr';
 
 const swrConfig = {
@@ -213,13 +213,33 @@ export const useApiGetGpuType = (options?: { [key: string]: any }) =>
     swrConfig,
   );
 export const useGpuTypeOptions = () => {
+  const intl = useIntl();
   const { data }: any = useApiGetGpuType();
-  const options = data?.map((x: any) => ({
-    ...x,
-    label: x.gpuProd,
-    value: x.gpuProd,
-  }));
-  return options;
+  const options =
+    data?.map((x: any) => ({
+      ...x,
+      label: x.gpuProd,
+      value: x.gpuProd,
+    })) || [];
+  return [
+    ...options,
+    {
+      label: `A100 (${intl.formatMessage({
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+        defaultMessage: '充值超过 10000 可选',
+      })})`,
+      value: 'A100',
+      disabled: true,
+    },
+    {
+      label: `H100 (${intl.formatMessage({
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+        defaultMessage: '充值超过 10000 可选',
+      })})`,
+      value: 'H100',
+      disabled: true,
+    },
+  ];
 };
 
 // 集群信息 新增

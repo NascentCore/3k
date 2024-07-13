@@ -2,7 +2,11 @@
  * @name 微调
  * @description 微调
  */
-import { apiFinetunes, useApiGetGpuType, useResourceDatasetsOptions } from '@/services';
+import {
+  apiFinetunes,
+  useGpuTypeOptions,
+  useResourceDatasetsOptions,
+} from '@/services';
 import { Button, Checkbox, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
 import { useState } from 'react';
 import { history } from '@umijs/max';
@@ -17,6 +21,7 @@ const Content = ({ record, onCancel }) => {
     model: record?.name,
     // gpuProd: '',
     gpu_count: record?.finetune_gpu_count || 1,
+    finetune_type: 'lora',
     hyperparameters: {
       n_epochs: '3.0',
       batch_size: '4',
@@ -26,9 +31,10 @@ const Content = ({ record, onCancel }) => {
 
   const resourceDatasetsOption = useResourceDatasetsOptions();
 
-  const { data: gpuTypeOptions } = useApiGetGpuType({});
+  const gpuTypeOptions = useGpuTypeOptions();
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
+  const finetuneTypeValue = Form.useWatch('finetune_type', form);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -128,9 +134,7 @@ const Content = ({ record, onCancel }) => {
         >
           <Select
             allowClear
-            options={
-              gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd })) || []
-            }
+            options={gpuTypeOptions}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',
@@ -166,13 +170,51 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
         <Form.Item
-          name="model_saved_type"
-          valuePropName="checked"
-          label={<div></div>}
-          colon={false}
+          name="finetune_type"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.finetune_type',
+            defaultMessage: '类型',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
         >
-          <Checkbox>微调后保存完整模型（默认保存Lora）</Checkbox>
+          <Select
+            allowClear
+            options={[
+              {
+                label: 'lora',
+                value: 'lora',
+              },
+              {
+                label: 'full',
+                value: 'full',
+              },
+            ]}
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder',
+              // defaultMessage: '请选择',
+            })}
+          />
         </Form.Item>
+        {finetuneTypeValue === 'lora' && (
+          <Form.Item
+            name="model_saved_type"
+            valuePropName="checked"
+            label={<div></div>}
+            colon={false}
+          >
+            <Checkbox>
+              {intl.formatMessage({
+                id: 'pages.modelRepository.fineTuningDrawer.form.model_saved_type',
+                defaultMessage: '微调后保存完整模型（默认保存Lora）',
+              })}
+            </Checkbox>
+          </Form.Item>
+        )}
+
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
             Hyperparameters

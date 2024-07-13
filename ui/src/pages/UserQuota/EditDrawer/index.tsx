@@ -2,7 +2,7 @@
  * @name 微调
  * @description 微调
  */
-import { apiPostQuota, apiPutQuota, useApiGetGpuType, useGetApiUser } from '@/services';
+import { apiPostQuota, apiPutQuota, useGetApiUser, useGpuTypeOptions } from '@/services';
 import { Button, Drawer, Form, Input, Select, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useIntl } from '@umijs/max';
@@ -11,7 +11,7 @@ import AsyncButton from '@/components/AsyncButton';
 const Content = ({ type, record, onCancel, onChange }) => {
   const intl = useIntl();
 
-  const { data: gpuTypeOptions } = useApiGetGpuType({});
+  const gpuTypeOptions = useGpuTypeOptions({});
 
   const [form] = Form.useForm();
 
@@ -100,7 +100,7 @@ const Content = ({ type, record, onCancel, onChange }) => {
         >
           <Select
             allowClear
-            options={gpuTypeOptions?.map((x) => ({ ...x, label: x.gpuProd, value: x.gpuProd }))}
+            options={gpuTypeOptions}
             placeholder={intl.formatMessage({
               id: 'pages.userQuota.edit.form.role',
               defaultMessage: '资源类型',
