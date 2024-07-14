@@ -1,6 +1,10 @@
 package finetune
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/NascentCore/cpodoperator/api/v1beta1"
+)
 
 type Model struct {
 	Name             string
@@ -13,7 +17,7 @@ type Model struct {
 	RequireGPUType  string
 }
 
-func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge bool, hyperparameters, configs []string) string {
+func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1.FinetuneType, gpuCount int32, merge bool, hyperparameters, configs []string) string {
 
 	trainStrings := []string{
 		"accelerate",
@@ -39,6 +43,10 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge 
 		trainStrings = append(trainStrings, accelerateConfig...)
 	}
 
+	if finetuningType == "" {
+		finetuningType = v1beta1.FinetuneTypeLora
+	}
+
 	baseParam := []string{
 		"src/train.py",
 		"--do_train=True",
@@ -47,7 +55,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge 
 		"--dataset_dir=/data/dataset",
 		"--output_dir=/data/ckpt",
 		"--stage=sft",
-		"--finetuning_type=lora",
+		fmt.Sprintf("--finetuning_type=%v", finetuningType),
 		"--lr_scheduler_type=cosine",
 		"--overwrite_cache=True",
 		"--gradient_accumulation_steps=4",
@@ -69,7 +77,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, gpuCount int32, merge 
 		res += v + " "
 	}
 
-	if merge {
+	if merge && finetuningType != v1beta1.FintuneTypeFull {
 		return res + fmt.Sprintf(" && llamafactory-cli export --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
 	}
 
@@ -98,7 +106,7 @@ var SupportModels = []Model{
 	{
 		Name:             "baichuan-inc/Baichuan2-7B-Chat",
 		ModelStorageName: "model-storage-cfa5be686c53f1a2",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "alpaca",
 		LoRATarget:       "W_pack",
 		Targetmodelsize:  30720,
@@ -107,7 +115,7 @@ var SupportModels = []Model{
 	{
 		Name:             "IDEA-CCNL/Ziya-LLaMA-13B-v1",
 		ModelStorageName: "model-storage-3f7baf1d50fdab32",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "alpaca",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -116,7 +124,7 @@ var SupportModels = []Model{
 	{
 		Name:             "google/gemma-2b-it",
 		ModelStorageName: "model-storage-0ce92f029254ff34",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "gemma",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -125,7 +133,7 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mistral-7B-v0.1",
 		ModelStorageName: "model-storage-e306a7d8b79c7e8f",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -134,7 +142,7 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mistral-7B-Instruct-v0.1",
 		ModelStorageName: "model-storage-9b268c705d2aafee",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  30720,
@@ -143,7 +151,7 @@ var SupportModels = []Model{
 	{
 		Name:             "mistralai/Mixtral-8x7B-Instruct-v0.1",
 		ModelStorageName: "model-storage-57e056b59249bceb",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "mistral",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  102400,
@@ -152,7 +160,7 @@ var SupportModels = []Model{
 	{
 		Name:             "meta-llama/Meta-Llama-3-8B-Instruct",
 		ModelStorageName: "model-storage-f5b8963792864b06",
-		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:v12",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha6",
 		Template:         "llama3",
 		LoRATarget:       "q_proj,v_proj",
 		Targetmodelsize:  102400,

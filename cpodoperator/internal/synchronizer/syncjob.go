@@ -343,7 +343,7 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 				}
 			}
 			autoMerge := true
-			if job.ModelSavedType == "lora" {
+			if job.ModelSavedType == "lora" || job.FinetuneType == "full" {
 				autoMerge = false
 			}
 			if !exists {
@@ -371,9 +371,10 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 							"learning_rate_multiplier": job.LearningRate,
 							"batch_size":               job.BatchSize,
 						},
-						GPUCount:   int32(job.GpuNumber),
-						GPUProduct: job.GpuType,
-						AutoMerge:  autoMerge,
+						GPUCount:     int32(job.GpuNumber),
+						GPUProduct:   job.GpuType,
+						AutoMerge:    autoMerge,
+						FinetuneType: v1beta1.FinetuneType(job.FinetuneType),
 					},
 				}
 

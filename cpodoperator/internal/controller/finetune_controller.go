@@ -120,7 +120,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				logger.Error(fmt.Errorf("model not support"), "model not support")
 				return ctrl.Result{}, nil
 			}
-			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, gpuCount, finetune.Spec.AutoMerge, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
+			commandArg := modelConfig.ConstructCommandArgs(finetune.Name, finetune.Spec.FinetuneType, gpuCount, finetune.Spec.AutoMerge, ConvertParamsMap(finetunepkg.ConvertHyperParameter(finetune.Spec.HyperParameters)), ConvertParamsMap(finetune.Spec.Config))
 
 			if err := CopyPublicModelStorage(ctx, r.Client, modelConfig.ModelStorageName, finetune.Namespace); err != nil {
 				logger.Error(err, "copy public model storage error")
@@ -133,7 +133,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			finetune.Annotations[v1beta1.CPodModelstorageBaseNameAnno] = modelConfig.Name
 			finetune.Annotations[v1beta1.CPodPreTrainModelSizeAnno] = fmt.Sprintf("%d", modelConfig.Targetmodelsize*1024*1024)
 			finetune.Annotations[v1beta1.CPodPreTrainModelTemplateAnno] = modelConfig.Template
-			if finetune.Spec.AutoMerge {
+			if finetune.Spec.AutoMerge && finetune.Spec.FinetuneType == cpodv1beta1.FinetuneTypeLora {
 				finetune.Annotations[v1beta1.CPodAutoMergeAnno] = ""
 			}
 

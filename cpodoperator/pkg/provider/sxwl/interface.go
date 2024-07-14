@@ -69,28 +69,29 @@ type PortalTrainningJob struct {
 	GpuType         string            `json:"gpuType"`
 	HfURL           string            `json:"hfUrl"`
 	// TODO: @sxwl-donggang rename to Image
-	ImagePath             string `json:"imagePath"`
-	JobID                 int    `json:"jobId"`
-	JobName               string `json:"jobName"`
-	JobType               string `json:"jobType"`
-	ModelPath             string `json:"modelPath"`
-	ModelVol              int    `json:"modelVol"`
-	PretrainModelId       string `json:"pretrainedModelId"`
-	PretrainModelName     string `json:"pretrainedModelName"`
-	PretrainModelUrl      string `json:"pretrainedModelUrl"`
-	PretrainModelSize     int    `json:"pretrainedModelSize"`
-	PretrainModelPath     string `json:"pretrainedModelPath"`
-	PretrainModelIsPublic bool   `json:"pretrainModelIsPublic"`
-	PretrainModelTemplate string `json:"pretrainModelTemplate"`
-	StopTime              int    `json:"stopTime"`
-	StopType              int    `json:"stopType"`
-	BackoffLimit          int    `json:"backoffLimit"`
-	Epochs                string `json:"epochs"`
-	LearningRate          string `json:"learningRate"`
-	BatchSize             string `json:"batchSize"`
-	UserID                string `json:"userId"`
-	TrainedModelName      string `json:"trainedModelName,optional"`
-	ModelSavedType        string `json:"model_saved_type"`
+	ImagePath             string               `json:"imagePath"`
+	JobID                 int                  `json:"jobId"`
+	JobName               string               `json:"jobName"`
+	JobType               string               `json:"jobType"`
+	ModelPath             string               `json:"modelPath"`
+	ModelVol              int                  `json:"modelVol"`
+	PretrainModelId       string               `json:"pretrainedModelId"`
+	PretrainModelName     string               `json:"pretrainedModelName"`
+	PretrainModelUrl      string               `json:"pretrainedModelUrl"`
+	PretrainModelSize     int                  `json:"pretrainedModelSize"`
+	PretrainModelPath     string               `json:"pretrainedModelPath"`
+	PretrainModelIsPublic bool                 `json:"pretrainModelIsPublic"`
+	PretrainModelTemplate string               `json:"pretrainModelTemplate"`
+	StopTime              int                  `json:"stopTime"`
+	StopType              int                  `json:"stopType"`
+	BackoffLimit          int                  `json:"backoffLimit"`
+	Epochs                string               `json:"epochs"`
+	LearningRate          string               `json:"learningRate"`
+	BatchSize             string               `json:"batchSize"`
+	UserID                string               `json:"userId"`
+	TrainedModelName      string               `json:"trainedModelName,optional"`
+	ModelSavedType        string               `json:"model_saved_type"`
+	FinetuneType          v1beta1.FinetuneType `json:"finetuneType"`
 }
 
 type PortalInferenceJob struct {

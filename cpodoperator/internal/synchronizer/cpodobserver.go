@@ -269,6 +269,7 @@ func (co *CPodObserver) getResourceInfo(ctx context.Context) (resource.CPodResou
 			if gpu, ok := container.Resources.Requests["nvidia.com/gpu"]; ok {
 				for i, node := range info.Nodes {
 					if node.Name == pod.Spec.NodeName {
+						co.logger.Info("gpu used", "gpu", gpu.Value(), "pod", pod.Name, "podNamespace", pod.Namespace)
 						info.Nodes[i].GPUUsed += int(gpu.Value())
 						info.Nodes[i].MemInfo.Used += int(container.Resources.Requests.Memory().Value() / 1024 / 1024)
 						info.Nodes[i].CPUInfo.Used += int(container.Resources.Requests.Cpu().Value())
