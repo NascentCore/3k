@@ -23,7 +23,7 @@ var (
 	bucket    string
 )
 
-// ossCmd represents the oss command
+// ossCmd represents the oss command, which interacts with SXWL.AI Cloud's object storage system.
 var ossCmd = &cobra.Command{
 	Use:   "oss",
 	Short: "upload resource to oss",
@@ -51,7 +51,6 @@ var ossCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// init oss client
 		storage.InitClient(accessID, accessKey)
 
 		start := time.Now()
@@ -67,7 +66,7 @@ var ossCmd = &cobra.Command{
 
 		size, err := storage.UploadDir(bucket, dir, path.Join(prefix, filepath.Base(dir)), false)
 		if err != nil {
-			fmt.Printf("upload err: %s\n", err)
+			fmt.Printf("upload failed, error: %v\n", err)
 			os.Exit(1)
 		} else {
 			fmt.Printf("%s has been uploaded. size: %s used time: %s\n", dir, fs.FormatBytes(size), time.Since(start).String())
