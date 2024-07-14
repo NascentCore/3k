@@ -93,6 +93,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 				"cpu_allocatable": node.CPUInfo.Cores - node.CPUInfo.Used,
 				"mem_total":       storage.MBToBytes(int64(node.MemInfo.Size)),
 				"mem_allocatable": storage.MBToBytes(int64(node.MemInfo.Size - node.MemInfo.Used)),
+				"updated_at":      time.Now(),
 			}).Where(squirrel.Eq{
 				"cpod_id":   req.CPODID,
 				"node_name": node.Name,
