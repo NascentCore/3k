@@ -1,6 +1,0 @@
-IDEA-CCNL/Ziya-LLaMA-13B-v1                    huggingface
-baichuan-inc/Baichuan2-7B-Base                 huggingface
-ZhipuAI/chatglm3-6b                            modelscope
-qwen/Qwen-Audio-Chat                           modelscope
-damo/nlp_gpt3_text-generation_1.3B             modelscope
-damo/cv_manual_facial-landmark-confidence_flcm modelscope
