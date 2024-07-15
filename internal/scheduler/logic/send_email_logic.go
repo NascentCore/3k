@@ -70,7 +70,7 @@ func (l *SendEmailLogic) SendEmail(req *types.SendEmailReq) error {
 	}
 
 	// send email
-	err = l.svcCtx.EmailSender.SendTemplateEmail([]string{req.Email}, "算想未来大模型算想云", "email", map[string]string{"code": randomCode})
+	err = l.svcCtx.EmailSender.SendTemplateEmail([]string{req.Email}, "算想云", "email", map[string]string{"code": randomCode})
 	if err != nil {
 		return fmt.Errorf("send email err=%s", err)
 	}
