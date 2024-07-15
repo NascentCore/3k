@@ -197,23 +197,38 @@ const Content = ({ record, onCancel }) => {
               id: 'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder',
               // defaultMessage: '请选择',
             })}
+            onChange={(value) => {
+              // 当选择pt时，自动设置model_saved_type为full
+              if (value === 'pt') {
+                form.setFieldsValue({ model_saved_type: true });
+              } else {
+                // 当选择lora时，model_saved_type根据用户勾选来决定
+                form.setFieldsValue({ model_saved_type: false });
+              }
+            }}
           />
         </Form.Item>
-        {finetuneTypeValue === 'lora' && (
-          <Form.Item
-            name="model_saved_type"
-            valuePropName="checked"
-            label={<div></div>}
-            colon={false}
-          >
-            <Checkbox>
-              {intl.formatMessage({
+        {
+          // 仅当finetune_type为lora时，显示model_saved_type复选框
+          formValues.finetune_type === 'lora' && (
+            <Form.Item
+              name="model_saved_type"
+              valuePropName="checked"
+              label={intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.form.model_saved_type',
                 defaultMessage: '微调后保存完整模型（默认保存Lora）',
               })}
-            </Checkbox>
-          </Form.Item>
-        )}
+              colon={false}
+            >
+              <Checkbox>
+                {intl.formatMessage({
+                  id: 'pages.modelRepository.fineTuningDrawer.form.model_saved_type',
+                  defaultMessage: '微调后保存完整模型（默认保存Lora）',
+                })}
+              </Checkbox>
+            </Form.Item>
+          )
+        }
 
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
