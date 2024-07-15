@@ -189,8 +189,8 @@ const Content = ({ record, onCancel }) => {
                 value: 'lora',
               },
               {
-                label: 'full',
-                value: 'full',
+                label: 'pt',
+                value: 'pt',
               },
             ]}
             placeholder={intl.formatMessage({
