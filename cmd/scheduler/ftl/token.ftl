@@ -40,7 +40,7 @@
 			font-size: 12px;
 			padding: 20px 0px;
 			font-family: Microsoft YaHei;">
-            Copyright &copy;<a hover="color: #DA251D;" style="color: #999;" href="" target="_blank"></a> 算想未来大模型算想云 All Rights Reserved.
+            Copyright &copy;<a hover="color: #DA251D;" style="color: #999;" href="" target="_blank"></a> 算想云 All Rights Reserved.
         </div>
 
     </div>
