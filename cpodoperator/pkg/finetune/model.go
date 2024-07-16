@@ -45,6 +45,8 @@ func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1
 
 	if finetuningType == "" {
 		finetuningType = v1beta1.FinetuneTypeLora
+	} else if finetuningType == v1beta1.FintuneTypeFull {
+		finetuningType = "full"
 	}
 
 	baseParam := []string{
@@ -77,7 +79,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1
 		res += v + " "
 	}
 
-	if merge && finetuningType != v1beta1.FintuneTypeFull {
+	if merge && finetuningType != "full" {
 		return res + fmt.Sprintf(" && llamafactory-cli export --model_name_or_path /data/model --adapter_name_or_path /data/ckpt --template %v --finetuning_type lora --export_dir=/data/save", m.Template) + fmt.Sprintf(" && cp /data/model/*.md /data/save/ 2>/dev/null || : ")
 	}
 
