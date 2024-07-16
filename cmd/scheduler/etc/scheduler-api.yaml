@@ -1,7 +1,7 @@
 Name: scheduler-api
 Host: 0.0.0.0
 Port: 80
-Timeout: 10000
+Timeout: 15000
 
 Log:
   ServiceName: scheduler

@@ -1,7 +1,7 @@
 Name: gateway-api
 Host: 0.0.0.0
 Port: 8080
-Timeout: 10000
+Timeout: 15000
 
 Log:
   ServiceName: gateway
