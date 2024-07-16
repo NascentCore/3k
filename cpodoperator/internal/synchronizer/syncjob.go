@@ -342,8 +342,9 @@ func (s *SyncJob) processFinetune(ctx context.Context, userIDs []sxwl.UserID, po
 					exists = true
 				}
 			}
+			// lora默认自动合并导出完整模型
 			autoMerge := true
-			if job.ModelSavedType == "lora" || job.FinetuneType == "full" {
+			if job.ModelSavedType == "lora" && job.FinetuneType == "lora" {
 				autoMerge = false
 			}
 			if !exists {

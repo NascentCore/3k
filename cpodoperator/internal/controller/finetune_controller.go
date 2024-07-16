@@ -133,7 +133,7 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			finetune.Annotations[v1beta1.CPodModelstorageBaseNameAnno] = modelConfig.Name
 			finetune.Annotations[v1beta1.CPodPreTrainModelSizeAnno] = fmt.Sprintf("%d", modelConfig.Targetmodelsize*1024*1024)
 			finetune.Annotations[v1beta1.CPodPreTrainModelTemplateAnno] = modelConfig.Template
-			if finetune.Spec.AutoMerge && finetune.Spec.FinetuneType == cpodv1beta1.FinetuneTypeLora {
+			if finetune.Spec.AutoMerge {
 				finetune.Annotations[v1beta1.CPodAutoMergeAnno] = ""
 			}
 
