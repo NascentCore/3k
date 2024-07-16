@@ -8,7 +8,7 @@ import {
   useResourceDatasetsOptions,
 } from '@/services';
 import { Button, Checkbox, Col, Drawer, Form, Input, Row, Select, message } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
@@ -19,7 +19,6 @@ const Content = ({ record, onCancel }) => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     model: record?.name,
-    // gpuProd: '',
     gpu_count: record?.finetune_gpu_count || 1,
     finetune_type: 'lora',
     hyperparameters: {
@@ -27,42 +26,52 @@ const Content = ({ record, onCancel }) => {
       batch_size: '4',
       learning_rate_multiplier: '5e-5',
     },
+    model_saved_type: false, // 默认为false
   });
 
   const resourceDatasetsOption = useResourceDatasetsOptions();
-
   const gpuTypeOptions = useGpuTypeOptions();
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
   const finetuneTypeValue = Form.useWatch('finetune_type', form);
 
+  useEffect(() => {
+    if (finetuneTypeValue === 'pt') {
+      form.setFieldsValue({ model_saved_type: true });
+    } else {
+      form.setFieldsValue({ model_saved_type: false });
+    }
+  }, [finetuneTypeValue]);
+
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
+      // 当 finetune_type 为 pt 时，强制设置 model_saved_type 为 'full'
+      if (values.finetune_type === 'pt') {
+        values.model_saved_type = 'full';
+      } else {
+        values.model_saved_type = values.model_saved_type ? 'full' : 'lora';
+      }
       setFormValues(values);
       console.log('Form values:', values);
       const currentModel = record;
       const currentDataSet = resourceDatasetsOption.find(
-        (x: any) => x.value === values.training_file,
+        (x) => x.value === values.training_file,
       );
       const params = {
         ...values,
-        model_saved_type: values.model_saved_type ? 'full' : 'lora',
         gpu_count: Number(values.gpu_count),
-        //
         model_id: currentModel.id,
         model_name: currentModel.name,
         model_path: currentModel.path,
         model_size: currentModel.size,
         model_is_public: currentModel.is_public,
         model_template: currentModel.template,
-        //
         dataset_id: currentDataSet.id,
         dataset_name: currentDataSet.name,
         dataset_path: currentDataSet.path,
         dataset_size: currentDataSet.size,
         dataset_is_public: currentDataSet.is_public,
-        //
       };
       console.log('params', params);
       return apiFinetunes({
@@ -71,7 +80,6 @@ const Content = ({ record, onCancel }) => {
         message.success(
           intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.submit.success',
-            // defaultMessage: '微调任务创建成功',
           }),
         );
         onCancel();
@@ -93,7 +101,6 @@ const Content = ({ record, onCancel }) => {
           name="model"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.model',
-            // defaultMessage: '模型名称',
           })}
         >
           {formValues.model}
@@ -102,7 +109,6 @@ const Content = ({ record, onCancel }) => {
           name="training_file"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.training_file',
-            // defaultMessage: '数据集',
           })}
           rules={[
             {
@@ -115,7 +121,6 @@ const Content = ({ record, onCancel }) => {
             options={resourceDatasetsOption}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder',
-              // defaultMessage: '请选择',
             })}
           />
         </Form.Item>
@@ -195,40 +200,24 @@ const Content = ({ record, onCancel }) => {
             ]}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder',
-              // defaultMessage: '请选择',
             })}
-            onChange={(value) => {
-              // 当选择pt时，自动设置model_saved_type为full
-              if (value === 'pt') {
-                form.setFieldsValue({ model_saved_type: true });
-              } else {
-                // 当选择lora时，model_saved_type根据用户勾选来决定
-                form.setFieldsValue({ model_saved_type: false });
-              }
-            }}
           />
         </Form.Item>
-        {
-          // 仅当finetune_type为lora时，显示model_saved_type复选框
-          formValues.finetune_type === 'lora' && (
-            <Form.Item
-              name="model_saved_type"
-              valuePropName="checked"
-              label={intl.formatMessage({
+        {finetuneTypeValue === 'lora' && (
+          <Form.Item
+            name="model_saved_type"
+            valuePropName="checked"
+            label={<div></div>}
+            colon={false}
+          >
+            <Checkbox>
+              {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.form.model_saved_type',
                 defaultMessage: '微调后保存完整模型（默认保存Lora）',
               })}
-              colon={false}
-            >
-              <Checkbox>
-                {intl.formatMessage({
-                  id: 'pages.modelRepository.fineTuningDrawer.form.model_saved_type',
-                  defaultMessage: '微调后保存完整模型（默认保存Lora）',
-                })}
-              </Checkbox>
-            </Form.Item>
-          )
-        }
+            </Checkbox>
+          </Form.Item>
+        )}
 
         <Row style={{ marginBottom: 15 }}>
           <Col span={8} style={{ textAlign: 'right' }}>
@@ -249,7 +238,6 @@ const Content = ({ record, onCancel }) => {
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
-              // defaultMessage: '请输入',
             })}
             allowClear
           />
@@ -266,7 +254,6 @@ const Content = ({ record, onCancel }) => {
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
-              // defaultMessage: '请输入',
             })}
             allowClear
           />
@@ -283,7 +270,6 @@ const Content = ({ record, onCancel }) => {
           <Input
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.input.placeholder',
-              // defaultMessage: '请输入',
             })}
             allowClear
           />
@@ -293,13 +279,11 @@ const Content = ({ record, onCancel }) => {
             <AsyncButton type="primary" block onClick={onFinish}>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.title',
-                // defaultMessage: '微调',
               })}
             </AsyncButton>
             <Button type="default" onClick={() => onCancel()} block>
               {intl.formatMessage({
                 id: 'pages.modelRepository.fineTuningDrawer.cancel',
-                // defaultMessage: '取消',
               })}
             </Button>
           </div>
@@ -324,14 +308,12 @@ const Index = ({ record }) => {
       >
         {intl.formatMessage({
           id: 'pages.modelRepository.fineTuningDrawer.title',
-          // defaultMessage: '微调',
         })}
       </Button>
       <Drawer
         width={1000}
         title={intl.formatMessage({
           id: 'pages.modelRepository.fineTuningDrawer.title',
-          // defaultMessage: '微调',
         })}
         placement="right"
         onClose={() => setOpen(false)}
