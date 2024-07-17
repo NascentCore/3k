@@ -146,7 +146,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 			if err := c.PrepareData(ctx, cpodjob); err != nil {
 				logger.Error(err, "unable to prepare data", "cpdojob", cpodjob)
 				util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobDataPreparing, corev1.ConditionFalse, "PrepareDate", err.Error())
-				return ctrl.Result{}, err
+				return ctrl.Result{RequeueAfter: 20 * time.Second}, err
 			}
 		}
 		util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobDataPreparing, corev1.ConditionTrue, "DataReady", "Data is ready")
