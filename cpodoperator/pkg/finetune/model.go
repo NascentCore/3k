@@ -43,10 +43,12 @@ func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1
 		trainStrings = append(trainStrings, accelerateConfig...)
 	}
 
+	outputDir := "/data/ckpt"
 	if finetuningType == "" {
 		finetuningType = v1beta1.FinetuneTypeLora
 	} else if finetuningType == v1beta1.FintuneTypeFull {
 		finetuningType = "full"
+		outputDir = "/data/save"
 	}
 
 	baseParam := []string{
@@ -55,7 +57,7 @@ func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1
 		"--model_name_or_path=/data/model",
 		"--dataset=dataset",
 		"--dataset_dir=/data/dataset",
-		"--output_dir=/data/ckpt",
+		fmt.Sprintf("--output_dir=%v", outputDir),
 		"--stage=sft",
 		fmt.Sprintf("--finetuning_type=%v", finetuningType),
 		"--lr_scheduler_type=cosine",
