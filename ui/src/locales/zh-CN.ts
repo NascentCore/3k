@@ -27,7 +27,7 @@ export default {
   'menu.UserQuota': '用户配额',
   'menu.Dataset': '数据集',
   'menu.Adapter': '适配器',
-  'menu.ClusterCpods': '资源看板',
+  'menu.ClusterCpods': '集群列表',
   'nav.title.Price': '价格',
   'nav.title.Document': '文档',
   ...global,
