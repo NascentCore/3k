@@ -11,7 +11,7 @@ export default {
   'pages.modelRepository.table.column.size': 'Model Size',
   'pages.modelRepository.table.column.action': 'Action',
 
-  'pages.modelRepository.fineTuningDrawer.title': 'Fine-tuning',
+  'pages.modelRepository.fineTuningDrawer.title': 'FineTune',
   'pages.modelRepository.fineTuningDrawer.cancel': 'Cancel',
   'pages.modelRepository.fineTuningDrawer.submit.success': 'Fine-tuning task created successfully',
   'pages.modelRepository.fineTuningDrawer.form.model': 'Model Name',
