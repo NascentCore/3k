@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
@@ -89,7 +91,7 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			createErr := i.CreateBaseInferenceServices(ctx, inference)
 			if createErr != nil {
 				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", createErr.Error())
-				return ctrl.Result{}, createErr
+				return ctrl.Result{RequeueAfter: 20 * time.Second}, createErr
 			}
 
 			// 推理服务创建成功后，部署Web UI
@@ -142,9 +144,9 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 				inference.Status.DataReady = false
 				return err
 			}
-			// prepare model
-			if err := i.prepareModel(ctx, modelstorageName, inference); err != nil {
-				logrus.Error("prepare model failed", "err", err, "inference", inference)
+			// prepare model and adapter
+			if err := i.prepareData(ctx, modelstorageName, inference); err != nil {
+				logrus.Error("prepare model and adapter failed", "err", err, "inference", inference)
 				return err
 			}
 
@@ -188,6 +190,42 @@ func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, i
 		Spec: kservev1beta1.InferenceServiceSpec{
 			Predictor: inference.Spec.Predictor,
 		},
+	}
+
+	if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIDAnno) {
+		adapterID := inference.Annotations[cpodv1beta1.CPodAdapterIDAnno]
+		if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIsPublic) {
+			adapterID = adapterID + v1beta1.CPodPublicStorageSuffix
+		}
+		adapterMs := cpodv1.ModelStorage{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: adapterID}, &adapterMs); err != nil {
+			if apierrors.IsNotFound(err) {
+				// TODO: 更新condition
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetAdatperFailed", "adatper modelstorage not found")
+				return err
+			}
+			return err
+		}
+
+		if adapterMs.Status.Phase != "done" {
+			return fmt.Errorf("adapter %s is not ready", adapterMs.Name)
+		}
+
+		is.Spec.Predictor.Volumes = append(is.Spec.Predictor.Volumes, corev1.Volume{
+			Name: "adapter",
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: adapterMs.Spec.PVC,
+				},
+			},
+		})
+
+		is.Spec.Predictor.Containers[0].VolumeMounts = append(is.Spec.Predictor.Containers[0].VolumeMounts, corev1.VolumeMount{
+			Name:      "adapter",
+			MountPath: "/mnt/adapter",
+		})
+
+		is.Spec.Predictor.Containers[0].Command = append(is.Spec.Predictor.Containers[0].Command, []string{"--adapter_name_or_path", "/mnt/adapters"}...)
 	}
 
 	if err := i.Client.Create(ctx, &is); err != nil {
@@ -448,6 +486,144 @@ func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference 
 // pointerTo returns a pointer to the provided PathType
 func pointerTo(pt netv1.PathType) *netv1.PathType {
 	return &pt
+}
+
+func (i *InferenceReconciler) prepareData(ctx context.Context, modelstorageName string, inference *cpodv1beta1.Inference) error {
+	wg := sync.WaitGroup{}
+	errChan := make(chan error, 2)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := i.prepareModel(ctx, modelstorageName, inference); err != nil {
+			errChan <- err
+			return
+		}
+	}()
+
+	if adapterID, ok := inference.Annotations[cpodv1beta1.CPodAdapterIDAnno]; ok {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := i.prepareAdapter(ctx, adapterID, inference); err != nil {
+				errChan <- err
+				return
+			}
+		}()
+	}
+
+	wg.Wait()
+	if len(errChan) > 0 {
+		for err := range errChan {
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (i *InferenceReconciler) prepareAdapter(ctx context.Context, adapterID string, inference *cpodv1beta1.Inference) error {
+	logrus.Info("DEBUG prepare adapter", "inference", inference.Spec, "Annotations", inference.Annotations)
+	modelSize := int64(0)
+	modelReadableName := ""
+	modelTemplate := ""
+	modelstorageName := adapterID
+	isPublic := false
+	if inference.Annotations != nil {
+		if sizeStr, ok := inference.Annotations[cpodv1beta1.CPodAdapterSizeAnno]; ok {
+			size, err := strconv.ParseInt(sizeStr, 10, 64)
+			if err != nil {
+				return fmt.Errorf("failed to parse adapter size %v: %v", sizeStr, err)
+			}
+			modelSize = size
+		}
+		if name, ok := inference.Annotations[v1beta1.CPodAdapterReadableNameAnno]; ok {
+			modelReadableName = name
+		}
+
+		if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIsPublic) {
+			isPublic = true
+		}
+
+	}
+	if isPublic {
+		modelName := modelstorageName + v1beta1.CPodPublicStorageSuffix
+		ms := &cpodv1.ModelStorage{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: modelName}, ms); err != nil {
+			if apierrors.IsNotFound(err) {
+				publicMs := &cpodv1.ModelStorage{}
+				if err := i.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: modelstorageName}, publicMs); err != nil {
+					if apierrors.IsNotFound(err) {
+						if createdMs, err := createModelstorage(ctx, i.Client, modelstorageName, modelReadableName, modelSize, modelTemplate, v1beta1.CPodPublicNamespace, i.Options.StorageClassName); err != nil {
+							return fmt.Errorf("failed to create adapter storage for adapter model %s: %v", modelstorageName, err)
+						} else {
+							publicMs = createdMs
+						}
+					} else {
+						return fmt.Errorf("failed to get public model %s: %v", modelstorageName, err)
+					}
+				}
+				if publicMs != nil && publicMs.Status.Phase != "done" {
+					jobName := "model-" + modelstorageName
+					job := &batchv1.Job{}
+					if err := i.Client.Get(ctx, client.ObjectKey{Namespace: v1beta1.CPodPublicNamespace, Name: jobName}, job); err != nil {
+						if apierrors.IsNotFound(err) {
+							if err := CreateDownloadJob(ctx, i.Client, i.Options.OssOption, "model", modelstorageName, modelReadableName, modelSize, inference.Namespace, v1beta1.CPodPublicNamespace); err != nil {
+								return fmt.Errorf("failed to create download job for public model %s: %v", modelstorageName, err)
+							}
+						} else {
+							return fmt.Errorf("failed to get public model %s: %v", modelstorageName, err)
+						}
+					}
+					if job.Status.Succeeded != 1 {
+						return fmt.Errorf("public model downloader job %s is running: %v", jobName, job.Status.Succeeded)
+					}
+					return fmt.Errorf("public model %s is not done", modelstorageName)
+				}
+				if err := CopyPublicModelStorage(ctx, i.Client, modelstorageName, inference.Namespace); err != nil {
+					return fmt.Errorf("failed to copy public model %s: %v", modelstorageName, err)
+				}
+				return nil
+			} else {
+				return fmt.Errorf("failed to get public model %v's copy  %s: %v", modelstorageName, modelName, err)
+			}
+		}
+		if ms.Status.Phase != "done" {
+			return fmt.Errorf("public model copy  %s is not done", modelstorageName)
+		}
+		return nil
+	}
+	ms := &cpodv1.ModelStorage{}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: modelstorageName}, ms); err != nil {
+		if apierrors.IsNotFound(err) {
+			if createdMs, err := createModelstorage(ctx, i.Client, modelstorageName, modelReadableName, modelSize, modelTemplate, inference.Namespace, i.Options.StorageClassName); err != nil {
+				return fmt.Errorf("failed to create model storage for private model %s: %v", modelstorageName, err)
+			} else {
+				ms = createdMs
+			}
+		} else {
+			return fmt.Errorf("failed to get private model %s: %v", modelstorageName, err)
+		}
+	}
+	if ms != nil && ms.Status.Phase != "done" {
+		jobName := "model-" + modelstorageName
+		job := &batchv1.Job{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: jobName}, job); err != nil {
+			if apierrors.IsNotFound(err) {
+				if err := CreateDownloadJob(ctx, i.Client, i.Options.OssOption, "model", modelstorageName, modelReadableName, modelSize, inference.Namespace, inference.Namespace); err != nil {
+					return fmt.Errorf("failed to create download job for private model %s: %v", modelstorageName, err)
+				}
+			} else {
+				return fmt.Errorf("failed to get private model %s: %v", modelstorageName, err)
+			}
+		}
+		if job.Status.Succeeded != 1 {
+			return fmt.Errorf("model downloader job %s is running: %v", jobName, job.Status.Succeeded)
+		}
+		return fmt.Errorf("private model %s is not done", modelstorageName)
+	}
+	return nil
 }
 
 func (i *InferenceReconciler) prepareModel(ctx context.Context, modelstorageName string, inference *cpodv1beta1.Inference) error {

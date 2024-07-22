@@ -95,17 +95,21 @@ type PortalTrainningJob struct {
 }
 
 type PortalInferenceJob struct {
-	ServiceName   string `json:"service_name"`
-	Status        string `json:"status"`
-	ModelId       string `json:"model_id"`
-	ModelName     string `json:"model_name"`
-	ModelSize     int    `json:"model_size"`
-	ModelIsPublic bool   `json:"model_is_public"`
-	GpuType       string `json:"gpu_type"`
-	GpuNumber     int64  `json:"gpu_number"`
-	CpodId        string `json:"cpod_id"`
-	Template      string `json:"template,omitempty"`
-	UserID        string `json:"user_id"`
+	ServiceName     string `json:"service_name"`
+	Status          string `json:"status"`
+	ModelId         string `json:"model_id"`
+	ModelName       string `json:"model_name"`
+	ModelSize       int    `json:"model_size"`
+	ModelIsPublic   bool   `json:"model_is_public"`
+	GpuType         string `json:"gpu_type"`
+	GpuNumber       int64  `json:"gpu_number"`
+	CpodId          string `json:"cpod_id"`
+	Template        string `json:"template,omitempty"`
+	UserID          string `json:"user_id"`
+	AdapterId       string `json:"adapter_id"`
+	AdapterName     string `json:"adapter_name"`
+	AdapterIsPublic bool   `json:"adapter_is_public"`
+	AdapterSize     int    `json:"adapter_size"`
 }
 
 type TrainningJobState struct {

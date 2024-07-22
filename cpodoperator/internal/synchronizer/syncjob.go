@@ -21,6 +21,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -583,6 +584,8 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 							v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
 							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
 							v1beta1.CPodPreTrainModelTemplateAnno:     job.Template,
+							v1beta1.CPodAdapterReadableNameAnno:       job.AdapterName,
+							v1beta1.CPodAdapterSizeAnno:               fmt.Sprintf("%d", job.AdapterSize),
 						},
 					},
 					// TODO: fill PredictorSpec with infomation provided by portaljob
@@ -635,6 +638,16 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						ModelIsPublic: job.ModelIsPublic,
 					},
 				}
+
+				if job.AdapterId != "" {
+					newJob.Annotations[v1beta1.CPodAdapterIDAnno] = job.AdapterId
+					newJob.Annotations[v1beta1.CPodAdapterReadableNameAnno] = job.AdapterName
+					newJob.Annotations[v1beta1.CPodAdapterSizeAnno] = fmt.Sprintf("%d", job.AdapterSize)
+					if job.AdapterIsPublic {
+						newJob.Annotations[v1beta1.CPodAdapterIsPublic] = "true"
+					}
+				}
+
 				if job.GpuNumber > 1 {
 					cudaDevices := ""
 					for i := 0; i < int(job.GpuNumber); i++ {
@@ -687,7 +700,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 	}
 }
 
-func (s *SyncJob) createModelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
+func (s *SyncJob) createMwdelStorage(ctx context.Context, modelStorageName, modelName, pvcName string) error {
 	m := cpodv1.ModelStorage{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: v1beta1.CPOD_NAMESPACE,
