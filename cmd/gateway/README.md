@@ -1,4 +1,32 @@
 # Gateway 算想云网关
+gateway实现了jwt验签、路由转发。
+
+微服务框架 go-zero
+
+## 目录结构
+3k/cmd/gateway
+```bash
+├── Dockerfile                   Dockerfile
+├── README.md
+├── etc
+│   ├── gateway-api.yaml         本地开发路由配置
+│   ├── gateway-api_k8s.yaml     私有化部署路由配置
+│   ├── gateway-api_prod.yaml    生产环境路由配置
+│   └── gateway-api_test.yaml    测试环境路由配置
+└── gateway.go                   go-zero入口文件
+```
+
+3k/internal/gateway
+```bash
+├── config
+│   └── config.go                go-zero配置加载相关代码
+├── gateway
+│   ├── config.go                路由转发的配置
+│   ├── handler.go               路由逻辑、jwt验签逻辑
+│   └── match.go                 路由匹配
+└── svc
+    └── service_context.go       go-zero service层代码，框架生成
+```
 
 ## 路由配置
 etc目录下的配置文件中修改
@@ -10,33 +38,5 @@ etc目录下的配置文件中修改
 ```
 
 ## docker build and push
-pull request合并进main主干时，如果pr的title有`build:vX.X.X`这样的内容，就会自动构建Docker镜像，tag设置为`go-gateway:vX.X.X`
-
-## docker run
-根据环境修改S_ENV，生产 prod 测试 test
-
-1. 注意修改版本号
-2. dsn和AUTH_SECRET根据实际信息替换
-```bash
-# 设置版本号环境变量
-export OLD_VERSION=v0.0.1
-export NEW_VERSION=v0.0.2
-export S_ENV=test
-
-# dsn
-export S_DSN="..."
-
-# 关闭老服务
-docker rm -f go-gateway-$OLD_VERSION
-
-# 启动新服务
-docker run -d \
--e GATEWAY_ENV=$S_ENV \
--e GATEWAY_DSN=$S_DSN \
--e AUTH_SECRET=... \
--p 8080:8080 \
--v /var/docker/gateway:/var/log \
---name go-gateway-$NEW_VERSION \
-sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-gateway:$NEW_VERSION
-```
+pull request合并进main主干时，如果pr的title有`gateway-build:vX.X.X`这样的内容，就会自动构建Docker镜像，tag设置为`go-gateway:vX.X.X`
 
