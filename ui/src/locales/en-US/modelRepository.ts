@@ -18,6 +18,7 @@ export default {
   'pages.modelRepository.fineTuningDrawer.form.training_file': 'Training Dataset',
   'pages.modelRepository.fineTuningDrawer.form.gpuProd': 'GPU Model',
   'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable': 'Number of Gpus',
+  'pages.modelRepository.fineTuningDrawer.form.adapter': 'Adapter',
   'pages.modelRepository.fineTuningDrawer.form.finetune_type': 'Tpye',
   'pages.modelRepository.fineTuningDrawer.form.model_saved_type':
     'Save complete model after fine-tuning (default saves LoRA)',

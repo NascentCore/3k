@@ -2,7 +2,7 @@
  * @name 推理
  * @description 推理
  */
-import { apiInference, useGpuTypeOptions } from '@/services';
+import { apiInference, useGpuTypeOptions, useResourceAdaptersOptions } from '@/services';
 import { Button, Drawer, Form, Input, Select, message } from 'antd';
 import { useState } from 'react';
 import { history } from '@umijs/max';
@@ -21,6 +21,8 @@ const Content = ({ record, onCancel }) => {
   const gpuTypeOptions = useGpuTypeOptions({});
 
   const gpuProdValue = Form.useWatch('gpu_model', form);
+
+  const adaptersOptions = useResourceAdaptersOptions();
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -121,6 +123,27 @@ const Content = ({ record, onCancel }) => {
               defaultMessage: 'GPU数量',
             })}
             allowClear
+          />
+        </Form.Item>
+        <Form.Item
+          name="adapter"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.adapter',
+            defaultMessage: '适配器',
+          })}
+          rules={[
+            {
+              required: true,
+            },
+          ]}
+        >
+          <Select
+            allowClear
+            options={adaptersOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
           />
         </Form.Item>
 
