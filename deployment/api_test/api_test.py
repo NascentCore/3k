@@ -132,18 +132,27 @@ if __name__ == "__main__":
         finetune_job_id = api_tester.load_job_session('finetune')
         if not finetune_job_id:
             data = {
-                "model":"google/gemma-2b-it",
-                "training_file":"llama-factory/alpaca_data_zh_short",
+                "model":"meta-llama/Meta-Llama-3-8B-Instruct",
+                "training_file":"dataset-storage-f90b82cc7ab88911",
                 "gpu_model":"NVIDIA-GeForce-RTX-3090",
                 "gpu_count":1,
+                "finetune_type":"lora",
                 "hyperparameters":{
                     "n_epochs":"3.0",
                     "batch_size":"4",
                     "learning_rate_multiplier":"5e-5"
-                    },
+                },
+                "model_saved_type":"lora",
+                "model_id":"model-storage-f5b8963792864b06",
+                "model_name":"meta-llama/Meta-Llama-3-8B-Instruct",
+                "model_size":16069769188,
                 "model_is_public":True,
+                "model_template":"llama3",
+                "dataset_id":"dataset-storage-f90b82cc7ab88911",
+                "dataset_name":"llama-factory/alpaca_data_zh_short",
+                "dataset_size":14119,
                 "dataset_is_public":True
-                }
+            }
             finetune_response = api_tester.post_job('api/job/finetune', data)
             finetune_job_id = finetune_response['job_id']
             api_tester.save_job_session('finetune', finetune_job_id)
@@ -208,17 +217,44 @@ if __name__ == "__main__":
         if not jupyterlab_job_id:
             instance_name = f"test-{int(time.time())}"
             data = {
-                "instance_name":instance_name,
+                "instance_name":"test",
                 "cpu_count":2,
                 "memory":2147483648,
                 "gpu_count":1,
                 "gpu_product":"NVIDIA-GeForce-RTX-3090",
-                "data_volume_size":1073741824,
-                "model_id":"model-storage-0ce92f029254ff34",
-                "model_path":"/model",
-                "user_id":181,
-                "model_name":"google/gemma-2b-it"
-                }
+                "data_volume_size":107374182400,
+                "resource": {
+                    "models":[
+                        {
+                            "model_id":"model-storage-0ce92f029254ff34",
+                            "model_name":"google/gemma-2b-it",
+                            "model_size":15065904731,
+                            "model_is_public":True,
+                            "model_template":"gemma",
+                            "model_path":"/models"
+                        }
+                    ],
+                    "datasets":[
+                        {
+                            "dataset_id":"dataset-storage-f90b82cc7ab88911",
+                            "dataset_name":"llama-factory/alpaca_data_zh_short",
+                            "dataset_size":14119,
+                            "dataset_is_public":True,
+                            "dataset_path":"/datasets"
+                        }
+                    ],
+                    "adapters":[
+                        {
+                            "adapter_id":"adapter-storage-15f2fa6a32755314",
+                            "adapter_name":"google/Gemma-2b-Lora",
+                            "adapter_size":178655500,
+                            "adapter_is_public":True,
+                            "adapter_path":"/adapters"
+                        }
+                    ]
+                },
+                "user_id":"user-9ada2b7e-5035-4a7f-aa3d-9c1f010a92b8"
+            }
             jupyterlab_response = api_tester.post_job('api/job/jupyterlab', data)
             jupyterlab_job_id = jupyterlab_response['message'].split(':')[1].split()[0]
             api_tester.save_job_session('jupyterlab', jupyterlab_job_id)
