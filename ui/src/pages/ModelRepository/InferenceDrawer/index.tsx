@@ -30,7 +30,8 @@ const Content = ({ record, onCancel }) => {
       const values = form.getFieldsValue();
       setFormValues(values);
       console.log('Form values:', values);
-      return apiInference({
+      const currentAdapter = adaptersOptions?.find((x) => x.id === values.adapter);
+      const params = {
         data: {
           gpu_model: values.gpu_model,
           gpu_count: Number(values.gpu_count),
@@ -41,8 +42,14 @@ const Content = ({ record, onCancel }) => {
           model_size: currentModel.size,
           model_is_public: currentModel.is_public,
           model_template: currentModel.template,
+          adapter_id: currentAdapter?.id,
+          adapter_name: currentAdapter?.name,
+          adapter_size: currentAdapter?.size,
+          adapter_is_public: currentAdapter?.is_public,
         },
-      }).then((res) => {
+      };
+      console.log('Form params:', params);
+      return apiInference(params).then((res) => {
         message.success(
           intl.formatMessage({
             id: 'pages.modelRepository.InferenceDrawer.submit.success',
@@ -131,11 +138,6 @@ const Content = ({ record, onCancel }) => {
             id: 'pages.modelRepository.fineTuningDrawer.form.adapter',
             defaultMessage: '适配器',
           })}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
         >
           <Select
             allowClear
