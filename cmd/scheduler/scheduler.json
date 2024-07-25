@@ -1320,6 +1320,34 @@
         "adapter_is_public"
       ]
     },
+    "AdapterOptional": {
+      "type": "object",
+      "properties": {
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        }
+      },
+      "title": "AdapterOptional"
+    },
     "BalanceAddReq": {
       "type": "object",
       "properties": {
@@ -2170,6 +2198,9 @@
         "": {
           "$ref": "#/definitions/Model"
         },
+        "": {
+          "$ref": "#/definitions/AdapterOptional"
+        },
         "gpu_model": {
           "type": "string"
         },
@@ -2251,6 +2282,20 @@
           "type": "boolean",
           "format": "boolean"
         },
+        "adapter_name": {
+          "type": "string"
+        },
+        "adapter_id": {
+          "type": "string"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
         "gpu_type": {
           "type": "string"
         },
@@ -2276,6 +2321,10 @@
         "model_id",
         "model_size",
         "model_is_public",
+        "adapter_name",
+        "adapter_id",
+        "adapter_size",
+        "adapter_is_public",
         "gpu_type",
         "gpu_number",
         "template",
@@ -3853,6 +3902,9 @@
         },
         "": {
           "$ref": "#/definitions/Model"
+        },
+        "": {
+          "$ref": "#/definitions/AdapterOptional"
         },
         "url": {
           "type": "string"

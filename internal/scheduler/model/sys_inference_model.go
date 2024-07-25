@@ -10,40 +10,6 @@ import (
 
 var _ SysInferenceModel = (*customSysInferenceModel)(nil)
 
-// const (
-// 	InferStatusDescWaitDeploy = "waitdeploy"
-// 	InferStatusDescDeploying  = "deploying"
-// 	InferStatusDescDeployed   = "deployed"
-// 	InferStatusDescStopped    = "stopped"
-// 	InferStatusDescFailed     = "failed"
-// )
-//
-// const (
-// 	InferStatusWaitDeploy = 0
-// 	InferStatusDeploying  = 1
-// 	InferStatusDeployed   = 2
-// 	InferStatusStopped    = 3
-// 	InferStatusFailed     = 4
-// )
-//
-// var (
-// 	StatusToStr = map[int64]string{
-// 		InferStatusWaitDeploy: InferStatusDescWaitDeploy,
-// 		InferStatusDeploying:  InferStatusDescDeploying,
-// 		InferStatusDeployed:   InferStatusDescDeployed,
-// 		InferStatusStopped:    InferStatusDescStopped,
-// 		InferStatusFailed:     InferStatusDescFailed,
-// 	}
-//
-// 	InferDescToStatus = map[string]int64{
-// 		InferStatusDescWaitDeploy: InferStatusWaitDeploy,
-// 		InferStatusDescDeploying:  InferStatusDeploying,
-// 		InferStatusDescDeployed:   InferStatusDeployed,
-// 		InferStatusDescStopped:    InferStatusStopped,
-// 		InferStatusDescFailed:     InferStatusFailed,
-// 	}
-// )
-
 type (
 	// SysInferenceModel is an interface to be customized, add more methods here,
 	// and implement the added methods in customSysInferenceModel.
