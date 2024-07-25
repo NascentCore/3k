@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 	"time"
@@ -48,16 +49,19 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 	resp.Data = make([]types.SysInference, 0)
 	for _, infer := range infers {
 		inferResp := types.SysInference{}
+		if infer.Metadata.Valid {
+			_ = json.Unmarshal([]byte(infer.Metadata.String), &inferResp)
+		}
 		_ = copier.Copy(&inferResp, &infer)
 		statusDesc, ok := model.StatusToStr[infer.Status]
 		if ok {
 			inferResp.Status = statusDesc
 		}
-		if infer.ModelPublic.Int64 == model.CachePrivate {
-			inferResp.ModelIsPublic = false
-		} else {
-			inferResp.ModelIsPublic = true
-		}
+		//if infer.ModelPublic.Int64 == model.CachePrivate {
+		//	inferResp.ModelIsPublic = false
+		//} else {
+		//	inferResp.ModelIsPublic = true
+		//}
 		if infer.Url != "" {
 			inferResp.Url = fmt.Sprintf("%s%s", l.svcCtx.Config.K8S.BaseUrl, infer.Url)
 		}

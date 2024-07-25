@@ -148,18 +148,16 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 
 	for _, service := range services {
 		serviceResp := types.InferenceService{}
-		_ = copier.Copy(&serviceResp, service)
+		if service.Metadata.Valid {
+			_ = json.Unmarshal([]byte(service.Metadata.String), &serviceResp)
+		} else {
+			continue // 老任务没有metadata，直接忽略掉
+		}
 		statusDesc, ok := model.StatusToStr[service.Status]
 		if ok {
 			serviceResp.Status = statusDesc
 		}
-		serviceResp.Template = service.Template.String
-		serviceResp.UserId = service.NewUserId
-		if service.ModelPublic.Int64 == model.CachePrivate {
-			serviceResp.ModelIsPublic = false
-		} else {
-			serviceResp.ModelIsPublic = true
-		}
+		serviceResp.CpodId = service.CpodId
 
 		switch service.Status {
 		case model.StatusNotAssigned:

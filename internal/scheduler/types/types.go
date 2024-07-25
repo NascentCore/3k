@@ -9,6 +9,14 @@ type Adapter struct {
 	AdapterIsPublic bool   `json:"adapter_is_public"`     // 是否公共适配器
 }
 
+type AdapterOptional struct {
+	AdapterId       string `json:"adapter_id,optional"`        // 适配器ID
+	AdapterName     string `json:"adapter_name,optional"`      // 适配器名字, owner/adapter
+	AdapterPath     string `json:"adapter_path,optional"`      // 适配器的绑定路径
+	AdapterSize     int64  `json:"adapter_size,optional"`      // 适配器体积，单位字节
+	AdapterIsPublic bool   `json:"adapter_is_public,optional"` // 是否公共适配器
+}
+
 type BalanceAddReq struct {
 	UserID string  `header:"Sx-User-ID"`
 	ToUser string  `json:"user_id"`
@@ -245,6 +253,7 @@ type InferenceDeleteResp struct {
 
 type InferenceDeployReq struct {
 	Model
+	AdapterOptional
 	GpuModel string `json:"gpu_model,optional"`
 	GpuCount int64  `json:"gpu_count,optional"`
 	UserID   string `header:"Sx-User-ID"`
@@ -264,17 +273,21 @@ type InferenceInfoResp struct {
 }
 
 type InferenceService struct {
-	ServiceName   string `json:"service_name"`
-	Status        string `json:"status"`
-	ModelName     string `json:"model_name"`
-	ModelId       string `json:"model_id"`
-	ModelSize     int64  `json:"model_size"`
-	ModelIsPublic bool   `json:"model_is_public"`
-	GpuType       string `json:"gpu_type"`
-	GpuNumber     int64  `json:"gpu_number"`
-	Template      string `json:"template"`
-	CpodId        string `json:"cpod_id"`
-	UserId        string `json:"user_id"`
+	ServiceName     string `json:"service_name"`
+	Status          string `json:"status"`
+	ModelName       string `json:"model_name"`
+	ModelId         string `json:"model_id"`
+	ModelSize       int64  `json:"model_size"`
+	ModelIsPublic   bool   `json:"model_is_public"`
+	AdapterName     string `json:"adapter_name"`
+	AdapterId       string `json:"adapter_id"`
+	AdapterSize     int64  `json:"adapter_size"`
+	AdapterIsPublic bool   `json:"adapter_is_public"`
+	GpuType         string `json:"gpu_type"`
+	GpuNumber       int64  `json:"gpu_number"`
+	Template        string `json:"template"`
+	CpodId          string `json:"cpod_id"`
+	UserId          string `json:"user_id"`
 }
 
 type InferenceStatus struct {
@@ -722,6 +735,7 @@ type SysInference struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
 	Model
+	AdapterOptional
 	Url       string `json:"url"`
 	StartTime string `json:"start_time"` // 推理服务启动时间
 	EndTime   string `json:"end_time"`   // 推理服务终止时间
