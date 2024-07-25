@@ -18,6 +18,7 @@ export default {
   'pages.modelRepository.fineTuningDrawer.form.training_file': '数据集',
   'pages.modelRepository.fineTuningDrawer.form.gpuProd': 'GPU型号',
   'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable': 'GPU数量',
+  'pages.modelRepository.fineTuningDrawer.form.adapter': '适配器',
   'pages.modelRepository.fineTuningDrawer.form.finetune_type': '类型',
   'pages.modelRepository.fineTuningDrawer.form.model_saved_type':
     '微调后保存完整模型（默认保存Lora）',
