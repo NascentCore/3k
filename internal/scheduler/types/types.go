@@ -539,8 +539,9 @@ type JupyterlabUpdateReq struct {
 }
 
 type LoginReq struct {
-	Password string `json:"password"`
 	Username string `json:"username"`
+	Password string `json:"password,optional"`
+	Code     string `json:"code,optional"`
 }
 
 type LoginResp struct {

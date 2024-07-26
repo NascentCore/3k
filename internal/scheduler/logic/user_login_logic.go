@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
-	user2 "sxwl/3k/internal/scheduler/user"
 	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/rsa"
@@ -15,7 +14,6 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -38,43 +36,62 @@ func NewUserLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserLog
 
 func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, err error) {
 	UserModel := l.svcCtx.UserModel
+	VerifyCodeModel := l.svcCtx.VerifyCodeModel
 
 	user, err := UserModel.FindOneByUsername(l.ctx, orm.NullString(req.Username))
-	if errors.Is(err, model.ErrNotFound) {
-		return nil, fmt.Errorf("用户名或密码不正确")
-	}
-
-	if err != nil {
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
 		l.Errorf("UserLogin username=%s err=%s", req.Username, err)
-		return nil, fmt.Errorf("系统错误，请联系管理员")
+		return nil, ErrSystem
 	}
 
-	// check password
-	password, err := rsa.Decrypt(req.Password, l.svcCtx.Config.Rsa.PrivateKey)
-	if err != nil {
-		l.Errorf("UserLogin decrypt username=%s err=%s", req.Username, err)
-		return nil, fmt.Errorf("系统错误，请联系管理员")
-	}
-
-	if !bcrypt.CheckPasswordHash(password, user.Password.String) {
-		return nil, fmt.Errorf("用户名或密码不正确")
-	}
-
-	// create user_id if not exists
-	if user.NewUserId == "" {
-		userID, err := user2.NewUserID()
-		if err != nil {
-			l.Errorf("UserLogin new user_id err=%s", err)
-		} else {
-			_, err = UserModel.UpdateColsByCond(l.ctx, UserModel.UpdateBuilder().Where(squirrel.Eq{
-				"user_id": user.UserId,
-			}).Set("new_user_id", userID))
-			if err != nil {
-				l.Errorf("UserLogin update user_id id=%d new_user_id=%s err=%s", user.UserId, userID)
-			} else {
-				user.NewUserId = userID
-			}
+	if errors.Is(err, model.ErrNotFound) {
+		// 走注册流程
+		registerErr := NewRegisterLogic(l.ctx, l.svcCtx).Register(&types.RegisterUserReq{
+			Code:     req.Code,
+			Username: req.Username,
+			Email:    req.Username,
+			Enabled:  1,
+			Password: "cxybKVoxphKm5dORPAQctuOPwMHKj68JQpjpDw7c0pPe/r0jf+LSBkF0lGQeiqzu9VitBfpFU69x0oUztWitRg==",
+		})
+		if registerErr != nil {
+			return nil, registerErr
 		}
+
+		// 重新获取user
+		user, err = UserModel.FindOneByUsername(l.ctx, orm.NullString(req.Username))
+		if err != nil {
+			l.Errorf("UserLogin fetch user username=%s err=%s", req.Username, err)
+			return nil, ErrSystem
+		}
+	}
+
+	// check password or email code
+	if req.Password != "" {
+		password, err := rsa.Decrypt(req.Password, l.svcCtx.Config.Rsa.PrivateKey)
+		if err != nil {
+			l.Errorf("UserLogin decrypt username=%s err=%s", req.Username, err)
+			return nil, ErrSystem
+		}
+
+		if !bcrypt.CheckPasswordHash(password, user.Password.String) {
+			return nil, ErrPassword
+		}
+	} else if req.Code != "" {
+		// check verify code is correct
+		code, err := VerifyCodeModel.FindOneByVerifyKey(l.ctx, req.Username)
+		if err != nil {
+			return nil, ErrCode
+		}
+
+		if time.Since(code.UpdatedAt).Minutes() > 5 {
+			return nil, ErrCodeTimeout
+		}
+
+		if code.Code != req.Code {
+			return nil, ErrCode
+		}
+	} else {
+		return nil, ErrPassword
 	}
 
 	resp = &types.LoginResp{User: types.WrapUser{User: types.UserInfo{}}}
