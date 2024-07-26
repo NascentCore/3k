@@ -3207,16 +3207,18 @@
     "LoginReq": {
       "type": "object",
       "properties": {
+        "username": {
+          "type": "string"
+        },
         "password": {
           "type": "string"
         },
-        "username": {
+        "code": {
           "type": "string"
         }
       },
       "title": "LoginReq",
       "required": [
-        "password",
         "username"
       ]
     },

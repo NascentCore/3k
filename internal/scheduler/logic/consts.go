@@ -12,6 +12,13 @@ var (
 	ErrSystem   = errors.New("系统错误，请稍后再试")
 )
 
+// 登录注册
+var (
+	ErrPassword    = errors.New("用户名或密码不正确")
+	ErrCode        = errors.New("输入的验证码有误，请检查后重试。")
+	ErrCodeTimeout = errors.New("验证码已过期，请重新获取。")
+)
+
 // 支付
 var (
 	ErrBalanceAddFail  = errors.New("余额充值失败")
