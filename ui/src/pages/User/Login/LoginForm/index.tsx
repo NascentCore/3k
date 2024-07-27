@@ -2,11 +2,11 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
 import { history, useModel, useIntl } from '@umijs/max';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { apiAuthLogin } from '@/services';
+import { apiAuthLogin, apiCodeSendEmail } from '@/services';
 import { saveToken } from '@/utils';
-import { Form, Input, Button, Checkbox, Space, Typography } from 'antd';
+import { Form, Input, Button, Checkbox, Space, Typography, message } from 'antd';
 import { Store } from 'antd/lib/form/interface';
 import { apiUsersRegisterUser } from '@/services';
 import { encrypt } from '@/utils/rsaEncrypt';
@@ -38,8 +38,9 @@ const Login: React.FC = ({ setType }) => {
       // 登录
       return apiAuthLogin({
         data: {
-          password: encrypt(values.password),
+          // password: encrypt(values.password),
           username: values.username,
+          code: values.code,
         },
       }).then((loginRes) => {
         saveToken(loginRes?.token);
@@ -49,6 +50,33 @@ const Login: React.FC = ({ setType }) => {
         });
       });
     });
+  };
+
+  const [countdown, setCountdown] = useState(0);
+  // useEffect 用于处理倒计时逻辑
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const handleSendVerificationCode = async () => {
+    // 模拟发送验证码的操作
+    const email = form.getFieldValue('username');
+    if (email && email.trim() !== '') {
+      console.log('发送验证码', email);
+      setCountdown(60); // 设置倒计时初始值为60秒
+      apiCodeSendEmail(email);
+    } else {
+      message.error(
+        intl.formatMessage({
+          id: 'pages.regist.username',
+          // defaultMessage: '请输入邮箱',
+        }),
+      );
+    }
   };
 
   return (
@@ -89,14 +117,14 @@ const Login: React.FC = ({ setType }) => {
             />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             name="password"
             rules={[
               {
                 required: true,
                 message: intl.formatMessage({
                   id: 'pages.login.password',
-                  // defaultMessage: '请输入密码',
+                  defaultMessage: '请输入密码',
                 }),
               },
             ]}
@@ -105,11 +133,45 @@ const Login: React.FC = ({ setType }) => {
               prefix={<LockOutlined />}
               placeholder={intl.formatMessage({
                 id: 'pages.login.password',
-                // defaultMessage: '请输入密码',
+                defaultMessage: '请输入密码',
               })}
             />
-          </Form.Item>
+          </Form.Item> */}
 
+          <Space align={'baseline'}>
+            <Form.Item
+              name="code"
+              rules={[
+                {
+                  required: true,
+                  message: intl.formatMessage({
+                    id: 'pages.regist.codemes',
+                    defaultMessage: '请输入邮箱验证码',
+                  }),
+                },
+              ]}
+            >
+              <Input
+                placeholder={intl.formatMessage({
+                  id: 'pages.regist.codemes',
+                  defaultMessage: '请输入邮箱验证码',
+                })}
+                allowClear
+              />
+            </Form.Item>
+
+            <Button onClick={handleSendVerificationCode} disabled={countdown > 0}>
+              {countdown > 0
+                ? `${countdown} ${intl.formatMessage({
+                    id: 'pages.regist.codemes.tip',
+                    // defaultMessage: '秒后重新发送',
+                  })}`
+                : intl.formatMessage({
+                    id: 'pages.regist.codemes.tip2',
+                    // defaultMessage: '获取验证码',
+                  })}
+            </Button>
+          </Space>
           <Form.Item name="rememberMe" valuePropName="checked">
             <Checkbox>
               {intl.formatMessage({
@@ -124,13 +186,13 @@ const Login: React.FC = ({ setType }) => {
               <AsyncButton type="primary" block onClick={handleSubmit}>
                 {intl.formatMessage({
                   id: 'pages.login.submit',
-                  // defaultMessage: '登录',
+                  defaultMessage: '登录',
                 })}
               </AsyncButton>
               <Button block onClick={() => setType('regist')}>
                 {intl.formatMessage({
                   id: 'pages.login.regist',
-                  // defaultMessage: '注册',
+                  defaultMessage: '注册',
                 })}
               </Button>
             </div>
