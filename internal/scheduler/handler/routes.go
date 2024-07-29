@@ -245,6 +245,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/resource/sync",
+				Handler: OssSyncHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/user/newuserid",
 				Handler: CreateNewUserIDHandler(serverCtx),
 			},

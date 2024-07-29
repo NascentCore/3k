@@ -24,6 +24,8 @@ OSS:
   UserAdapterPrefix: "adapters/"
   FinetuneTagFile: "sxwl-can-fine-tune.md"
   InferenceTagFile: "sxwl-can-inference.md"
+  SyncInterval: 60
+  SyncCron: "30 5 * * * *"
   LocalMode: No
 
 BannedCpod:

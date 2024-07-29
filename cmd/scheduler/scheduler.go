@@ -8,6 +8,7 @@ import (
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/handler"
 	"sxwl/3k/internal/scheduler/pay"
+	"sxwl/3k/internal/scheduler/resource"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/pkg/storage"
 
@@ -94,6 +95,11 @@ func main() {
 	}
 	// 每分钟进行扣费
 	_, err = crontab.AddFunc("10 * * * * *", pay.NewBalanceManager(ctx).Update)
+	if err != nil {
+		log.Fatalf("crontab AddFunc err=%s", err)
+	}
+	// 每小时同步一次oss数据
+	_, err = crontab.AddFunc("30 5 * * * *", resource.NewManager(ctx).SyncOSS)
 	if err != nil {
 		log.Fatalf("crontab AddFunc err=%s", err)
 	}
