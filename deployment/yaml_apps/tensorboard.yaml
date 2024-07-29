@@ -2,7 +2,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tensorboard
+  name: logs
+  namespace: cpod
 spec:
   accessModes:
     - ReadWriteMany
@@ -15,6 +16,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tensorboard
+  namespace: cpod
   labels:
     app: tensorboard
 spec:
@@ -22,13 +24,16 @@ spec:
   ports:
   - port: 6006
     targetPort: 6006
+    nodePort: 30013
   selector:
     app: tensorboard
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tensorboard
+  namespace: cpod
 spec:
   replicas: 1
   selector:
@@ -51,4 +56,4 @@ spec:
       volumes:
       - name: log-volume
         persistentVolumeClaim:
-          claimName: tensorboard
+          claimName: logs

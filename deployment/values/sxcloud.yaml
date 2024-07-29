@@ -1,0 +1,29 @@
+namespace: sxcloud
+
+mysql:
+  rootPassword: "rootPassword"
+  user: "aiadmin"
+  password: "userPassword"
+  storageClassName: "juicefs-sc"
+
+gateway:
+  dsn: "aiadmin:userPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+
+scheduler:
+  dsn: "aiadmin:userPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+  adminAccessId: ""
+  adminAccessKey: ""
+  uploadAccessId: ""
+  uploadAccessKey: ""
+  env:
+    K8S_BASE_API: "http://node_ip:5000"
+    K8S_BASE_URL: "http://node_ip:30005"
+
+persistence:
+  enabled: true
+  storageClass: "juicefs-sc"
+  accessMode: ReadWriteMany
+  size: 10Gi
+
+ingress:
+  enabled: false

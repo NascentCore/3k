@@ -1,0 +1,30 @@
+sidecars:
+  livenessProbeImage:
+    repository: dockerhub.kubekey.local/kubesphereio/livenessprobe:v2.11.0
+  nodeDriverRegistrarImage:
+    repository: dockerhub.kubekey.local/kubesphereio/csi-node-driver-registrar:v2.9.0
+  csiProvisionerImage:
+    repository: dockerhub.kubekey.local/kubesphereio/csi-provisioner:v3.5.0
+  csiResizerImage:
+    repository: dockerhub.kubekey.local/kubesphereio/csi-resizer:v1.9.0
+storageClasses:
+- name: juicefs-sc
+  enabled: true
+  reclaimPolicy: Delete
+  backend:
+    name: "myjfs"                # JuiceFS 文件系统名
+    metaurl: "redis://192.168.1.10:6379"         # 元数据引擎的 URL
+    storage: "minio"     # 对象存储类型 (例如 s3、gcs、oss、cos)
+    bucket: "http://192.168.1.10:9000/sxwl"            # 存储数据的桶路径
+    accessKey: "admin"
+    secretKey: "admin123456"
+    # 设置 Mount Pod 时区，默认为 UTC。
+    # envs: "{TZ: Asia/Shanghai}"
+  mountPod:
+    resources:                    # Mount pod 的资源配置
+      requests:
+        cpu: "1"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "5Gi"

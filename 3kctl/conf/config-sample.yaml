@@ -1,0 +1,49 @@
+apiVersion: kubekey.kubesphere.io/v1alpha2
+kind: Cluster
+metadata:
+  name: sample
+spec:
+  addons: []
+  controlPlaneEndpoint:
+    address: ''
+    domain: lb.kubesphere.local
+    port: 6443
+  etcd:
+    type: kubekey
+  hosts:
+  - internalAddress: 192.168.1.10
+    name: master
+    password: password
+    port: 22
+    user: root
+  kubernetes:
+    autoRenewCerts: true
+    clusterName: cluster.local
+    containerManager: containerd
+    version: v1.24.3
+  network:
+    kubePodsCIDR: 10.233.64.0/18
+    kubeServiceCIDR: 10.233.0.0/18
+    multusCNI:
+      enabled: false
+    plugin: calico
+  registry:
+    auths:
+      dockerhub.kubekey.local:
+        certsPath: /etc/docker/certs.d/dockerhub.kubekey.local
+        password: Harbor12345
+        username: admin
+    insecureRegistries: []
+    namespaceOverride: kubesphereio
+    privateRegistry: dockerhub.kubekey.local
+    registryMirrors: []
+    type: harbor
+  roleGroups:
+    control-plane:
+    - master
+    etcd:
+    - master
+    registry:
+    - master
+    worker:
+    - master

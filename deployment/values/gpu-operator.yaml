@@ -15,8 +15,8 @@ operator:
   defaultRuntime: containerd
 
 driver:
-  repoConfig:
-    configMapName: repo-config
+        #repoConfig:
+        #  configMapName: repo-config
   rdma:
     enabled: true
   repository: dockerhub.kubekey.local/kubesphereio

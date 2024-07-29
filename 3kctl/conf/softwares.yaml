@@ -91,6 +91,13 @@ softwares:
     dependencies: []
     deploy: true
 
+  - name: "sxcloud"
+    type: "helm"
+    namespace: "sxcloud"
+    values: "sxcloud.yaml"
+    dependencies: []
+    deploy: true
+
   - name: "downloader-rbac"
     type: "kubectl"
     namespace: ""                        # namespace 值为空时，3kctl 会跳过检查 pod-ready
