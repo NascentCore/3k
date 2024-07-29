@@ -670,6 +670,34 @@
         ]
       }
     },
+    "/api/resource/sync": {
+      "post": {
+        "summary": "oss资源同步",
+        "operationId": "OssSync",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BaseReq"
+            }
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/user/newuserid": {
       "post": {
         "summary": "生成所有user_id",

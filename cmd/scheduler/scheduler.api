@@ -931,6 +931,10 @@ service scheduler-api {
 	@handler baseImageList
 	get /resource/baseimages (BaseImageListReq) returns (BaseImageListResp)
 
+	@doc "oss资源同步"
+	@handler OssSync
+	post /resource/sync (BaseReq) returns (BaseResp)
+
 	@doc "余额充值"
 	@handler BalanceAdd
 	post /pay/balance (BalanceAddReq) returns (BalanceAddResp)

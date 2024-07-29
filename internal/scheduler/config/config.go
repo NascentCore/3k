@@ -25,6 +25,8 @@ type Config struct {
 		UserAdapterPrefix string
 		FinetuneTagFile   string
 		InferenceTagFile  string
+		SyncInterval      int64
+		SyncCron          string
 		LocalMode         bool
 	} `json:"OSS"`
 	BannedCpod map[string]string `json:"BannedCpod"`

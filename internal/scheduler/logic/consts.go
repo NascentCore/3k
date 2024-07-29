@@ -12,6 +12,10 @@ var (
 	ErrSystem   = errors.New("系统错误，请稍后再试")
 )
 
+var (
+	MsgOssSyncBegin = "oss同步开始"
+)
+
 // 登录注册
 var (
 	ErrPassword    = errors.New("用户名或密码不正确")
