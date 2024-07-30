@@ -5,6 +5,8 @@ export default {
   'pages.login.username': '请输入邮箱',
   'pages.login.password': '请输入密码',
   'pages.login.rememberMe': '记住我',
+  'pages.login.loginType.password': '使用密码登录',
+  'pages.login.loginType.code': '使用验证码登录',
   'pages.login.submit': '登录',
   'pages.login.regist': '注册',
 

@@ -14,10 +14,16 @@ import AsyncButton from '@/components/AsyncButton';
 
 const { Title, Text } = Typography;
 
+enum ILoginType {
+  CODE = 'CODE',
+  PASSWORD = 'PASSWORD',
+}
+
 const Login: React.FC = ({ setType }) => {
   const intl = useIntl();
   const { initialState, setInitialState } = useModel('@@initialState');
   const [form] = Form.useForm();
+  const [loginType, setLoginType] = useState<ILoginType>();
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -38,9 +44,9 @@ const Login: React.FC = ({ setType }) => {
       // 登录
       return apiAuthLogin({
         data: {
-          // password: encrypt(values.password),
           username: values.username,
-          code: values.code,
+          password: loginType === ILoginType.PASSWORD ? encrypt(values.password) : void 0,
+          code: loginType === ILoginType.CODE ? values.code : void 0,
         },
       }).then((loginRes) => {
         saveToken(loginRes?.token);
@@ -116,69 +122,91 @@ const Login: React.FC = ({ setType }) => {
               allowClear
             />
           </Form.Item>
-
-          {/* <Form.Item
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: intl.formatMessage({
-                  id: 'pages.login.password',
-                  defaultMessage: '请输入密码',
-                }),
-              },
-            ]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder={intl.formatMessage({
-                id: 'pages.login.password',
-                defaultMessage: '请输入密码',
-              })}
-            />
-          </Form.Item> */}
-
-          <Space align={'baseline'}>
-            <Form.Item
-              name="code"
-              rules={[
-                {
-                  required: true,
-                  message: intl.formatMessage({
-                    id: 'pages.regist.codemes',
-                    defaultMessage: '请输入邮箱验证码',
-                  }),
-                },
-              ]}
-            >
-              <Input
-                placeholder={intl.formatMessage({
-                  id: 'pages.regist.codemes',
-                  defaultMessage: '请输入邮箱验证码',
-                })}
-                allowClear
-              />
-            </Form.Item>
-
-            <Button onClick={handleSendVerificationCode} disabled={countdown > 0}>
-              {countdown > 0
-                ? `${countdown} ${intl.formatMessage({
-                    id: 'pages.regist.codemes.tip',
-                    // defaultMessage: '秒后重新发送',
-                  })}`
-                : intl.formatMessage({
-                    id: 'pages.regist.codemes.tip2',
-                    // defaultMessage: '获取验证码',
+          {loginType === ILoginType.PASSWORD ? (
+            <>
+              <Form.Item
+                name="password"
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({
+                      id: 'pages.login.password',
+                      defaultMessage: '请输入密码',
+                    }),
+                  },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined />}
+                  placeholder={intl.formatMessage({
+                    id: 'pages.login.password',
+                    defaultMessage: '请输入密码',
                   })}
-            </Button>
-          </Space>
+                />
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <Space align={'baseline'}>
+                <Form.Item
+                  name="code"
+                  rules={[
+                    {
+                      required: true,
+                      message: intl.formatMessage({
+                        id: 'pages.regist.codemes',
+                        defaultMessage: '请输入邮箱验证码',
+                      }),
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder={intl.formatMessage({
+                      id: 'pages.regist.codemes',
+                      defaultMessage: '请输入邮箱验证码',
+                    })}
+                    allowClear
+                  />
+                </Form.Item>
+
+                <Button onClick={handleSendVerificationCode} disabled={countdown > 0}>
+                  {countdown > 0
+                    ? `${countdown} ${intl.formatMessage({
+                        id: 'pages.regist.codemes.tip',
+                        // defaultMessage: '秒后重新发送',
+                      })}`
+                    : intl.formatMessage({
+                        id: 'pages.regist.codemes.tip2',
+                        // defaultMessage: '获取验证码',
+                      })}
+                </Button>
+              </Space>
+            </>
+          )}
           <Form.Item name="rememberMe" valuePropName="checked">
-            <Checkbox>
-              {intl.formatMessage({
-                id: 'pages.login.rememberMe',
-                // defaultMessage: '记住我',
-              })}
-            </Checkbox>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Checkbox>
+                {intl.formatMessage({
+                  id: 'pages.login.rememberMe',
+                  // defaultMessage: '记住我',
+                })}
+              </Checkbox>
+              {loginType === ILoginType.PASSWORD ? (
+                <Typography.Link onClick={() => setLoginType(ILoginType.CODE)}>
+                  {intl.formatMessage({
+                    id: 'pages.login.loginType.code',
+                    defaultMessage: '使用验证码登录',
+                  })}
+                </Typography.Link>
+              ) : (
+                <Typography.Link onClick={() => setLoginType(ILoginType.PASSWORD)}>
+                  {intl.formatMessage({
+                    id: 'pages.login.loginType.password',
+                    defaultMessage: '使用密码登录',
+                  })}
+                </Typography.Link>
+              )}
+            </div>
           </Form.Item>
 
           <Form.Item>

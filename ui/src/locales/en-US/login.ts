@@ -5,6 +5,8 @@ export default {
   'pages.login.username': 'Please enter your email',
   'pages.login.password': 'Please enter your password',
   'pages.login.rememberMe': 'Remember me',
+  'pages.login.loginType.password': 'Login with password',
+  'pages.login.loginType.code': 'Login with verification code',
   'pages.login.submit': 'Login',
   'pages.login.regist': 'Register',
 
