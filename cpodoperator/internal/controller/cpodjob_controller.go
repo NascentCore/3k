@@ -978,7 +978,13 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 func generateModelstorageName(cpodjob *v1beta1.CPodJob, modelName string) string {
 	modelstorageName := cpodjob.Name + "-modelsavestorage"
 	if userId, ok := cpodjob.Labels[v1beta1.CPodUserIDLabel]; ok {
+		// if cpodjob.Spec.
 		modelstorageName = util.ModelCRDName(fmt.Sprintf(util.OSSUserModelPath, filepath.Join(userId, modelName)))
+		if cpodjob.Annotations != nil {
+			if !metav1.HasAnnotation(cpodjob.ObjectMeta, v1beta1.CPodAutoMergeAnno) {
+				modelstorageName = util.AdapterCRDName(fmt.Sprintf(util.OSSPublicAdapterPath, filepath.Join(userId, modelName)))
+			}
+		}
 	}
 	return modelstorageName
 }
