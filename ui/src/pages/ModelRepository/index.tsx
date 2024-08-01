@@ -1,14 +1,16 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Space, Table, Tabs } from 'antd';
-import React from 'react';
+import { Input, Space, Table, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
 import FineTuningDrawer from './FineTuningDrawer';
 import InferenceDrawer from './InferenceDrawer';
 import { useApiResourceModels } from '@/services';
 import { formatFileSize, removeUserIdPrefixFromPath } from '@/utils';
 import { useIntl } from '@umijs/max';
+const { Search } = Input;
 
 const TabTable = ({ dataSource, loading }: any) => {
-  console.log('dataSource', dataSource);
+  // console.log('dataSource', dataSource);
+
   const intl = useIntl();
   return (
     <Table
@@ -22,6 +24,9 @@ const TabTable = ({ dataSource, loading }: any) => {
           key: 'name',
           align: 'center',
           width: 250,
+          sorter: (a: any, b: any) => {
+            return a.name.toLowerCase().localeCompare(b.name);
+          },
           render: (_) => removeUserIdPrefixFromPath(_),
         },
         {
@@ -69,6 +74,7 @@ const TabTable = ({ dataSource, loading }: any) => {
       dataSource={dataSource}
       loading={loading}
       scroll={{ y: 'calc(100vh - 350px)' }}
+      pagination={false}
     />
   );
 };
@@ -76,6 +82,7 @@ const TabTable = ({ dataSource, loading }: any) => {
 const Index: React.FC = () => {
   const intl = useIntl();
   const { data, isLoading }: any = useApiResourceModels();
+  const [searchText, setSearchText] = useState('');
 
   const items = [
     {
@@ -86,7 +93,10 @@ const Index: React.FC = () => {
       }),
       children: (
         <>
-          <TabTable dataSource={data?.public_list || []} loading={isLoading} />
+          <TabTable
+            dataSource={data?.public_list?.filter((x) => x?.name?.includes(searchText)) || []}
+            loading={isLoading}
+          />
         </>
       ),
     },
@@ -98,14 +108,25 @@ const Index: React.FC = () => {
       }),
       children: (
         <>
-          <TabTable dataSource={data?.user_list || []} loading={isLoading} />
+          <TabTable
+            dataSource={data?.user_list?.filter((x) => x?.name?.includes(searchText)) || []}
+            loading={isLoading}
+          />
         </>
       ),
     },
   ];
   return (
     <PageContainer>
-      <Tabs defaultActiveKey="1" items={items} />
+      <Tabs
+        defaultActiveKey="1"
+        items={items}
+        tabBarExtraContent={
+          <>
+            <Search allowClear onSearch={(v) => setSearchText(v)} style={{ width: 200 }} />
+          </>
+        }
+      />
     </PageContainer>
   );
 };
