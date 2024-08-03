@@ -74,7 +74,6 @@ const TabTable = ({ dataSource, loading }: any) => {
       dataSource={dataSource}
       loading={loading}
       scroll={{ y: 'calc(100vh - 350px)' }}
-      pagination={false}
     />
   );
 };
@@ -123,7 +122,12 @@ const Index: React.FC = () => {
         items={items}
         tabBarExtraContent={
           <>
-            <Search allowClear onSearch={(v) => setSearchText(v)} style={{ width: 200 }} />
+            <Search
+              allowClear
+              onInput={(e: any) => setSearchText(e.target.value || '')}
+              onSearch={(v) => setSearchText(v)}
+              style={{ width: 200 }}
+            />
           </>
         }
       />
