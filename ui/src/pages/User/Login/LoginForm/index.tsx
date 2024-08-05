@@ -45,8 +45,8 @@ const Login: React.FC = ({ setType }) => {
       return apiAuthLogin({
         data: {
           username: values.username,
-          password: loginType === ILoginType.PASSWORD ? encrypt(values.password) : void 0,
-          code: loginType === ILoginType.CODE ? values.code : void 0,
+          password: values.password ? encrypt(values.password) : void 0,
+          code: values.code ? values.code : void 0,
         },
       }).then((loginRes) => {
         saveToken(loginRes?.token);
