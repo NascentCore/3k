@@ -715,6 +715,22 @@ type ResourceListResp struct {
 	UserList   []Resource `json:"user_list"`
 }
 
+type ResourceMetaAddReq struct {
+	BaseReq
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	ResourceName string `json:"resource_name"`
+	ResourceSize int64  `json:"resource_size"`
+	IsPublic     bool   `json:"is_public"`
+	UserID       string `json:"user_id"`
+	Meta         string `json:"meta,optional"`
+}
+
+type ResourceMetaDelReq struct {
+	BaseReq
+	ResourceID string `json:"resource_id"`
+}
+
 type ResourceModelsReq struct {
 	UserID string `header:"Sx-User-ID"`
 }

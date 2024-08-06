@@ -695,6 +695,34 @@
         ]
       }
     },
+    "/api/resource/meta": {
+      "post": {
+        "summary": "新增数据资产信息",
+        "operationId": "ResourceMetaAdd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceMetaAddReq"
+            }
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/resource/models": {
       "get": {
         "summary": "模型列表",
@@ -3966,6 +3994,36 @@
       "required": [
         "public_list",
         "user_list"
+      ]
+    },
+    "ResourceMetaAddReq": {
+      "type": "object",
+      "properties": {
+        "": {
+          "$ref": "#/definitions/BaseReq"
+        },
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        },
+        "resource_name": {
+          "type": "string"
+        },
+        "resource_size": {
+          "type": "string"
+        },
+        "meta": {
+          "type": "string"
+        }
+      },
+      "title": "ResourceMetaAddReq",
+      "required": [
+        "resource_id",
+        "resource_type",
+        "resource_name",
+        "resource_size"
       ]
     },
     "ResourceModelsReq": {

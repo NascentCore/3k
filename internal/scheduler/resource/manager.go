@@ -71,7 +71,7 @@ func (m *Manager) SyncOSS() {
 
 		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), m.svcCtx.Config.OSS.PublicModelDir)
 
-		meta := model.OssResourceMeta{
+		meta := model.OssResourceModelMeta{
 			Template:     storage.ModelTemplate(m.svcCtx.Config.OSS.Bucket, modelName),
 			CanFinetune:  canFinetune,
 			CanInference: canInference,

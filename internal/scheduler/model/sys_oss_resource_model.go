@@ -8,10 +8,14 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
-type OssResourceMeta struct {
+type OssResourceModelMeta struct {
 	Template     string `json:"template"`
 	CanFinetune  bool   `json:"can_finetune"`
 	CanInference bool   `json:"can_inference"`
+}
+
+type OssResourceAdapterMeta struct {
+	BaseModel string `json:"base_model"`
 }
 
 var _ SysOssResourceModel = (*customSysOssResourceModel)(nil)
@@ -31,6 +35,7 @@ type (
 		Find(ctx context.Context, selectBuilder squirrel.SelectBuilder) ([]*SysOssResource, error)
 		FindPageListByPage(ctx context.Context, selectBuilder squirrel.SelectBuilder, page, pageSize int64, orderBy string) ([]*SysOssResource, error)
 		UpdateColsByCond(ctx context.Context, updateBuilder squirrel.UpdateBuilder) (sql.Result, error)
+		DeleteByResourceID(ctx context.Context, resourceID string) error
 	}
 
 	customSysOssResourceModel struct {
@@ -160,4 +165,15 @@ func (m *defaultSysOssResourceModel) UpdateColsByCond(ctx context.Context, updat
 	}
 
 	return m.conn.ExecCtx(ctx, query, args...)
+}
+
+func (m *defaultSysOssResourceModel) DeleteByResourceID(ctx context.Context, resourceID string) error {
+	deleteBuilder := squirrel.Delete(m.table)
+	query, args, err := deleteBuilder.Where(squirrel.Eq{"resource_id": resourceID}).ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = m.conn.ExecCtx(ctx, query, args)
+	return err
 }

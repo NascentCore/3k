@@ -1,4 +1,4 @@
-package auth
+package sxy
 
 import (
 	"encoding/json"

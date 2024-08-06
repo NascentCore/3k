@@ -8,7 +8,6 @@ import (
 	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/handler"
 	"sxwl/3k/internal/scheduler/pay"
-	"sxwl/3k/internal/scheduler/resource"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/pkg/storage"
 
@@ -99,11 +98,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("crontab AddFunc err=%s", err)
 	}
-	// 每小时同步一次oss数据
-	_, err = crontab.AddFunc("30 5 * * * *", resource.NewManager(ctx).SyncOSS)
-	if err != nil {
-		log.Fatalf("crontab AddFunc err=%s", err)
-	}
+	//// 每小时同步一次oss数据
+	//_, err = crontab.AddFunc("30 5 * * * *", resource.NewManager(ctx).SyncOSS)
+	//if err != nil {
+	//	log.Fatalf("crontab AddFunc err=%s", err)
+	//}
 	// 启动 Cron 服务
 	crontab.Start()
 	defer crontab.Stop()

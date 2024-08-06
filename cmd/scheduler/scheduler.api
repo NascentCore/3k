@@ -817,6 +817,24 @@ type (
 	}
 )
 
+// 资源管理
+type (
+	ResourceMetaAddReq {
+		BaseReq
+		ResourceID   string `json:"resource_id"`
+		ResourceType string `json:"resource_type"`
+		ResourceName string `json:"resource_name"`
+		ResourceSize int64  `json:"resource_size"`
+		IsPublic     bool   `json:"is_public"`
+		UserID       string `json:"user_id"`
+		Meta         string `json:"meta,optional"`
+	}
+	ResourceMetaDelReq {
+		BaseReq
+		ResourceID string `json:"resource_id"`
+	}
+)
+
 // python接口参数定义
 type (
 	BuildImageReq {
@@ -926,6 +944,14 @@ service scheduler-api {
 	@doc "oss资源同步"
 	@handler OssSync
 	post /resource/sync (BaseReq) returns (BaseResp)
+
+	@doc "新增数据资产信息"
+	@handler ResourceMetaAdd
+	post /resource/meta (ResourceMetaAddReq) returns (BaseResp)
+
+	@doc "删除数据资产信息"
+	@handler ResourceMetaDel
+	delete /resource/meta (ResourceMetaDelReq) returns (BaseResp)
 
 	@doc "余额充值"
 	@handler BalanceAdd

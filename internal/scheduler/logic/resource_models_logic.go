@@ -57,7 +57,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 	}
 
 	for _, publicModel := range publicModels {
-		meta := model.OssResourceMeta{}
+		meta := model.OssResourceModelMeta{}
 		err = json.Unmarshal([]byte(publicModel.Meta), &meta)
 		if err != nil {
 			l.Errorf("OssResourceModel find err: %v", err)

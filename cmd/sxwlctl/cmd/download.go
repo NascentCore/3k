@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"log"
 	"path"
-	"sxwl/3k/cmd/sxwlctl/internal/auth"
+	"sxwl/3k/cmd/sxwlctl/internal/sxy"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/storage"
@@ -56,7 +56,7 @@ var downloadCmd = &cobra.Command{
 			log.Fatal("Please set token in ~/.sxwlctl.yaml")
 		}
 
-		accessID, accessKey, userID, _, err := auth.GetAccessByToken(token)
+		accessID, accessKey, userID, _, err := sxy.GetAccessByToken(token)
 		if err != nil {
 			log.Fatal("Please check token and auth_url in config file")
 		}

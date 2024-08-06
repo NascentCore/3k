@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"sxwl/3k/cmd/sxwlctl/internal/auth"
-	consts2 "sxwl/3k/cmd/sxwlctl/internal/consts"
+	"sxwl/3k/cmd/sxwlctl/internal/sxy"
+	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/fs"
 	"sxwl/3k/pkg/storage"
@@ -18,12 +19,13 @@ import (
 )
 
 var (
-	dir      string
-	resource string
-	template string
-	public   bool
-	owner    string
-	verbose  bool
+	dir       string
+	resource  string
+	template  string
+	baseModel string
+	public    bool
+	owner     string
+	verbose   bool
 )
 
 type Config struct {
@@ -50,7 +52,7 @@ var uploadCmd = &cobra.Command{
 			fmt.Println("Please input a sxwl token")
 			os.Exit(1)
 		}
-		accessID, accessKey, userID, isAdmin, err := auth.GetAccessByToken(token)
+		accessID, accessKey, userID, isAdmin, err := sxy.GetAccessByToken(token)
 		if err != nil {
 			fmt.Println("Please check token and auth_url in config file")
 			os.Exit(1)
@@ -74,22 +76,26 @@ var uploadCmd = &cobra.Command{
 			if template == "" {
 				log.Fatalf("Please use -t to set the inference template used for this model")
 			}
-			// meta file
-			err := fs.TouchFile(path.Join(dir, consts2.FileCanFinetune))
-			if err != nil {
-				log.Fatalf("touch file %s err: %s", consts2.FileCanFinetune, err)
+			//// meta file
+			//err := fs.TouchFile(path.Join(dir, consts2.FileCanFinetune))
+			//if err != nil {
+			//	log.Fatalf("touch file %s err: %s", consts2.FileCanFinetune, err)
+			//}
+			//
+			//err = fs.TouchFile(path.Join(dir, consts2.FileCanInference))
+			//if err != nil {
+			//	log.Fatalf("touch file %s err: %s", consts2.FileCanInference, err)
+			//}
+			//
+			//err = fs.TouchFile(path.Join(dir, fmt.Sprintf(consts2.FileInferTemplate, template)))
+			//if err != nil {
+			//	log.Fatalf("touch file %s err: %s", fmt.Sprintf(consts2.FileInferTemplate, template), err)
+			//}
+		case consts.Adapter:
+			if baseModel == "" {
+				log.Fatalf("Please use \"base_model\" to set the base model for the adapter")
 			}
-
-			err = fs.TouchFile(path.Join(dir, consts2.FileCanInference))
-			if err != nil {
-				log.Fatalf("touch file %s err: %s", consts2.FileCanInference, err)
-			}
-
-			err = fs.TouchFile(path.Join(dir, fmt.Sprintf(consts2.FileInferTemplate, template)))
-			if err != nil {
-				log.Fatalf("touch file %s err: %s", fmt.Sprintf(consts2.FileInferTemplate, template), err)
-			}
-		case consts.Dataset, consts.Adapter:
+		case consts.Dataset:
 		default:
 			fmt.Println("data_type should be [model|dataset|adapter]")
 			os.Exit(1)
@@ -137,6 +143,43 @@ var uploadCmd = &cobra.Command{
 			fmt.Printf("upload err: %s\n", err)
 			os.Exit(1)
 		} else {
+			resourceName := fmt.Sprintf("%s/%s", owner, filepath.Base(dir))
+			resourceID := ""
+			metaBytes := []byte("{}")
+
+			switch resource {
+			case consts.Model:
+				resourceID = storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, resourceName))
+				metaBytes, _ = json.Marshal(model.OssResourceModelMeta{
+					Template:     template,
+					CanFinetune:  true,
+					CanInference: true,
+				})
+			case consts.Dataset:
+				resourceID = storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, resourceName))
+			case consts.Adapter:
+				metaBytes, _ = json.Marshal(model.OssResourceAdapterMeta{
+					BaseModel: baseModel,
+				})
+				resourceID = storage.AdapterCRDName(storage.ResourceToOSSPath(consts.Adapter, resourceName))
+			}
+
+			meta := string(metaBytes)
+
+			err = sxy.AddResource(token, sxy.Resource{
+				ResourceID:   resourceID,
+				ResourceType: resource,
+				ResourceName: resourceName,
+				ResourceSize: size,
+				IsPublic:     public,
+				UserID:       userID,
+				Meta:         meta,
+			})
+			if err != nil {
+				fmt.Printf("add resource err: %s\n", err)
+				os.Exit(1)
+			}
+
 			fmt.Printf("%s has been uploaded. size: %s used time: %s\n", dir, fs.FormatBytes(size), time.Since(start).String())
 		}
 	},
@@ -148,6 +191,7 @@ func init() {
 	uploadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
 	uploadCmd.Flags().StringVarP(&template, "template", "t", "", "模型推理使用的template")
+	uploadCmd.Flags().StringVar(&baseModel, "base_model", "", "模型推理使用的template")
 	uploadCmd.Flags().BoolVar(&public, "public", false, "上传至公共空间")
 	uploadCmd.Flags().StringVar(&owner, "owner", "", "公共资源的所有者，仅在--public时需要")
 	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")
