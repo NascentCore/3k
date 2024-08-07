@@ -1,10 +1,10 @@
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
-import { Spin } from 'antd';
+import { Button, message, Popover, Spin, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import { stringify } from 'querystring';
 import type { MenuInfo } from 'rc-menu/lib/interface';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
 import { removeToken } from '@/utils';
@@ -75,7 +75,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         loginOut();
         return;
       }
-      history.push(`/account/${key}`);
+      // history.push(`/account/${key}`);
     },
     [setInitialState],
   );
@@ -102,6 +102,18 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     return loading;
   }
 
+  const [token, setToken] = useState('');
+  useEffect(() => {
+    try {
+      const sxwl_token = localStorage.getItem('sxwl_token');
+      if (sxwl_token) {
+        setToken(sxwl_token.split(' ')[1]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   const menuItems = [
     ...(menu
       ? [
@@ -120,6 +132,47 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
           },
         ]
       : []),
+    ,
+    {
+      key: 'userDetail',
+      icon: <UserOutlined />,
+      label: (
+        <>
+          <Popover
+            placement="left"
+            content={
+              <div>
+                <Typography.Text>
+                  <pre style={{ maxWidth: 400 }}>{token}</pre>
+                </Typography.Text>
+                <div>
+                  <Button
+                    onClick={() => {
+                      if (!navigator.clipboard) {
+                        return;
+                      }
+                      navigator.clipboard.writeText(token).then(function () {
+                        message.success('Copy success');
+                      });
+                    }}
+                  >
+                    复制
+                  </Button>
+                </div>
+              </div>
+            }
+            title="Api Token"
+          >
+            <div>
+              {intl.formatMessage({
+                id: 'pages.global.header.accountDetail',
+                defaultMessage: '账户详情',
+              })}
+            </div>
+          </Popover>
+        </>
+      ),
+    },
     {
       key: 'logout',
       icon: <LogoutOutlined />,

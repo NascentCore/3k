@@ -2,6 +2,7 @@
  * 通用部分 国际化
  */
 export default {
+  'pages.global.header.accountDetail': '账户详情',
   'pages.global.header.logout': '退出登录',
   'pages.global.confirm.title': '提示',
   'pages.global.confirm.okText': '是',
@@ -14,4 +15,5 @@ export default {
   'pages.global.form.select.placeholder': '请选择',
   'pages.golbal.table.column.action': '操作',
   'pages.golbal.gpu.select.option.disabled.placeholder': '充值超过 10000 可选',
+  'pages.global.button.upload': '上传',
 };

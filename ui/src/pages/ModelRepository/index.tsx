@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Input, Space, Table, Tabs } from 'antd';
+import { Button, Col, Input, Row, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import FineTuningDrawer from './FineTuningDrawer';
 import InferenceDrawer from './InferenceDrawer';
@@ -122,12 +122,31 @@ const Index: React.FC = () => {
         items={items}
         tabBarExtraContent={
           <>
-            <Search
-              allowClear
-              onInput={(e: any) => setSearchText(e.target.value || '')}
-              onSearch={(v) => setSearchText(v)}
-              style={{ width: 200 }}
-            />
+            <Row gutter={10}>
+              <Col>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    window.open(
+                      'https://sxwl.ai/docs/document/cloud/sxwlctl-guide#%E4%B8%8A%E4%BC%A0',
+                    );
+                  }}
+                >
+                  {intl.formatMessage({
+                    id: 'pages.global.button.upload',
+                    defaultMessage: '上传',
+                  })}
+                </Button>
+              </Col>
+              <Col>
+                <Search
+                  allowClear
+                  onInput={(e: any) => setSearchText(e.target.value || '')}
+                  onSearch={(v) => setSearchText(v)}
+                  style={{ width: 200 }}
+                />
+              </Col>
+            </Row>
           </>
         }
       />
