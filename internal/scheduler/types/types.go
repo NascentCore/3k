@@ -199,15 +199,6 @@ type GPUInfo struct {
 	Status  string `json:"status"`
 }
 
-type GPUStateInfo struct {
-	Temp      int    `json:"temp"`
-	MemUsage  int    `json:"mem_usage"`
-	GPUUsage  int    `json:"gpu_usage"`
-	Power     int    `json:"power"`
-	Status    string `json:"status"`
-	Allocated bool   `json:"allocated"`
-}
-
 type GPUSummary struct {
 	Allocatable int    `json:"allocatable"`
 	Total       int    `json:"total"`
@@ -568,19 +559,18 @@ type NodeAddResp struct {
 }
 
 type NodeInfo struct {
-	CPUInfo        CPUInfo        `json:"cpu_info"`
-	LinuxDist      string         `json:"linux_dist"`
-	GPUInfo        GPUInfo        `json:"gpu_info"`
-	GPUTotal       int            `json:"gpu_total"`
-	GPUAllocatable int            `json:"gpu_allocatable"`
-	NetworkInfo    NetworkInfo    `json:"network_info"`
-	GPUState       []GPUStateInfo `json:"gpu_state"`
-	KernelVersion  string         `json:"kernel_version"`
-	DiskInfo       DiskInfo       `json:"disk_info"`
-	Name           string         `json:"name"`
-	MemInfo        MemInfo        `json:"mem_info"`
-	Arch           string         `json:"arch"`
-	Status         string         `json:"status"`
+	CPUInfo        CPUInfo     `json:"cpu_info"`
+	LinuxDist      string      `json:"linux_dist"`
+	GPUInfo        GPUInfo     `json:"gpu_info"`
+	GPUTotal       int         `json:"gpu_total"`
+	GPUAllocatable int         `json:"gpu_allocatable"`
+	NetworkInfo    NetworkInfo `json:"network_info"`
+	KernelVersion  string      `json:"kernel_version"`
+	DiskInfo       DiskInfo    `json:"disk_info"`
+	Name           string      `json:"name"`
+	MemInfo        MemInfo     `json:"mem_info"`
+	Arch           string      `json:"arch"`
+	Status         string      `json:"status"`
 }
 
 type NodeListReq struct {
