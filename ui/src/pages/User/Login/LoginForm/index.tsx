@@ -88,12 +88,13 @@ const Login: React.FC = ({ setType }) => {
   return (
     <>
       <div style={{ width: 330, margin: 'auto' }}>
-        <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
+        {/* <Title level={2} style={{ textAlign: 'center', marginBottom: 30 }}>
           {intl.formatMessage({
             id: 'pages.login.title',
             // defaultMessage: '算想云',
           })}
-        </Title>
+        </Title> */}
+        <img style={{ width: '100%', marginBottom: 40 }} src="/icons/logo2.png"></img>
         <Form
           name="registration_form"
           form={form}

@@ -62,18 +62,18 @@ export default [
     icon: 'CheckCircleOutlined',
     component: './InferenceState',
   },
-  // {
-  //   path: '/Tensorboard',
-  //   name: 'Tensorboard',
-  //   icon: 'DashboardOutlined',
-  //   component: './Tensorboard',
-  // },
-  // {
-  //   path: '/Grafana',
-  //   name: 'Grafana',
-  //   icon: 'BarChartOutlined',
-  //   component: './Welcome',
-  // },
+  {
+    path: '/Tensorboard',
+    name: 'Tensorboard',
+    icon: 'DashboardOutlined',
+    component: './Tensorboard',
+  },
+  {
+    path: '/Grafana',
+    name: 'Grafana',
+    icon: 'BarChartOutlined',
+    component: './Welcome',
+  },
   // {
   //   path: '/Jupyterlalb',
   //   name: 'Jupyterlalb',
