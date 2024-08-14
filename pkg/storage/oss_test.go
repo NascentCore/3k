@@ -49,6 +49,9 @@ func TestFilesToUpload(t *testing.T) {
 	}
 	defer os.RemoveAll(outDir)
 	res, err := FilesToUpload(outDir, "pre")
+	if err != nil {
+		t.Error(err)
+	}
 	if res[0] != "pre/file1" || res[1] != "pre/indir/file2" {
 		t.Error("wrong result")
 	}

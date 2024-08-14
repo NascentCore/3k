@@ -198,7 +198,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			"service_name": infer.ServiceName,
 		})
 
-		var setMap = map[string]interface{}{}
+		var setMap map[string]interface{}
 		switch status {
 		case model.StatusRunning:
 			setMap = map[string]interface{}{
@@ -268,7 +268,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 			"job_name": reqJupyter.JobName,
 		})
 
-		var setMap = map[string]interface{}{}
+		var setMap map[string]interface{}
 		switch status {
 		case model.StatusRunning:
 			setMap = map[string]interface{}{
