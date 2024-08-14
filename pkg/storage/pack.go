@@ -22,6 +22,9 @@ func Pack(dir string, excludeFiles []string) error {
 	zipWriter := zip.NewWriter(archive)
 	defer zipWriter.Close()
 	files, err := FilesToUpload(dir, dir)
+	if err != nil {
+		return err
+	}
 	for _, file := range files {
 		err = addFile(zipWriter, file)
 		if err != nil {
