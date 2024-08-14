@@ -112,3 +112,8 @@ linters-settings:
     # Default: ["*"]
     # ST1003 is for enforcing camel case.
     checks: ["all", "-ST1003"]
+  exclude-rules:
+     # ignore go-zero json tag 'optional'
+     - path: "internal/gateway/gateway/config.go"
+       linters:
+         - "staticcheck"

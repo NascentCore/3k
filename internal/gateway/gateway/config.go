@@ -2,8 +2,8 @@ package gateway
 
 type Router struct {
 	Path   string
-	ToPath string `json:",optional"`
-	Auth   bool   `json:",optional"`
+	ToPath string `json:",optional"` //nolint:staticcheck
+	Auth   bool   `json:",optional"` //nolint:staticcheck
 	Server string
 }
 
