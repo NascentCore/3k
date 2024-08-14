@@ -2,8 +2,8 @@ package gateway
 
 type Router struct {
 	Path   string
-	ToPath string `yaml:",omitempty"`
-	Auth   bool   `yaml:",omitempty"`
+	ToPath string `json:",optional"`
+	Auth   bool   `json:",optional"`
 	Server string
 }
 
