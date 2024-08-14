@@ -47,6 +47,7 @@ type Config struct {
 	Email email.Config `json:"-"`
 	Rsa   struct {
 		PrivateKey string
+		PublicKey  string
 	} `json:"-"`
 	Billing struct {
 		InitBalance float64

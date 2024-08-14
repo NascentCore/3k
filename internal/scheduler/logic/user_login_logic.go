@@ -9,6 +9,7 @@ import (
 	"sxwl/3k/pkg/bcrypt"
 	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/rsa"
+	strings2 "sxwl/3k/pkg/strings"
 	"time"
 
 	"sxwl/3k/internal/scheduler/svc"
@@ -46,15 +47,29 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 
 	if errors.Is(err, model.ErrNotFound) {
 		// 走注册流程
-		registerErr := NewRegisterLogic(l.ctx, l.svcCtx).Register(&types.RegisterUserReq{
+
+		// 生成随机密码
+		randomPassword, err := strings2.RandomString(10, true, true, true)
+		if err != nil {
+			return nil, err
+		}
+
+		// RSA加密
+		passwordRSAEncrypted, err := rsa.Encrypt(randomPassword, l.svcCtx.Config.Rsa.PublicKey)
+		if err != nil {
+			return nil, err
+		}
+
+		err = NewRegisterLogic(l.ctx, l.svcCtx).Register(&types.RegisterUserReq{
 			Code:     req.Code,
 			Username: req.Username,
 			Email:    req.Username,
 			Enabled:  1,
-			Password: "cxybKVoxphKm5dORPAQctuOPwMHKj68JQpjpDw7c0pPe/r0jf+LSBkF0lGQeiqzu9VitBfpFU69x0oUztWitRg==",
+			Password: passwordRSAEncrypted,
+			From:     "login",
 		})
-		if registerErr != nil {
-			return nil, registerErr
+		if err != nil {
+			return nil, err
 		}
 
 		// 重新获取user

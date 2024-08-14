@@ -190,9 +190,19 @@ func (l *RegisterLogic) Register(req *types.RegisterUserReq) error {
 		return err
 	}
 
-	err = l.svcCtx.EmailSender.SendTemplateEmail([]string{req.Email}, "算想云", "token", map[string]string{"token": signedToken})
-	if err != nil {
-		return fmt.Errorf("send email err=%s", err)
+	if req.From == "" {
+		err = l.svcCtx.EmailSender.SendTemplateEmail([]string{req.Email}, "算想云", "token", map[string]string{"token": signedToken})
+		if err != nil {
+			return fmt.Errorf("send email err=%s", err)
+		}
+	} else {
+		err = l.svcCtx.EmailSender.SendTemplateEmail([]string{req.Email}, "算想云", "token_pass", map[string]string{
+			"token":    signedToken,
+			"password": password,
+		})
+		if err != nil {
+			return fmt.Errorf("send email err=%s", err)
+		}
 	}
 
 	return nil
