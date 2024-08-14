@@ -46,3 +46,38 @@ func Decrypt(encryptedData, privateKey string) (string, error) {
 
 	return string(decryptedData), nil
 }
+
+func Encrypt(data, publicKey string) (string, error) {
+	// Your RSA public key in PEM format
+	publicKeyPEM := fmt.Sprintf(`-----BEGIN PUBLIC KEY-----
+%s
+-----END PUBLIC KEY-----`, publicKey)
+
+	// Parse the PEM encoded public key
+	block, _ := pem.Decode([]byte(publicKeyPEM))
+	if block == nil {
+		return "", fmt.Errorf("failed to parse PEM block containing the public key")
+	}
+
+	// Parse the PKCS#1 or PKCS#8 public key
+	pubKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse public key err=%s", err)
+	}
+
+	pubKey, ok := pubKeyInterface.(*rsa.PublicKey)
+	if !ok {
+		return "", fmt.Errorf("not an RSA public key")
+	}
+
+	// Encrypt the data
+	encryptedData, err := rsa.EncryptPKCS1v15(rand.Reader, pubKey, []byte(data))
+	if err != nil {
+		return "", fmt.Errorf("failed to encrypt data err=%s", err)
+	}
+
+	// Encode the encrypted data as base64
+	encodedData := base64.StdEncoding.EncodeToString(encryptedData)
+
+	return encodedData, nil
+}

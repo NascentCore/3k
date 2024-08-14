@@ -75,6 +75,7 @@ func main() {
 
 	// insert ras key
 	c.Rsa.PrivateKey = os.Getenv("RSA_PRIVATE_KEY")
+	c.Rsa.PublicKey = os.Getenv("RSA_PUBLIC_KEY")
 
 	// error handler
 	handler.InitErrorHandler()

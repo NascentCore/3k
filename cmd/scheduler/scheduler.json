@@ -31,12 +31,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -62,9 +61,11 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -82,6 +83,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -90,7 +97,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -111,12 +117,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -134,6 +139,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -142,7 +153,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -160,6 +170,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -168,7 +184,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -189,7 +204,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -200,9 +215,11 @@
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -221,12 +238,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -244,6 +260,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -252,7 +274,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -270,6 +291,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -278,7 +305,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -296,6 +322,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -304,7 +336,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -324,6 +355,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -332,7 +369,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -352,6 +388,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -360,7 +402,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -381,7 +422,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -392,9 +433,11 @@
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       },
       "post": {
@@ -410,6 +453,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -418,7 +467,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -439,7 +487,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -468,9 +516,11 @@
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -489,7 +539,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -514,9 +564,11 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -535,7 +587,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -560,9 +612,11 @@
             "format": "int64"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -581,12 +635,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -607,12 +660,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -633,12 +685,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -659,12 +710,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -684,6 +734,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -692,7 +748,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -710,7 +765,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -742,7 +796,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -762,12 +815,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -794,7 +846,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -807,11 +858,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/[]GPUTypeResp"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GPUTypeResp"
+              }
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -836,9 +889,11 @@
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     },
@@ -855,6 +910,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -863,7 +924,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -882,19 +942,18 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "service_name",
             "in": "query",
             "required": false,
             "type": "string"
-          },
-          {
-            "name": "Sx-User-ID",
-            "in": "query",
-            "required": true,
-            "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -911,6 +970,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -919,9 +984,11 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       },
       "post": {
@@ -936,6 +1003,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -944,7 +1017,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -971,7 +1043,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -990,6 +1061,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -998,7 +1075,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1017,6 +1093,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "current",
             "in": "query",
             "required": true,
@@ -1029,17 +1111,13 @@
             "required": true,
             "type": "integer",
             "format": "int32"
-          },
-          {
-            "name": "Sx-User-ID",
-            "in": "query",
-            "required": true,
-            "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       },
       "post": {
@@ -1054,6 +1132,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -1062,7 +1146,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1089,7 +1172,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1116,7 +1198,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1133,7 +1214,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1158,7 +1238,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1178,7 +1257,7 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           },
@@ -1189,7 +1268,6 @@
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1206,6 +1284,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -1214,7 +1298,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1231,6 +1314,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -1239,7 +1328,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1256,6 +1344,12 @@
         },
         "parameters": [
           {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
@@ -1264,7 +1358,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1284,12 +1377,11 @@
         "parameters": [
           {
             "name": "Sx-User-ID",
-            "in": "query",
+            "in": "header",
             "required": true,
             "type": "string"
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1306,7 +1398,6 @@
             }
           }
         },
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -1379,9 +1470,6 @@
     "BalanceAddReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         },
@@ -1392,7 +1480,6 @@
       },
       "title": "BalanceAddReq",
       "required": [
-        "Sx-User-ID",
         "user_id",
         "amount"
       ]
@@ -1412,16 +1499,12 @@
     "BalanceGetReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         }
       },
       "title": "BalanceGetReq",
       "required": [
-        "Sx-User-ID",
         "user_id"
       ]
     },
@@ -1444,15 +1527,7 @@
     },
     "BaseImageListReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "BaseImageListReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "BaseImageListReq"
     },
     "BaseImageListResp": {
       "type": "object",
@@ -1471,15 +1546,7 @@
     },
     "BaseReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "BaseReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "BaseReq"
     },
     "BaseResp": {
       "type": "object",
@@ -1496,9 +1563,6 @@
     "BillingListReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         },
@@ -1512,10 +1576,7 @@
           "type": "string"
         }
       },
-      "title": "BillingListReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "BillingListReq"
     },
     "BillingListResp": {
       "type": "object",
@@ -1535,9 +1596,6 @@
     "BillingTasksReq": {
       "type": "object",
       "properties": {
-        "SxUserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         },
@@ -1552,7 +1610,6 @@
       },
       "title": "BillingTasksReq",
       "required": [
-        "Sx-User-ID",
         "user_id",
         "page",
         "page_size"
@@ -1631,9 +1688,6 @@
         },
         "cpod_id": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "CPODStatusReq",
@@ -1643,8 +1697,7 @@
         "jupyter_status",
         "resource_info",
         "update_time",
-        "cpod_id",
-        "Sx-User-ID"
+        "cpod_id"
       ]
     },
     "CPODStatusResp": {
@@ -1993,14 +2046,53 @@
     "FinetuneReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "": {
-          "$ref": "#/definitions/Model"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
         },
-        "": {
-          "$ref": "#/definitions/Dataset"
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
         },
         "gpu_model": {
           "type": "string"
@@ -2027,9 +2119,6 @@
       },
       "title": "FinetuneReq",
       "required": [
-        "Sx-User-ID",
-        "hyperparameters",
-        "config",
         "model_saved_type"
       ]
     },
@@ -2076,43 +2165,6 @@
         "vendor",
         "mem_size",
         "status"
-      ]
-    },
-    "GPUStateInfo": {
-      "type": "object",
-      "properties": {
-        "temp": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "mem_usage": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "gpu_usage": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "power": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "status": {
-          "type": "string"
-        },
-        "allocated": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      },
-      "title": "GPUStateInfo",
-      "required": [
-        "temp",
-        "mem_usage",
-        "gpu_usage",
-        "power",
-        "status",
-        "allocated"
       ]
     },
     "GPUSummary": {
@@ -2197,15 +2249,11 @@
       "properties": {
         "service_name": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "InferenceDeleteReq",
       "required": [
-        "service_name",
-        "Sx-User-ID"
+        "service_name"
       ]
     },
     "InferenceDeleteResp": {
@@ -2223,11 +2271,53 @@
     "InferenceDeployReq": {
       "type": "object",
       "properties": {
-        "": {
-          "$ref": "#/definitions/Model"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "": {
-          "$ref": "#/definitions/AdapterOptional"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
         },
         "gpu_model": {
           "type": "string"
@@ -2235,15 +2325,9 @@
         "gpu_count": {
           "type": "integer",
           "format": "int64"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
-      "title": "InferenceDeployReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "InferenceDeployReq"
     },
     "InferenceDeployResp": {
       "type": "object",
@@ -2262,15 +2346,9 @@
       "properties": {
         "service_name": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
-      "title": "InferenceInfoReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "InferenceInfoReq"
     },
     "InferenceInfoResp": {
       "type": "object",
@@ -2475,8 +2553,6 @@
         "ckptVol",
         "cpodId",
         "createTime",
-        "datasetName",
-        "datasetPath",
         "deleted",
         "gpuNumber",
         "gpuType",
@@ -2488,9 +2564,6 @@
         "modelPath",
         "modelVol",
         "obtainStatus",
-        "pretrainedModelName",
-        "pretrainedModelPath",
-        "runCommand",
         "stopTime",
         "stopType",
         "updateTime",
@@ -2557,11 +2630,53 @@
           "type": "integer",
           "format": "int64"
         },
-        "": {
-          "$ref": "#/definitions/ModelOptional"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "": {
-          "$ref": "#/definitions/DatasetOptional"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
         },
         "trainedModelName": {
           "type": "string"
@@ -2574,9 +2689,6 @@
         },
         "env": {
           "type": "object"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "JobCreateReq",
@@ -2588,10 +2700,7 @@
         "modelPath",
         "modelVol",
         "imagePath",
-        "jobType",
-        "callbackUrl",
-        "env",
-        "Sx-User-ID"
+        "jobType"
       ]
     },
     "JobCreateResp": {
@@ -2616,16 +2725,12 @@
         "size": {
           "type": "integer",
           "format": "int32"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "JobGetReq",
       "required": [
         "current",
-        "size",
-        "Sx-User-ID"
+        "size"
       ]
     },
     "JobGetResp": {
@@ -2727,16 +2832,12 @@
     "JobsDelReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         }
       },
       "title": "JobsDelReq",
       "required": [
-        "Sx-User-ID",
         "user_id"
       ]
     },
@@ -2883,17 +2984,49 @@
     "JupyterlabCreateReq": {
       "type": "object",
       "properties": {
-        "": {
-          "$ref": "#/definitions/Jupyterlab"
+        "id": {
+          "type": "integer",
+          "format": "int64"
         },
-        "UserID": {
+        "job_name": {
+          "type": "string"
+        },
+        "instance_name": {
+          "type": "string"
+        },
+        "cpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memory": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpu_product": {
+          "type": "string"
+        },
+        "data_volume_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "resource": {
+          "$ref": "#/definitions/JupyterResource"
+        },
+        "url": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "status": {
           "type": "string"
         }
       },
-      "title": "JupyterlabCreateReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "JupyterlabCreateReq"
     },
     "JupyterlabCreateResp": {
       "type": "object",
@@ -2912,15 +3045,11 @@
       "properties": {
         "job_name": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "JupyterlabDeleteReq",
       "required": [
-        "job_name",
-        "Sx-User-ID"
+        "job_name"
       ]
     },
     "JupyterlabDeleteResp": {
@@ -2962,9 +3091,6 @@
     "JupyterlabImageCreateReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "base_image": {
           "type": "string"
         },
@@ -2977,7 +3103,6 @@
       },
       "title": "JupyterlabImageCreateReq",
       "required": [
-        "Sx-User-ID",
         "base_image",
         "instance_name",
         "job_name"
@@ -2998,9 +3123,6 @@
     "JupyterlabImageDelReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "image_name": {
           "type": "string"
         },
@@ -3010,7 +3132,6 @@
       },
       "title": "JupyterlabImageDelReq",
       "required": [
-        "Sx-User-ID",
         "image_name"
       ]
     },
@@ -3028,15 +3149,7 @@
     },
     "JupyterlabImageListReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "JupyterlabImageListReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "JupyterlabImageListReq"
     },
     "JupyterlabImageListResp": {
       "type": "object",
@@ -3085,16 +3198,12 @@
     "JupyterlabImageVersionListReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "instance_name": {
           "type": "string"
         }
       },
       "title": "JupyterlabImageVersionListReq",
       "required": [
-        "Sx-User-ID",
         "instance_name"
       ]
     },
@@ -3115,15 +3224,7 @@
     },
     "JupyterlabListReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "JupyterlabListReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "JupyterlabListReq"
     },
     "JupyterlabListResp": {
       "type": "object",
@@ -3145,15 +3246,11 @@
       "properties": {
         "job_name": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "JupyterlabPauseReq",
       "required": [
-        "job_name",
-        "Sx-User-ID"
+        "job_name"
       ]
     },
     "JupyterlabResumeReq": {
@@ -3161,15 +3258,11 @@
       "properties": {
         "job_name": {
           "type": "string"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "JupyterlabResumeReq",
       "required": [
-        "job_name",
-        "Sx-User-ID"
+        "job_name"
       ]
     },
     "JupyterlabStatus": {
@@ -3195,9 +3288,6 @@
     "JupyterlabUpdateReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "job_name": {
           "type": "string"
         },
@@ -3223,7 +3313,6 @@
       },
       "title": "JupyterlabUpdateReq",
       "required": [
-        "Sx-User-ID",
         "job_name",
         "cpu_count",
         "memory",
@@ -3412,8 +3501,24 @@
     "NodeAddReq": {
       "type": "object",
       "properties": {
-        "": {
-          "$ref": "#/definitions/ClusterNode"
+        "node_role": {
+          "type": "string"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "node_ip": {
+          "type": "string"
+        },
+        "ssh_port": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ssh_user": {
+          "type": "string"
+        },
+        "ssh_password": {
+          "type": "string"
         }
       },
       "title": "NodeAddReq"
@@ -3453,12 +3558,6 @@
         "network_info": {
           "$ref": "#/definitions/NetworkInfo"
         },
-        "gpu_state": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/GPUStateInfo"
-          }
-        },
         "kernel_version": {
           "type": "string"
         },
@@ -3486,7 +3585,6 @@
         "gpu_total",
         "gpu_allocatable",
         "network_info",
-        "gpu_state",
         "kernel_version",
         "disk_info",
         "name",
@@ -3538,17 +3636,18 @@
     "QuotaAddReq": {
       "type": "object",
       "properties": {
-        "": {
-          "$ref": "#/definitions/Quota"
-        },
-        "UserID": {
+        "user_id": {
           "type": "string"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
         }
       },
-      "title": "QuotaAddReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "QuotaAddReq"
     },
     "QuotaAddResp": {
       "type": "object",
@@ -3568,15 +3667,11 @@
         "id": {
           "type": "integer",
           "format": "int64"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "QuotaDeleteReq",
       "required": [
-        "id",
-        "Sx-User-ID"
+        "id"
       ]
     },
     "QuotaDeleteResp": {
@@ -3594,17 +3689,11 @@
     "QuotaListReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         }
       },
-      "title": "QuotaListReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "QuotaListReq"
     },
     "QuotaListResp": {
       "type": "object",
@@ -3628,8 +3717,15 @@
           "type": "integer",
           "format": "int64"
         },
-        "": {
-          "$ref": "#/definitions/Quota"
+        "user_id": {
+          "type": "string"
+        },
+        "resource": {
+          "type": "string"
+        },
+        "quota": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "QuotaResp",
@@ -3647,16 +3743,12 @@
         "quota": {
           "type": "integer",
           "format": "int64"
-        },
-        "UserID": {
-          "type": "string"
         }
       },
       "title": "QuotaUpdateReq",
       "required": [
         "id",
-        "quota",
-        "Sx-User-ID"
+        "quota"
       ]
     },
     "QuotaUpdateResp": {
@@ -3674,9 +3766,6 @@
     "RechargeListReq": {
       "type": "object",
       "properties": {
-        "UserID": {
-          "type": "string"
-        },
         "user_id": {
           "type": "string"
         },
@@ -3691,7 +3780,6 @@
       },
       "title": "RechargeListReq",
       "required": [
-        "Sx-User-ID",
         "page",
         "page_size"
       ]
@@ -3719,9 +3807,6 @@
     "RegisterUserReq": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string"
-        },
         "username": {
           "type": "string"
         },
@@ -3733,6 +3818,9 @@
           "format": "int32"
         },
         "password": {
+          "type": "string"
+        },
+        "from": {
           "type": "string"
         },
         "userType": {
@@ -3748,7 +3836,6 @@
       },
       "title": "RegisterUserReq",
       "required": [
-        "code",
         "username",
         "email",
         "enabled",
@@ -3816,27 +3903,11 @@
     },
     "ResourceAdaptersReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "ResourceAdaptersReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "ResourceAdaptersReq"
     },
     "ResourceDatasetsReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "ResourceDatasetsReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "ResourceDatasetsReq"
     },
     "ResourceInfo": {
       "type": "object",
@@ -3899,15 +3970,7 @@
     },
     "ResourceModelsReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "ResourceModelsReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "ResourceModelsReq"
     },
     "SendEmailReq": {
       "type": "object",
@@ -3930,11 +3993,53 @@
         "status": {
           "type": "string"
         },
-        "": {
-          "$ref": "#/definitions/Model"
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
         },
-        "": {
-          "$ref": "#/definitions/AdapterOptional"
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
         },
         "url": {
           "type": "string"
@@ -3996,15 +4101,7 @@
     },
     "UploaderAccessReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "UploaderAccessReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "UploaderAccessReq"
     },
     "UploaderAccessResp": {
       "type": "object",
@@ -4164,15 +4261,7 @@
     },
     "UserInfoReq": {
       "type": "object",
-      "properties": {
-        "UserID": {
-          "type": "string"
-        }
-      },
-      "title": "UserInfoReq",
-      "required": [
-        "Sx-User-ID"
-      ]
+      "title": "UserInfoReq"
     },
     "UserInfoResp": {
       "type": "object",
@@ -4278,10 +4367,5 @@
       "name": "Authorization",
       "in": "header"
     }
-  },
-  "security": [
-    {
-      "apiKey": []
-    }
-  ]
+  }
 }

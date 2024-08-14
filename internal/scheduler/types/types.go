@@ -674,6 +674,7 @@ type RegisterUserReq struct {
 	Email        string `json:"email"`
 	Enabled      int    `json:"enabled"`
 	Password     string `json:"password"`
+	From         string `json:"from,optional"`
 	UserType     int    `json:"userType,optional"`
 	CompanyName  string `json:"companyName,optional"`
 	CompanyPhone string `json:"companyPhone,optional"`
