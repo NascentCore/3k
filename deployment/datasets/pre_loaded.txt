@@ -1,12 +1,35 @@
-https://www.modelscope.cn/datasets/modelscope/chinese-poetry-collection.git
-alpaca_data_en_52k
-alpaca_data_zh_51k
-alpaca_gpt4_data_en
-alpaca_gpt4_data_zh
-comparison_gpt4_data_en
-comparison_gpt4_data_zh
-glaive_toolcall_10k
-oaast_rm
-oaast_rm_zh
-oaast_sft
-oaast_sft_zh
+datasets:
+  - dataset: "llama-factory/alpaca_data_en_52k"
+    preload: true
+  - dataset: "llama-factory/alpaca_data_en_52k"
+    preload: true
+  - dataset: "llama-factory/alpaca_data_en_52k"
+    preload: true
+  - dataset: "llama-factory/alpaca_data_en_52k"
+    preload: true
+  - dataset: "llama-factory/alpaca_data_zh_51k"
+    preload: true
+  - dataset: "llama-factory/alpaca_data_zh_short"
+    preload: true
+  - dataset: "llama-factory/alpaca_gpt4_data_en"
+    preload: true
+  - dataset: "llama-factory/alpaca_gpt4_data_zh"
+    preload: true
+  - dataset: "llama-factory/comparison_gpt4_data_en"
+    preload: true
+  - dataset: "llama-factory/comparison_gpt4_data_zh"
+    preload: true
+  - dataset: "llama-factory/glaive_toolcall_10k"
+    preload: true
+  - dataset: "llama-factory/oaast_rm"
+    preload: true
+  - dataset: "llama-factory/oaast_rm_zh"
+    preload: true
+  - dataset: "llama-factory/oaast_sft"
+    preload: true
+  - dataset: "llama-factory/oaast_sft_zh"
+    preload: true
+  - dataset: "modelscope/chinese-poetry-collection"
+    preload: true
+  - dataset: "HuggingFaceH4/ultrachat_200k"
+    preload: true
