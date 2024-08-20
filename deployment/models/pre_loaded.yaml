@@ -1,60 +1,95 @@
 # A list of models to be preloaded
 supported_models:
-  - model: "stabilityai/stable-code-3b"
-    url: "https://huggingface.co/stabilityai/stable-code-3b"
-    finetune: false
-    inference: false
-  - model: "01-ai/Yi-VL-6B"
-    url: "https://huggingface.co/01-ai/Yi-VL-6B"
-    finetune: false
-    inference: false
-  - model: "THUDM/chatglm3-6b"
-    url: "https://huggingface.co/THUDM/chatglm3-6b"
-    finetune: true
-    inference: true
-  - model: "baichuan-inc/Baichuan2-7B-Base"
-    url: "https://huggingface.co/baichuan-inc/Baichuan2-7B-Base"
-    finetune: true
-    inference: true
-  - model: "IDEA-CCNL/Ziya-LLaMA-13B-v1"
-    url: "https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1"
-    finetune: true
-    inference: true
-  - model: "Qwen/Qwen-7B-Chat"
-    url: "https://huggingface.co/Qwen/Qwen-7B-Chat"
-    finetune: false
-    inference: false
-  - model: "stabilityai/stable-diffusion-xl-base-1.0"
-    url: "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
-    finetune: false
-    inference: false
-  - model: "01-ai/Yi-34B"
-    url: "https://huggingface.co/01-ai/Yi-34B"
-    finetune: false
-    inference: false
-  - model: "openchat/openchat-3.5-0106"
-    url: "https://huggingface.co/openchat/openchat-3.5-0106"
-    finetune: false
-    inference: false
-  - model: "sentence-transformers/all-MiniLM-L6-v2"
-    url: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
-    finetune: false
-    inference: false
-  - model: "google/gemma-7b-it"
-    url: "https://huggingface.co/google/gemma-7b-it"
-    finetune: false
-    inference: true
-  - model: "google/gemma-7b"
-    url: "https://huggingface.co/google/gemma-7b"
-    finetune: false
-    inference: true
-  - model: "google/gemma-2b"
-    url: "https://huggingface.co/google/gemma-2b"
-    finetune: false
-    inference: true
   - model: "google/gemma-2b-it"
     url: "https://huggingface.co/google/gemma-2b-it"
     finetune: true
     inference: true
+    preload: true
+  - model: "ZhipuAI/chatglm3-6b"
+    url: "https://huggingface.co/ZhipuAI/chatglm3-6b"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "IDEA-CCNL/Ziya-LLaMA-13B-v1"
+    url: "https://huggingface.co/IDEA-CCNL/Ziya-LLaMA-13B-v1"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    url: "https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "meta-llama/Llama-2-7b"
+    url: "https://huggingface.co/meta-llama/Llama-2-7b"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "mistralai/Mistral-7B-Instruct-v0.1"
+    url: "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "baichuan-inc/Baichuan2-7B-Chat"
+    url: "https://huggingface.co/baichuan-inc/Baichuan2-7B-Chat"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "meta-llama/Meta-Llama-3-8B-Instruct"
+    url: "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct"
+    finetune: true
+    inference: true
+    preload: true
+  - model: "stabilityai/stable-code-3b"
+    url: "https://huggingface.co/stabilityai/stable-code-3b"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "01-ai/Yi-VL-6B"
+    url: "https://huggingface.co/01-ai/Yi-VL-6B"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "Qwen/Qwen-7B-Chat"
+    url: "https://huggingface.co/Qwen/Qwen-7B-Chat"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "stabilityai/stable-diffusion-xl-base-1.0"
+    url: "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "01-ai/Yi-34B"
+    url: "https://huggingface.co/01-ai/Yi-34B"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "openchat/openchat-3.5-0106"
+    url: "https://huggingface.co/openchat/openchat-3.5-0106"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "sentence-transformers/all-MiniLM-L6-v2"
+    url: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+    finetune: false
+    inference: false
+    preload: false
+  - model: "google/gemma-7b-it"
+    url: "https://huggingface.co/google/gemma-7b-it"
+    finetune: false
+    inference: true
+    preload: false
+  - model: "google/gemma-7b"
+    url: "https://huggingface.co/google/gemma-7b"
+    finetune: false
+    inference: true
+    preload: false
+  - model: "google/gemma-2b"
+    url: "https://huggingface.co/google/gemma-2b"
+    finetune: false
+    inference: true
+    preload: false
+
 
 
