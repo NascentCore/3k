@@ -33,7 +33,15 @@ type ModelStorageSpec struct {
 	Template              string `json:"template,omitempty"`
 	ConvertTensorRTEngine bool   `json:"converttensortrengine,omitempty"`
 	IsLoraAdapter         bool   `json:"isloraadapter,omitempty"`
+	Category              string `json:"category,omitempty"`
 }
+
+type ModelCategory string
+
+const (
+	ModelCategoryChat      ModelCategory = "Chat"
+	ModelCategoryEmbedding ModelCategory = "Embedding"
+)
 
 type ConvertTensorRTEngineStatus string
 
