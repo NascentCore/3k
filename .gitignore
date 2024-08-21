@@ -7,7 +7,7 @@
 *.swn
 .vscode/
 __pycache__
-venv
+.venv
 
 go.work*
 

@@ -483,6 +483,31 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 
 	}
 
+	env := []corev1.EnvVar{
+		{
+			Name:  "JUPYTER_TOKEN",
+			Value: jupyterlab.Name,
+		},
+	}
+	resources := corev1.ResourceRequirements{
+		Requests: corev1.ResourceList{
+			corev1.ResourceMemory: resource.MustParse(jupyterlab.Spec.Memory),
+			corev1.ResourceCPU:    resource.MustParse(jupyterlab.Spec.CPUCount),
+		},
+		Limits: corev1.ResourceList{
+			corev1.ResourceMemory: resource.MustParse(jupyterlab.Spec.Memory),
+			corev1.ResourceCPU:    resource.MustParse(jupyterlab.Spec.CPUCount),
+		},
+	}
+	if jupyterlab.Spec.GPUCount == 0 {
+		env = append(env, corev1.EnvVar{
+			Name:  "CUDA_VISIBLE_DEVICES",
+			Value: "none",
+		})
+	} else {
+		resources.Limits["nvidia.com/gpu"] = *resource.NewQuantity(int64(jupyterlab.Spec.GPUCount), resource.DecimalSI)
+	}
+
 	sts := &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jupyterlab.Name,
@@ -504,25 +529,10 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:  "juypterlab",
-							Image: image,
-							Resources: corev1.ResourceRequirements{
-								Requests: corev1.ResourceList{
-									corev1.ResourceMemory: resource.MustParse(jupyterlab.Spec.Memory),
-									corev1.ResourceCPU:    resource.MustParse(jupyterlab.Spec.CPUCount),
-								},
-								Limits: corev1.ResourceList{
-									corev1.ResourceMemory: resource.MustParse(jupyterlab.Spec.Memory),
-									corev1.ResourceCPU:    resource.MustParse(jupyterlab.Spec.CPUCount),
-									"nvidia.com/gpu":      *resource.NewQuantity(int64(jupyterlab.Spec.GPUCount), resource.DecimalSI),
-								},
-							},
-							Env: []corev1.EnvVar{
-								{
-									Name:  "JUPYTER_TOKEN",
-									Value: jupyterlab.Name,
-								},
-							},
+							Name:      "juypterlab",
+							Image:     image,
+							Resources: resources,
+							Env:       env,
 							Command: []string{
 								"sh",
 								"-c",
