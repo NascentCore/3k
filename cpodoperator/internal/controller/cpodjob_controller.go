@@ -1339,6 +1339,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 				Spec: cpodv1.ModelStorageSpec{
 					ModelType: "oss",
 					ModelName: dataName,
+					Category:  "model",
 					PVC:       pvcName,
 					Template:  template,
 				},

@@ -51,10 +51,11 @@ type SyncJob struct {
 	uploadTrainedModel   bool
 	autoDownloadResource bool
 	inferImage           string
+	embeddingImage       string
 	storageClassName     string
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage, storageClassName string) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage, embeddingImage, storageClassName string) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -74,6 +75,7 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		uploadTrainedModel:   uploadTrainedModel,
 		autoDownloadResource: autoDownloadReource,
 		inferImage:           inferImage,
+		embeddingImage:       embeddingImage,
 		storageClassName:     storageClassName,
 	}
 }
@@ -581,9 +583,27 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 					"--template",
 					template,
 				}
-				if job.ModelId == "model-storage-e6b676f8f9f796d8" {
-					cmd = append(cmd, "--vllm_maxlen=8192")
+				img := s.inferImage
+				anno := map[string]string{
+					v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
+					v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
+					v1beta1.CPodPreTrainModelTemplateAnno:     job.Template,
+					v1beta1.CPodAdapterReadableNameAnno:       job.AdapterName,
+					v1beta1.CPodAdapterSizeAnno:               fmt.Sprintf("%d", job.AdapterSize),
 				}
+				if job.ModelCategory == "embedding" {
+					cmd = []string{
+						"infinity_emb",
+						"v2",
+						"--model-id",
+						"/mnt/models",
+						"--port",
+						"8080",
+					}
+					img = s.embeddingImage
+					anno[v1beta1.CPodPreTrainModelCategoryAnno] = "embedding"
+				}
+
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -594,13 +614,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
 							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
 						},
-						Annotations: map[string]string{
-							v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
-							v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
-							v1beta1.CPodPreTrainModelTemplateAnno:     job.Template,
-							v1beta1.CPodAdapterReadableNameAnno:       job.AdapterName,
-							v1beta1.CPodAdapterSizeAnno:               fmt.Sprintf("%d", job.AdapterSize),
-						},
+						Annotations: anno,
 					},
 					// TODO: fill PredictorSpec with infomation provided by portaljob
 					Spec: v1beta1.InferenceSpec{
@@ -609,7 +623,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 								Containers: []v1.Container{
 									{
 										Name:    "kserve-container",
-										Image:   s.inferImage,
+										Image:   img,
 										Command: cmd,
 										Env: []v1.EnvVar{
 											{

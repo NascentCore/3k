@@ -215,6 +215,11 @@ func (co *CPodObserver) getInferenceJobStates(ctx context.Context) ([]sxwl.Infer
 			status = InferenceJobDataPreparing
 		}
 		url := "/inference/" + inferenceJob.Name
+		if inferenceJob.GetAnnotations() != nil {
+			if v, ok := inferenceJob.GetAnnotations()[v1beta1.CPodPreTrainModelCategoryAnno]; ok && v == "embedding" {
+				url = fmt.Sprintf("/inference/api/%v/embeddings", inferenceJob.Name)
+			}
+		}
 
 		stats = append(stats, sxwl.InferenceJobState{
 			ServiceName: inferenceJob.Name,
