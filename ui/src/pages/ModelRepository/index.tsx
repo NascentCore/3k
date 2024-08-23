@@ -41,6 +41,16 @@ const TabTable = ({ dataSource, loading }: any) => {
         },
         {
           title: intl.formatMessage({
+            id: 'pages.modelRepository.table.column.category',
+            defaultMessage: '类型',
+          }),
+          dataIndex: 'category',
+          key: 'category',
+          align: 'center',
+          width: 350,
+        },
+        {
+          title: intl.formatMessage({
             id: 'pages.modelRepository.table.column.size',
             // defaultMessage: '模型体积',
           }),

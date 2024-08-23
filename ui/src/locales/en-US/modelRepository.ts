@@ -8,6 +8,7 @@ export default {
 
   'pages.modelRepository.table.column.id': 'Model Name',
   'pages.modelRepository.table.column.owner': 'Owner',
+  'pages.modelRepository.table.column.category':'Category',
   'pages.modelRepository.table.column.size': 'Model Size',
   'pages.modelRepository.table.column.action': 'Action',
 
@@ -15,6 +16,7 @@ export default {
   'pages.modelRepository.fineTuningDrawer.cancel': 'Cancel',
   'pages.modelRepository.fineTuningDrawer.submit.success': 'Fine-tuning task created successfully',
   'pages.modelRepository.fineTuningDrawer.form.model': 'Model Name',
+  'pages.modelRepository.fineTuningDrawer.form.category': 'Category',
   'pages.modelRepository.fineTuningDrawer.form.training_file': 'Training Dataset',
   'pages.modelRepository.fineTuningDrawer.form.gpuProd': 'GPU Model',
   'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable': 'Number of Gpus',

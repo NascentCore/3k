@@ -74,6 +74,16 @@ const Welcome: React.FC = () => {
           },
           {
             title: intl.formatMessage({
+              id: 'pages.inferenceState.table.column.category',
+              defaultMessage: '类型',
+            }),
+            dataIndex: 'category',
+            key: 'category',
+            align: 'center',
+            width: 150,
+          },
+          {
+            title: intl.formatMessage({
               id: 'pages.inferenceState.table.column.status',
               // defaultMessage: '推理服务状态',
             }),
