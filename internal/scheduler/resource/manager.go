@@ -31,6 +31,12 @@ func NewManager(svcCtx *svc.ServiceContext) *Manager {
 }
 
 func (m *Manager) SyncOSS() {
+	m.syncModels()
+	m.syncDatasets()
+	m.syncAdapter()
+}
+
+func (m *Manager) syncModels() {
 	OssResourceModel := m.svcCtx.OssResourceModel
 
 	// resource in db
@@ -73,6 +79,7 @@ func (m *Manager) SyncOSS() {
 
 		meta := model.OssResourceModelMeta{
 			Template:     storage.ModelTemplate(m.svcCtx.Config.OSS.Bucket, modelName),
+			Category:     consts.ModelCategoryChat, // oss上没有这个信息，默认就当做chat模型
 			CanFinetune:  canFinetune,
 			CanInference: canInference,
 		}
@@ -110,6 +117,139 @@ func (m *Manager) SyncOSS() {
 
 	// update
 	err = m.Update(modelsToUpdate)
+	if err != nil {
+		m.Errorf("SyncOSS update err: %v", err)
+		return
+	}
+}
+
+func (m *Manager) syncDatasets() {
+	OssResourceModel := m.svcCtx.OssResourceModel
+
+	// resource in db
+	resourcesInDB, err := OssResourceModel.FindAll(m.ctx, "")
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		m.Errorf("OssResourceModel FindAll err: %v", err)
+		return
+	}
+
+	resourceMap := make(map[string]bool)
+	for _, resource := range resourcesInDB {
+		resourceMap[resource.ResourceId] = true
+	}
+
+	var datasetsToInsert, datasetsToUpdate []model.SysOssResource
+
+	// public datasets
+	// ListDir 只能查询1000个匹配前缀的文件，小批量数据ok，更完善还是需要有db来存储模型元数据
+	dirs, err := storage.ListDir(m.svcCtx.Config.OSS.Bucket, m.svcCtx.Config.OSS.PublicDatasetDir, 2)
+	if err != nil {
+		m.Errorf("SyncOSS err: %v", err)
+		return
+	}
+
+	for dir, size := range dirs {
+		datasetName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), m.svcCtx.Config.OSS.PublicDatasetDir)
+
+		resourceID := storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, datasetName))
+		resource := model.SysOssResource{
+			ResourceId:   resourceID,
+			ResourceType: consts.Dataset,
+			ResourceName: datasetName,
+			ResourceSize: size,
+			Public:       model.CachePublic,
+			UserId:       "public",
+			Meta:         "{}",
+		}
+
+		_, ok := resourceMap[resourceID]
+		if ok {
+			datasetsToUpdate = append(datasetsToUpdate, resource)
+		} else {
+			datasetsToInsert = append(datasetsToInsert, resource)
+		}
+	}
+
+	// insert
+	err = m.Insert(datasetsToInsert)
+	if err != nil {
+		m.Errorf("SyncOSS insert err: %v", err)
+		return
+	}
+
+	// update
+	err = m.Update(datasetsToUpdate)
+	if err != nil {
+		m.Errorf("SyncOSS update err: %v", err)
+		return
+	}
+}
+
+func (m *Manager) syncAdapter() {
+	OssResourceModel := m.svcCtx.OssResourceModel
+
+	// resource in db
+	resourcesInDB, err := OssResourceModel.FindAll(m.ctx, "")
+	if err != nil && !errors.Is(err, model.ErrNotFound) {
+		m.Errorf("OssResourceModel FindAll err: %v", err)
+		return
+	}
+
+	resourceMap := make(map[string]bool)
+	for _, resource := range resourcesInDB {
+		resourceMap[resource.ResourceId] = true
+	}
+
+	var adaptersToInsert, adaptersToUpdate []model.SysOssResource
+
+	// public adapters
+	// ListDir 只能查询1000个匹配前缀的文件，小批量数据ok，更完善还是需要有db来存储模型元数据
+	dirs, err := storage.ListDir(m.svcCtx.Config.OSS.Bucket, m.svcCtx.Config.OSS.PublicAdapterDir, 2)
+	if err != nil {
+		m.Errorf("SyncOSS err: %v", err)
+		return
+	}
+
+	for dir, size := range dirs {
+		adapterName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), m.svcCtx.Config.OSS.PublicAdapterDir)
+
+		meta := model.OssResourceAdapterMeta{
+			BaseModel: "default",
+		}
+		metaJson, err := json.Marshal(meta)
+		if err != nil {
+			m.Errorf("SyncOSS meta marshal err: %v", err)
+			return
+		}
+
+		resourceID := storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Adapter, adapterName))
+		resource := model.SysOssResource{
+			ResourceId:   resourceID,
+			ResourceType: consts.Adapter,
+			ResourceName: adapterName,
+			ResourceSize: size,
+			Public:       model.CachePublic,
+			UserId:       "public",
+			Meta:         string(metaJson),
+		}
+
+		_, ok := resourceMap[resourceID]
+		if ok {
+			adaptersToUpdate = append(adaptersToUpdate, resource)
+		} else {
+			adaptersToInsert = append(adaptersToInsert, resource)
+		}
+	}
+
+	// insert
+	err = m.Insert(adaptersToInsert)
+	if err != nil {
+		m.Errorf("SyncOSS insert err: %v", err)
+		return
+	}
+
+	// update
+	err = m.Update(adaptersToUpdate)
 	if err != nil {
 		m.Errorf("SyncOSS update err: %v", err)
 		return

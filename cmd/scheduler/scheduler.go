@@ -98,11 +98,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("crontab AddFunc err=%s", err)
 	}
-	//// 每小时同步一次oss数据
-	//_, err = crontab.AddFunc("30 5 * * * *", resource.NewManager(ctx).SyncOSS)
-	//if err != nil {
+	// // 每小时同步一次oss数据
+	// _, err = crontab.AddFunc("30 5 * * * *", resource.NewManager(ctx).SyncOSS)
+	// if err != nil {
 	//	log.Fatalf("crontab AddFunc err=%s", err)
-	//}
+	// }
 	// 启动 Cron 服务
 	crontab.Start()
 	defer crontab.Stop()

@@ -10,6 +10,7 @@ import (
 
 type OssResourceModelMeta struct {
 	Template     string `json:"template"`
+	Category     string `json:"category"`
 	CanFinetune  bool   `json:"can_finetune"`
 	CanInference bool   `json:"can_inference"`
 }

@@ -23,6 +23,7 @@ var (
 	resource  string
 	template  string
 	baseModel string
+	category  string
 	public    bool
 	owner     string
 	verbose   bool
@@ -76,24 +77,12 @@ var uploadCmd = &cobra.Command{
 			if template == "" {
 				log.Fatalf("Please use -t to set the inference template used for this model")
 			}
-			//// meta file
-			//err := fs.TouchFile(path.Join(dir, consts2.FileCanFinetune))
-			//if err != nil {
-			//	log.Fatalf("touch file %s err: %s", consts2.FileCanFinetune, err)
-			//}
-			//
-			//err = fs.TouchFile(path.Join(dir, consts2.FileCanInference))
-			//if err != nil {
-			//	log.Fatalf("touch file %s err: %s", consts2.FileCanInference, err)
-			//}
-			//
-			//err = fs.TouchFile(path.Join(dir, fmt.Sprintf(consts2.FileInferTemplate, template)))
-			//if err != nil {
-			//	log.Fatalf("touch file %s err: %s", fmt.Sprintf(consts2.FileInferTemplate, template), err)
-			//}
+			if category != consts.ModelCategoryChat && category != consts.ModelCategoryEmbedding {
+				log.Fatalf("Please use --category to set the category of this model")
+			}
 		case consts.Adapter:
 			if baseModel == "" {
-				log.Fatalf("Please use \"base_model\" to set the base model for the adapter")
+				log.Fatalf("Please use --base_model to set the base model for the adapter")
 			}
 		case consts.Dataset:
 		default:
@@ -152,6 +141,7 @@ var uploadCmd = &cobra.Command{
 				resourceID = storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, resourceName))
 				metaBytes, _ = json.Marshal(model.OssResourceModelMeta{
 					Template:     template,
+					Category:     category,
 					CanFinetune:  true,
 					CanInference: true,
 				})
@@ -192,6 +182,7 @@ func init() {
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
 	uploadCmd.Flags().StringVarP(&template, "template", "t", "", "模型推理使用的template")
 	uploadCmd.Flags().StringVar(&baseModel, "base_model", "", "模型推理使用的template")
+	uploadCmd.Flags().StringVar(&category, "category", "chat", "模型的类型[chat|embedding]")
 	uploadCmd.Flags().BoolVar(&public, "public", false, "上传至公共空间")
 	uploadCmd.Flags().StringVar(&owner, "owner", "", "公共资源的所有者，仅在--public时需要")
 	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")

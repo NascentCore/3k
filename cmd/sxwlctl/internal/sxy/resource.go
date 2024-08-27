@@ -16,7 +16,7 @@ type Resource struct {
 	ResourceSize int64  `json:"resource_size"`
 	IsPublic     bool   `json:"is_public"`
 	UserID       string `json:"user_id"`
-	Meta         string `json:"meta,optional"`
+	Meta         string `json:"meta"`
 }
 
 func AddResource(token string, resource Resource) error {

@@ -690,6 +690,8 @@ type Resource struct {
 	UserID            string   `json:"user_id"`
 	Tag               []string `json:"tag"`
 	Template          string   `json:"template"`
+	Category          string   `json:"category"`
+	BaseModel         string   `json:"base_model"`
 	FinetuneGPUCount  int      `json:"finetune_gpu_count"`
 	InferenceGPUCount int      `json:"inference_gpu_count"`
 }

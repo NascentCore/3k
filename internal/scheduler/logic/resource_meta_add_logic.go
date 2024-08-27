@@ -28,9 +28,9 @@ func NewResourceMetaAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 func (l *ResourceMetaAddLogic) ResourceMetaAdd(req *types.ResourceMetaAddReq) (resp *types.BaseResp, err error) {
 	OssResourceModel := l.svcCtx.OssResourceModel
 
-	public := model.CachePublic
+	public := model.CachePrivate
 	if req.IsPublic {
-		public = model.CachePrivate
+		public = model.CachePublic
 	}
 
 	resource := model.SysOssResource{}
