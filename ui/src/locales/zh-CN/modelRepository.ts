@@ -8,6 +8,7 @@ export default {
 
   'pages.modelRepository.table.column.id': '模型名称',
   'pages.modelRepository.table.column.owner': '所有者',
+  'pages.modelRepository.table.column.category':'类型',
   'pages.modelRepository.table.column.size': '模型体积',
   'pages.modelRepository.table.column.action': '操作',
 
@@ -15,6 +16,7 @@ export default {
   'pages.modelRepository.fineTuningDrawer.cancel': '取消',
   'pages.modelRepository.fineTuningDrawer.submit.success': '微调任务创建成功',
   'pages.modelRepository.fineTuningDrawer.form.model': '模型名称',
+  'pages.modelRepository.fineTuningDrawer.form.category': '类型',
   'pages.modelRepository.fineTuningDrawer.form.training_file': '数据集',
   'pages.modelRepository.fineTuningDrawer.form.gpuProd': 'GPU型号',
   'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable': 'GPU数量',
