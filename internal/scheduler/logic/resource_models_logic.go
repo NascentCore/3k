@@ -3,14 +3,9 @@ package logic
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"path"
 	"sort"
-	"strings"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
-	"sxwl/3k/pkg/storage"
-	"time"
 
 	"github.com/Masterminds/squirrel"
 
@@ -42,23 +37,23 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		UserList:   make([]types.Resource, 0),
 	}
 
-	var validModels, otherModels []types.Resource
+	var validPublicModels, otherPublicModels []types.Resource
 
-	// public models
-	beginTime := time.Now().Add(time.Duration(-(l.svcCtx.Config.OSS.SyncInterval * 2)) * time.Minute)
-	publicModels, err := OssResourceModel.Find(l.ctx, OssResourceModel.AllFieldsBuilder().Where(
-		squirrel.GtOrEq{"updated_at": beginTime},
-		squirrel.Eq{"resource_type": "model"},
-		squirrel.Eq{"public": model.CachePublic},
+	models, err := OssResourceModel.Find(l.ctx, OssResourceModel.AllFieldsBuilder().Where(
+		squirrel.Eq{"resource_type": consts.Model},
+		squirrel.Or{
+			squirrel.Eq{"public": model.CachePublic},
+			squirrel.Eq{"user_id": req.UserID},
+		},
 	))
 	if err != nil {
 		l.Errorf("OssResourceModel find err: %v", err)
 		return nil, ErrDBFind
 	}
 
-	for _, publicModel := range publicModels {
-		meta := model.OssResourceMeta{}
-		err = json.Unmarshal([]byte(publicModel.Meta), &meta)
+	for _, ossModel := range models {
+		meta := model.OssResourceModelMeta{}
+		err = json.Unmarshal([]byte(ossModel.Meta), &meta)
 		if err != nil {
 			l.Errorf("OssResourceModel find err: %v", err)
 			return nil, ErrDBFind
@@ -72,79 +67,48 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			tag = append(tag, "inference")
 		}
 
+		isPublic := false
+		if ossModel.Public == model.CachePublic {
+			isPublic = true
+		}
+
 		m := types.Resource{
-			ID:                publicModel.ResourceId,
-			Name:              publicModel.ResourceName,
-			Object:            publicModel.ResourceType,
-			Owner:             publicModel.UserId,
-			IsPublic:          true,
-			Size:              publicModel.ResourceSize,
+			ID:                ossModel.ResourceId,
+			Name:              ossModel.ResourceName,
+			Object:            ossModel.ResourceType,
+			Owner:             ossModel.UserId,
+			IsPublic:          isPublic,
+			UserID:            ossModel.UserId,
+			Size:              ossModel.ResourceSize,
 			Tag:               tag,
 			Template:          meta.Template,
+			Category:          meta.Category,
 			FinetuneGPUCount:  1,
 			InferenceGPUCount: 1,
 		}
-		_, ok := l.svcCtx.Config.FinetuneModel[publicModel.ResourceName]
-		if ok {
-			validModels = append(validModels, m)
+
+		if isPublic {
+			_, ok := l.svcCtx.Config.FinetuneModel[ossModel.ResourceName]
+			if ok {
+				validPublicModels = append(validPublicModels, m)
+			} else {
+				otherPublicModels = append(otherPublicModels, m)
+			}
 		} else {
-			otherModels = append(otherModels, m)
+			resp.UserList = append(resp.UserList, m)
 		}
 	}
 
-	sort.Slice(validModels, func(i, j int) bool {
-		return validModels[i].ID < validModels[j].ID
+	sort.Slice(validPublicModels, func(i, j int) bool {
+		return validPublicModels[i].ID < validPublicModels[j].ID
 	})
 
-	sort.Slice(otherModels, func(i, j int) bool {
-		return otherModels[i].ID < otherModels[j].ID
+	sort.Slice(otherPublicModels, func(i, j int) bool {
+		return otherPublicModels[i].ID < otherPublicModels[j].ID
 	})
 
-	resp.PublicList = append(resp.PublicList, validModels...)
-	resp.PublicList = append(resp.PublicList, otherModels...)
-
-	// user models
-	dirs, err := storage.ListDir(l.svcCtx.Config.OSS.Bucket,
-		fmt.Sprintf(l.svcCtx.Config.OSS.UserModelDir, req.UserID), 1)
-	if err != nil {
-		return nil, err
-	}
-
-	for dir, size := range dirs {
-		canFinetune, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
-			path.Join(dir, l.svcCtx.Config.OSS.FinetuneTagFile))
-		if err != nil {
-			return nil, err
-		}
-		canInference, _, err := storage.ExistFile(l.svcCtx.Config.OSS.Bucket,
-			path.Join(dir, l.svcCtx.Config.OSS.InferenceTagFile))
-		if err != nil {
-			return nil, err
-		}
-
-		var tag []string
-		if canFinetune {
-			tag = append(tag, "finetune")
-		}
-		if canInference {
-			tag = append(tag, "inference")
-		}
-
-		modelName := strings.TrimPrefix(strings.TrimSuffix(dir, "/"), l.svcCtx.Config.OSS.UserModelPrefix)
-		resp.UserList = append(resp.UserList, types.Resource{
-			ID:                storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, modelName)),
-			Name:              modelName,
-			Object:            "model",
-			Owner:             req.UserID,
-			Size:              size,
-			IsPublic:          false,
-			UserID:            req.UserID,
-			Tag:               tag,
-			Template:          storage.ModelTemplate(l.svcCtx.Config.OSS.Bucket, modelName),
-			FinetuneGPUCount:  1,
-			InferenceGPUCount: 1,
-		})
-	}
+	resp.PublicList = append(resp.PublicList, validPublicModels...)
+	resp.PublicList = append(resp.PublicList, otherPublicModels...)
 
 	return
 }

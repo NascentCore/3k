@@ -245,6 +245,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/resource/meta",
+				Handler: ResourceMetaAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/resource/meta",
+				Handler: ResourceMetaDelHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/resource/sync",
 				Handler: OssSyncHandler(serverCtx),
 			},

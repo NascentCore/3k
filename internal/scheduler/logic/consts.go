@@ -52,3 +52,9 @@ const (
 	MsgJupyterResume = "jupyterlab已启动"
 	MsgJupyterUpdate = "jupyterlab已更新"
 )
+
+// resource
+var (
+	MsgResourceDeleteOK = "资源删除成功"
+	MsgResourceAddOK    = "资源创建成功"
+)
