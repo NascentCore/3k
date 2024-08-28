@@ -23,6 +23,7 @@ const Content = ({ record, onCancel }) => {
       learning_rate_multiplier: '5e-5',
     },
     model_saved_type: false, // 默认为false
+    model_category: record?.category
   });
 
   const resourceDatasetsOption = useResourceDatasetsOptions();
