@@ -696,6 +696,31 @@
       }
     },
     "/api/resource/meta": {
+      "delete": {
+        "summary": "删除数据资产信息",
+        "operationId": "ResourceMetaDel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceMetaDelReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
       "post": {
         "summary": "新增数据资产信息",
         "operationId": "ResourceMetaAdd",
@@ -717,7 +742,6 @@
             }
           }
         ],
-        "requestBody": {},
         "tags": [
           "scheduler-api"
         ]
@@ -2100,6 +2124,10 @@
           "type": "string",
           "description": " 模型的推理模版"
         },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        },
         "dataset_id": {
           "type": "string",
           "description": " 数据集ID"
@@ -2325,6 +2353,10 @@
           "type": "string",
           "description": " 模型的推理模版"
         },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        },
         "adapter_id": {
           "type": "string",
           "description": " 适配器ID"
@@ -2416,6 +2448,9 @@
           "type": "boolean",
           "format": "boolean"
         },
+        "model_category": {
+          "type": "string"
+        },
         "adapter_name": {
           "type": "string"
         },
@@ -2455,6 +2490,7 @@
         "model_id",
         "model_size",
         "model_is_public",
+        "model_category",
         "adapter_name",
         "adapter_id",
         "adapter_size",
@@ -2683,6 +2719,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
         },
         "dataset_id": {
           "type": "string",
@@ -3435,6 +3475,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
         }
       },
       "title": "Model",
@@ -3443,7 +3487,8 @@
         "model_name",
         "model_size",
         "model_is_public",
-        "model_template"
+        "model_template",
+        "model_category"
       ]
     },
     "ModelOptional": {
@@ -3474,6 +3519,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
         }
       },
       "title": "ModelOptional"
@@ -3905,6 +3954,12 @@
         "template": {
           "type": "string"
         },
+        "category": {
+          "type": "string"
+        },
+        "base_model": {
+          "type": "string"
+        },
         "finetune_gpu_count": {
           "type": "integer",
           "format": "int32"
@@ -3925,6 +3980,8 @@
         "user_id",
         "tag",
         "template",
+        "category",
+        "base_model",
         "finetune_gpu_count",
         "inference_gpu_count"
       ]
@@ -3999,9 +4056,6 @@
     "ResourceMetaAddReq": {
       "type": "object",
       "properties": {
-        "": {
-          "$ref": "#/definitions/BaseReq"
-        },
         "resource_id": {
           "type": "string"
         },
@@ -4012,6 +4066,14 @@
           "type": "string"
         },
         "resource_size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "is_public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "user_id": {
           "type": "string"
         },
         "meta": {
@@ -4023,7 +4085,21 @@
         "resource_id",
         "resource_type",
         "resource_name",
-        "resource_size"
+        "resource_size",
+        "is_public",
+        "user_id"
+      ]
+    },
+    "ResourceMetaDelReq": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string"
+        }
+      },
+      "title": "ResourceMetaDelReq",
+      "required": [
+        "resource_id"
       ]
     },
     "ResourceModelsReq": {
@@ -4076,6 +4152,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
         },
         "adapter_id": {
           "type": "string",
