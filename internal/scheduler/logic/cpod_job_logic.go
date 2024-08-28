@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"sxwl/3k/internal/scheduler/model"
+	"sxwl/3k/pkg/consts"
 	"sxwl/3k/pkg/storage"
 	"time"
 
@@ -152,6 +153,9 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			_ = json.Unmarshal([]byte(service.Metadata.String), &serviceResp)
 		} else {
 			continue // 老任务没有metadata，直接忽略掉
+		}
+		if serviceResp.ModelCategory == "" {
+			serviceResp.ModelCategory = consts.ModelCategoryEmbedding
 		}
 		statusDesc, ok := model.StatusToStr[service.Status]
 		if ok {

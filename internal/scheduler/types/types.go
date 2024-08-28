@@ -270,6 +270,7 @@ type InferenceService struct {
 	ModelId         string `json:"model_id"`
 	ModelSize       int64  `json:"model_size"`
 	ModelIsPublic   bool   `json:"model_is_public"`
+	ModelCategory   string `json:"model_category"`
 	AdapterName     string `json:"adapter_name"`
 	AdapterId       string `json:"adapter_id"`
 	AdapterSize     int64  `json:"adapter_size"`
@@ -553,6 +554,7 @@ type Model struct {
 	ModelSize     int64  `json:"model_size"`          // 模型体积，单位字节
 	ModelIsPublic bool   `json:"model_is_public"`     // 是否公共模型
 	ModelTemplate string `json:"model_template"`      // 模型的推理模版
+	ModelCategory string `json:"model_category"`      // 模型分类
 }
 
 type ModelOptional struct {
@@ -562,6 +564,7 @@ type ModelOptional struct {
 	ModelSize     int64  `json:"model_size,optional"`      // 模型体积，单位字节
 	ModelIsPublic bool   `json:"model_is_public,optional"` // 是否公共模型
 	ModelTemplate string `json:"model_template,optional"`  // 模型的推理模版
+	ModelCategory string `json:"model_category,optional"`  // 模型分类
 }
 
 type ModelUrlReq struct {
