@@ -70,6 +70,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             model_is_public: x.is_public,
             model_template: x.template,
             model_path: '/models',
+            model_category: x.category
           }));
         const datasets = datasetsOptions
           .filter((x) => values.resource.datasets?.includes(x.value))

@@ -16,6 +16,7 @@ const Content = ({ record, onCancel }) => {
     model_name: record.name,
     // gpuProd: '',
     gpu_count: record?.inference_gpu_count || 1,
+    model_category: record?.category
   });
 
   const gpuTypeOptions = useGpuTypeOptions({});
@@ -34,6 +35,7 @@ const Content = ({ record, onCancel }) => {
       const params = {
         data: {
           gpu_model: values.gpu_model,
+          model_category: values.model_category,
           gpu_count: Number(values.gpu_count),
           //
           model_id: currentModel.id,
@@ -89,19 +91,8 @@ const Content = ({ record, onCancel }) => {
             id: 'pages.modelRepository.fineTuningDrawer.form.category',
             defaultMessage: '类型',
           })}
-          rules={[{ required: true }]}
         >
-          <Select
-            allowClear
-            options={[
-              { label: 'chat', value: 'chat' },
-              { label: 'embedding', value: 'embedding' },
-            ]}
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-          />
+          {formValues.model_category}
         </Form.Item>
 
         <Form.Item
@@ -146,7 +137,7 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
 
-        {/* <Form.Item
+        <Form.Item
           name="adapter"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.adapter',
@@ -161,7 +152,7 @@ const Content = ({ record, onCancel }) => {
               defaultMessage: '请输入',
             })}
           />
-        </Form.Item> */}
+        </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <div style={{ display: 'flex', gap: 10 }}>
