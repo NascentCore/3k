@@ -16,7 +16,6 @@ const Content = ({ record, onCancel }) => {
     model_name: record.name,
     // gpuProd: '',
     gpu_count: record?.inference_gpu_count || 1,
-    model_category: record?.category
   });
 
   const gpuTypeOptions = useGpuTypeOptions({});
@@ -24,6 +23,9 @@ const Content = ({ record, onCancel }) => {
   const gpuProdValue = Form.useWatch('gpu_model', form);
 
   const adaptersOptions = useResourceAdaptersOptions();
+
+  // 是否显示适配器选项
+  const isShowAdapter = record?.category === 'chat';
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -35,7 +37,7 @@ const Content = ({ record, onCancel }) => {
       const params = {
         data: {
           gpu_model: values.gpu_model,
-          model_category: values.model_category,
+          model_category: record?.category,
           gpu_count: Number(values.gpu_count),
           //
           model_id: currentModel.id,
@@ -92,7 +94,7 @@ const Content = ({ record, onCancel }) => {
             defaultMessage: '类型',
           })}
         >
-          {formValues.model_category}
+          {record?.category}
         </Form.Item>
 
         <Form.Item
@@ -137,22 +139,24 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
 
-        <Form.Item
-          name="adapter"
-          label={intl.formatMessage({
-            id: 'pages.modelRepository.fineTuningDrawer.form.adapter',
-            defaultMessage: '适配器',
-          })}
-        >
-          <Select
-            allowClear
-            options={adaptersOptions}
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
+        {isShowAdapter && (
+          <Form.Item
+            name="adapter"
+            label={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.adapter',
+              defaultMessage: '适配器',
             })}
-          />
-        </Form.Item>
+          >
+            <Select
+              allowClear
+              options={adaptersOptions}
+              placeholder={intl.formatMessage({
+                id: 'pages.global.form.placeholder',
+                defaultMessage: '请输入',
+              })}
+            />
+          </Form.Item>
+        )}
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <div style={{ display: 'flex', gap: 10 }}>
