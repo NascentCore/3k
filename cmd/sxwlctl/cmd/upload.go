@@ -124,6 +124,8 @@ var uploadCmd = &cobra.Command{
 		}
 		if !public {
 			owner = userID
+		} else {
+			userID = "public"
 		}
 		prefix := fmt.Sprintf(prefixFormat, owner)
 
@@ -181,8 +183,8 @@ func init() {
 	uploadCmd.Flags().StringVarP(&resource, "resource", "r", "model", "[model|dataset|adapter]")
 	uploadCmd.Flags().StringVarP(&dir, "dir", "d", "", "上传的本地文件夹路径")
 	uploadCmd.Flags().StringVarP(&template, "template", "t", "", "模型推理使用的template")
-	uploadCmd.Flags().StringVar(&baseModel, "base_model", "", "模型推理使用的template")
 	uploadCmd.Flags().StringVar(&category, "category", "chat", "模型的类型[chat|embedding]")
+	uploadCmd.Flags().StringVar(&baseModel, "base_model", "", "适配器的基底模型")
 	uploadCmd.Flags().BoolVar(&public, "public", false, "上传至公共空间")
 	uploadCmd.Flags().StringVar(&owner, "owner", "", "公共资源的所有者，仅在--public时需要")
 	uploadCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "show verbose logs")

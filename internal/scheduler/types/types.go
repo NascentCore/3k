@@ -727,7 +727,7 @@ type ResourceMetaAddReq struct {
 	ResourceName string `json:"resource_name"`
 	ResourceSize int64  `json:"resource_size"`
 	IsPublic     bool   `json:"is_public"`
-	UserID       string `json:"user_id"`
+	UserId       string `json:"user_id"`
 	Meta         string `json:"meta,optional"`
 }
 
