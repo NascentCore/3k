@@ -26,4 +26,7 @@ zip sxwlctl-windows-amd64.zip sxwlctl.exe
 ossutil cp -f sxwlctl-windows-amd64.zip oss://sxwl-ai/artifacts/tools/
 rm sxwlctl.exe sxwlctl-windows-amd64.zip
 
+# install.sh
+ossutil cp -f install.sh oss://sxwl-ai/artifacts/tools/
+
 echo "Build and upload completed successfully."

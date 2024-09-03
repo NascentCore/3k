@@ -48,6 +48,7 @@ create_config_file() {
     cat <<EOL > $config_file
 token: ""
 auth_url: "https://llm.sxwl.ai/api/resource/uploader_access"
+resource_url: "https://llm.sxwl.ai/api/resource/meta"
 bucket: sxwl-cache
 endpoint: https://oss-cn-beijing.aliyuncs.com
 EOL
