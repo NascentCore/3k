@@ -1,7 +1,7 @@
 import { apiDeleteInference, apiGetInference, apiGetUserJob, useApiGetInference } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Popconfirm, Space, Table, message, theme } from 'antd';
+import { Button, Popconfirm, Popover, Space, Table, Typography, message, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useIntl } from '@umijs/max';
 
@@ -77,8 +77,8 @@ const Welcome: React.FC = () => {
               id: 'pages.inferenceState.table.column.category',
               defaultMessage: '类型',
             }),
-            dataIndex: 'category',
-            key: 'category',
+            dataIndex: 'model_category',
+            key: 'model_category',
             align: 'center',
             width: 150,
           },
@@ -128,17 +128,50 @@ const Welcome: React.FC = () => {
               <>
                 <Space>
                   {['running'].includes(record.status) && (
-                    <Button
-                      type={'link'}
-                      onClick={() => {
-                        window.open(record?.url);
-                      }}
-                    >
-                      {intl.formatMessage({
-                        id: 'pages.inferenceState.table.column.action.startChat',
-                        // defaultMessage: '启动聊天',
-                      })}
-                    </Button>
+                    <>
+                      {record.model_category === 'chat' && (
+                        <Button
+                          type={'link'}
+                          onClick={() => {
+                            window.open(record?.url);
+                          }}
+                        >
+                          {intl.formatMessage({
+                            id: 'pages.inferenceState.table.column.action.startChat',
+                            // defaultMessage: '启动聊天',
+                          })}
+                        </Button>
+                      )}
+                      {record.model_category === 'embendding' && (
+                        <Popover
+                          placement="left"
+                          content={
+                            <div>
+                              <Typography.Text>
+                                <pre style={{ maxWidth: 400 }}>{record.url}</pre>
+                              </Typography.Text>
+                              <div>
+                                <Button
+                                  onClick={() => {
+                                    if (!navigator.clipboard) {
+                                      return;
+                                    }
+                                    navigator.clipboard.writeText(record.url).then(function () {
+                                      message.success('Copy success');
+                                    });
+                                  }}
+                                >
+                                  复制
+                                </Button>
+                              </div>
+                            </div>
+                          }
+                          title="Api EndPoint"
+                        >
+                          <Button type="link">Api EndPoint</Button>
+                        </Popover>
+                      )}
+                    </>
                   )}
 
                   {[
