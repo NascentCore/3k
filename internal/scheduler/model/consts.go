@@ -14,9 +14,10 @@ const (
 	StrStatusPending       = "pending"       // 启动中
 	StrStatusPaused        = "paused"        // 已暂停
 	StrStatusPausing       = "pausing"       // 暂停中
-	StrStatusRunning       = "running"       //  运行中
+	StrStatusRunning       = "running"       // 运行中
 	StrStatusFailed        = "failed"        // 运行失败
 	StrStatusSucceeded     = "succeeded"     // 运行成功
+	StrStatusDeleted       = "deleted"       // 删除
 )
 
 const (
@@ -61,6 +62,7 @@ var StatusToInt = map[string]int{
 	StrStatusRunning:       StatusRunning,
 	StrStatusFailed:        StatusFailed,
 	StrStatusSucceeded:     StatusSucceeded,
+	StrStatusDeleted:       StatusDeleted,
 }
 
 var StatusToStr = map[int64]string{
@@ -73,4 +75,5 @@ var StatusToStr = map[int64]string{
 	StatusRunning:       StrStatusRunning,
 	StatusFailed:        StrStatusFailed,
 	StatusSucceeded:     StrStatusSucceeded,
+	StatusDeleted:       StrStatusDeleted,
 }
