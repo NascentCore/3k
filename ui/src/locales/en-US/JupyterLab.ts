@@ -26,6 +26,7 @@ export default {
   'pages.jupyterLab.JupyterLabTab.table.column.status.running': 'Running',
   'pages.jupyterLab.JupyterLabTab.table.column.status.failed': 'Failed',
   'pages.jupyterLab.JupyterLabTab.table.column.status.succeeded': 'Succeeded',
+  'pages.jupyterLab.JupyterLabTab.table.column.status.deleted': 'Deleted',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image': 'Base Image',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.tips':
     'The following logic will be executed when building the image:<br/>1. The contents under the /workspace directory will be copied to the same path in the image.<br/>2. The requirements.txt file under the /workspace directory will be automatically installed.<br/>Please place your code and requirements.txt file in this directory.<br/>Note: The default mount path for data volumes is /workspace',

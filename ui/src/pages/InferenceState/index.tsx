@@ -46,6 +46,10 @@ const Welcome: React.FC = () => {
       id: 'pages.jupyterLab.JupyterLabTab.table.column.status.succeeded',
       defaultMessage: '运行成功',
     }),
+    deleted: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.deleted',
+      defaultMessage: '已终止',
+    }),
   };
 
   return (
