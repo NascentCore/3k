@@ -146,7 +146,7 @@ const Welcome: React.FC = () => {
                           })}
                         </Button>
                       )}
-                      {record.model_category === 'embendding' && (
+                      {record.model_category === 'embedding' && (
                         <Popover
                           placement="left"
                           content={
