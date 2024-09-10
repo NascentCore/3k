@@ -20,6 +20,8 @@ Gateway:
     - Path: "/api/user/email"
       ToPath: "/api/code/sendEmail"
       Server: scheduler
+    - Path: "/api/dingtalk/callback"
+      Server: scheduler
     - Path: "/api/user/info"
       ToPath: "/auth/info"
       Auth: Yes
