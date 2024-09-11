@@ -22,6 +22,8 @@ Gateway:
       Server: scheduler
     - Path: "/api/dingtalk/callback"
       Server: scheduler
+    - Path: "/api/dingtalk/userinfo"
+      Server: scheduler
     - Path: "/api/user/info"
       ToPath: "/auth/info"
       Auth: Yes

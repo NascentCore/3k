@@ -886,6 +886,12 @@ type (
 	}
 )
 
+type (
+	DingCallbackReq {
+		Code string `form:"code"`
+	}
+)
+
 @server (
 	prefix: /api
 )
@@ -985,5 +991,13 @@ service scheduler-api {
 	@doc "集群列表"
 	@handler ClusterCpods
 	get /cluster/cpods (BaseReq) returns (ClusterCpodsResp)
+
+	@doc "钉钉回调"
+	@handler DingtalkCallback
+	get /dingtalk/callback (DingCallbackReq)
+
+	@doc "钉钉用户信息"
+	@handler DingtalkUserinfo
+	get /dingtalk/userinfo (DingCallbackReq) returns (LoginResp)
 }
 
