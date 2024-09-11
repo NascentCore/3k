@@ -159,6 +159,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: sendEmailHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/dingtalk/callback",
+				Handler: DingtalkCallbackHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/dingtalk/userinfo",
+				Handler: DingtalkUserinfoHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodDelete,
 				Path:    "/job/jobs",
 				Handler: jobsDelHandler(serverCtx),

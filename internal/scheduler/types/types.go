@@ -179,6 +179,10 @@ type DatasetOptional struct {
 	DatasetIsPublic bool   `json:"dataset_is_public,optional"` // 是否公共数据集
 }
 
+type DingCallbackReq struct {
+	Code string `form:"code"`
+}
+
 type DiskInfo struct {
 	Size  int `json:"size"`
 	Usage int `json:"usage"`
