@@ -7,6 +7,7 @@ export default {
   'pages.login.rememberMe': '记住我',
   'pages.login.loginType.password': '使用密码登录',
   'pages.login.loginType.code': '使用验证码登录',
+  'pages.login.loginType.dingding': '钉钉扫码登录',
   'pages.login.submit': '登录',
   'pages.login.regist': '注册',
 

@@ -24,6 +24,11 @@ export default [
         path: '/user/login',
         component: './User/Login',
       },
+      {
+        name: 'dingtalk-callback',
+        path: '/user/dingtalk-callback',
+        component: './User/DingTalkCallback',
+      },
     ],
   },
   {
