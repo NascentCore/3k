@@ -7,6 +7,7 @@ export default {
   'pages.login.rememberMe': 'Remember me',
   'pages.login.loginType.password': 'Login with password',
   'pages.login.loginType.code': 'Login with verification code',
+  'pages.login.loginType.dingding': 'Login with dingding',
   'pages.login.submit': 'Login',
   'pages.login.regist': 'Register',
 

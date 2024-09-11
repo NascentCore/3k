@@ -18,6 +18,14 @@ export async function apiAuthLogin(options?: { [key: string]: any }) {
   });
 }
 
+// 获取钉钉用户信息 /auth/login
+export async function apiDingtalkUserInfo(options?: { [key: string]: any }) {
+  return request('/api/user/login', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 // 获取用户信息 /auth/info
 export async function apiAuthInfo(options?: { [key: string]: any }) {
   return request('/api/user/info', {
