@@ -26,6 +26,12 @@ export async function apiDingtalkUserInfo(options?: { [key: string]: any }) {
   });
 }
 
+export async function apiGetDingtalkUserInfo(code: string) {
+  return request(`/api/dingtalk/userinfo?code=${code}`, {
+    method: 'GET',
+  });
+}
+
 // 获取用户信息 /auth/info
 export async function apiAuthInfo(options?: { [key: string]: any }) {
   return request('/api/user/info', {
