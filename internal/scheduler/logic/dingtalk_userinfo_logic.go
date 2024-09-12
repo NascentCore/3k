@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -109,8 +110,20 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 }
 
 func generateSignature(timestamp, appSecret string) string {
-	stringToSign := fmt.Sprintf("%s\n%s", timestamp, appSecret)
+	// 使用 timestamp 作为 stringToSign
+	stringToSign := timestamp
+
+	// 使用 HmacSHA256 加密
 	h := hmac.New(sha256.New, []byte(appSecret))
 	h.Write([]byte(stringToSign))
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+	// 对签名结果进行URL编码，并处理特殊字符
+	encodedSignature := url.QueryEscape(signature)
+	urlEncodedSignature := strings.Replace(encodedSignature, "+", "%20", -1)
+	urlEncodedSignature = strings.Replace(urlEncodedSignature, "*", "%2A", -1)
+	urlEncodedSignature = strings.Replace(urlEncodedSignature, "~", "%7E", -1)
+	urlEncodedSignature = strings.Replace(urlEncodedSignature, "/", "%2F", -1)
+
+	return urlEncodedSignature
 }
