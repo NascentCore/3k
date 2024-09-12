@@ -90,7 +90,7 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 	claims := jwt.MapClaims{
 		"jti":      formattedUUID,
 		"username": userInfoResponse.UserInfo.Nick,
-		"userid":   userInfoResponse.UserInfo.OpenId,
+		"userid":   1,
 		"user_id":  userInfoResponse.UserInfo.OpenId,
 		"sub":      userInfoResponse.UserInfo.Nick,
 	}
