@@ -71,7 +71,6 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 	resp = &types.LoginResp{User: types.WrapUser{User: types.UserInfo{}}}
 	resp.User.User.UserID = userInfoResponse.UserInfo.OpenId
 	resp.User.User.Username = userInfoResponse.UserInfo.Nick
-	resp.User.User.Email = userInfoResponse.UserInfo.Nick
 	resp.User.User.IsAdmin = false
 
 	// jwt token
@@ -90,7 +89,7 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 	claims := jwt.MapClaims{
 		"jti":      formattedUUID,
 		"username": userInfoResponse.UserInfo.Nick,
-		"userid":   1,
+		"userid":   0,
 		"user_id":  userInfoResponse.UserInfo.OpenId,
 		"sub":      userInfoResponse.UserInfo.Nick,
 	}
