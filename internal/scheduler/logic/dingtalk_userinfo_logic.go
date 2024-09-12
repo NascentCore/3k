@@ -56,7 +56,7 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 		UserInfo struct {
 			Nick    string `json:"nick"`
 			UnionId string `json:"unionid"`
-			OpenId  string `json:"open_id"`
+			OpenId  string `json:"openid"`
 		} `json:"user_info"`
 		ErrCode int    `json:"errcode"`
 		ErrMsg  string `json:"errmsg"`
