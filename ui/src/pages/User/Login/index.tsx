@@ -73,8 +73,7 @@ const Login: React.FC = () => {
       apiGetDingtalkUserInfo(code).then((res) => {
         console.log('dingding res', res);
         // 获取 token
-        const token = '';
-        saveToken(token);
+        saveToken(res?.token);
         // 进入首页
         return fetchUserInfo().then((res) => {
           history.push('/');
