@@ -9,6 +9,14 @@ import (
 	"github.com/NascentCore/cpodoperator/pkg/resource"
 )
 
+type PortalYAMLResource struct {
+	JobName string `json:"jobName"`
+	YAML    string `json:"yaml"`
+	AppName string `json:"appName"`
+	AppID   string `json:"appId"`
+	UserID  string `json:"userId"`
+}
+
 type PortalJupyterLabJob struct {
 	InstanceName string `json:"instanceName"`
 	JobName      string `json:"jobName"`
@@ -127,7 +135,7 @@ type UserID string // 用户ID
 
 type Scheduler interface {
 	// GetAssignedJobList get assigned to this  Job  from scheduler
-	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, []UserID, error)
+	GetAssignedJobList() ([]PortalTrainningJob, []PortalInferenceJob, []PortalJupyterLabJob, []PortalYAMLResource, []UserID, error)
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
@@ -145,11 +153,19 @@ type JupyterLabJobState struct {
 	URL     string `json:"url"`
 }
 
+type YAMLResourceState struct {
+	JobName   string `json:"jobName"`
+	Namespace string `json:"namespace"`
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+}
+
 type HeartBeatPayload struct {
 	CPodID               string                    `json:"cpod_id"`
 	TrainningJobsStatus  []TrainningJobState       `json:"job_status"`
 	InferenceJobsStatus  []InferenceJobState       `json:"inference_status"`
 	JupyterLabJobsStatus []JupyterLabJobState      `json:"jupyter_status"`
+	YAMLResourceStatus   []YAMLResourceState       `json:"yaml_resource_status"`
 	ResourceInfo         resource.CPodResourceInfo `json:"resource_info"`
 	UpdateTime           time.Time                 `json:"update_time"`
 }

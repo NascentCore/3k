@@ -9,6 +9,7 @@ import (
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
+	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -93,7 +94,7 @@ func jobTypeCheck(jobtype string) (v1beta1.JobType, bool) {
 func (s *SyncJob) Start(ctx context.Context) {
 	s.logger.Info("sync job")
 
-	portalTrainningJobs, portalInferenceJobs, portalJupyterLabJobs, users, err := s.scheduler.GetAssignedJobList()
+	portalTrainningJobs, portalInferenceJobs, portalJupyterLabJobs, portalYAMLResources, users, err := s.scheduler.GetAssignedJobList()
 	if err != nil {
 		s.logger.Error(err, "failed to list job")
 		return
@@ -106,7 +107,7 @@ func (s *SyncJob) Start(ctx context.Context) {
 	s.processFinetune(ctx, readyUsers, portalTrainningJobs)
 	s.processInferenceJobs(ctx, readyUsers, portalInferenceJobs)
 	s.processJupyterLabJobs(ctx, portalJupyterLabJobs, readyUsers)
-
+	s.processYAMLResources(ctx, portalYAMLResources, readyUsers)
 }
 
 func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) []sxwl.UserID {
@@ -1017,4 +1018,85 @@ func (s *SyncJob) UpdateJupyterlab(ctx context.Context, targetJupyterlab sxwl.Po
 		return s.kubeClient.Update(ctx, newJupyterlab)
 	}
 	return nil
+}
+
+func (s *SyncJob) processYAMLResources(ctx context.Context, portalYAMLResources []sxwl.PortalYAMLResource, readyUsers []sxwl.UserID) {
+	for _, user := range readyUsers {
+		var yamlResources cpodv1beta1.YAMLResourceList
+		err := s.kubeClient.List(ctx, &yamlResources, &client.ListOptions{Namespace: string(user)})
+		if err != nil {
+			s.logger.Error(err, "failed to list yamlresources")
+			continue
+		}
+
+		for _, job := range portalYAMLResources {
+			if job.UserID != string(user) {
+				continue
+			}
+
+			exists := false
+			for _, yamlResource := range yamlResources.Items {
+				if yamlResource.Name == job.JobName {
+					exists = true
+					// 更新现有的 YAMLResource
+					if yamlResource.Spec.YAML != job.YAML ||
+						yamlResource.Spec.AppName != job.AppName ||
+						yamlResource.Spec.AppID != job.AppID {
+						yamlResource.Spec.YAML = job.YAML
+						yamlResource.Spec.AppName = job.AppName
+						yamlResource.Spec.AppID = job.AppID
+						if err := s.kubeClient.Update(ctx, &yamlResource); err != nil {
+							s.logger.Error(err, "failed to update yamlresource", "yamlresource", yamlResource.Name)
+						} else {
+							s.logger.Info("yamlresource updated", "yamlresource", yamlResource.Name)
+						}
+					}
+					break
+				}
+			}
+
+			if !exists {
+				newYAMLResource := cpodv1beta1.YAMLResource{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      job.JobName,
+						Namespace: string(user),
+					},
+					Spec: cpodv1beta1.YAMLResourceSpec{
+						YAML:    job.YAML,
+						AppName: job.AppName,
+						AppID:   job.AppID,
+						UserID:  job.UserID,
+					},
+				}
+				if err := s.kubeClient.Create(ctx, &newYAMLResource); err != nil {
+					s.logger.Error(err, "failed to create yamlresource", "yamlresource", newYAMLResource)
+				} else {
+					s.logger.Info("yamlresource created", "yamlresource", newYAMLResource)
+				}
+			}
+		}
+	}
+
+	var totalYAMLResources cpodv1beta1.YAMLResourceList
+	if err := s.kubeClient.List(ctx, &totalYAMLResources); err != nil {
+		s.logger.Error(err, "failed to list all yamlresources")
+		return
+	}
+
+	for _, yamlResource := range totalYAMLResources.Items {
+		exists := false
+		for _, job := range portalYAMLResources {
+			if yamlResource.Name == job.JobName && yamlResource.Namespace == job.UserID {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			if err := s.kubeClient.Delete(ctx, &yamlResource); err != nil {
+				s.logger.Error(err, "failed to delete yamlresource")
+			} else {
+				s.logger.Info("yamlresource deleted", "yamlresource", yamlResource.Name)
+			}
+		}
+	}
 }

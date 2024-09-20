@@ -40,10 +40,11 @@ func Test_sxwl_GetAssignedJobList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tjobs, ijobs, jjobs, users, err := s.GetAssignedJobList()
+			tjobs, ijobs, jjobs, yjobs, users, err := s.GetAssignedJobList()
 			fmt.Println(tjobs)
 			fmt.Println(ijobs)
 			fmt.Println(jjobs)
+			fmt.Println(yjobs)
 			fmt.Println(users)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("sxwl.GetAssignedJobList() error = %v, wantErr %v", err, tt.wantErr)

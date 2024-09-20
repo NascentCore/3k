@@ -2,10 +2,12 @@ package synchronizer
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
+	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 
 	"time"
 
@@ -73,12 +75,19 @@ func (co *CPodObserver) Start(ctx context.Context) {
 		co.logger.Error(err, "get jupyterlab job state error")
 		return
 	}
+	// YAMLResource states
+	yrs, err := co.getYAMLResourceStates(ctx)
+	if err != nil {
+		co.logger.Error(err, "get YAMLResource state error")
+		return
+	}
 	co.ch <- sxwl.HeartBeatPayload{
 		CPodID:               co.cpodId,
 		ResourceInfo:         resourceInfo,
 		TrainningJobsStatus:  js,
 		InferenceJobsStatus:  ijs,
 		JupyterLabJobsStatus: jjs,
+		YAMLResourceStatus:   yrs,
 		UpdateTime:           time.Now(),
 	}
 	co.logger.Info("upload payload refreshed")
@@ -401,4 +410,25 @@ func (co *CPodObserver) getExistingArtifacts(ctx context.Context) ([]resource.Ca
 // TODO: read image list from harbor
 func (co *CPodObserver) getImages(ctx context.Context) ([]string, error) {
 	return []string{}, nil
+}
+
+func (co *CPodObserver) getYAMLResourceStates(ctx context.Context) ([]sxwl.YAMLResourceState, error) {
+	var yamlResources cpodv1beta1.YAMLResourceList
+	err := co.kubeClient.List(ctx, &yamlResources, &client.ListOptions{Namespace: co.cpodNamespace})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list YAMLResources: %w", err)
+	}
+
+	states := []sxwl.YAMLResourceState{}
+	for _, resource := range yamlResources.Items {
+		state := sxwl.YAMLResourceState{
+			JobName:   resource.Name,
+			Namespace: resource.Namespace,
+			Status:    string(resource.Status.Phase),
+			Message:   resource.Status.Message,
+		}
+		states = append(states, state)
+	}
+
+	return states, nil
 }
