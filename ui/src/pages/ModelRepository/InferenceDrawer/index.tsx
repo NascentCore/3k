@@ -15,7 +15,7 @@ const Content = ({ record, onCancel }) => {
   const [formValues, setFormValues] = useState({
     model_name: record.name,
     // gpuProd: '',
-    gpu_count: record?.inference_gpu_count || 1,
+    // gpu_count: record?.inference_gpu_count,
   });
 
   const gpuTypeOptions = useGpuTypeOptions({});
@@ -38,7 +38,7 @@ const Content = ({ record, onCancel }) => {
         data: {
           gpu_model: values.gpu_model,
           model_category: record?.category,
-          gpu_count: Number(values.gpu_count),
+          gpu_count: record?.inference_gpu_count,
           //
           model_id: currentModel.id,
           model_name: currentModel.name,
@@ -115,7 +115,7 @@ const Content = ({ record, onCancel }) => {
           />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           name="gpu_count"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
@@ -137,7 +137,7 @@ const Content = ({ record, onCancel }) => {
             })}
             allowClear
           />
-        </Form.Item>
+        </Form.Item> */}
 
         {isShowAdapter && (
           <Form.Item
