@@ -40,6 +40,7 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 	CpodCacheModel := l.svcCtx.CpodCacheModel
 	InferModel := l.svcCtx.InferenceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
+	AppJobModel := l.svcCtx.AppJobModel
 
 	// check banned
 	_, ok := l.svcCtx.Config.BannedCpod[req.CPODID]
@@ -301,6 +302,75 @@ func (l *CpodStatusLogic) CpodStatus(req *types.CPODStatusReq) (resp *types.CPOD
 		}
 		if rows != 1 {
 			l.Logger.Errorf("reqJupyter update rows=%d cpod_id=%s name=%s err=%s", rows, req.CPODID, reqJupyter.JobName, err)
+			continue // no update
+		}
+	}
+
+	// update app job
+	for _, reqAppJob := range req.AppJobStatus {
+		// get int status
+		status, ok := model.StatusToInt[reqAppJob.Status]
+		if !ok {
+			l.Logger.Errorf("StatusToInt not exists status=%s", reqAppJob.Status)
+			continue
+		}
+
+		// query the app job in db
+		appJob, err := AppJobModel.FindOneByQuery(l.ctx, AppJobModel.AllFieldsBuilder().Where(squirrel.Eq{
+			"job_name": reqAppJob.JobName,
+		}))
+		if err != nil {
+			l.Logger.Errorf("appJob find job_name=%s err=%s", reqAppJob.JobName, err)
+			return nil, err
+		}
+
+		// if status the same continue
+		if appJob.Status == int64(status) {
+			continue
+		}
+
+		// if app job is deleted continue 终态不再更新
+		if model.FinalStatus(appJob.Status) {
+			continue
+		}
+
+		updateBuilder := AppJobModel.UpdateBuilder().Where(squirrel.Eq{
+			"job_name": reqAppJob.JobName,
+		})
+
+		var setMap map[string]interface{}
+		switch status {
+		case model.StatusRunning:
+			setMap = map[string]interface{}{
+				"start_time": orm.NullTime(time.Now()),
+				"status":     status,
+				"url":        reqAppJob.URL,
+			}
+		case model.StatusSucceeded, model.StatusFailed:
+			setMap = map[string]interface{}{
+				"end_time": orm.NullTime(time.Now()),
+				"status":   status,
+			}
+		case model.StatusDataPreparing, model.StatusPaused, model.StatusPausing:
+			setMap = map[string]interface{}{
+				"status": status,
+			}
+		default:
+			continue
+		}
+
+		result, err := AppJobModel.UpdateColsByCond(l.ctx, updateBuilder.SetMap(setMap))
+		if err != nil {
+			l.Logger.Errorf("reqAppJob update cpod_id=%s name=%s err=%s", req.CPODID, reqAppJob.JobName, err)
+			return nil, err
+		}
+		rows, err := result.RowsAffected()
+		if err != nil {
+			l.Logger.Errorf("reqAppJob update cpod_id=%s name=%s RowsAffected err=%s", req.CPODID, reqAppJob.JobName, err)
+			return nil, err
+		}
+		if rows != 1 {
+			l.Logger.Errorf("reqAppJob update rows=%d cpod_id=%s name=%s err=%s", rows, req.CPODID, reqAppJob.JobName, err)
 			continue // no update
 		}
 	}

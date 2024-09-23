@@ -27,6 +27,8 @@ type ServiceContext struct {
 	RechargeModel    model.UserRechargeModel
 	CpodNodeModel    model.SysCpodNodeModel
 	OssResourceModel model.SysOssResourceModel
+	AppModel         model.SysAppModel
+	AppJobModel      model.SysAppJobModel
 	EmailSender      email.Emailer
 	DB               sqlx.SqlConn
 }
@@ -70,6 +72,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RechargeModel:    model.NewUserRechargeModel(conn),
 		CpodNodeModel:    model.NewSysCpodNodeModel(conn),
 		OssResourceModel: model.NewSysOssResourceModel(conn),
+		AppModel:         model.NewSysAppModel(conn),
+		AppJobModel:      model.NewSysAppJobModel(conn),
 		EmailSender:      emailSender,
 		DB:               conn,
 	}

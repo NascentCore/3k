@@ -281,4 +281,35 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		},
 		rest.WithPrefix("/api"),
 	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/app/job",
+				Handler: AppJobAddHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/app/job",
+				Handler: AppJobDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/app/job",
+				Handler: AppJobGetHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/app/list",
+				Handler: AppListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/app/register",
+				Handler: AppRegisterHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api"),
+	)
 }

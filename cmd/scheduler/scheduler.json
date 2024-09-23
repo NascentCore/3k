@@ -16,6 +16,133 @@
     "application/json"
   ],
   "paths": {
+    "/api/app/job": {
+      "get": {
+        "summary": "查询应用",
+        "operationId": "AppJobGet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AppJobGetResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "summary": "终止应用",
+        "operationId": "AppJobDelete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppJobDelReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "post": {
+        "summary": "创建应用",
+        "operationId": "AppJobAdd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppJobAddReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/app/list": {
+      "get": {
+        "summary": "应用查询接口",
+        "operationId": "AppList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/AppListResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/app/register": {
+      "post": {
+        "summary": "应用注册接口",
+        "operationId": "AppRegister",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppRegisterReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/cluster/cpods": {
       "get": {
         "summary": "集群列表",
@@ -59,6 +186,60 @@
             "schema": {
               "$ref": "#/definitions/SendEmailReq"
             }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/dingtalk/callback": {
+      "get": {
+        "summary": "钉钉回调",
+        "operationId": "DingtalkCallback",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/dingtalk/userinfo": {
+      "get": {
+        "summary": "钉钉用户信息",
+        "operationId": "DingtalkUserinfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/LoginResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "type": "string"
           }
         ],
         "tags": [
@@ -1519,6 +1700,277 @@
       },
       "title": "AdapterOptional"
     },
+    "App": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "app_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "crd": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      },
+      "title": "App",
+      "required": [
+        "id",
+        "app_id",
+        "name",
+        "user_id",
+        "desc",
+        "crd",
+        "status",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "AppJob": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "job_name": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string",
+          "description": " 用户ID"
+        },
+        "app_id": {
+          "type": "string",
+          "description": " 应用ID"
+        },
+        "app_name": {
+          "type": "string",
+          "description": " 应用名字"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": " 实例名称"
+        },
+        "cpod_id": {
+          "type": "string",
+          "description": " cpod id"
+        },
+        "status": {
+          "type": "string",
+          "description": " 状态"
+        },
+        "billing_status": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 账单状态（0 未结清、1 已结清）"
+        },
+        "url": {
+          "type": "string",
+          "description": " URL"
+        },
+        "start_time": {
+          "type": "string",
+          "description": " 推理服务启动时间"
+        },
+        "end_time": {
+          "type": "string",
+          "description": " 推理服务终止时间"
+        },
+        "created_at": {
+          "type": "string",
+          "description": " 创建时间"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": " 更新时间"
+        }
+      },
+      "title": "AppJob",
+      "required": [
+        "id",
+        "job_name",
+        "user_id",
+        "app_id",
+        "app_name",
+        "instance_name",
+        "cpod_id",
+        "status",
+        "billing_status",
+        "url",
+        "start_time",
+        "end_time",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "AppJobAddReq": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "description": " 应用ID"
+        },
+        "app_name": {
+          "type": "string",
+          "description": " 应用名字"
+        },
+        "instance_name": {
+          "type": "string",
+          "description": " 实例名称"
+        }
+      },
+      "title": "AppJobAddReq",
+      "required": [
+        "app_id",
+        "app_name",
+        "instance_name"
+      ]
+    },
+    "AppJobDelReq": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        }
+      },
+      "title": "AppJobDelReq",
+      "required": [
+        "job_name"
+      ]
+    },
+    "AppJobGetResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AppJob"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AppJobGetResp",
+      "required": [
+        "data",
+        "total"
+      ]
+    },
+    "AppJobInfo": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "instance_name": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "app_id": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "crd": {
+          "type": "string"
+        }
+      },
+      "title": "AppJobInfo",
+      "required": [
+        "job_name",
+        "instance_name",
+        "user_id",
+        "app_id",
+        "app_name",
+        "crd"
+      ]
+    },
+    "AppJobStatus": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "title": "AppJobStatus",
+      "required": [
+        "job_name",
+        "status",
+        "url"
+      ]
+    },
+    "AppListResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/App"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AppListResp",
+      "required": [
+        "data",
+        "total"
+      ]
+    },
+    "AppRegisterReq": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "desc": {
+          "type": "string"
+        },
+        "crd": {
+          "type": "string"
+        }
+      },
+      "title": "AppRegisterReq",
+      "required": [
+        "name",
+        "desc",
+        "crd"
+      ]
+    },
     "BalanceAddReq": {
       "type": "object",
       "properties": {
@@ -1732,6 +2184,12 @@
             "$ref": "#/definitions/JupyterlabStatus"
           }
         },
+        "app_job_status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AppJobStatus"
+          }
+        },
         "resource_info": {
           "$ref": "#/definitions/ResourceInfo"
         },
@@ -1747,6 +2205,7 @@
         "job_status",
         "inference_status",
         "jupyter_status",
+        "app_job_status",
         "resource_info",
         "update_time",
         "cpod_id"
@@ -1994,13 +2453,20 @@
           "items": {
             "$ref": "#/definitions/JupyterLab"
           }
+        },
+        "app_job_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AppJobInfo"
+          }
         }
       },
       "title": "CpodJobResp",
       "required": [
         "job_list",
         "inference_service_list",
-        "jupyter_lab_list"
+        "jupyter_lab_list",
+        "app_job_list"
       ]
     },
     "CreateNewUserIDResp": {
@@ -2076,6 +2542,18 @@
         }
       },
       "title": "DatasetOptional"
+    },
+    "DingCallbackReq": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        }
+      },
+      "title": "DingCallbackReq",
+      "required": [
+        "code"
+      ]
     },
     "DiskInfo": {
       "type": "object",
