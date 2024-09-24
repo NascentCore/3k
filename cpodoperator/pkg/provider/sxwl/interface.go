@@ -10,11 +10,11 @@ import (
 )
 
 type PortalYAMLResource struct {
-	JobName string `json:"jobName"`
-	YAML    string `json:"yaml"`
-	AppName string `json:"appName"`
-	AppID   string `json:"appId"`
-	UserID  string `json:"userId"`
+	JobName string `json:"job_name"`
+	YAML    string `json:"crd"`
+	AppName string `json:"app_name"`
+	AppID   string `json:"app_id"`
+	UserID  string `json:"user_id"`
 }
 
 type PortalJupyterLabJob struct {
@@ -154,10 +154,9 @@ type JupyterLabJobState struct {
 }
 
 type YAMLResourceState struct {
-	JobName   string `json:"jobName"`
-	Namespace string `json:"namespace"`
-	Status    string `json:"status"`
-	Message   string `json:"message"`
+	JobName string `json:"job_name"`
+	Status  string `json:"status"`
+	URL     string `json:"url"`
 }
 
 type HeartBeatPayload struct {
@@ -165,7 +164,7 @@ type HeartBeatPayload struct {
 	TrainningJobsStatus  []TrainningJobState       `json:"job_status"`
 	InferenceJobsStatus  []InferenceJobState       `json:"inference_status"`
 	JupyterLabJobsStatus []JupyterLabJobState      `json:"jupyter_status"`
-	YAMLResourceStatus   []YAMLResourceState       `json:"yaml_resource_status"`
+	YAMLResourceStatus   []YAMLResourceState       `json:"app_job_status"`
 	ResourceInfo         resource.CPodResourceInfo `json:"resource_info"`
 	UpdateTime           time.Time                 `json:"update_time"`
 }

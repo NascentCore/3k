@@ -422,10 +422,9 @@ func (co *CPodObserver) getYAMLResourceStates(ctx context.Context) ([]sxwl.YAMLR
 	states := []sxwl.YAMLResourceState{}
 	for _, resource := range yamlResources.Items {
 		state := sxwl.YAMLResourceState{
-			JobName:   resource.Name,
-			Namespace: resource.Namespace,
-			Status:    string(resource.Status.Phase),
-			Message:   resource.Status.Message,
+			JobName: resource.Name,
+			Status:  string(resource.Status.Phase),
+			URL:     "",
 		}
 		states = append(states, state)
 	}
