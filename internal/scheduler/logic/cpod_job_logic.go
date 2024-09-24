@@ -40,6 +40,8 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	UserJobModel := l.svcCtx.UserJobModel
 	InferenceModel := l.svcCtx.InferenceModel
 	JupyterlabModel := l.svcCtx.JupyterlabModel
+	AppModel := l.svcCtx.AppModel
+	AppJobModel := l.svcCtx.AppJobModel
 
 	// check banned
 	_, ok := l.svcCtx.Config.BannedCpod[req.CpodId]
@@ -50,6 +52,8 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	resp = &types.CpodJobResp{}
 	resp.JobList = make([]map[string]interface{}, 0)
 	resp.InferenceServiceList = make([]types.InferenceService, 0)
+	resp.JupyterlabList = make([]types.JupyterLab, 0)
+	resp.AppJobList = make([]types.AppJobInfo, 0)
 
 	nodes, err := CpodNodeModel.Find(l.ctx, CpodNodeModel.AllFieldsBuilder().Where(squirrel.And{
 		squirrel.Eq{
@@ -269,6 +273,59 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 			}
 		default:
 			resp.JupyterlabList = append(resp.JupyterlabList, jupyterlabResp)
+		}
+	}
+
+	// app job
+	appJobList, err := AppJobModel.Find(l.ctx, AppJobModel.AllFieldsBuilder().Where(
+		squirrel.Or{
+			squirrel.Eq{"status": model.StatusNotAssigned},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
+		},
+	))
+	if err != nil {
+		l.Errorf("AppJobModel.FindAll err: %s", err)
+		return nil, err
+	}
+
+	appMap := make(map[string]*model.SysApp)
+	for _, appJob := range appJobList {
+		if model.FinalStatus(appJob.Status) {
+			continue
+		}
+
+		app, ok := appMap[appJob.AppId]
+		if !ok {
+			app, err = AppModel.FindOneByQuery(l.ctx, AppJobModel.AllFieldsBuilder().Where(
+				squirrel.Eq{"app_id": appJob.AppId},
+			))
+			if err != nil {
+				l.Errorf("AppModel.FindOneByQuery err: %s", err)
+				return nil, err
+			}
+		}
+
+		appJobResp := types.AppJobInfo{}
+		_ = copier.Copy(&appJobResp, appJob)
+		appJobResp.Crd = app.Crd
+
+		switch appJob.Status {
+		case model.StatusNotAssigned:
+			_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+				"id": appJob.Id,
+			}).SetMap(map[string]interface{}{
+				"cpod_id": req.CpodId,
+				"status":  model.StatusAssigned,
+			}))
+			if err != nil {
+				l.Errorf("appJob assigned job_name=%s cpod_id=%s err=%s", appJob.JobName, req.CpodId, err)
+				return nil, err
+			}
+			l.Infof("appJob assigned job_name=%d cpod_id=%s", appJob.Id, req.CpodId)
+
+			resp.AppJobList = append(resp.AppJobList, appJobResp)
+		default:
+			resp.AppJobList = append(resp.AppJobList, appJobResp)
 		}
 	}
 

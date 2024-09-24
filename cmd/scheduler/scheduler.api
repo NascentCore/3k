@@ -155,10 +155,16 @@ type (
 		Status  string `json:"status"`
 		URL     string `json:"url"`
 	}
+	AppJobStatus {
+		JobName string `json:"job_name"`
+		Status  string `json:"status"`
+		URL     string `json:"url"`
+	}
 	CPODStatusReq {
 		JobStatus        []JobStatus        `json:"job_status"`
 		InferenceStatus  []InferenceStatus  `json:"inference_status"`
 		JupyterlabStatus []JupyterlabStatus `json:"jupyter_status"`
+		AppJobStatus     []AppJobStatus     `json:"app_job_status"`
 		ResourceInfo     ResourceInfo       `json:"resource_info"`
 		UpdateTime       string             `json:"update_time"`
 		CPODID           string             `json:"cpod_id"`
@@ -400,6 +406,14 @@ type (
 		UserID         string          `json:"userId"`
 		Replicas       int             `json:"replicas"`
 	}
+	AppJobInfo {
+		JobName      string `json:"job_name"`
+		InstanceName string `json:"instance_name"`
+		UserID       string `json:"user_id"`
+		AppID        string `json:"app_id"`
+		AppName      string `json:"app_name"`
+		crd          string `json:"crd"`
+	}
 	CpodJobReq {
 		CpodId string `form:"cpodid"`
 	}
@@ -407,6 +421,7 @@ type (
 		JobList              []map[string]interface{} `json:"job_list"`
 		InferenceServiceList []InferenceService       `json:"inference_service_list"`
 		JupyterlabList       []JupyterLab             `json:"jupyter_lab_list"`
+		AppJobList           []AppJobInfo             `json:"app_job_list"`
 	}
 )
 
@@ -999,5 +1014,85 @@ service scheduler-api {
 	@doc "钉钉用户信息"
 	@handler DingtalkUserinfo
 	get /dingtalk/userinfo (DingCallbackReq) returns (LoginResp)
+}
+
+// 大模型应用管理
+type (
+	App {
+		ID        int64  `json:"id"`
+		AppID     string `json:"app_id"`
+		Name      string `json:"name"`
+		UserID    string `json:"user_id"`
+		Desc      string `json:"desc"`
+		CRD       string `json:"crd"`
+		Status    int64  `json:"status"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	AppRegisterReq {
+		BaseReq
+		Name string `json:"name"`
+		Desc string `json:"desc"`
+		CRD  string `json:"crd"`
+	}
+	AppListResp {
+		Data  []App `json:"data"`
+		Total int64 `json:"total"`
+	}
+	AppJob {
+		ID            int64  `json:"id"`
+		JobName       string `json:"job_name"`
+		UserId        string `json:"user_id"` // 用户ID
+		AppId         string `json:"app_id"` // 应用ID
+		AppName       string `json:"app_name"` // 应用名字
+		InstanceName  string `json:"instance_name"` // 实例名称
+		CpodId        string `json:"cpod_id"` // cpod id
+		Status        string `json:"status"` // 状态
+		BillingStatus int64  `json:"billing_status"` // 账单状态（0 未结清、1 已结清）
+		Url           string `json:"url"` // URL
+		StartTime     string `json:"start_time"` // 推理服务启动时间
+		EndTime       string `json:"end_time"` // 推理服务终止时间
+		CreatedAt     string `json:"created_at"` // 创建时间
+		UpdatedAt     string `json:"updated_at"` // 更新时间
+	}
+	AppJobAddReq {
+		BaseReq
+		AppId        string `json:"app_id"` // 应用ID
+		AppName      string `json:"app_name"` // 应用名字
+		InstanceName string `json:"instance_name"` // 实例名称
+	}
+	AppJobDelReq {
+		BaseReq
+		JobName string `json:"job_name"`
+	}
+	AppJobGetResp {
+		Data  []AppJob `json:"data"`
+		Total int64    `json:"total"`
+	}
+)
+
+@server (
+	prefix: /api
+)
+service scheduler-api {
+	@doc "应用注册接口"
+	@handler AppRegister
+	post /app/register (AppRegisterReq) returns (BaseResp)
+
+	@doc "应用查询接口"
+	@handler AppList
+	get /app/list (BaseReq) returns (AppListResp)
+
+	@doc "创建应用"
+	@handler AppJobAdd
+	post /app/job (AppJobAddReq) returns (BaseResp)
+
+	@doc "终止应用"
+	@handler AppJobDelete
+	delete /app/job (AppJobDelReq) returns (BaseResp)
+
+	@doc "查询应用"
+	@handler AppJobGet
+	get /app/job (BaseReq) returns (AppJobGetResp)
 }
 

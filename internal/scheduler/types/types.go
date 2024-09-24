@@ -17,6 +17,79 @@ type AdapterOptional struct {
 	AdapterIsPublic bool   `json:"adapter_is_public,optional"` // 是否公共适配器
 }
 
+type App struct {
+	ID        int64  `json:"id"`
+	AppID     string `json:"app_id"`
+	Name      string `json:"name"`
+	UserID    string `json:"user_id"`
+	Desc      string `json:"desc"`
+	CRD       string `json:"crd"`
+	Status    int64  `json:"status"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type AppJob struct {
+	ID            int64  `json:"id"`
+	JobName       string `json:"job_name"`
+	UserId        string `json:"user_id"`        // 用户ID
+	AppId         string `json:"app_id"`         // 应用ID
+	AppName       string `json:"app_name"`       // 应用名字
+	InstanceName  string `json:"instance_name"`  // 实例名称
+	CpodId        string `json:"cpod_id"`        // cpod id
+	Status        string `json:"status"`         // 状态
+	BillingStatus int64  `json:"billing_status"` // 账单状态（0 未结清、1 已结清）
+	Url           string `json:"url"`            // URL
+	StartTime     string `json:"start_time"`     // 推理服务启动时间
+	EndTime       string `json:"end_time"`       // 推理服务终止时间
+	CreatedAt     string `json:"created_at"`     // 创建时间
+	UpdatedAt     string `json:"updated_at"`     // 更新时间
+}
+
+type AppJobAddReq struct {
+	BaseReq
+	AppId        string `json:"app_id"`        // 应用ID
+	AppName      string `json:"app_name"`      // 应用名字
+	InstanceName string `json:"instance_name"` // 实例名称
+}
+
+type AppJobDelReq struct {
+	BaseReq
+	JobName string `json:"job_name"`
+}
+
+type AppJobGetResp struct {
+	Data  []AppJob `json:"data"`
+	Total int64    `json:"total"`
+}
+
+type AppJobInfo struct {
+	JobName      string `json:"job_name"`
+	InstanceName string `json:"instance_name"`
+	UserID       string `json:"user_id"`
+	AppID        string `json:"app_id"`
+	AppName      string `json:"app_name"`
+	Crd          string `json:"crd"`
+}
+
+type AppJobStatus struct {
+	JobName string `json:"job_name"`
+	Status  string `json:"status"`
+	URL     string `json:"url"`
+}
+
+type AppListResp struct {
+	Data  []App `json:"data"`
+	Total int64 `json:"total"`
+}
+
+type AppRegisterReq struct {
+	BaseReq
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+	CRD  string `json:"crd"`
+}
+
 type BalanceAddReq struct {
 	UserID string  `header:"Sx-User-ID"`
 	ToUser string  `json:"user_id"`
@@ -88,6 +161,7 @@ type CPODStatusReq struct {
 	JobStatus        []JobStatus        `json:"job_status"`
 	InferenceStatus  []InferenceStatus  `json:"inference_status"`
 	JupyterlabStatus []JupyterlabStatus `json:"jupyter_status"`
+	AppJobStatus     []AppJobStatus     `json:"app_job_status"`
 	ResourceInfo     ResourceInfo       `json:"resource_info"`
 	UpdateTime       string             `json:"update_time"`
 	CPODID           string             `json:"cpod_id"`
@@ -157,6 +231,7 @@ type CpodJobResp struct {
 	JobList              []map[string]interface{} `json:"job_list"`
 	InferenceServiceList []InferenceService       `json:"inference_service_list"`
 	JupyterlabList       []JupyterLab             `json:"jupyter_lab_list"`
+	AppJobList           []AppJobInfo             `json:"app_job_list"`
 }
 
 type CreateNewUserIDResp struct {
