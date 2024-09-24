@@ -296,13 +296,14 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 
 		app, ok := appMap[appJob.AppId]
 		if !ok {
-			app, err = AppModel.FindOneByQuery(l.ctx, AppJobModel.AllFieldsBuilder().Where(
+			app, err = AppModel.FindOneByQuery(l.ctx, AppModel.AllFieldsBuilder().Where(
 				squirrel.Eq{"app_id": appJob.AppId},
 			))
 			if err != nil {
 				l.Errorf("AppModel.FindOneByQuery err: %s", err)
 				return nil, err
 			}
+			appMap[app.AppId] = app
 		}
 
 		appJobResp := types.AppJobInfo{}
