@@ -478,4 +478,5 @@ var cacheTypeToDBMap = map[string]int{
 	consts.CacheModel:   model.CacheModel,
 	consts.CacheDataSet: model.CacheDataset,
 	consts.CacheImage:   model.CacheImage,
+	consts.CacheAdapter: model.CacheAdapter,
 }
