@@ -1023,7 +1023,9 @@ func (s *SyncJob) UpdateJupyterlab(ctx context.Context, targetJupyterlab sxwl.Po
 func (s *SyncJob) processYAMLResources(ctx context.Context, portalYAMLResources []sxwl.PortalYAMLResource, readyUsers []sxwl.UserID) {
 	for _, user := range readyUsers {
 		var yamlResources cpodv1beta1.YAMLResourceList
-		err := s.kubeClient.List(ctx, &yamlResources, &client.ListOptions{Namespace: string(user)})
+		err := s.kubeClient.List(ctx, &yamlResources, &client.MatchingLabels{
+			v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+		}, client.InNamespace(user))
 		if err != nil {
 			s.logger.Error(err, "failed to list yamlresources")
 			continue
@@ -1060,6 +1062,10 @@ func (s *SyncJob) processYAMLResources(ctx context.Context, portalYAMLResources 
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      job.JobName,
 						Namespace: string(user),
+						Labels: map[string]string{
+							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+						},
 					},
 					Spec: cpodv1beta1.YAMLResourceSpec{
 						YAML:    job.YAML,
