@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -87,6 +88,17 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		labels["app.kubernetes.io/instance"] = yamlResource.Spec.AppID
 		labels["cpod.cpod/user-id"] = yamlResource.Spec.UserID
 		unstructuredObj.SetLabels(labels)
+
+		// 添加 OwnerReferences
+		ownerReference := metav1.OwnerReference{
+			APIVersion:         yamlResource.APIVersion,
+			Kind:               yamlResource.Kind,
+			Name:               yamlResource.Name,
+			UID:                yamlResource.UID,
+			Controller:         ptr.To(true),
+			BlockOwnerDeletion: ptr.To(true),
+		}
+		unstructuredObj.SetOwnerReferences([]metav1.OwnerReference{ownerReference})
 
 		// 创建或更新资源
 		created, err := r.createOrUpdateResource(ctx, unstructuredObj)
