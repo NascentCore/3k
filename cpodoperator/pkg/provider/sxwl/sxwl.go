@@ -24,7 +24,7 @@ type GetJobResponse struct {
 	TrainningJobs  []PortalTrainningJob  `json:"job_list"`
 	InferenceJobs  []PortalInferenceJob  `json:"inference_service_list"`
 	JupyterLabJobs []PortalJupyterLabJob `json:"jupyter_lab_list"`
-	YAMLResources  []PortalYAMLResource  `json:"yaml_resource_list"`
+	YAMLResources  []PortalYAMLResource  `json:"app_job_list"`
 }
 
 // GetAssignedJobList implements Scheduler.

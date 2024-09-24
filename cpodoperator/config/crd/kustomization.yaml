@@ -9,6 +9,7 @@ resources:
 - bases/cpod.cpod_finetunes.yaml
 - bases/cpod.cpod_llamafactories.yaml
 - bases/cpod.cpod_jupyterlabs.yaml
+- bases/cpod.cpod_yamlresources.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patches:
