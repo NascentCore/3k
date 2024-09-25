@@ -414,7 +414,9 @@ func (co *CPodObserver) getImages(ctx context.Context) ([]string, error) {
 
 func (co *CPodObserver) getYAMLResourceStates(ctx context.Context) ([]sxwl.YAMLResourceState, error) {
 	var yamlResources cpodv1beta1.YAMLResourceList
-	err := co.kubeClient.List(ctx, &yamlResources, &client.ListOptions{Namespace: co.cpodNamespace})
+	err := co.kubeClient.List(ctx, &yamlResources, &client.MatchingLabels{
+		v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list YAMLResources: %w", err)
 	}
