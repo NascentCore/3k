@@ -25,6 +25,7 @@ import (
 type YAMLResourceReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+	Domain string
 }
 
 //+kubebuilder:rbac:groups=cpod.cpod,resources=yamlresources,verbs=get;list;watch;create;update;patch;delete
@@ -48,8 +49,8 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Info("YAMLResource found", "yamlResource", yamlResource)
 
-	// 更新状态为 "Creating" 或 "Updating"
-	if _, err := r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseCreating, "Processing YAML resources"); err != nil {
+	// 更新状态为 "Pending" 或 "Updating"
+	if _, err := r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhasePending, "Processing YAML resources"); err != nil {
 		logger.Error(err, "Failed to update status to Creating")
 		return ctrl.Result{}, err
 	}
@@ -100,6 +101,25 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 		unstructuredObj.SetOwnerReferences([]metav1.OwnerReference{ownerReference})
 
+		if unstructuredObj.GetKind() == "Ingress" {
+			// 获取 spec.rules.host 并修改为 app_id + domain
+			if rules, found, err := unstructured.NestedSlice(unstructuredObj.Object, "spec", "rules"); found && err == nil {
+				for i, rule := range rules {
+					ruleMap := rule.(map[string]interface{})
+					if _, found := ruleMap["host"]; found {
+						ruleMap["host"] = fmt.Sprintf("%v.%v", yamlResource.Name, r.Domain)
+					}
+					rules[i] = ruleMap
+				}
+				// 将修改后的规则设置回 unstructuredObj 中
+				if err := unstructured.SetNestedSlice(unstructuredObj.Object, rules, "spec", "rules"); err != nil {
+					return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseFailed, "Failed to set Ingress host: "+err.Error())
+				}
+			} else {
+				return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseFailed, "Failed to get Ingress rules: "+err.Error())
+			}
+		}
+
 		// 创建或更新资源
 		created, err := r.createOrUpdateResource(ctx, unstructuredObj)
 		if err != nil {
@@ -112,7 +132,7 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// 更新 YAMLResource 状态
-	return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseCreated, "All resources created/updated successfully")
+	return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseRunning, "All resources created/updated successfully")
 }
 
 func (r *YAMLResourceReconciler) createOrUpdateResource(ctx context.Context, obj *unstructured.Unstructured) (bool, error) {

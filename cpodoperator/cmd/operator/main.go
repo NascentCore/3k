@@ -209,6 +209,7 @@ func main() {
 	if err = (&controller.YAMLResourceReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		Domain: inferenceIngressDomain,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "YAMLResource")
 		os.Exit(1)
