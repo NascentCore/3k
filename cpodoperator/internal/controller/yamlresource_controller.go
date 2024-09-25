@@ -80,14 +80,14 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 
 		// 添加标签
-		labels := unstructuredObj.GetLabels()
-		if labels == nil {
-			labels = make(map[string]string)
-		}
-		labels["app.kubernetes.io/name"] = yamlResource.Spec.AppName
-		labels["app.kubernetes.io/instance"] = yamlResource.Spec.AppID
-		labels["cpod.cpod/user-id"] = yamlResource.Spec.UserID
-		unstructuredObj.SetLabels(labels)
+		// labels := unstructuredObj.GetLabels()
+		// if labels == nil {
+		// 	labels = make(map[string]string)
+		// }
+		// labels["app.kubernetes.io/name"] = yamlResource.Spec.AppName
+		// labels["app.kubernetes.io/instance"] = yamlResource.Spec.AppID
+		// labels["cpod.cpod/user-id"] = yamlResource.Spec.UserID
+		// unstructuredObj.SetLabels(labels)
 
 		// 添加 OwnerReferences
 		ownerReference := metav1.OwnerReference{
