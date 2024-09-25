@@ -28,11 +28,9 @@ type YAMLResourceStatus struct {
 type YAMLResourcePhase string
 
 const (
-	YAMLResourcePhasePending  YAMLResourcePhase = "Pending"
-	YAMLResourcePhaseCreating YAMLResourcePhase = "Creating"
-	YAMLResourcePhaseCreated  YAMLResourcePhase = "Created"
-	YAMLResourcePhaseFailed   YAMLResourcePhase = "Failed"
-	YAMLResourcePhaseDeleting YAMLResourcePhase = "Deleting"
+	YAMLResourcePhasePending YAMLResourcePhase = "Pending"
+	YAMLResourcePhaseRunning YAMLResourcePhase = "Running"
+	YAMLResourcePhaseFailed  YAMLResourcePhase = "Failed"
 )
 
 //+kubebuilder:object:root=true

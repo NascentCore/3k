@@ -48,8 +48,8 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Info("YAMLResource found", "yamlResource", yamlResource)
 
-	// 更新状态为 "Creating" 或 "Updating"
-	if _, err := r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseCreating, "Processing YAML resources"); err != nil {
+	// 更新状态为 "Pending" 或 "Updating"
+	if _, err := r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhasePending, "Processing YAML resources"); err != nil {
 		logger.Error(err, "Failed to update status to Creating")
 		return ctrl.Result{}, err
 	}
@@ -112,7 +112,7 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// 更新 YAMLResource 状态
-	return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseCreated, "All resources created/updated successfully")
+	return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseRunning, "All resources created/updated successfully")
 }
 
 func (r *YAMLResourceReconciler) createOrUpdateResource(ctx context.Context, obj *unstructured.Unstructured) (bool, error) {
