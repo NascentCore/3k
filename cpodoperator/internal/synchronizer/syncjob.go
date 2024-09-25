@@ -1041,18 +1041,18 @@ func (s *SyncJob) processYAMLResources(ctx context.Context, portalYAMLResources 
 				if yamlResource.Name == job.JobName {
 					exists = true
 					// 更新现有的 YAMLResource
-					if yamlResource.Spec.YAML != job.YAML ||
-						yamlResource.Spec.AppName != job.AppName ||
-						yamlResource.Spec.AppID != job.AppID {
-						yamlResource.Spec.YAML = job.YAML
-						yamlResource.Spec.AppName = job.AppName
-						yamlResource.Spec.AppID = job.AppID
-						if err := s.kubeClient.Update(ctx, &yamlResource); err != nil {
-							s.logger.Error(err, "failed to update yamlresource", "yamlresource", yamlResource.Name)
-						} else {
-							s.logger.Info("yamlresource updated", "yamlresource", yamlResource.Name)
-						}
-					}
+					// if yamlResource.Spec.YAML != job.YAML ||
+					// 	yamlResource.Spec.AppName != job.AppName ||
+					// 	yamlResource.Spec.AppID != job.AppID {
+					// 	yamlResource.Spec.YAML = job.YAML
+					// 	yamlResource.Spec.AppName = job.AppName
+					// 	yamlResource.Spec.AppID = job.AppID
+					// 	if err := s.kubeClient.Update(ctx, &yamlResource); err != nil {
+					// 		s.logger.Error(err, "failed to update yamlresource", "yamlresource", yamlResource.Name)
+					// 	} else {
+					// 		s.logger.Info("yamlresource updated", "yamlresource", yamlResource.Name)
+					// 	}
+					// }
 					break
 				}
 			}
