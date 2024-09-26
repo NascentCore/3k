@@ -312,7 +312,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 
 		switch appJob.Status {
 		case model.StatusNotAssigned:
-			_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(squirrel.Eq{
+			_, err = AppJobModel.UpdateColsByCond(l.ctx, AppJobModel.UpdateBuilder().Where(squirrel.Eq{
 				"id": appJob.Id,
 			}).SetMap(map[string]interface{}{
 				"cpod_id": req.CpodId,
