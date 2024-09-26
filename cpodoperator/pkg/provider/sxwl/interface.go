@@ -118,6 +118,7 @@ type PortalInferenceJob struct {
 	AdapterName     string `json:"adapter_name"`
 	AdapterIsPublic bool   `json:"adapter_is_public"`
 	AdapterSize     int    `json:"adapter_size"`
+	Category        string `json:"category"`
 }
 
 type TrainningJobState struct {

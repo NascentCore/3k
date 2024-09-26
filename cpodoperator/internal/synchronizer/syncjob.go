@@ -51,10 +51,11 @@ type SyncJob struct {
 	uploadTrainedModel   bool
 	autoDownloadResource bool
 	inferImage           string
+	embeddingImage       string
 	storageClassName     string
 }
 
-func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage, storageClassName string) *SyncJob {
+func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.Logger, uploadTrainedModel, autoDownloadReource bool, inferImage, embeddingImage, storageClassName string) *SyncJob {
 	return &SyncJob{
 		kubeClient: kubeClient,
 		scheduler:  scheduler,
@@ -74,6 +75,7 @@ func NewSyncJob(kubeClient client.Client, scheduler sxwl.Scheduler, logger logr.
 		uploadTrainedModel:   uploadTrainedModel,
 		autoDownloadResource: autoDownloadReource,
 		inferImage:           inferImage,
+		embeddingImage:       embeddingImage,
 		storageClassName:     storageClassName,
 	}
 }
@@ -571,6 +573,29 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				if template == "" {
 					template = "default"
 				}
+
+				cmd := []string{
+					"python",
+					"src/api.py",
+					"--model_name_or_path",
+					"/mnt/models",
+					"--infer_backend",
+					"vllm",
+					"--template",
+					template,
+				}
+				img := s.inferImage
+				if job.Category == "Embedding" {
+					cmd = []string{
+						"v2",
+						"--model-id",
+						"/mnt/models",
+						"--port",
+						"8080",
+					}
+					img = s.embeddingImage
+				}
+
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -595,18 +620,9 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 							PodSpec: kservev1beta1.PodSpec{
 								Containers: []v1.Container{
 									{
-										Name:  "kserve-container",
-										Image: s.inferImage,
-										Command: []string{
-											"python",
-											"src/api.py",
-											"--model_name_or_path",
-											"/mnt/models",
-											"--infer_backend",
-											"vllm",
-											"--template",
-											template,
-										},
+										Name:    "kserve-container",
+										Image:   img,
+										Command: cmd,
 										Env: []v1.EnvVar{
 											{
 												Name:  "STORAGE_URI",
