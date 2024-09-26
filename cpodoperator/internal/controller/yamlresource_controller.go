@@ -49,6 +49,12 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Info("YAMLResource found", "yamlResource", yamlResource)
 
+	// 如果资源的 phase 已经是 Running，直接退出，不再重复处理
+	if yamlResource.Status.Phase == cpodv1beta1.YAMLResourcePhaseRunning {
+		logger.Info("YAMLResource is already in Running phase, no further action required.")
+		return ctrl.Result{}, nil
+	}
+
 	// 更新状态为 "Pending" 或 "Updating"
 	if _, err := r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhasePending, "Processing YAML resources"); err != nil {
 		logger.Error(err, "Failed to update status to Creating")
@@ -158,6 +164,12 @@ func (r *YAMLResourceReconciler) updateStatus(ctx context.Context, yamlResource 
 	yamlResource.Status.Message = message
 	yamlResource.Status.LastSyncTime = &metav1.Time{Time: time.Now()}
 
+	// 清除过时的 condition，将所有旧的 conditions 状态标记为 False
+	for i := range yamlResource.Status.Conditions {
+		yamlResource.Status.Conditions[i].Status = metav1.ConditionFalse
+	}
+
+	// 添加当前的状态 condition
 	condition := metav1.Condition{
 		Type:               string(phase),
 		Status:             metav1.ConditionTrue,
