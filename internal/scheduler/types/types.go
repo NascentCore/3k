@@ -20,7 +20,7 @@ type AdapterOptional struct {
 type App struct {
 	ID        int64  `json:"id"`
 	AppID     string `json:"app_id"`
-	Name      string `json:"name"`
+	AppName   string `json:"app_name"`
 	UserID    string `json:"user_id"`
 	Desc      string `json:"desc"`
 	CRD       string `json:"crd"`
