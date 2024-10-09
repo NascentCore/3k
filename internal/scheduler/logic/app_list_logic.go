@@ -40,7 +40,7 @@ func (l *AppListLogic) AppList(req *types.BaseReq) (resp *types.AppListResp, err
 		resp.Data = append(resp.Data, types.App{
 			ID:        app.Id,
 			AppID:     app.AppId,
-			Name:      app.AppName,
+			AppName:   app.AppName,
 			UserID:    app.UserId,
 			Desc:      app.Desc,
 			CRD:       app.Crd,
