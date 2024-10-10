@@ -40,6 +40,7 @@ type Config struct {
 	K8S           struct {
 		BaseApi string // k8s管理
 		BaseUrl string // 组件入口
+		AppUrl  string // 大模型应用URL
 	} `json:"-"`
 	Auth struct {
 		Secret string

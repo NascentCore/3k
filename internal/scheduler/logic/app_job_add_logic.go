@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/uuid"
 
@@ -44,6 +45,21 @@ func (l *AppJobAddLogic) AppJobAdd(req *types.AppJobAddReq) (resp *types.BaseRes
 		return nil, ErrDBFind
 	}
 
+	// check if user already have the same type app job
+	_, errDuplicate := AppJobModel.FindOneByQuery(l.ctx, AppJobModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{
+			"app_id":  req.AppId,
+			"user_id": req.UserID,
+		},
+		squirrel.NotEq{
+			"status": model.StatusDeleted,
+		},
+	}))
+	if !errors.Is(errDuplicate, model.ErrNotFound) {
+		l.Errorf("already has %s job %s", app.AppName)
+		return nil, ErrAppDuplicate
+	}
+
 	// job name
 	jobName, err := uuid.WithPrefix("appjob")
 	if err != nil {
@@ -65,5 +81,5 @@ func (l *AppJobAddLogic) AppJobAdd(req *types.AppJobAddReq) (resp *types.BaseRes
 		return nil, ErrDB
 	}
 
-	return
+	return &types.BaseResp{Message: MsgAppAddOK}, nil
 }

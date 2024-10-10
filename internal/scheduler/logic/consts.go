@@ -58,3 +58,8 @@ var (
 	MsgResourceDeleteOK = "资源删除成功"
 	MsgResourceAddOK    = "资源创建成功"
 )
+
+var (
+	ErrAppDuplicate = errors.New("已经有该类型的应用实例")
+	MsgAppAddOK     = "应用实例创建成功"
+)
