@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"sxwl/3k/internal/scheduler/model"
 	"time"
 
@@ -30,8 +31,13 @@ func NewAppJobGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AppJobG
 func (l *AppJobGetLogic) AppJobGet(req *types.BaseReq) (resp *types.AppJobGetResp, err error) {
 	AppJobModel := l.svcCtx.AppJobModel
 
-	jobs, err := AppJobModel.Find(l.ctx, AppJobModel.AllFieldsBuilder().Where(squirrel.Eq{
-		"user_id": req.UserID,
+	jobs, err := AppJobModel.Find(l.ctx, AppJobModel.AllFieldsBuilder().Where(squirrel.And{
+		squirrel.Eq{
+			"user_id": req.UserID,
+		},
+		squirrel.NotEq{
+			"status": model.StatusDeleted,
+		},
 	}))
 	if err != nil {
 		l.Errorf("AppJobGetLogic Find user_id: %s err: %v", req.UserID, err)
@@ -62,6 +68,7 @@ func (l *AppJobGetLogic) AppJobGet(req *types.BaseReq) (resp *types.AppJobGetRes
 		}
 		respJob.CreatedAt = job.CreatedAt.Format(time.DateTime)
 		respJob.UpdatedAt = job.UpdatedAt.Format(time.DateTime)
+		respJob.Url = fmt.Sprintf(l.svcCtx.Config.K8S.AppUrl, job.JobName, job.JobName)
 
 		resp.Data = append(resp.Data, respJob)
 	}
