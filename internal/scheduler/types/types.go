@@ -90,6 +90,11 @@ type AppRegisterReq struct {
 	CRD  string `json:"crd"`
 }
 
+type AppUnregisterReq struct {
+	BaseReq
+	AppID string `json:"app_id"`
+}
+
 type BalanceAddReq struct {
 	UserID string  `header:"Sx-User-ID"`
 	ToUser string  `json:"user_id"`

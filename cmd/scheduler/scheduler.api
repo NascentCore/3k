@@ -1035,6 +1035,10 @@ type (
 		Desc string `json:"desc"`
 		CRD  string `json:"crd"`
 	}
+	AppUnregisterReq {
+		BaseReq
+		AppID string `json:"app_id"`
+	}
 	AppListResp {
 		Data  []App `json:"data"`
 		Total int64 `json:"total"`
@@ -1078,6 +1082,10 @@ service scheduler-api {
 	@doc "应用注册接口"
 	@handler AppRegister
 	post /app/register (AppRegisterReq) returns (BaseResp)
+
+	@doc "应用注销接口"
+	@handler AppUnregister
+	post /app/unregister (AppUnregisterReq) returns (BaseResp)
 
 	@doc "应用查询接口"
 	@handler AppList
