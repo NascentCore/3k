@@ -143,6 +143,33 @@
         ]
       }
     },
+    "/api/app/unregister": {
+      "post": {
+        "summary": "应用注销接口",
+        "operationId": "AppUnregister",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppUnregisterReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/cluster/cpods": {
       "get": {
         "summary": "集群列表",
@@ -1710,7 +1737,7 @@
         "app_id": {
           "type": "string"
         },
-        "name": {
+        "app_name": {
           "type": "string"
         },
         "user_id": {
@@ -1737,7 +1764,7 @@
       "required": [
         "id",
         "app_id",
-        "name",
+        "app_name",
         "user_id",
         "desc",
         "crd",
@@ -1969,6 +1996,18 @@
         "name",
         "desc",
         "crd"
+      ]
+    },
+    "AppUnregisterReq": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string"
+        }
+      },
+      "title": "AppUnregisterReq",
+      "required": [
+        "app_id"
       ]
     },
     "BalanceAddReq": {

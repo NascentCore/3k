@@ -309,6 +309,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/app/register",
 				Handler: AppRegisterHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/app/unregister",
+				Handler: AppUnregisterHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api"),
 	)

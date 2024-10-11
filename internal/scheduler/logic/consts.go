@@ -60,6 +60,9 @@ var (
 )
 
 var (
-	ErrAppDuplicate = errors.New("已经有该类型的应用实例")
-	MsgAppAddOK     = "应用实例创建成功"
+	ErrAppDuplicate    = errors.New("已经有该类型的应用实例")
+	ErrAppNotExists    = errors.New("应用不存在")
+	ErrAppHasJobs      = errors.New("有运行的实例，无法删除")
+	MsgAppAddOK        = "应用实例创建成功"
+	MsgAppUnregisterOK = "应用注销成功"
 )
