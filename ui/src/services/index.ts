@@ -485,3 +485,49 @@ export const useApiClusterCpods = (options?: { [key: string]: any }) =>
   useSWR(['/api/cluster/cpods', options], ([, options]) => {
     return apiClusterCpods(options);
   });
+
+// 查询应用
+export async function apiGetAppJob() {
+  return request('/api/app/job', {
+    method: 'GET',
+  });
+}
+
+// 创建应用
+export async function apiPostAppJob(options?: { [key: string]: any }) {
+  return request('/api/app/job', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+// 终止应用
+export async function apiDeleteAppJob(options?: { [key: string]: any }) {
+  return request('/api/app/job', {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
+// 应用注册列表
+export async function apiGetAppList() {
+  return request('/api/app/list', {
+    method: 'GET',
+  });
+}
+
+// 应用注册接口
+export async function apiPostAppRegister(options?: { [key: string]: any }) {
+  return request('/api/app/register', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
+// 删除
+export async function apiDeleteAppList(options?: { [key: string]: any }) {
+  return request('/api/app/delete', {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
