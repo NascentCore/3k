@@ -16,4 +16,6 @@ export default {
   'pages.golbal.table.column.action': 'Action',
   'pages.golbal.gpu.select.option.disabled.placeholder': 'Recharge over 10000 can be selected',
   'pages.global.button.upload': 'Upload',
+  'pages.global.button.submit': 'Submit',
+  'pages.global.button.cancel': 'Cancel',
 };

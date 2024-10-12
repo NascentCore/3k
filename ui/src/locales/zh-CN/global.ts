@@ -16,4 +16,6 @@ export default {
   'pages.golbal.table.column.action': '操作',
   'pages.golbal.gpu.select.option.disabled.placeholder': '充值超过 10000 可选',
   'pages.global.button.upload': '上传',
+  'pages.global.button.submit': '提交',
+  'pages.global.button.cancel': '取消',
 };

@@ -112,6 +112,18 @@ export default [
     icon: 'DashboardOutlined',
     component: './ClusterCpods',
   },
+  // {
+  //   path: '/ApplicationManagement',
+  //   name: 'ApplicationManagement',
+  //   icon: 'AppstoreOutlined',
+  //   component: './ApplicationManagement',
+  // },
+  {
+    path: '/ApplicationMenu',
+    name: 'ApplicationMenu',
+    icon: 'AppstoreOutlined',
+    component: './ApplicationMenu',
+  },
   {
     path: '*',
     layout: false,
