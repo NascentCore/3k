@@ -1,7 +1,7 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { Drawer, Flex } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { apiGetAppJob, apiGetAppList } from '@/services';
+import { apiDeleteAppJob, apiGetAppJob, apiGetAppList } from '@/services';
 import { useIntl } from '@umijs/max';
 import AppCard from './AppCard';
 import AddAppForm from './AddAppForm';
@@ -17,9 +17,7 @@ const Index: React.FC = () => {
       apiGetAppJob().then((appJobList) => {
         const applist: any = [];
         for (const appItem of applistRes?.data || []) {
-          const jobItem = appJobList?.data?.find(
-            (x) => x.app_id === appItem.app_id && x.status === 'running',
-          );
+          const jobItem = appJobList?.data?.find((x) => x.app_id === appItem.app_id);
           appItem.jobItem = jobItem;
           applist.push(appItem);
         }
@@ -33,14 +31,16 @@ const Index: React.FC = () => {
   }, []);
 
   const deleteAction = async (record: any) => {
-    // apiDeleteAppJob({
-    //   data: record,
-    // }).then((res) => {
-    //   console.log('apiDeleteAppJob', res);
-    //   apiGetAppJob().then((res) => {
-    //     setDataSource(res.data || []);
-    //   });
-    // });
+    const params = {
+      job_name: record?.jobItem?.job_name,
+    };
+    console.log('params', params);
+    apiDeleteAppJob({
+      data: params,
+    }).then((res) => {
+      console.log('apiDeleteAppJob', res);
+      initData();
+    });
   };
   return (
     <PageContainer>

@@ -2,7 +2,7 @@ import { Button, Card, Col, Popconfirm, Row, Typography } from 'antd';
 import React from 'react';
 import { useIntl } from '@umijs/max';
 
-const Index: React.FC = ({ record, deleteAction, createAppJobAction }: any) => {
+const Index: React.FC = ({ record, onDelete, createAppJobAction }: any) => {
   const intl = useIntl();
 
   const isShowDeleteBtn =
@@ -18,7 +18,7 @@ const Index: React.FC = ({ record, deleteAction, createAppJobAction }: any) => {
               title={intl.formatMessage({
                 id: 'pages.global.confirm.title',
               })}
-              onConfirm={() => deleteAction(record)}
+              onConfirm={() => onDelete(record)}
               okText={intl.formatMessage({
                 id: 'pages.global.confirm.okText',
               })}
