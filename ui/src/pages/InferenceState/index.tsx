@@ -134,17 +134,29 @@ const Welcome: React.FC = () => {
                   {['running'].includes(record.status) && (
                     <>
                       {record.model_category === 'chat' && (
-                        <Button
-                          type={'link'}
-                          onClick={() => {
-                            window.open(record?.url);
-                          }}
-                        >
-                          {intl.formatMessage({
-                            id: 'pages.inferenceState.table.column.action.startChat',
-                            // defaultMessage: '启动聊天',
-                          })}
-                        </Button>
+                        <>
+                          <Button
+                            type={'link'}
+                            onClick={() => {
+                              window.open(record?.url);
+                            }}
+                          >
+                            {intl.formatMessage({
+                              id: 'pages.inferenceState.table.column.action.startChat',
+                              // defaultMessage: '启动聊天',
+                            })}
+                          </Button>
+                          <Button
+                            type={'link'}
+                            onClick={() => {
+                              navigator.clipboard.writeText(record.api).then(() => {
+                                message.success('API URL copied to clipboard');
+                              });
+                            }}
+                          >
+                            API
+                          </Button>
+                        </>
                       )}
                       {record.model_category === 'embedding' && (
                         <Popover
