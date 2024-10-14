@@ -834,6 +834,7 @@ type SysInference struct {
 	Model
 	AdapterOptional
 	Url       string `json:"url"`
+	API       string `json:"api"`
 	StartTime string `json:"start_time"` // 推理服务启动时间
 	EndTime   string `json:"end_time"`   // 推理服务终止时间
 }

@@ -57,13 +57,15 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if ok {
 			inferResp.Status = statusDesc
 		}
-		//if infer.ModelPublic.Int64 == model.CachePrivate {
+		// if infer.ModelPublic.Int64 == model.CachePrivate {
 		//	inferResp.ModelIsPublic = false
-		//} else {
+		// } else {
 		//	inferResp.ModelIsPublic = true
-		//}
+		// }
 		if infer.Url != "" {
 			inferResp.Url = fmt.Sprintf("%s%s", l.svcCtx.Config.K8S.BaseUrl, infer.Url)
+			// http://test.llm.nascentcore.net:30004/inference/api/infer-da9d08c4-0314-475e-bb74-b02d546e74a7/v1/chat/completions
+			inferResp.API = fmt.Sprintf("%s/inference/api/%s/v1/chat/completions", l.svcCtx.Config.K8S.BaseUrl, infer.ServiceName)
 		}
 		if infer.StartTime.Valid {
 			inferResp.StartTime = infer.StartTime.Time.Format(time.DateTime)
