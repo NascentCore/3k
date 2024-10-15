@@ -64,6 +64,7 @@ const Content = ({ record, onCancel }) => {
         model_size: currentModel.size,
         model_is_public: currentModel.is_public,
         model_template: currentModel.template,
+        model_category: currentModel.category,
         dataset_id: currentDataSet.id,
         dataset_name: currentDataSet.name,
         dataset_path: currentDataSet.path,
