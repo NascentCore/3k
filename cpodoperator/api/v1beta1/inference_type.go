@@ -22,6 +22,13 @@ import (
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
 
+type InferenceBackend string
+
+const (
+	InferenceBackendVLLM InferenceBackend = "vllm"
+	InferenceBackendRay  InferenceBackend = "ray"
+)
+
 // InferenceSpec defines the desired state of Inference
 type InferenceSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
@@ -29,9 +36,23 @@ type InferenceSpec struct {
 
 	// Predictor defines the model serving spec
 	// +required
-	Predictor kservev1beta1.PredictorSpec `json:"predictor"`
+	Predictor kservev1beta1.PredictorSpec `json:"predictor,omitempty"`
+
+	ModelID string `json:"modelId,omitempty"`
 
 	ModelIsPublic bool `json:"modelIsPublic,omitempty"`
+
+	// Backend is the inference backend, such as vllm, ray, etc.
+	Backend InferenceBackend `json:"backend,omitempty"`
+
+	GPUCount int `json:"gpuCount,omitempty"`
+
+	AutoscalerOptions *AutoscalerOptions `json:"autoscalerOptions,omitempty"`
+}
+
+type AutoscalerOptions struct {
+	MinReplicas int32 `json:"minReplicas,omitempty"`
+	MaxReplicas int32 `json:"maxReplicas,omitempty"`
 }
 
 // InferenceStatus defines the observed state of Inference

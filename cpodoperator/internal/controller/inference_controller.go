@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
+	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -20,13 +20,15 @@ import (
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/tools/record"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"knative.dev/pkg/apis"
+	duckv1 "knative.dev/pkg/apis/duck/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -39,6 +41,7 @@ type InferenceOptions struct {
 	InferencePathPrefix string
 	OssOption           OssOption
 	StorageClassName    string
+	RayImage            string
 }
 
 // CPodJobReconciler reconciles a CPodJob object
@@ -85,44 +88,57 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		}
 	}()
 
-	inferenceService := &kservev1beta1.InferenceService{}
-	if err := i.Get(ctx, types.NamespacedName{Namespace: inference.Namespace, Name: i.getInferenceServiceName(inference)}, inferenceService); err != nil {
-		if apierrors.IsNotFound(err) {
-			createErr := i.CreateBaseInferenceServices(ctx, inference)
-			if createErr != nil {
-				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateInferenceServiceFailed", createErr.Error())
-				return ctrl.Result{RequeueAfter: 20 * time.Second}, createErr
-			}
-
-			// 推理服务创建成功后，部署Web UI
-			webUIErr := i.DeployWebUI(ctx, inference)
-			if webUIErr != nil {
-				logger.Error(webUIErr, "unable to deploy Web UI")
-				return ctrl.Result{}, webUIErr
-			}
-
-			// Web UI部署成功后，创建Ingress
-			ingressErr := i.DeployWebUIIngress(ctx, inference)
-			if ingressErr != nil {
-				logger.Error(ingressErr, "unable to deploy Web UI Ingress")
-				return ctrl.Result{}, ingressErr
-			}
-
-			return ctrl.Result{}, err
-		}
+	// prepare model and adapter
+	if err := i.prepareData(ctx, inference); err != nil {
+		logrus.Error("prepare model and adapter failed", "err", err, "inference", inference)
+		inferenceDeepcopy.Status.DataReady = false
 		return ctrl.Result{}, err
 	}
+	inferenceDeepcopy.Status.DataReady = true
 
-	inferenceDeepcopy.Status.Ready = inferenceServiceReadiness(inferenceService.Status)
-	if !inferenceDeepcopy.Status.Ready {
-		inferenceDeepcopy.Status.Conditions = inferenceService.Status.Conditions
-	} else {
-		inferenceDeepcopy.Status.Conditions = nil
-		url, err := i.GetIngress(ctx, inference, inferenceService)
+	if inference.Spec.Backend == cpodv1beta1.InferenceBackendRay {
+		rayService, err := i.prepareRay(ctx, inference)
 		if err != nil {
+			logger.Error(err, "unable to create ray service")
 			return ctrl.Result{}, err
 		}
-		inferenceDeepcopy.Status.URL = &url
+		if err := i.prepareWebUI(ctx, inference); err != nil {
+			logger.Error(err, "unable to create web ui")
+			return ctrl.Result{}, err
+		}
+		inferenceDeepcopy.Status.Ready = rayServiceReadiness(rayService.Status)
+		if !inferenceDeepcopy.Status.Ready {
+			inferenceDeepcopy.Status.Conditions = duckv1.Conditions{
+				{
+					Type:   "RayServiceReady",
+					Status: corev1.ConditionFalse,
+					Reason: string(rayService.Status.ServiceStatus),
+				},
+			}
+		} else {
+			inferenceDeepcopy.Status.Conditions = nil
+			url := fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain)
+			inferenceDeepcopy.Status.URL = &url
+		}
+	} else {
+		inferenceService, err := i.prepareKserve(ctx, inference)
+		if err != nil {
+			logger.Error(err, "unable to create inferenceService")
+			return ctrl.Result{}, err
+		}
+		err = i.prepareWebUI(ctx, inference)
+		if err != nil {
+			logger.Error(err, "unable to create web ui")
+			return ctrl.Result{}, err
+		}
+		inferenceDeepcopy.Status.Ready = inferenceServiceReadiness(inferenceService.Status)
+		if !inferenceDeepcopy.Status.Ready {
+			inferenceDeepcopy.Status.Conditions = inferenceService.Status.Conditions
+		} else {
+			inferenceDeepcopy.Status.Conditions = nil
+			url := fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain)
+			inferenceDeepcopy.Status.URL = &url
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -130,109 +146,6 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 func (i InferenceReconciler) getInferenceServiceName(inference *cpodv1beta1.Inference) string {
 	return inference.Name + "-is"
-}
-
-func (i *InferenceReconciler) CreateBaseInferenceServices(ctx context.Context, inference *cpodv1beta1.Inference) error {
-	if len(inference.Spec.Predictor.GetImplementations()) == 0 {
-		return fmt.Errorf("the implementation of predictor is null")
-	}
-	predictor := inference.Spec.Predictor.GetImplementation()
-	if sourceURI := predictor.GetStorageUri(); sourceURI != nil {
-		if strings.HasPrefix(*sourceURI, cpodv1beta1.ModelStoragePrefix) {
-			modelstorageName, err := parseModelStorageURI(*sourceURI)
-			if err != nil {
-				inference.Status.DataReady = false
-				return err
-			}
-			// prepare model and adapter
-			if err := i.prepareData(ctx, modelstorageName, inference); err != nil {
-				logrus.Error("prepare model and adapter failed", "err", err, "inference", inference)
-				return err
-			}
-
-			inference.Status.DataReady = true
-
-			if inference.Spec.ModelIsPublic {
-				modelstorageName = modelstorageName + cpodv1beta1.CPodPublicStorageSuffix
-			}
-			modelstorage := cpodv1.ModelStorage{}
-			if err := i.Client.Get(ctx, client.ObjectKey{
-				Namespace: inference.Namespace,
-				Name:      modelstorageName,
-			}, &modelstorage); err != nil {
-				if apierrors.IsNotFound(err) {
-					// TODO: 更新condition
-					i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetModelstorageFailed", "modelstorage not found")
-					return err
-				}
-				return err
-			}
-
-			if modelstorage.Status.Phase != "done" {
-				return fmt.Errorf("modelstorage %s is not ready", modelstorage.Name)
-			}
-
-			pre := cpodv1beta1.Predictor(inference.Spec.Predictor)
-			pre.SetStorageURI("pvc://" + modelstorage.Spec.PVC)
-
-		}
-	}
-
-	is := kservev1beta1.InferenceService{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      inference.Name + "-is",
-			Namespace: inference.Namespace,
-			Labels:    inference.Labels,
-			OwnerReferences: []metav1.OwnerReference{
-				i.generateOwnerRefInference(ctx, inference),
-			},
-		},
-		Spec: kservev1beta1.InferenceServiceSpec{
-			Predictor: inference.Spec.Predictor,
-		},
-	}
-
-	if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIDAnno) {
-		adapterID := inference.Annotations[cpodv1beta1.CPodAdapterIDAnno]
-		if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIsPublic) {
-			adapterID = adapterID + v1beta1.CPodPublicStorageSuffix
-		}
-		adapterMs := cpodv1.ModelStorage{}
-		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: adapterID}, &adapterMs); err != nil {
-			if apierrors.IsNotFound(err) {
-				// TODO: 更新condition
-				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetAdatperFailed", "adatper modelstorage not found")
-				return err
-			}
-			return err
-		}
-
-		if adapterMs.Status.Phase != "done" {
-			return fmt.Errorf("adapter %s is not ready", adapterMs.Name)
-		}
-
-		is.Spec.Predictor.Volumes = append(is.Spec.Predictor.Volumes, corev1.Volume{
-			Name: "adapter",
-			VolumeSource: corev1.VolumeSource{
-				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-					ClaimName: adapterMs.Spec.PVC,
-				},
-			},
-		})
-
-		is.Spec.Predictor.Containers[0].VolumeMounts = append(is.Spec.Predictor.Containers[0].VolumeMounts, corev1.VolumeMount{
-			Name:      "adapter",
-			MountPath: "/mnt/adapter",
-		})
-
-		is.Spec.Predictor.Containers[0].Command = append(is.Spec.Predictor.Containers[0].Command, []string{"--adapter_name_or_path", "/mnt/adapters"}...)
-	}
-
-	if err := i.Client.Create(ctx, &is); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (i *InferenceReconciler) generateOwnerRefInference(ctx context.Context, inference *cpodv1beta1.Inference) metav1.OwnerReference {
@@ -254,7 +167,7 @@ func (i *InferenceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(i)
 }
 
-func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1beta1.Inference, inferenceservice *kservev1beta1.InferenceService) (string, error) {
+func (i *InferenceReconciler) prepareIngressOfInferenceService(ctx context.Context, inference *cpodv1beta1.Inference, inferenceservice *kservev1beta1.InferenceService) error {
 	ingressName := inference.Name + "-ingress"
 
 	var ingress netv1.Ingress
@@ -285,14 +198,60 @@ func (i *InferenceReconciler) GetIngress(ctx context.Context, inference *cpodv1b
 			if err := i.Client.Create(ctx, ingress); err != nil {
 				ctrl.Log.Info("create ingress failed", "err", err)
 				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateIngressFailed", "create ingress failed")
-				return "", err
+				return err
 			}
-			return "", nil
+			return nil
 		}
-		return "", err
+		return err
 	}
 
-	return fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain), nil
+	return nil
+}
+
+func (i *InferenceReconciler) prepareIngressOfRayService(ctx context.Context, inference *cpodv1beta1.Inference, rayService *rayv1.RayService) error {
+	ingressName := inference.Name + "-ingress"
+
+	var ingress netv1.Ingress
+	if err := i.Client.Get(ctx, types.NamespacedName{Namespace: inference.Namespace, Name: ingressName}, &ingress); err != nil {
+		if apierrors.IsNotFound(err) {
+			// 获取对应preidector service name
+			svcName := rayService.Name + "-serve-svc"
+			// 如果 svcName 的长度大于 50，则截取后 50 个字符
+			if len(svcName) > 50 {
+				svcName = svcName[len(svcName)-50:]
+			}
+
+			// create ingress
+			path := filepath.Join(i.Options.InferencePathPrefix, inference.Name+"(/|$)(.*)")
+			var rules []netv1.IngressRule
+			rules = append(rules, i.generateRule(inference.Name, svcName, path, 8000))
+			ingress := &netv1.Ingress{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      ingressName,
+					Namespace: inference.Namespace,
+					Annotations: map[string]string{
+						"kubernetes.io/ingress.class":                "nginx",
+						"nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+					},
+					OwnerReferences: []metav1.OwnerReference{
+						i.generateOwnerRefInference(ctx, inference),
+					},
+				},
+				Spec: netv1.IngressSpec{
+					Rules: rules,
+				},
+			}
+			if err := i.Client.Create(ctx, ingress); err != nil {
+				ctrl.Log.Info("create ingress failed", "err", err)
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "CreateIngressFailed", "create ingress failed")
+				return err
+			}
+			return nil
+		}
+		return err
+	}
+
+	return nil
 }
 
 func PredictorServiceName(name string) string {
@@ -334,6 +293,10 @@ func inferenceServiceReadiness(status kservev1beta1.InferenceServiceStatus) bool
 		status.GetCondition(apis.ConditionReady).Status == corev1.ConditionTrue
 }
 
+func rayServiceReadiness(status rayv1.RayServiceStatuses) bool {
+	return status.ServiceStatus == rayv1.Running
+}
+
 func inferenceServiceURL(status kservev1beta1.InferenceServiceStatus) *string {
 	if com, ok := status.Components[kservev1beta1.PredictorComponent]; ok {
 		if com.URL != nil {
@@ -352,143 +315,8 @@ func parseModelStorageURI(srcURI string) (modelStorageName string, err error) {
 	return parts[0], nil
 }
 
-func (i *InferenceReconciler) DeployWebUI(ctx context.Context, inference *cpodv1beta1.Inference) error {
-	webUISvc := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      inference.Name + "-web-ui",
-			Namespace: inference.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				i.generateOwnerRefInference(ctx, inference),
-			},
-		},
-		Spec: corev1.ServiceSpec{
-			Selector: map[string]string{
-				"app": inference.Name + "-web-ui",
-			},
-			Ports: []corev1.ServicePort{
-				{
-					Port:       8000,
-					TargetPort: intstr.FromInt(8000),
-				},
-			},
-		},
-	}
-
-	webUIDeployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      inference.Name + "-web-ui",
-			Namespace: inference.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				i.generateOwnerRefInference(ctx, inference),
-			},
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32Ptr(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": inference.Name + "-web-ui",
-				},
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": inference.Name + "-web-ui",
-					},
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:  inference.Name + "-web-ui",
-							Image: i.Options.InferenceWebuiImage,
-							Ports: []corev1.ContainerPort{
-								{
-									ContainerPort: 8000,
-								},
-							},
-							Env: []corev1.EnvVar{
-								{
-									Name:  "API_URL",
-									Value: fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", PredictorServiceName(i.getInferenceServiceName(inference)), inference.Namespace),
-								},
-								{
-									Name:  "ENV_BASE_URL",
-									Value: fmt.Sprintf("/inference/%s/", inference.Name),
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	if err := i.Client.Create(ctx, webUISvc); err != nil {
-		return err
-	}
-	if err := i.Client.Create(ctx, webUIDeployment); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (i *InferenceReconciler) DeployWebUIIngress(ctx context.Context, inference *cpodv1beta1.Inference) error {
-	pathType := netv1.PathTypeImplementationSpecific
-	webUIIngressName := inference.Name + "-web-ui-ingress"
-	webUISvcName := inference.Name + "-web-ui"
-	webUIPort := int32(8000)
-
-	ingress := &netv1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      webUIIngressName,
-			Namespace: inference.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				i.generateOwnerRefInference(ctx, inference),
-			},
-			Annotations: map[string]string{
-				"nginx.ingress.kubernetes.io/rewrite-target": "/$2",
-			},
-		},
-		Spec: netv1.IngressSpec{
-			IngressClassName: pointer.StringPtr("nginx"),
-			Rules: []netv1.IngressRule{
-				{
-					IngressRuleValue: netv1.IngressRuleValue{
-						HTTP: &netv1.HTTPIngressRuleValue{
-							Paths: []netv1.HTTPIngressPath{
-								{
-									PathType: &pathType,
-									Path:     "/inference/" + inference.Name + "(/|$)(.*)",
-									Backend: netv1.IngressBackend{
-										Service: &netv1.IngressServiceBackend{
-											Name: webUISvcName,
-											Port: netv1.ServiceBackendPort{
-												Number: webUIPort,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	if err := i.Client.Create(ctx, ingress); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// pointerTo returns a pointer to the provided PathType
-func pointerTo(pt netv1.PathType) *netv1.PathType {
-	return &pt
-}
-
-func (i *InferenceReconciler) prepareData(ctx context.Context, modelstorageName string, inference *cpodv1beta1.Inference) error {
+func (i *InferenceReconciler) prepareData(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	modelstorageName := inference.Spec.ModelID
 	wg := sync.WaitGroup{}
 	errChan := make(chan error, 2)
 
@@ -723,5 +551,444 @@ func (i *InferenceReconciler) prepareModel(ctx context.Context, modelstorageName
 		}
 		return fmt.Errorf("private model %s is not done", modelstorageName)
 	}
+	return nil
+}
+
+func (i *InferenceReconciler) prepareRay(ctx context.Context, inference *cpodv1beta1.Inference) (*rayv1.RayService, error) {
+	rayService := &rayv1.RayService{}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: inference.Name}, rayService); err != nil {
+		if apierrors.IsNotFound(err) {
+			if err := i.createRayService(ctx, inference); err != nil {
+				logrus.Errorf("failed to create ray service %s: %v", inference.Name, err)
+				return nil, fmt.Errorf("failed to create ray service %s: %v", inference.Name, err)
+			}
+			return nil, err
+		}
+		return nil, fmt.Errorf("failed to get ray service %s: %v", inference.Name, err)
+	}
+
+	if err := i.prepareIngressOfRayService(ctx, inference, rayService); err != nil {
+		logrus.Errorf("failed to prepare ingress for ray service %s: %v", inference.Name, err)
+		return nil, fmt.Errorf("failed to prepare ingress for ray service %s: %v", inference.Name, err)
+	}
+
+	return rayService, nil
+}
+
+func (i *InferenceReconciler) createRayService(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	modelstorageName := inference.Spec.ModelID
+	if inference.Spec.ModelIsPublic {
+		modelstorageName = modelstorageName + v1beta1.CPodPublicStorageSuffix
+	}
+	ms := &cpodv1.ModelStorage{}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: modelstorageName}, ms); err != nil {
+		return fmt.Errorf("failed to get model storage %s: %v", modelstorageName, err)
+	}
+
+	if ms.Status.Phase != "done" {
+		return fmt.Errorf("model storage %s is not ready", modelstorageName)
+	}
+
+	minReplicas := int32(1)
+	maxReplicas := int32(1)
+	if inference.Spec.AutoscalerOptions != nil {
+		minReplicas = inference.Spec.AutoscalerOptions.MinReplicas
+		maxReplicas = inference.Spec.AutoscalerOptions.MaxReplicas
+	}
+
+	rayService := &rayv1.RayService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name,
+			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+		},
+		Spec: rayv1.RayServiceSpec{
+			ServeConfigV2: `applications:
+    - name: llm
+      route_prefix: /
+      import_path: vllm_app:model 
+      deployments:
+      - name: VLLMDeployment
+        max_ongoing_requests: 5
+        autoscaling_config:
+          min_replicas: 1
+          initial_replicas: null
+          max_replicas: 4
+          target_ongoing_requests: 3.0
+          metrics_interval_s: 10.0
+          look_back_period_s: 30.0
+          smoothing_factor: 1.0
+          upscale_smoothing_factor: null
+          downscale_smoothing_factor: null
+          upscaling_factor: null
+          downscaling_factor: null
+          downscale_delay_s: 600.0
+          upscale_delay_s: 30.0
+      runtime_env:
+        working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"`,
+			RayClusterSpec: rayv1.RayClusterSpec{
+				EnableInTreeAutoscaling: ptr.To(true),
+				AutoscalerOptions: &rayv1.AutoscalerOptions{
+					Resources: &corev1.ResourceRequirements{
+						Requests: corev1.ResourceList{
+							"nvidia.com/gpu": resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
+						},
+						Limits: corev1.ResourceList{
+							"nvidia.com/gpu": resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
+						},
+					},
+				},
+				HeadGroupSpec: rayv1.HeadGroupSpec{
+					RayStartParams: map[string]string{
+						"dashboard-host": "0.0.0.0",
+					},
+					Template: corev1.PodTemplateSpec{
+						Spec: corev1.PodSpec{
+							Containers: []corev1.Container{
+								{
+									Name:  "ray-head",
+									Image: i.Options.RayImage,
+									Resources: corev1.ResourceRequirements{
+										Requests: corev1.ResourceList{
+											corev1.ResourceCPU:    resource.MustParse("2"),
+											corev1.ResourceMemory: resource.MustParse("8Gi"),
+										},
+										Limits: corev1.ResourceList{
+											corev1.ResourceCPU:    resource.MustParse("2"),
+											corev1.ResourceMemory: resource.MustParse("8Gi"),
+										},
+									},
+									Ports: []corev1.ContainerPort{
+										{
+											ContainerPort: 6379,
+											Name:          "gcs-server",
+										},
+										{
+											ContainerPort: 8265,
+											Name:          "dashboard",
+										},
+										{
+											ContainerPort: 10001,
+											Name:          "client",
+										},
+										{
+											ContainerPort: 8000,
+											Name:          "serve",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				WorkerGroupSpecs: []rayv1.WorkerGroupSpec{
+					{
+						Replicas:    &minReplicas,
+						MinReplicas: &minReplicas,
+						GroupName:   "gpu-group",
+						RayStartParams: map[string]string{
+							"num-cpus": fmt.Sprintf("%d", inference.Spec.GPUCount),
+						},
+						Template: corev1.PodTemplateSpec{
+							Spec: corev1.PodSpec{
+								Containers: []corev1.Container{
+									{
+										Name:  "llm",
+										Image: i.Options.RayImage,
+										Resources: corev1.ResourceRequirements{
+											Requests: corev1.ResourceList{
+												corev1.ResourceCPU:    resource.MustParse("4"),
+												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
+											},
+											Limits: corev1.ResourceList{
+												corev1.ResourceCPU:    resource.MustParse("4"),
+												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
+											},
+										},
+										VolumeMounts: []corev1.VolumeMount{
+											{
+												Name:      "cache-volume",
+												MountPath: "/dev/shm",
+											},
+											{
+												Name:      "model",
+												MountPath: "/mnt/models",
+											},
+										},
+									},
+								},
+								Volumes: []corev1.Volume{
+									{
+										Name: "cache-volume",
+										VolumeSource: corev1.VolumeSource{
+											EmptyDir: &corev1.EmptyDirVolumeSource{
+												Medium:    corev1.StorageMediumMemory,
+												SizeLimit: resource.NewQuantity(20*1024*1024*1024, resource.BinarySI),
+											},
+										},
+									},
+									{
+										Name: "model",
+										VolumeSource: corev1.VolumeSource{
+											PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+												ClaimName: ms.Spec.PVC,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if err := i.Client.Create(ctx, rayService); err != nil {
+		return fmt.Errorf("failed to create ray service %s: %v", inference.Name, err)
+	}
+	return nil
+}
+
+func (i *InferenceReconciler) prepareKserve(ctx context.Context, inference *cpodv1beta1.Inference) (*kservev1beta1.InferenceService, error) {
+	inferenceService := &kservev1beta1.InferenceService{}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: i.getInferenceServiceName(inference)}, inferenceService); err != nil {
+		if apierrors.IsNotFound(err) {
+			if err := i.createInferenceService(ctx, inference); err != nil {
+				return nil, fmt.Errorf("failed to create inference service %s: %v", inference.Name, err)
+			}
+			return nil, err
+		}
+		return nil, fmt.Errorf("failed to get inference service %s: %v", inference.Name, err)
+	}
+
+	if err := i.prepareIngressOfInferenceService(ctx, inference, inferenceService); err != nil {
+		return nil, fmt.Errorf("failed to prepare ingress for inference service %s: %v", inference.Name, err)
+	}
+	return inferenceService, nil
+}
+
+func (i *InferenceReconciler) createInferenceService(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	if len(inference.Spec.Predictor.GetImplementations()) == 0 {
+		return fmt.Errorf("the implementation of predictor is null")
+	}
+	predictor := inference.Spec.Predictor.GetImplementation()
+	if sourceURI := predictor.GetStorageUri(); sourceURI != nil {
+		if strings.HasPrefix(*sourceURI, cpodv1beta1.ModelStoragePrefix) {
+			modelstorageName := inference.Spec.ModelID
+			if inference.Spec.ModelIsPublic {
+				modelstorageName = modelstorageName + cpodv1beta1.CPodPublicStorageSuffix
+			}
+			modelstorage := cpodv1.ModelStorage{}
+			if err := i.Client.Get(ctx, client.ObjectKey{
+				Namespace: inference.Namespace,
+				Name:      modelstorageName,
+			}, &modelstorage); err != nil {
+				if apierrors.IsNotFound(err) {
+					// TODO: 更新condition
+					i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetModelstorageFailed", "modelstorage not found")
+					return err
+				}
+				return err
+			}
+
+			if modelstorage.Status.Phase != "done" {
+				return fmt.Errorf("modelstorage %s is not ready", modelstorage.Name)
+			}
+
+			pre := cpodv1beta1.Predictor(inference.Spec.Predictor)
+			pre.SetStorageURI("pvc://" + modelstorage.Spec.PVC)
+
+		}
+	}
+
+	is := kservev1beta1.InferenceService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name + "-is",
+			Namespace: inference.Namespace,
+			Labels:    inference.Labels,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+		},
+		Spec: kservev1beta1.InferenceServiceSpec{
+			Predictor: inference.Spec.Predictor,
+		},
+	}
+
+	if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIDAnno) {
+		adapterID := inference.Annotations[cpodv1beta1.CPodAdapterIDAnno]
+		if metav1.HasAnnotation(inference.ObjectMeta, cpodv1beta1.CPodAdapterIsPublic) {
+			adapterID = adapterID + v1beta1.CPodPublicStorageSuffix
+		}
+		adapterMs := cpodv1.ModelStorage{}
+		if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: adapterID}, &adapterMs); err != nil {
+			if apierrors.IsNotFound(err) {
+				// TODO: 更新condition
+				i.Recorder.Eventf(inference, corev1.EventTypeWarning, "GetAdatperFailed", "adatper modelstorage not found")
+				return err
+			}
+			return err
+		}
+
+		if adapterMs.Status.Phase != "done" {
+			return fmt.Errorf("adapter %s is not ready", adapterMs.Name)
+		}
+
+		is.Spec.Predictor.Volumes = append(is.Spec.Predictor.Volumes, corev1.Volume{
+			Name: "adapter",
+			VolumeSource: corev1.VolumeSource{
+				PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+					ClaimName: adapterMs.Spec.PVC,
+				},
+			},
+		})
+
+		is.Spec.Predictor.Containers[0].VolumeMounts = append(is.Spec.Predictor.Containers[0].VolumeMounts, corev1.VolumeMount{
+			Name:      "adapter",
+			MountPath: "/mnt/adapter",
+		})
+
+		is.Spec.Predictor.Containers[0].Command = append(is.Spec.Predictor.Containers[0].Command, []string{"--adapter_name_or_path", "/mnt/adapters"}...)
+	}
+
+	return i.Client.Create(ctx, &is)
+}
+
+func (i *InferenceReconciler) prepareWebUI(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	webUIDeployment := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name + "-web-ui",
+			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: ptr.To(int32(1)),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app": inference.Name + "-web-ui",
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"app": inference.Name + "-web-ui",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  inference.Name + "-web-ui",
+							Image: i.Options.InferenceWebuiImage,
+							Ports: []corev1.ContainerPort{
+								{
+									ContainerPort: 8000,
+								},
+							},
+							Env: []corev1.EnvVar{
+								{
+									Name:  "API_URL",
+									Value: fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", PredictorServiceName(i.getInferenceServiceName(inference)), inference.Namespace),
+								},
+								{
+									Name:  "ENV_BASE_URL",
+									Value: fmt.Sprintf("/inference/%s/", inference.Name),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: inference.Name + "-web-ui"}, webUIDeployment); err != nil {
+		if apierrors.IsNotFound(err) {
+			return i.Client.Create(ctx, webUIDeployment)
+		}
+		return fmt.Errorf("failed to get web ui deployment %s: %v", inference.Name+"-web-ui", err)
+	}
+
+	webUIService := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name + "-web-ui",
+			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"app": inference.Name + "-web-ui",
+			},
+			Ports: []corev1.ServicePort{
+				{
+					Port:       8000,
+					TargetPort: intstr.FromInt(8000),
+				},
+			},
+		},
+	}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: inference.Name + "-web-ui"}, webUIService); err != nil {
+		if apierrors.IsNotFound(err) {
+			return i.Client.Create(ctx, webUIService)
+		}
+		return fmt.Errorf("failed to get web ui service %s: %v", inference.Name+"-web-ui", err)
+	}
+
+	pathType := netv1.PathTypeImplementationSpecific
+	webUIIngressName := inference.Name + "-web-ui-ingress"
+	webUISvcName := inference.Name + "-web-ui"
+	webUIPort := int32(8000)
+
+	webUIIngress := &netv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      webUIIngressName,
+			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+			Annotations: map[string]string{
+				"nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+			},
+		},
+		Spec: netv1.IngressSpec{
+			IngressClassName: ptr.To("nginx"),
+			Rules: []netv1.IngressRule{
+				{
+					IngressRuleValue: netv1.IngressRuleValue{
+						HTTP: &netv1.HTTPIngressRuleValue{
+							Paths: []netv1.HTTPIngressPath{
+								{
+									PathType: &pathType,
+									Path:     "/inference/" + inference.Name + "(/|$)(.*)",
+									Backend: netv1.IngressBackend{
+										Service: &netv1.IngressServiceBackend{
+											Name: webUISvcName,
+											Port: netv1.ServiceBackendPort{
+												Number: webUIPort,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := i.Client.Get(ctx, client.ObjectKey{Namespace: inference.Namespace, Name: webUIIngressName}, webUIIngress); err != nil {
+		if apierrors.IsNotFound(err) {
+			return i.Client.Create(ctx, webUIIngress)
+		}
+		return fmt.Errorf("failed to get web ui ingress %s: %v", webUIIngressName, err)
+	}
+
 	return nil
 }
