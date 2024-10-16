@@ -10,6 +10,7 @@ type YAMLResourceSpec struct {
 	AppName string `json:"appName"`
 	AppID   string `json:"appId"`
 	UserID  string `json:"userId"`
+	Meta    string `json:"meta"`
 }
 
 // YAMLResourceStatus defines the observed state of YAMLResource

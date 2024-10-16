@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
@@ -61,6 +62,20 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, err
 	}
 
+	// 解析 yamlResource.Spec.Meta 并提取 env 内容
+	var meta map[string]interface{}
+	if err := json.Unmarshal([]byte(yamlResource.Spec.Meta), &meta); err != nil {
+		logger.Error(err, "Failed to parse Meta JSON")
+		return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseFailed, "Failed to parse Meta JSON: "+err.Error())
+	}
+
+	// 提取 env 变量
+	envMap, ok := meta["env"].(map[string]interface{})
+	if !ok {
+		logger.Info("No env content found in Meta, skipping environment variable injection")
+		envMap = nil // 没有找到 env，后续不处理
+	}
+
 	// 使用 yaml.NewYAMLOrJSONDecoder 来处理多个资源
 	decoder := yaml.NewYAMLOrJSONDecoder(bytes.NewReader([]byte(yamlResource.Spec.YAML)), 4096)
 	for {
@@ -85,16 +100,6 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		if unstructuredObj.GetNamespace() == "" {
 			unstructuredObj.SetNamespace(yamlResource.Namespace)
 		}
-
-		// 添加标签
-		// labels := unstructuredObj.GetLabels()
-		// if labels == nil {
-		// 	labels = make(map[string]string)
-		// }
-		// labels["app.kubernetes.io/name"] = yamlResource.Spec.AppName
-		// labels["app.kubernetes.io/instance"] = yamlResource.Spec.AppID
-		// labels["cpod.cpod/user-id"] = yamlResource.Spec.UserID
-		// unstructuredObj.SetLabels(labels)
 
 		// 添加 OwnerReferences
 		ownerReference := metav1.OwnerReference{
@@ -126,6 +131,15 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			}
 		}
 
+		// 处理 StatefulSet 资源并添加环境变量
+		if unstructuredObj.GetKind() == "StatefulSet" && envMap != nil {
+			logger.Info("StatefulSet found, injecting environment variables from Meta")
+			if err := r.addEnvToStatefulSet(unstructuredObj, envMap); err != nil {
+				logger.Error(err, "Failed to inject environment variables into StatefulSet")
+				return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseFailed, "Failed to inject environment variables into StatefulSet: "+err.Error())
+			}
+		}
+
 		// 创建或更新资源
 		created, err := r.createOrUpdateResource(ctx, unstructuredObj)
 		if err != nil {
@@ -134,11 +148,161 @@ func (r *YAMLResourceReconciler) Reconcile(ctx context.Context, req ctrl.Request
 				map[bool]string{true: "create", false: "update"}[created],
 				unstructuredObj.GetKind(), err))
 		}
+
 		logger.Info("Resource processed successfully", "resource", unstructuredObj.GetKind(), "operation", map[bool]string{true: "created", false: "updated"}[created])
+	}
+
+	if err := r.checkQanythingPodPortReady(ctx, yamlResource.Namespace); err != nil {
+		logger.Error(err, "Pod qanything-0 is not ready or ports are not open")
+		return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseFailed, err.Error())
 	}
 
 	// 更新 YAMLResource 状态
 	return r.updateStatus(ctx, yamlResource, cpodv1beta1.YAMLResourcePhaseRunning, "All resources created/updated successfully")
+}
+
+// checkQanythingPodPortReady 循环检查名为 qanything-0 的 Pod 是否处于 Ready 状态以及端口是否就绪
+func (r *YAMLResourceReconciler) checkQanythingPodPortReady(ctx context.Context, namespace string) error {
+	logger := log.FromContext(ctx)
+	pod := &unstructured.Unstructured{}
+	pod.SetKind("Pod")
+	pod.SetAPIVersion("v1")
+	pod.SetNamespace(namespace)
+	pod.SetName("qanything-0")
+
+	// 设定最大重试次数和重试间隔
+	maxRetries := 30
+	retryInterval := 5 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		// 获取名为 qanything-0 的 Pod
+		if err := r.Get(ctx, client.ObjectKey{Name: "qanything-0", Namespace: namespace}, pod); err != nil {
+			logger.Error(err, "Failed to get Pod qanything-0")
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		// 检查 Pod 是否处于 Running 状态
+		phase, found, err := unstructured.NestedString(pod.Object, "status", "phase")
+		if err != nil || !found {
+			logger.Error(err, "Failed to get status phase of Pod qanything-0")
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		logger.Info("Pod status phase:", "phase", phase)
+
+		if phase != "Running" {
+			logger.Info("Pod qanything-0 is not in Running phase yet, retrying...")
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		// 检查 Pod 的 Ready 条件是否为 True
+		conditions, found, err := unstructured.NestedSlice(pod.Object, "status", "conditions")
+		if err != nil || !found {
+			logger.Error(err, "Failed to get conditions for Pod qanything-0")
+			time.Sleep(retryInterval)
+			continue
+		}
+
+		isReady := false
+		for _, condition := range conditions {
+			conditionMap := condition.(map[string]interface{})
+			if conditionMap["type"] == "Ready" && conditionMap["status"] == "True" {
+				isReady = true
+				break
+			}
+		}
+
+		if isReady {
+			logger.Info("Pod qanything-0 is ready, checking ports...")
+
+			// 检查端口是否已开放
+			containers, found, err := unstructured.NestedSlice(pod.Object, "spec", "containers")
+			if err != nil || !found {
+				return fmt.Errorf("failed to get containers from Pod qanything-0: %v", err)
+			}
+
+			for _, container := range containers {
+				containerMap := container.(map[string]interface{})
+				ports, found, err := unstructured.NestedSlice(containerMap, "ports")
+				if err != nil || !found {
+					return fmt.Errorf("failed to get ports from container in Pod qanything-0: %v", err)
+				}
+
+				for _, port := range ports {
+					portMap := port.(map[string]interface{})
+					logger.Info("Pod qanything-0 has port open:", "port", portMap["containerPort"])
+				}
+			}
+
+			// Pod 端口检查完成，返回成功
+			return nil
+		}
+
+		logger.Info("Pod qanything-0 is not ready yet, retrying...")
+		time.Sleep(retryInterval)
+	}
+
+	// 超过最大重试次数，返回超时错误
+	return fmt.Errorf("pod qanything-0 did not become ready after %d retries", maxRetries)
+}
+
+func (r *YAMLResourceReconciler) addEnvToStatefulSet(unstructuredObj *unstructured.Unstructured, envMap map[string]interface{}) error {
+	containers, found, err := unstructured.NestedSlice(unstructuredObj.Object, "spec", "template", "spec", "containers")
+	if err != nil || !found {
+		return fmt.Errorf("failed to get containers from StatefulSet: %v", err)
+	}
+
+	// 遍历 containers 并添加或更新 env 变量
+	for i, container := range containers {
+		containerMap := container.(map[string]interface{})
+
+		// 获取现有的 env 列表
+		env, found, err := unstructured.NestedSlice(containerMap, "env")
+		if err != nil || !found {
+			env = []interface{}{}
+		}
+
+		// 创建一个 map 来追踪现有的 env 变量
+		existingEnvMap := make(map[string]int)
+		for j, e := range env {
+			envVar := e.(map[string]interface{})
+			name := envVar["name"].(string)
+			existingEnvMap[name] = j // 保存 env 变量的位置
+		}
+
+		// 将 envMap 中的 key-value 转换为 Kubernetes 环境变量格式
+		for key, value := range envMap {
+			envVar := map[string]interface{}{
+				"name":  key,
+				"value": fmt.Sprintf("%v", value),
+			}
+
+			// 如果环境变量已存在，进行更新
+			if index, exists := existingEnvMap[key]; exists {
+				env[index] = envVar
+			} else {
+				// 如果不存在，则追加新的环境变量
+				env = append(env, envVar)
+			}
+		}
+
+		// 更新 container 中的 env 列表
+		if err := unstructured.SetNestedSlice(containerMap, env, "env"); err != nil {
+			return fmt.Errorf("failed to set environment variables for container: %v", err)
+		}
+
+		containers[i] = containerMap
+	}
+
+	// 更新 StatefulSet 的 containers 列表
+	if err := unstructured.SetNestedSlice(unstructuredObj.Object, containers, "spec", "template", "spec", "containers"); err != nil {
+		return fmt.Errorf("failed to update containers in StatefulSet: %v", err)
+	}
+
+	return nil
 }
 
 func (r *YAMLResourceReconciler) createOrUpdateResource(ctx context.Context, obj *unstructured.Unstructured) (bool, error) {

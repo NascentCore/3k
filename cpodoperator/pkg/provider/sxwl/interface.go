@@ -15,6 +15,7 @@ type PortalYAMLResource struct {
 	AppName string `json:"app_name"`
 	AppID   string `json:"app_id"`
 	UserID  string `json:"user_id"`
+	Meta    string `json:"meta"`
 }
 
 type PortalJupyterLabJob struct {
