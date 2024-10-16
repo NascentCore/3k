@@ -1076,6 +1076,7 @@ func (s *SyncJob) processYAMLResources(ctx context.Context, portalYAMLResources 
 						AppName: job.AppName,
 						AppID:   job.AppID,
 						UserID:  job.UserID,
+						Meta:    job.Meta,
 					},
 				}
 				if err := s.kubeClient.Create(ctx, &newYAMLResource); err != nil {

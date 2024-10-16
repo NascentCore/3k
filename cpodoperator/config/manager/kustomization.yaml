@@ -6,7 +6,7 @@ kind: Kustomization
 images:
 - name: controller
   newName: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cpodoperator
-  newTag: dcb9518
+  newTag: 0ce99ad
 - name: portalsynch
   newName: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/portalsynch
-  newTag: dcb9518
+  newTag: 0ce99ad

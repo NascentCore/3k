@@ -47,7 +47,9 @@ const Index = ({ onChange, onCancel, record }: IProps) => {
         app_id: record.app_id,
         app_name: record.app_name,
         instance_name: '',
-        api_addr: cleanedApiBase,
+        meta: JSON.stringify({env: {
+          API_BASE: cleanedApiBase,
+          }}),
       };
       return apiPostAppJob({ data: params }).then((res) => {
         message.success('Success');

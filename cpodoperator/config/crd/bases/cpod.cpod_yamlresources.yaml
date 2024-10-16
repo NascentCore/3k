@@ -30,6 +30,8 @@ spec:
                 type: string
               appName:
                 type: string
+              meta:
+                type: string
               userId:
                 type: string
               yaml:
@@ -37,6 +39,7 @@ spec:
             required:
             - appId
             - appName
+            - meta
             - userId
             - yaml
             type: object

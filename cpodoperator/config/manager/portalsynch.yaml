@@ -176,9 +176,6 @@ spec:
             configMapKeyRef:
               key: api_address
               name: cpod-info
-        envFrom:
-        - secretRef:
-            name: akas4oss
         image: portalsynch:latest
         resources:
           limits:
