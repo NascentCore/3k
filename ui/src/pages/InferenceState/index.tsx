@@ -126,7 +126,7 @@ const Welcome: React.FC = () => {
             fixed: 'right',
             dataIndex: 'action',
             key: 'action',
-            width: 200,
+            width: 300,
             align: 'center',
             render: (_, record) => (
               <>
@@ -134,17 +134,59 @@ const Welcome: React.FC = () => {
                   {['running'].includes(record.status) && (
                     <>
                       {record.model_category === 'chat' && (
-                        <Button
-                          type={'link'}
-                          onClick={() => {
-                            window.open(record?.url);
-                          }}
-                        >
-                          {intl.formatMessage({
-                            id: 'pages.inferenceState.table.column.action.startChat',
-                            // defaultMessage: '启动聊天',
-                          })}
-                        </Button>
+                        <>
+                          <Button
+                            type={'link'}
+                            onClick={() => {
+                              window.open(record?.url);
+                            }}
+                          >
+                            {intl.formatMessage({
+                              id: 'pages.inferenceState.table.column.action.startChat',
+                              // defaultMessage: '启动聊天',
+                            })}
+                          </Button>
+                          <Popover
+                            placement="left"
+                            content={
+                              <div>
+                                <Typography.Text>
+                                  <pre style={{ maxWidth: 400 }}>{record.api}</pre>
+                                </Typography.Text>
+                                <div>
+                                  <Button
+                                    onClick={() => {
+                                      if (!navigator.clipboard) {
+                                        return;
+                                      }
+                                      navigator.clipboard.writeText(record.api).then(function () {
+                                        message.success(
+                                          intl.formatMessage({
+                                            id: 'pages.inferenceState.table.column.action.copy.success',
+                                          }),
+                                        );
+                                      });
+                                    }}
+                                  >
+                                    {intl.formatMessage({
+                                      id: 'pages.inferenceState.table.column.action.copy',
+                                    })}
+                                  </Button>
+                                </div>
+                              </div>
+                            }
+                            title={intl.formatMessage({
+                              id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
+                            })}
+                            trigger="hover"
+                          >
+                            <Button type="link">
+                              {intl.formatMessage({
+                                id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
+                              })}
+                            </Button>
+                          </Popover>
+                        </>
                       )}
                       {record.model_category === 'embedding' && (
                         <Popover
@@ -161,18 +203,30 @@ const Welcome: React.FC = () => {
                                       return;
                                     }
                                     navigator.clipboard.writeText(record.url).then(function () {
-                                      message.success('Copy success');
+                                      message.success(
+                                        intl.formatMessage({
+                                          id: 'pages.inferenceState.table.column.action.copy.success',
+                                        }),
+                                      );
                                     });
                                   }}
                                 >
-                                  复制
+                                  {intl.formatMessage({
+                                    id: 'pages.inferenceState.table.column.action.copy',
+                                  })}
                                 </Button>
                               </div>
                             </div>
                           }
-                          title="Api EndPoint"
+                          title={intl.formatMessage({
+                            id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
+                          })}
                         >
-                          <Button type="link">Api EndPoint</Button>
+                          <Button type="link">
+                            {intl.formatMessage({
+                              id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
+                            })}
+                          </Button>
                         </Popover>
                       )}
                     </>

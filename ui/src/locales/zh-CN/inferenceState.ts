@@ -10,7 +10,10 @@ export default {
   'pages.inferenceState.table.column.end_time': '终止时间',
   'pages.inferenceState.table.column.action': '操作',
   'pages.inferenceState.table.column.action.startChat': '启动聊天',
+  'pages.inferenceState.table.column.action.copyApiEndPoint': 'API地址',
   'pages.inferenceState.table.column.action.stop': '终止',
   'pages.inferenceState.table.column.action.stop.confirm': '确认终止？',
   'pages.inferenceState.table.column.action.stop.success': '操作成功',
+  'pages.inferenceState.table.column.action.copy': '复制',
+  'pages.inferenceState.table.column.action.copy.success': '复制成功',
 };

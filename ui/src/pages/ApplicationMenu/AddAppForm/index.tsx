@@ -1,8 +1,8 @@
 import { Button, Form, Input, Select, message } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
-import { apiPostAppJob } from '@/services';
+import { apiPostAppJob, useApiGetInference } from '@/services';
 
 interface IProps {
   onChange: () => void;
@@ -14,6 +14,8 @@ const Index = ({ onChange, onCancel, record }: IProps) => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
   const intl = useIntl();
+  const [inferenceOptions, setInferenceOptions] = useState([]);
+  const { data: inferenceList, mutate, isLoading } = useApiGetInference();
 
   const [form] = Form.useForm();
   useEffect(() => {
@@ -24,13 +26,28 @@ const Index = ({ onChange, onCancel, record }: IProps) => {
     }
   }, [record]);
 
+  useEffect(() => {
+    form.setFieldsValue({});
+    if (Array.isArray(inferenceList?.data)) {
+      const options = inferenceList.data
+      .filter((item: any) => item.status === 'running')
+      .map((item: any) => ({
+        label: `${item.model_name} (${item.service_name})`,
+        value: item.api,
+      }));
+      setInferenceOptions(options);
+    }
+  }, [inferenceList]);
+
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
+      const cleanedApiBase = values.api_addr ? values.api_addr.replace('/chat/completions', '') : '';
       const params = {
         app_id: record.app_id,
         app_name: record.app_name,
         instance_name: '',
+        api_addr: cleanedApiBase,
       };
       return apiPostAppJob({ data: params }).then((res) => {
         message.success('Success');
@@ -50,142 +67,24 @@ const Index = ({ onChange, onCancel, record }: IProps) => {
         >
           {record.app_name}
         </Form.Item>
-        {/* 
         <Form.Item
-          name="name"
           label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'CPU',
+            id: 'pages.applicationMenu.appAddForm.form.inference_select',
           })}
-          rules={[{ required: true }]}
+          name="api_addr"
+          rules={[{ required: false, 
+            message: intl.formatMessage({
+              id: 'pages.applicationMenu.appAddForm.form.inference_select_placeholder',
+            })
+          }]}
         >
-          <Input
-            type="number"
+          <Select
             placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
+              id: 'pages.applicationMenu.appAddForm.form.inference_select_placeholder',
             })}
-            allowClear
+            options={inferenceOptions}
           />
         </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'MEM',
-          })}
-          rules={[{ required: true }]}
-        >
-          <Input
-            type="number"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-            suffix="GB"
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: '磁盘',
-          })}
-          rules={[{ required: true }]}
-        >
-          <Input
-            type="number"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-            suffix={'GB'}
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: '服务器线程数',
-          })}
-          rules={[{ required: true }]}
-        >
-          <Input
-            type="number"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'Embedding API',
-          })}
-        >
-          <Input
-            type="text"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'Embedding API KEY',
-          })}
-        >
-          <Input
-            type="text"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'LLM API',
-          })}
-        >
-          <Input
-            type="text"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="name"
-          label={intl.formatMessage({
-            id: 'xxx',
-            defaultMessage: 'LLM API KEY',
-          })}
-        >
-          <Input
-            type="text"
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
-            allowClear
-          />
-        </Form.Item>
-        */}
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <div style={{ display: 'flex', gap: 10 }}>
             <AsyncButton type="primary" block onClick={onFinish}>
