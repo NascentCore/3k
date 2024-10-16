@@ -571,6 +571,19 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				if template == "" {
 					template = "default"
 				}
+				cmd := []string{
+					"python",
+					"src/api.py",
+					"--model_name_or_path",
+					"/mnt/models",
+					"--infer_backend",
+					"vllm",
+					"--template",
+					template,
+				}
+				if job.ModelId == "model-storage-e6b676f8f9f796d8" {
+					cmd = append(cmd, "--vllm_maxlen=8192")
+				}
 				// create
 				newJob := v1beta1.Inference{
 					ObjectMeta: metav1.ObjectMeta{
@@ -595,18 +608,9 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 							PodSpec: kservev1beta1.PodSpec{
 								Containers: []v1.Container{
 									{
-										Name:  "kserve-container",
-										Image: s.inferImage,
-										Command: []string{
-											"python",
-											"src/api.py",
-											"--model_name_or_path",
-											"/mnt/models",
-											"--infer_backend",
-											"vllm",
-											"--template",
-											template,
-										},
+										Name:    "kserve-container",
+										Image:   s.inferImage,
+										Command: cmd,
 										Env: []v1.EnvVar{
 											{
 												Name:  "STORAGE_URI",
