@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -218,6 +219,12 @@ func (r *YAMLResourceReconciler) checkQanythingPodPortReady(ctx context.Context,
 		if isReady {
 			logger.Info("Pod qanything-0 is ready, checking ports...")
 
+			// 获取 Pod 的 IP 地址
+			podIP, found, err := unstructured.NestedString(pod.Object, "status", "podIP")
+			if err != nil || !found {
+				return fmt.Errorf("failed to get pod IP for qanything-0: %v", err)
+			}
+
 			// 检查端口是否已开放
 			containers, found, err := unstructured.NestedSlice(pod.Object, "spec", "containers")
 			if err != nil || !found {
@@ -233,6 +240,14 @@ func (r *YAMLResourceReconciler) checkQanythingPodPortReady(ctx context.Context,
 
 				for _, port := range ports {
 					portMap := port.(map[string]interface{})
+					containerPort := portMap["containerPort"].(int64)
+
+					// 尝试连接端口，检查是否监听
+					if err := checkPortOpen(podIP, containerPort, 10, retryInterval); err != nil {
+						logger.Error(err, "port is not open", "pod", "qanything-0", "port", containerPort)
+						return fmt.Errorf("failed to check port open: %v", err)
+					}
+
 					logger.Info("Pod qanything-0 has port open:", "port", portMap["containerPort"])
 				}
 			}
@@ -247,6 +262,26 @@ func (r *YAMLResourceReconciler) checkQanythingPodPortReady(ctx context.Context,
 
 	// 超过最大重试次数，返回超时错误
 	return fmt.Errorf("pod qanything-0 did not become ready after %d retries", maxRetries)
+}
+
+// checkPortOpen 尝试通过 TCP 连接到指定的 IP 和端口，检查端口是否监听
+func checkPortOpen(ip string, port int64, retries int, retryInterval time.Duration) error {
+	address := fmt.Sprintf("%s:%d", ip, port)
+	for j := 0; j < retries; j++ {
+		conn, err := net.DialTimeout("tcp", address, 2*time.Second) // 尝试 2 秒内连接
+		if err != nil {
+			if j >= retries-1 {
+				// 达到最大重试次数后返回错误
+				return fmt.Errorf("check port open timeout after %d retries", retries)
+			}
+			time.Sleep(retryInterval)
+			continue
+		}
+		// 成功连接后关闭连接并退出循环
+		conn.Close()
+		break
+	}
+	return nil
 }
 
 func (r *YAMLResourceReconciler) addEnvToStatefulSet(unstructuredObj *unstructured.Unstructured, envMap map[string]interface{}) error {
