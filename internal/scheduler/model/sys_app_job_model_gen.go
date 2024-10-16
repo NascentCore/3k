@@ -47,6 +47,7 @@ type (
 		Status        int64        `db:"status"`         // 状态：0等待分配、1创建中、2运行中、3终止、4失败
 		BillingStatus int64        `db:"billing_status"` // 账单状态（0 未结清、1 已结清）
 		Url           string       `db:"url"`            // URL
+		Meta          string       `db:"meta"`           // 元数据
 		StartTime     sql.NullTime `db:"start_time"`     // 推理服务启动时间
 		EndTime       sql.NullTime `db:"end_time"`       // 推理服务终止时间
 		CreatedAt     time.Time    `db:"created_at"`     // 创建时间
@@ -96,14 +97,14 @@ func (m *defaultSysAppJobModel) FindOneByJobName(ctx context.Context, jobName st
 }
 
 func (m *defaultSysAppJobModel) Insert(ctx context.Context, data *SysAppJob) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysAppJobRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.UserId, data.AppId, data.AppName, data.InstanceName, data.CpodId, data.Status, data.BillingStatus, data.Url, data.StartTime, data.EndTime)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysAppJobRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.JobName, data.UserId, data.AppId, data.AppName, data.InstanceName, data.CpodId, data.Status, data.BillingStatus, data.Url, data.Meta, data.StartTime, data.EndTime)
 	return ret, err
 }
 
 func (m *defaultSysAppJobModel) Update(ctx context.Context, newData *SysAppJob) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysAppJobRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.JobName, newData.UserId, newData.AppId, newData.AppName, newData.InstanceName, newData.CpodId, newData.Status, newData.BillingStatus, newData.Url, newData.StartTime, newData.EndTime, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.JobName, newData.UserId, newData.AppId, newData.AppName, newData.InstanceName, newData.CpodId, newData.Status, newData.BillingStatus, newData.Url, newData.Meta, newData.StartTime, newData.EndTime, newData.Id)
 	return err
 }
 

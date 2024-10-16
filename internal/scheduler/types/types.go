@@ -51,6 +51,7 @@ type AppJobAddReq struct {
 	AppId        string `json:"app_id"`        // 应用ID
 	AppName      string `json:"app_name"`      // 应用名字
 	InstanceName string `json:"instance_name"` // 实例名称
+	Meta         string `json:"meta"`          // 应用实例元信息
 }
 
 type AppJobDelReq struct {
@@ -70,6 +71,7 @@ type AppJobInfo struct {
 	AppID        string `json:"app_id"`
 	AppName      string `json:"app_name"`
 	Crd          string `json:"crd"`
+	Meta         string `json:"meta"`
 }
 
 type AppJobStatus struct {
