@@ -75,6 +75,7 @@ func (l *AppJobAddLogic) AppJobAdd(req *types.AppJobAddReq) (resp *types.BaseRes
 		InstanceName:  req.InstanceName,
 		Status:        model.StatusNotAssigned,
 		BillingStatus: model.BillingStatusComplete,
+		Meta:          req.Meta,
 	})
 	if err != nil {
 		l.Errorf("create job insert user_id: %s err: %s", err)

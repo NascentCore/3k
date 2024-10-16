@@ -1865,13 +1865,18 @@
         "instance_name": {
           "type": "string",
           "description": " 实例名称"
+        },
+        "meta": {
+          "type": "string",
+          "description": " 应用实例元信息"
         }
       },
       "title": "AppJobAddReq",
       "required": [
         "app_id",
         "app_name",
-        "instance_name"
+        "instance_name",
+        "meta"
       ]
     },
     "AppJobDelReq": {
@@ -1926,6 +1931,9 @@
         },
         "crd": {
           "type": "string"
+        },
+        "meta": {
+          "type": "string"
         }
       },
       "title": "AppJobInfo",
@@ -1935,7 +1943,8 @@
         "user_id",
         "app_id",
         "app_name",
-        "crd"
+        "crd",
+        "meta"
       ]
     },
     "AppJobStatus": {
@@ -4699,6 +4708,9 @@
         "url": {
           "type": "string"
         },
+        "api": {
+          "type": "string"
+        },
         "start_time": {
           "type": "string",
           "description": " 推理服务启动时间"
@@ -4713,6 +4725,7 @@
         "service_name",
         "status",
         "url",
+        "api",
         "start_time",
         "end_time"
       ]
