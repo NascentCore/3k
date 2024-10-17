@@ -1,4 +1,4 @@
-name: Docker Images
+name: Cache Docker Images to AliYun Registry
 
 on:
   workflow_dispatch:
