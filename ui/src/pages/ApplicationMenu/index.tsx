@@ -28,6 +28,14 @@ const Index: React.FC = () => {
   };
   useEffect(() => {
     initData();
+
+    // 每隔30秒刷新一次数据
+    const interval = setInterval(() => {
+      initData();
+    }, 30000);
+
+    // 组件卸载时清除定时器
+    return () => clearInterval(interval);
   }, []);
 
   const deleteAction = async (record: any) => {
