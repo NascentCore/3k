@@ -252,7 +252,7 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) []sxwl.U
 					Spec: v1.PersistentVolumeClaimSpec{
 						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 						StorageClassName: &s.storageClassName,
-						Resources: v1.ResourceRequirements{
+						Resources: v1.VolumeResourceRequirements{
 							Requests: v1.ResourceList{
 								v1.ResourceStorage: resource.MustParse("10Gi"),
 							},
@@ -763,7 +763,7 @@ func (s *SyncJob) createPVC(ctx context.Context, pvcName, pvcSize, storageClass 
 			AccessModes: []v1.PersistentVolumeAccessMode{
 				v1.ReadWriteMany,
 			},
-			Resources: v1.ResourceRequirements{
+			Resources: v1.VolumeResourceRequirements{
 				Requests: map[v1.ResourceName]resource.Quantity{
 					v1.ResourceStorage: resource.MustParse(pvcSize),
 				},
