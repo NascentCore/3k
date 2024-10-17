@@ -53,6 +53,7 @@ type Model struct {
 	ModelPath     string `json:"model_path"`
 	ModelTemplate string `json:"model_template"`
 	ModelIsPublic bool   `json:"model_is_public"`
+	ModelCategory string `json:"model_category"`
 }
 
 type Adapter struct {
@@ -119,6 +120,7 @@ type PortalInferenceJob struct {
 	AdapterName     string `json:"adapter_name"`
 	AdapterIsPublic bool   `json:"adapter_is_public"`
 	AdapterSize     int    `json:"adapter_size"`
+	ModelCategory   string `json:"model_category"`
 }
 
 type TrainningJobState struct {

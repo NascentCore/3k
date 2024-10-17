@@ -42,6 +42,8 @@ spec:
             type: object
           spec:
             properties:
+              category:
+                type: string
               converttensortrengine:
                 type: boolean
               isloraadapter:
