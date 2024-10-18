@@ -1,12 +1,9 @@
 function detectDevice() {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (/android/i.test(userAgent)) {
-        return "Android";
+    if (window.innerWidth > 768) {
+        return "Desktop";
+    } else {
+        return "Mobile";
     }
-    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        return "iOS";
-    }
-    return "Desktop";
 }
 
 function debounce(func, wait) {
@@ -26,13 +23,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
 
+    // 创建一个隐藏的 div 来测量文本
+    const hiddenDiv = document.createElement('div');
+    hiddenDiv.classList.add('hidden-div');
+    hiddenDiv.style.position = 'absolute';
+    hiddenDiv.style.top = '-9999px';
+    hiddenDiv.style.left = '-9999px';
+    hiddenDiv.style.visibility = 'hidden';
+    hiddenDiv.style.whiteSpace = 'pre-wrap';
+    hiddenDiv.style.wordWrap = 'break-word';
+    document.body.appendChild(hiddenDiv);
+
+    // 设置 textarea 的初始样式
+    const initialHeight = 25; // 设置一个较小的初始高度
+    userInput.style.height = initialHeight + 'px';
+    userInput.style.overflowY = 'hidden';
+
+    // 动态调整 textarea 高度
+    userInput.addEventListener('input', autoResizeTextarea);
+
+    function autoResizeTextarea() {
+        hiddenDiv.innerHTML = userInput.value.replace(/\n/g, '<br>') + '<br>';
+        hiddenDiv.style.width = userInput.offsetWidth + 'px';
+        
+        const contentHeight = hiddenDiv.offsetHeight;
+        
+        if (contentHeight > initialHeight) {
+            userInput.style.height = contentHeight + 'px';
+        } else {
+            userInput.style.height = initialHeight + 'px';
+        }
+    }
+
     // 显示图片
     const imageElement = document.createElement('img');
     imageElement.src = '21book.png';
     imageElement.alt = '21book';
     imageElement.style.width = '200px'; // 调整图片大小
     imageElement.style.display = 'block';
-    imageElement.style.margin = '0 auto 20px'; // 居中并添加底部间距
+    imageElement.style.margin = '0 auto 20px'; // 居中并底部间距
     chatMessages.appendChild(imageElement);
 
     // 显示欢迎气泡
@@ -46,18 +75,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('voice-button').addEventListener('click', () => {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'zh-CN';
+    // 显示录音状态
+    document.getElementById('voice-button').addEventListener('click', function() {
+        const recordingIndicator = document.getElementById('recording-indicator');
+        // 显示录音状态
+        recordingIndicator.style.display = 'inline';
+
+        // 检查浏览器是否支持SpeechRecognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error('浏览器不支持SpeechRecognition');
+            recordingIndicator.style.display = 'none';
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN'; // 设置语言为中文
+        recognition.interimResults = false; // 只获取最终结果
+        recognition.maxAlternatives = 1;
+
         recognition.start();
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
-            userInput.value = transcript;
+            userInput.value = transcript; // 将识别结果填入输入框
+            autoResizeTextarea(); // 调整高度
+            recordingIndicator.style.display = 'none'; // 隐藏录音状态
         };
 
         recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
+            console.error('语音识别错误:', event.error);
+            recordingIndicator.style.display = 'none'; // 隐藏录音状态
+        };
+
+        recognition.onend = () => {
+            recordingIndicator.style.display = 'none'; // 确保在识别结束时隐藏录音状态
         };
     });
 
@@ -66,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message) {
             addMessage(message, 'user-message', 'user-avatar.png');
             userInput.value = '';
+            autoResizeTextarea(); // 重置高度
             fetchResponse(message);
         }
     }
@@ -219,37 +272,71 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
         modal.style.display = 'flex';
         modal.style.justifyContent = 'center';
-        modal.style.alignItems = 'center';
+        modal.style.alignItems = 'flex-start';
         modal.style.zIndex = '1000';
+        modal.style.overflowY = 'auto';
+        modal.style.paddingTop = '60px'; // 为返回按钮留出空间
 
         const modalContent = document.createElement('div');
-        modalContent.style.backgroundColor = '#2c2c2e';
+        modalContent.style.backgroundColor = '#333';
         modalContent.style.color = '#fff';
         modalContent.style.padding = '20px';
         modalContent.style.borderRadius = '10px';
         modalContent.style.width = '90%';
-        modalContent.style.maxHeight = '80%';
-        modalContent.style.overflow = 'auto';
+        modalContent.style.maxWidth = '760px'; // 与输入框最大宽度一致
+        modalContent.style.marginBottom = '20px'; // 底部留出一些空间
 
-        const closeButton = document.createElement('button');
-        closeButton.textContent = '关闭';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '10px';
-        closeButton.style.right = '10px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.backgroundColor = '#007bff';
-        closeButton.style.color = 'white';
-        closeButton.style.border = 'none';
-        closeButton.style.borderRadius = '5px';
-        closeButton.style.cursor = 'pointer';
-        closeButton.onclick = () => document.body.removeChild(modal);
+        const backButton = document.createElement('button');
+        backButton.textContent = '返回';
+        backButton.style.position = 'fixed';
+        backButton.style.top = '10px';
+        backButton.style.left = '10px';
+        backButton.style.padding = '5px 10px';
+        backButton.style.backgroundColor = '#007bff';
+        backButton.style.color = 'white';
+        backButton.style.border = 'none';
+        backButton.style.borderRadius = '5px';
+        backButton.style.cursor = 'pointer';
+        backButton.style.zIndex = '1001'; // 确保按钮始终在最上层
 
         const decodedContent = content.replace(/\\n/g, '\n').replace(/\\'/g, "'");
 
-        modalContent.innerHTML = `<h2>${fileName}</h2>${marked.parse(decodedContent)}`;
-        modalContent.appendChild(closeButton);
+        modalContent.innerHTML = `<h2 style="margin-top: 0;">${fileName}</h2>${marked.parse(decodedContent)}`;
 
+        modal.appendChild(backButton);
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
+
+        // 点击模态框外部区域关闭
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+
+        // 点击返回按钮关闭
+        backButton.onclick = () => document.body.removeChild(modal);
+
+        // 阻止模态内容的点击事件冒泡到模态框
+        modalContent.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
     };
+
+    // 根据设备类型调整布局
+    function adjustLayout() {
+        const deviceType = detectDevice();
+        const chatMessages = document.getElementById('chat-messages');
+        const inputContainer = document.getElementById('input-container');
+
+        if (deviceType === "Desktop") {
+            chatMessages.style.maxWidth = inputContainer.style.maxWidth;
+        } else {
+            chatMessages.style.maxWidth = '100%';
+        }
+    }
+
+    // 初始调整和窗口大小变化时调整
+    adjustLayout();
+    window.addEventListener('resize', adjustLayout);
 });

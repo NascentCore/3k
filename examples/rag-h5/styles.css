@@ -11,6 +11,7 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center; /* 居中对齐内容 */
 }
 
 #chat-messages {
@@ -18,12 +19,15 @@ body {
     overflow-y: auto;
     padding: 20px 10px;
     padding-bottom: 80px; /* 增加底部填充，避免遮挡 */
+    width: 100%;
+    max-width: calc(90% - 40px); /* 与输入框宽度一致 */
 }
 
 .message-container {
     display: flex;
     align-items: flex-start;
     margin-bottom: 20px;
+    max-width: 100%; /* 确保消息容器不超过父元素宽度 */
 }
 
 .user-message {
@@ -74,13 +78,15 @@ body {
 #input-container {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 10px 20px; /* 增加左右内边距 */
     background-color: #333;
     border-radius: 25px;
     position: fixed;
     bottom: 20px;
-    left: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(90% - 40px); /* 减少宽度以补偿增加的内边距 */
+    max-width: 760px; /* 减少最大宽度以补偿增加的内边距 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
@@ -142,20 +148,34 @@ body {
     background-color: #0056b3;
 }
 
+@media (min-width: 769px) {
+    #chat-messages {
+        max-width: 760px; /* 与输入框最大宽度一致 */
+    }
+}
+
 @media (max-width: 768px) {
+    #chat-messages {
+        width: calc(100% - 20px); /* 移动设备上的宽度 */
+    }
+
     .message {
         max-width: calc(90% - 55px);
     }
+}
 
-    .source-links {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 10px !important;
-    }
-
-    .source-link {
-        display: flex !important;
-        width: 30px !important;
-        height: 30px !important;
-    }
+.floating-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(50, 50, 50, 0.9); /* 更贴合深色主题的背景色 */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    font-size: 16px;
+    pointer-events: none; /* 确保不影响输入框的交互 */
+    border: 1px solid #555; /* 添加边框以增强视觉效果 */
 }
