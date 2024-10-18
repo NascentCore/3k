@@ -195,12 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 
+            let fullChunk = '';
             let fullResponse = '';
             let sourceDocuments = [];
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const chunk = decoder.decode(value);
+                fullChunk += chunk;
                 const lines = chunk.split('\n');
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
@@ -222,9 +224,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             updateAssistantMessage(textElement, fullResponse, sourceDocuments);
+            filterFull(fullChunk);
         } catch (error) {
             console.error('Error in fetchResponse:', error);
             textElement.textContent = '抱歉，发生了错误：' + error.message;
+        }
+
+        function filterFull(chunk){
+            let fullResponse = '';
+            let sourceDocuments = [];
+            console.log('response.text()',  chunk);
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(line.replace('data: ',''));
+                        if (data.response) {
+                            fullResponse += data.response;
+                        }
+                        if (data.source_documents) {
+                            sourceDocuments = sourceDocuments.concat(data.source_documents);
+                        } else if (data.retrieval_documents) {
+                            sourceDocuments = sourceDocuments.concat(data.retrieval_documents);
+                        }
+                        debouncedUpdateAssistantMessage(textElement, fullResponse, sourceDocuments);
+                    } catch (e) {
+                        console.error('解析JSON时出错:', e);
+                        console.log(line);
+                    }
+                }
+            }
+    
+            console.log('fullResponse', fullResponse);
+            updateAssistantMessage(textElement, fullResponse, sourceDocuments);
         }
     }
 
