@@ -39,10 +39,11 @@ body {
     height: 40px;
     border-radius: 50%;
     margin: 0 2.5px;
+    flex-shrink: 0; /* 防止头像被压缩 */
 }
 
 .message {
-    max-width: calc(100% - 55px);
+    max-width: calc(100% - 65px);
     padding: 10px 15px;
     border-radius: 10px;
     line-height: 1.5;
@@ -63,6 +64,8 @@ body {
 .user-message .message {
     background-color: #007bff;
     color: white;
+    margin-left: 50px; /* 增加左边距，使其与答案气泡的左边框对齐 */
+    margin-right: 5px; /* 保持右边距不变 */
 }
 
 .user-message .message::before {
@@ -73,6 +76,11 @@ body {
 .assistant-message .message::before {
     left: -8px;
     border-right-color: #2c2c2e;
+}
+
+.assistant-message .message {
+    margin-right: 45px; /* 助手消息右边往里收，不超过用户头像 */
+    margin-left: 5px; /* 重置左边距 */
 }
 
 #input-container {
@@ -157,10 +165,21 @@ body {
 @media (max-width: 768px) {
     #chat-messages {
         width: calc(100% - 20px); /* 移动设备上的宽度 */
+        max-width: none; /* 移除最大宽度限制 */
     }
 
     .message {
-        max-width: calc(90% - 55px);
+        max-width: calc(100% - 65px); /* 调整消息最大宽度 */
+    }
+    
+    .user-message .message {
+        margin-left: 50px;
+        margin-right: 5px;
+    }
+    
+    .assistant-message .message {
+        margin-right: 50px;
+        margin-left: 5px;
     }
 }
 
