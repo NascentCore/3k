@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const data = JSON.parse(line.replace('data: ',''));
                         if (data.response) {
-                            fullResponse += data.response;
+                            fullResponse = data.response;
                         }
                         if (data.source_documents) {
                             sourceDocuments = sourceDocuments.concat(data.source_documents);
