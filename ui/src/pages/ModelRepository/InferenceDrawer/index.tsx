@@ -150,10 +150,7 @@ const Content = ({ record, onCancel }) => {
             <Select
               allowClear
               options={adaptersOptions}
-              placeholder={intl.formatMessage({
-                id: 'pages.global.form.placeholder',
-                defaultMessage: '请输入',
-              })}
+              placeholder='无'
             />
           </Form.Item>
         )}
