@@ -37,7 +37,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           dataIndex: 'owner',
           key: 'owner',
           align: 'center',
-          width: 350,
+          width: 200,
         },
         {
           title: intl.formatMessage({
@@ -47,7 +47,7 @@ const TabTable = ({ dataSource, loading }: any) => {
           dataIndex: 'category',
           key: 'category',
           align: 'center',
-          width: 350,
+          width: 150,
         },
         {
           title: intl.formatMessage({
