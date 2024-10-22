@@ -33,16 +33,22 @@ export default [
     component: './ModelRepository',
   },
   {
-    path: '/Dataset',
-    name: 'Dataset',
-    icon: 'TableOutlined',
-    component: './Dataset',
-  },
-  {
     path: '/Adapter',
     name: 'Adapter',
     icon: 'SwapOutlined',
     component: './Adapter',
+  },
+  {
+    path: '/ApplicationMenu',
+    name: 'ApplicationMenu',
+    icon: 'AppstoreOutlined',
+    component: './ApplicationMenu',
+  },
+  {
+    path: '/JupyterLab',
+    name: 'JupyterLab',
+    icon: 'ExperimentOutlined',
+    component: './JupyterLab',
   },
   {
     path: '/UserJobCommit',
@@ -61,6 +67,12 @@ export default [
     name: 'InferenceState',
     icon: 'CheckCircleOutlined',
     component: './InferenceState',
+  },
+  {
+    path: '/Dataset',
+    name: 'Dataset',
+    icon: 'TableOutlined',
+    component: './Dataset',
   },
   // {
   //   path: '/Tensorboard',
@@ -94,12 +106,6 @@ export default [
     component: './UserQuota',
     access: 'adminRouteFilter',
   },
-  {
-    path: '/JupyterLab',
-    name: 'JupyterLab',
-    icon: 'ExperimentOutlined',
-    component: './JupyterLab',
-  },
   // {
   //   path: '/LLaMA-Factory',
   //   name: 'LLaMA-Factory',
@@ -118,12 +124,6 @@ export default [
   //   icon: 'AppstoreOutlined',
   //   component: './ApplicationManagement',
   // },
-  {
-    path: '/ApplicationMenu',
-    name: 'ApplicationMenu',
-    icon: 'AppstoreOutlined',
-    component: './ApplicationMenu',
-  },
   {
     path: '*',
     layout: false,
