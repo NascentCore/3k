@@ -59,7 +59,7 @@ const Index: React.FC = () => {
               record={item}
               onDelete={deleteAction}
               createAppJobAction={(record: any) => {
-                console.log('部署', record);
+                console.log('创建实例', record);
                 setAddAppJobRecord(record);
                 setAddAppJobOpen(true);
               }}
