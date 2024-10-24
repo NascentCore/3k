@@ -1,0 +1,168 @@
+{{- if .Values.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: {{ .Values.mysql.image }}
+        env:
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-gateway
+  template:
+    metadata:
+      labels:
+        app: go-gateway
+    spec:
+      containers:
+      - name: go-gateway
+        image: {{ .Values.gateway.image }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GATEWAY_ENV
+          value: "k8s"
+        - name: GATEWAY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: go-gateway-secret
+              key: gateway_dsn
+        - name: AUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: go-gateway-secret
+              key: auth_secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-scheduler
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: go-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-scheduler
+  template:
+    metadata:
+      labels:
+        app: go-scheduler
+    spec:
+      containers:
+      - name: go-scheduler
+        image: {{ .Values.scheduler.image }}
+        ports:
+        - containerPort: 80
+        env:
+        {{- range $key, $value := .Values.scheduler.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        - name: SCHEDULER_DSN
+          valueFrom:
+            secretKeyRef:
+              name: go-scheduler-secrets
+              key: scheduler_dsn
+        - name: ADMIN_ACCESS_ID
+          valueFrom:
+            secretKeyRef:
+              name: go-scheduler-secrets
+              key: admin_access_id
+        - name: ADMIN_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: go-scheduler-secrets
+              key: admin_access_key
+        - name: UPLOAD_ACCESS_ID
+          valueFrom:
+            secretKeyRef:
+              name: go-scheduler-secrets
+              key: upload_access_id
+        - name: UPLOAD_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: go-scheduler-secrets
+              key: upload_access_key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webui
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      labels:
+        app: webui
+    spec:
+      containers:
+      - name: webui
+        image: {{ .Values.webui.image }}
+        ports:
+        - containerPort: 80
+{{- end }}

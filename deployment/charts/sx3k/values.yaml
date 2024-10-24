@@ -1,0 +1,64 @@
+sxcloud:
+  enabled: true
+  namespace: sxcloud
+
+  mysql:
+    image: mysql:8.0
+    rootPassword: "rootPassword"
+    user: "aiadmin"
+    password: "mysqlPassword"
+    database: "aiadmin"
+    storageSize: "10Gi"
+    storageClassName: "juicefs-sc"
+
+  gateway:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-gateway:v0.0.40
+    dsn: "aiadmin:mysqlPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+
+  scheduler:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:v0.0.209
+    dsn: "aiadmin:mysqlPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+    adminAccessId: ""
+    adminAccessKey: ""
+    uploadAccessId: ""
+    uploadAccessKey: ""
+    env:
+      INFERENCE_URL_FORMAT: ""
+      K8S_BASE_API: "http://214.2.5.2:5000"
+      K8S_BASE_URL: "http://3k.llm.sxwl.ai:30003"
+
+  webui:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/webui:v62-sxcloud-private
+
+  persistence:
+    enabled: true
+    storageClass: "juicefs-sc"
+    accessMode: ReadWriteMany
+    size: 10Gi
+
+  ingress:
+    domain: sx3k.sxwl.io
+
+cpodoperator:
+  enabled: true
+  namespace: cpod-system
+
+  sxcloud:
+    apiAddress: "http://node_ip:30008"
+    cpodId: ""
+    ossBucket: ""
+    storageClass: "juicefs-sc"
+    logLevel: "INFO"
+
+  cpodoperator:
+    manager:
+      image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cpodoperator:60f1361
+      args:
+        jupyterlabImage: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/jupyterlab-llamafactory:v13"
+        storageClassName: "juicefs-sc"
+        oss:
+          ak: ""
+          as: ""
+
+  portalsynch:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/portalsynch:60f1361

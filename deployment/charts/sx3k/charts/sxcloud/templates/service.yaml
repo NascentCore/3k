@@ -1,0 +1,56 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-gateway-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: go-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-scheduler-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: go-scheduler
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webui-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: webui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30008
+  type: NodePort
+{{- end }}

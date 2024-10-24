@@ -1,0 +1,32 @@
+name: Release Helm Chart
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+    - main
+    paths:
+    - 'deployment/charts/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        helm-version: 'v3.0.0'
+
+    - name: Package Helm chart
+      run: helm package ./deployment/charts/sx3k
+
+    - name: Create Helm chart release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: sx3k-*.tgz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
