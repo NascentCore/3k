@@ -44,7 +44,7 @@ cpodoperator:
   namespace: cpod-system
 
   sxcloud:
-    apiAddress: "http://node_ip:30008"
+    apiAddress: "http://{node_ip}:30008"
     cpodId: ""
     ossBucket: ""
     storageClass: "juicefs-sc"
