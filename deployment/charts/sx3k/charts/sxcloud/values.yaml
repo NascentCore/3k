@@ -1,0 +1,48 @@
+namespace: sxcloud
+enabled: true
+
+mysql:
+  image: mysql:8.0
+  rootPassword: "rootPasword"
+  user: "aiadmin"
+  password: "mysqlPassword"
+  database: "aiadmin"
+  storageSize: "10Gi"
+  storageClassName: "juicefs-sc"
+
+gateway:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-gateway:v0.0.35
+  dsn: "aiadmin:mysqlPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+  authSecret: "fd4db9644040cb8231cf7fb727a7ff23a85b985da450c0c840976127c9c0adfe0ef9a4f7e88ce7a1585dd59cf78f0ea57535d6b1cd744c1ee62d726572f51432"
+
+scheduler:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:v0.0.174
+  dsn: "aiadmin:mysqlPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+  adminAccessId: ""
+  adminAccessKey: ""
+  uploadAccessId: ""
+  uploadAccessKey: ""
+  env:
+    SCHEDULER_ENV: "k8s"
+    INFERENCE_URL_FORMAT: ""
+    K8S_BASE_API: ""
+    EMAIL_USERNAME: "donotreplay@sxwl.ai"
+    EMAIL_SENDER_NAME: "sxwl"
+    EMAIL_PORT: "465"
+    EMAIL_HOST: "smtp.feishu.cn"
+    EMAIL_PASSWORD: "Yang123456"
+    K8S_BASE_URL: ""
+    AUTH_SECRET: "fd4db9644040cb8231cf7fb727a7ff23a85b985da450c0c840976127c9c0adfe0ef9a4f7e88ce7a1585dd59cf78f0ea57535d6b1cd744c1ee62d726572f51432"
+    RSA_PRIVATE_KEY: "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEA0vfvyTdGJkdbHkB8mp0f3FE0GYP3AYPaJF7jUd1M0XxFSE2ceK3k2kw20YvQ09NJKk+OMjWQl9WitG9pB6tSCQIDAQABAkA2SimBrWC2/wvauBuYqjCFwLvYiRYqZKThUS3MZlebXJiLB+Ue/gUifAAKIg1avttUZsHBHrop4qfJCwAI0+YRAiEA+W3NK/RaXtnRqmoUUkb59zsZUBLpvZgQPfj1MhyHDz0CIQDYhsAhPJ3mgS64NbUZmGWuuNKp5coY2GIj/zYDMJp6vQIgUueLFXv/eZ1ekgz2Oi67MNCk5jeTF2BurZqNLR3MSmUCIFT3Q6uHMtsB9Eha4u7hS31tj1UWE+D+ADzp59MGnoftAiBeHT7gDMuqeJHPL4b+kC+gzV4FGTfhR9q3tTbklZkD2A=="
+
+webui:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/webui:v62-sxcloud-private
+
+persistence:
+  enabled: true
+  storageClass: "juicefs-sc"
+  accessMode: ReadWriteMany
+  size: 10Gi
+
+ingress:
+  domain: sx3k.sxwl.io

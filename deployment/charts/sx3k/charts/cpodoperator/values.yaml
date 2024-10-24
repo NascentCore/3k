@@ -1,0 +1,25 @@
+namespace: cpod-system
+enabled: true
+
+sxcloud:
+  accessKey: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhOWFmMjkwODY0NzU0ZmIyODIzY2Q0NWJiNTQyMzJkNCIsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwidXNlcl9pZCI6InVzZXItM2Y5ODFlZDUtZDhlNi00ZTk4LTgwMTYtNTVkY2JkMGU4YmIxIiwidXNlcmlkIjo2NiwidXNlcm5hbWUiOiJhZG1pbkBleGFtcGxlLmNvbSJ9.Tdh6waramWR_3kgiaTwfafFrJTblovKfbAO3WOpmuNjoFcrm8XmApCE86wPfIAqxV4o1nChZFZXTPWuyfBF3hQ"
+  apiAddress: "http://{node_ip}:30008"
+  cpodId: ""
+  ossBucket: "sxwl-ai"
+  storageClass: "juicefs-sc"
+  logLevel: "INFO"
+
+cpodoperator:
+  rbacProxy:
+    image: dockerhub.kubekey.local/kubesphereio/kube-rbac-proxy:0.15.0
+  manager:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cpodoperator:dbcdabb
+    args:
+      jupyterlabImage: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/jupyterlab-llamafactory:v13"
+      storageClassName: "juicefs-sc"
+      oss:
+        ak: ""
+        as: ""
+
+portalsynch:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/portalsynch:dbcdabb
