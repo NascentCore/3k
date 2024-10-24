@@ -37,7 +37,7 @@ sxcloud:
     size: 10Gi
 
   ingress:
-    domain: sx3k.sxwl.io
+    domain: sx3k.sxwl.ai
 
 cpodoperator:
   enabled: true
