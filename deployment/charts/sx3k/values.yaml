@@ -24,8 +24,8 @@ sxcloud:
     uploadAccessKey: ""
     env:
       INFERENCE_URL_FORMAT: ""
-      K8S_BASE_API: "http://214.2.5.2:5000"
-      K8S_BASE_URL: "http://3k.llm.sxwl.ai:30003"
+      K8S_BASE_API: ""
+      K8S_BASE_URL: ""
 
   webui:
     image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/webui:v62-sxcloud-private
