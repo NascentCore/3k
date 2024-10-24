@@ -2,7 +2,6 @@ name: Release Helm Chart
 
 on:
   pull_request:
-    types: [closed]
     branches:
     - main
     paths:
