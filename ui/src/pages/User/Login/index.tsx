@@ -1,10 +1,10 @@
 import { Footer } from '@/components';
-import { history, useModel, Helmet, SelectLang } from '@umijs/max';
+import { history, useModel, Helmet, SelectLang, useLocation } from '@umijs/max';
 import { Alert } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createStyles } from 'antd-style';
-import { apiAuthLogin } from '@/services';
+import { apiAuthLogin, apiGetDingtalkUserInfo } from '@/services';
 import { encrypt } from '@/utils/rsaEncrypt';
 import { saveToken } from '@/utils';
 import LoginForm from './LoginForm';
@@ -47,8 +47,40 @@ const Lang = () => {
 };
 
 const Login: React.FC = () => {
+  const { initialState, setInitialState } = useModel('@@initialState');
+  const fetchUserInfo = async () => {
+    const userInfo = await initialState?.fetchUserInfo?.();
+
+    if (userInfo) {
+      flushSync(() => {
+        setInitialState((s) => ({
+          ...s,
+          currentUser: userInfo,
+        }));
+      });
+    }
+  };
+
   const [type, setType] = useState<string>('login');
   const { styles } = useStyles();
+
+  const { search } = useLocation();
+  useEffect(() => {
+    const code = new URLSearchParams(search).get('code');
+    if (code) {
+      console.log('dingding code', code);
+      // 调用接口获取登录信息
+      apiGetDingtalkUserInfo(code).then((res) => {
+        console.log('dingding res', res);
+        // 获取 token
+        saveToken(res?.token);
+        // 进入首页
+        return fetchUserInfo().then((res) => {
+          history.push('/');
+        });
+      });
+    }
+  }, []);
 
   return (
     <>
