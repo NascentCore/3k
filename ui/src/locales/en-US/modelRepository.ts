@@ -31,4 +31,9 @@ export default {
   'pages.modelRepository.InferenceDrawer.submit': 'Deploy',
   'pages.modelRepository.InferenceDrawer.submit.success': 'Deployment task created successfully',
   'pages.modelRepository.InferenceDrawer.form.model_name': 'Model Name',
+  'pages.modelRepository.InferenceDrawer.form.autoScaling': 'Auto Scaling Configuration',
+  'pages.modelRepository.InferenceDrawer.form.minInstances': 'Minimum Instances',
+  'pages.modelRepository.InferenceDrawer.form.minInstances.placeholder': 'Please enter the minimum number of instances',
+  'pages.modelRepository.InferenceDrawer.form.maxInstances': 'Maximum Instances',
+  'pages.modelRepository.InferenceDrawer.form.maxInstances.placeholder': 'Please enter the maximum number of instances',
 };

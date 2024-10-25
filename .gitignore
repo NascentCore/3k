@@ -55,3 +55,6 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+
+# 调试二进制文件
+__debug_bin*

@@ -81,6 +81,8 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	meta.GpuNumber = req.GpuCount
 	meta.Template = req.ModelTemplate
 	meta.ServiceName = serviceName
+	meta.MinInstances = req.MinInstances
+	meta.MaxInstances = req.MaxInstances
 
 	bytes, err := json.Marshal(meta)
 	if err != nil {
