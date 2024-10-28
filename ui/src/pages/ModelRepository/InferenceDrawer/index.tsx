@@ -93,8 +93,8 @@ const Content = ({ record, onCancel }: ContentProps) => {
       const values = form.getFieldsValue();
       
       // 检查实例数的合法性
-      const minInstances = values.min_instances;
-      const maxInstances = values.max_instances;
+      const minInstances = parseInt(values.min_instances, 10);
+      const maxInstances = parseInt(values.max_instances, 10);
       
       if (minInstances && maxInstances && minInstances > maxInstances) {
         message.error(intl.formatMessage({
@@ -130,7 +130,6 @@ const Content = ({ record, onCancel }: ContentProps) => {
           gpu_model: values.gpu_model,
           model_category: record?.category,
           gpu_count: record?.inference_gpu_count,
-          //
           model_id: currentModel.id,
           model_name: currentModel.name,
           model_path: currentModel.path,
@@ -141,8 +140,8 @@ const Content = ({ record, onCancel }: ContentProps) => {
           adapter_name: currentAdapter?.name,
           adapter_size: currentAdapter?.size,
           adapter_is_public: currentAdapter?.is_public,
-          min_instances: values.min_instances,
-          max_instances: values.max_instances,
+          min_instances: values.min_instances ? parseInt(values.min_instances, 10) : undefined,
+          max_instances: values.max_instances ? parseInt(values.max_instances, 10) : undefined,
         },
       };
       console.log('Form params:', params);
