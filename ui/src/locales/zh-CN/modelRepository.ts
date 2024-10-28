@@ -31,4 +31,9 @@ export default {
   'pages.modelRepository.InferenceDrawer.submit': '部署',
   'pages.modelRepository.InferenceDrawer.submit.success': '部署任务创建成功',
   'pages.modelRepository.InferenceDrawer.form.model_name': '模型名称',
+  'pages.modelRepository.InferenceDrawer.form.autoScaling': '自动扩容配置',
+  'pages.modelRepository.InferenceDrawer.form.minInstances': '最小实例数',
+  'pages.modelRepository.InferenceDrawer.form.minInstances.placeholder': '请输入最小实例数',
+  'pages.modelRepository.InferenceDrawer.form.maxInstances': '最大实例数',
+  'pages.modelRepository.InferenceDrawer.form.maxInstances.placeholder': '请输入最大实例数',
 };

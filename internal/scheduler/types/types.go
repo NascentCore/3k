@@ -331,9 +331,11 @@ type InferenceDeleteResp struct {
 type InferenceDeployReq struct {
 	Model
 	AdapterOptional
-	GpuModel string `json:"gpu_model,optional"`
-	GpuCount int64  `json:"gpu_count,optional"`
-	UserID   string `header:"Sx-User-ID"`
+	GpuModel     string `json:"gpu_model,optional"`
+	GpuCount     int64  `json:"gpu_count,optional"`
+	MinInstances int64  `json:"min_instances,optional"`
+	MaxInstances int64  `json:"max_instances,optional"`
+	UserID       string `header:"Sx-User-ID"`
 }
 
 type InferenceDeployResp struct {
@@ -363,6 +365,8 @@ type InferenceService struct {
 	AdapterIsPublic bool   `json:"adapter_is_public"`
 	GpuType         string `json:"gpu_type"`
 	GpuNumber       int64  `json:"gpu_number"`
+	MinInstances    int64  `json:"min_instances"`
+	MaxInstances    int64  `json:"max_instances"`
 	Template        string `json:"template"`
 	CpodId          string `json:"cpod_id"`
 	UserId          string `json:"user_id"`
