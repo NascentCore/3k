@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
@@ -115,6 +116,7 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 					Reason: string(rayService.Status.ServiceStatus),
 				},
 			}
+			return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 		} else {
 			inferenceDeepcopy.Status.Conditions = nil
 			url := fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain)
@@ -134,6 +136,7 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		inferenceDeepcopy.Status.Ready = inferenceServiceReadiness(inferenceService.Status)
 		if !inferenceDeepcopy.Status.Ready {
 			inferenceDeepcopy.Status.Conditions = inferenceService.Status.Conditions
+			return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 		} else {
 			inferenceDeepcopy.Status.Conditions = nil
 			url := fmt.Sprintf("%v.%v", inference.Name, i.Options.Domain)
@@ -593,7 +596,13 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 	maxReplicas := int32(1)
 	if inference.Spec.AutoscalerOptions != nil {
 		minReplicas = inference.Spec.AutoscalerOptions.MinReplicas
+		if inference.Spec.AutoscalerOptions.MinReplicas == 0 {
+			minReplicas = 1
+		}
 		maxReplicas = inference.Spec.AutoscalerOptions.MaxReplicas
+		if inference.Spec.AutoscalerOptions.MaxReplicas == 0 {
+			maxReplicas = 1
+		}
 	}
 
 	rayService := &rayv1.RayService{
@@ -605,7 +614,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 			},
 		},
 		Spec: rayv1.RayServiceSpec{
-			ServeConfigV2: `applications:
+			ServeConfigV2: fmt.Sprintf(`applications:
     - name: llm
       route_prefix: /
       import_path: vllm_app:model 
@@ -613,9 +622,9 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
       - name: VLLMDeployment
         max_ongoing_requests: 5
         autoscaling_config:
-          min_replicas: 1
+          min_replicas: %v
           initial_replicas: null
-          max_replicas: 4
+          max_replicas: %v
           target_ongoing_requests: 3.0
           metrics_interval_s: 10.0
           look_back_period_s: 30.0
@@ -627,7 +636,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
           downscale_delay_s: 600.0
           upscale_delay_s: 30.0
       runtime_env:
-        working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"`,
+        working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"`, minReplicas, maxReplicas),
 			RayClusterSpec: rayv1.RayClusterSpec{
 				EnableInTreeAutoscaling: ptr.To(true),
 				AutoscalerOptions: &rayv1.AutoscalerOptions{
@@ -687,6 +696,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 					{
 						Replicas:    &minReplicas,
 						MinReplicas: &minReplicas,
+						MaxReplicas: &maxReplicas,
 						GroupName:   "gpu-group",
 						RayStartParams: map[string]string{
 							"num-cpus": fmt.Sprintf("%d", inference.Spec.GPUCount),

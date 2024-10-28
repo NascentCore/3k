@@ -30,6 +30,15 @@ spec:
             type: object
           spec:
             properties:
+              autoscalerOptions:
+                properties:
+                  maxReplicas:
+                    format: int32
+                    type: integer
+                  minReplicas:
+                    format: int32
+                    type: integer
+                type: object
               backend:
                 type: string
               gpuCount:

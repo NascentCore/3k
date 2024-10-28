@@ -25,8 +25,8 @@ import (
 type InferenceBackend string
 
 const (
-	InferenceBackendVLLM InferenceBackend = "vllm"
-	InferenceBackendRay  InferenceBackend = "ray"
+	InferenceBackendKserve InferenceBackend = "kserve"
+	InferenceBackendRay    InferenceBackend = "ray"
 )
 
 // InferenceSpec defines the desired state of Inference
