@@ -5,3 +5,7 @@ Including CI/CD, release, deployment etc.
 
 For example, anyone who wants to contribute to or use 3k, can consult content
 here to setup the correct environment.
+
+## Helm Charts release
+
+TODO(cairong): Add doc.
