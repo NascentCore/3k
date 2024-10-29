@@ -252,7 +252,7 @@ func (s *SyncJob) syncUsers(ctx context.Context, userIDs []sxwl.UserID) []sxwl.U
 					Spec: v1.PersistentVolumeClaimSpec{
 						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteMany},
 						StorageClassName: &s.storageClassName,
-						Resources: v1.ResourceRequirements{
+						Resources: v1.VolumeResourceRequirements{
 							Requests: v1.ResourceList{
 								v1.ResourceStorage: resource.MustParse("10Gi"),
 							},
@@ -569,21 +569,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 			}
 			if !exists {
-				template := job.Template
-				if template == "" {
-					template = "default"
-				}
-				cmd := []string{
-					"python",
-					"src/api.py",
-					"--model_name_or_path",
-					"/mnt/models",
-					"--infer_backend",
-					"vllm",
-					"--template",
-					template,
-				}
-				img := s.inferImage
+				newJob := v1beta1.Inference{}
 				anno := map[string]string{
 					v1beta1.CPodPreTrainModelReadableNameAnno: job.ModelName,
 					v1beta1.CPodPreTrainModelSizeAnno:         fmt.Sprintf("%d", job.ModelSize),
@@ -591,97 +577,138 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 					v1beta1.CPodAdapterReadableNameAnno:       job.AdapterName,
 					v1beta1.CPodAdapterSizeAnno:               fmt.Sprintf("%d", job.AdapterSize),
 				}
-				if job.ModelCategory == "embedding" {
-					cmd = []string{
-						"infinity_emb",
-						"v2",
-						"--model-id",
-						"/mnt/models",
-						"--port",
-						"8080",
+				if job.AdapterId != "" || job.ModelCategory == "embedding" {
+					template := job.Template
+					if template == "" {
+						template = "default"
 					}
-					img = s.embeddingImage
-					anno[v1beta1.CPodPreTrainModelCategoryAnno] = "embedding"
-				}
+					cmd := []string{
+						"python",
+						"src/api.py",
+						"--model_name_or_path",
+						"/mnt/models",
+						"--infer_backend",
+						"vllm",
+						"--template",
+						template,
+					}
+					img := s.inferImage
+					if job.ModelCategory == "embedding" {
+						cmd = []string{
+							"infinity_emb",
+							"v2",
+							"--model-id",
+							"/mnt/models",
+							"--port",
+							"8080",
+						}
+						img = s.embeddingImage
+						anno[v1beta1.CPodPreTrainModelCategoryAnno] = "embedding"
+					}
 
-				// create
-				newJob := v1beta1.Inference{
-					ObjectMeta: metav1.ObjectMeta{
-						// TODO: create namespace for different tenant
-						Namespace: string(user),
-						Name:      job.ServiceName,
-						Labels: map[string]string{
-							v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
-							v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+					// create
+					newJob = v1beta1.Inference{
+						ObjectMeta: metav1.ObjectMeta{
+							// TODO: create namespace for different tenant
+							Namespace: string(user),
+							Name:      job.ServiceName,
+							Labels: map[string]string{
+								v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+								v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+							},
+							Annotations: anno,
 						},
-						Annotations: anno,
-					},
-					// TODO: fill PredictorSpec with infomation provided by portaljob
-					Spec: v1beta1.InferenceSpec{
-						Predictor: kservev1beta1.PredictorSpec{
-							PodSpec: kservev1beta1.PodSpec{
-								Containers: []v1.Container{
-									{
-										Name:    "kserve-container",
-										Image:   img,
-										Command: cmd,
-										Env: []v1.EnvVar{
-											{
-												Name:  "STORAGE_URI",
-												Value: "modelstorage://" + job.ModelId,
+						// TODO: fill PredictorSpec with infomation provided by portaljob
+						Spec: v1beta1.InferenceSpec{
+							Backend: v1beta1.InferenceBackendKserve,
+							Predictor: kservev1beta1.PredictorSpec{
+								PodSpec: kservev1beta1.PodSpec{
+									Containers: []v1.Container{
+										{
+											Name:    "kserve-container",
+											Image:   img,
+											Command: cmd,
+											Env: []v1.EnvVar{
+												{
+													Name:  "STORAGE_URI",
+													Value: "modelstorage://" + job.ModelId,
+												},
+												{
+													Name:  "API_PORT",
+													Value: "8080",
+												},
 											},
-											{
-												Name:  "API_PORT",
-												Value: "8080",
-											},
-										},
-										Resources: v1.ResourceRequirements{
-											Limits: map[v1.ResourceName]resource.Quantity{
-												v1.ResourceCPU:    resource.MustParse("4"),
-												v1.ResourceMemory: resource.MustParse("50Gi"),
-												"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
-											},
-											Requests: map[v1.ResourceName]resource.Quantity{
-												v1.ResourceCPU:    resource.MustParse("4"),
-												v1.ResourceMemory: resource.MustParse("50Gi"),
-												"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
+											Resources: v1.ResourceRequirements{
+												Limits: map[v1.ResourceName]resource.Quantity{
+													v1.ResourceCPU:    resource.MustParse("4"),
+													v1.ResourceMemory: resource.MustParse("50Gi"),
+													"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
+												},
+												Requests: map[v1.ResourceName]resource.Quantity{
+													v1.ResourceCPU:    resource.MustParse("4"),
+													v1.ResourceMemory: resource.MustParse("50Gi"),
+													"nvidia.com/gpu":  resource.MustParse(strconv.FormatInt(job.GpuNumber, 10)),
+												},
 											},
 										},
 									},
-								},
-								NodeSelector: map[string]string{
-									"nvidia.com/gpu.product": job.GpuType,
+									NodeSelector: map[string]string{
+										"nvidia.com/gpu.product": job.GpuType,
+									},
 								},
 							},
+							ModelIsPublic: job.ModelIsPublic,
 						},
-						ModelIsPublic: job.ModelIsPublic,
-					},
-				}
-
-				if job.AdapterId != "" {
-					newJob.Annotations[v1beta1.CPodAdapterIDAnno] = job.AdapterId
-					newJob.Annotations[v1beta1.CPodAdapterReadableNameAnno] = job.AdapterName
-					newJob.Annotations[v1beta1.CPodAdapterSizeAnno] = fmt.Sprintf("%d", job.AdapterSize)
-					if job.AdapterIsPublic {
-						newJob.Annotations[v1beta1.CPodAdapterIsPublic] = "true"
 					}
-				}
 
-				if job.GpuNumber > 1 {
-					cudaDevices := ""
-					for i := 0; i < int(job.GpuNumber); i++ {
-						if i == int(job.GpuNumber)-1 {
-							cudaDevices = cudaDevices + strconv.Itoa(i) + ","
-						} else {
-							cudaDevices = cudaDevices + strconv.Itoa(i) + ","
+					if job.AdapterId != "" {
+						newJob.Annotations[v1beta1.CPodAdapterIDAnno] = job.AdapterId
+						newJob.Annotations[v1beta1.CPodAdapterReadableNameAnno] = job.AdapterName
+						newJob.Annotations[v1beta1.CPodAdapterSizeAnno] = fmt.Sprintf("%d", job.AdapterSize)
+						if job.AdapterIsPublic {
+							newJob.Annotations[v1beta1.CPodAdapterIsPublic] = "true"
 						}
 					}
-					newJob.Spec.Predictor.PodSpec.Containers[0].Env = append(newJob.Spec.Predictor.PodSpec.Containers[0].Env, v1.EnvVar{
-						Name:  "CUDA_VISIBLE_DEVICES",
-						Value: cudaDevices,
-					})
 
-					newJob.Spec.Predictor.PodSpec.Containers[0].Command = append(newJob.Spec.Predictor.PodSpec.Containers[0].Command, "--infer_backend", "vllm", "--vllm_enforce_eager")
+					if job.GpuNumber > 1 {
+						cudaDevices := ""
+						for i := 0; i < int(job.GpuNumber); i++ {
+							if i == int(job.GpuNumber)-1 {
+								cudaDevices = cudaDevices + strconv.Itoa(i) + ","
+							} else {
+								cudaDevices = cudaDevices + strconv.Itoa(i) + ","
+							}
+						}
+						newJob.Spec.Predictor.PodSpec.Containers[0].Env = append(newJob.Spec.Predictor.PodSpec.Containers[0].Env, v1.EnvVar{
+							Name:  "CUDA_VISIBLE_DEVICES",
+							Value: cudaDevices,
+						})
+
+						newJob.Spec.Predictor.PodSpec.Containers[0].Command = append(newJob.Spec.Predictor.PodSpec.Containers[0].Command, "--infer_backend", "vllm", "--vllm_enforce_eager")
+					}
+				} else {
+					newJob = v1beta1.Inference{
+						ObjectMeta: metav1.ObjectMeta{
+							Namespace: string(user),
+							Name:      job.ServiceName,
+							Labels: map[string]string{
+								v1beta1.CPodJobSourceLabel: v1beta1.CPodJobSource,
+								v1beta1.CPodUserIDLabel:    fmt.Sprint(job.UserID),
+							},
+							Annotations: anno,
+						},
+						Spec: v1beta1.InferenceSpec{
+							ModelIsPublic: job.ModelIsPublic,
+							Backend:       v1beta1.InferenceBackendRay,
+							AutoscalerOptions: &v1beta1.AutoscalerOptions{
+								MinReplicas: int32(job.MinInstances),
+								MaxReplicas: int32(job.MaxInstances),
+							},
+							ModelID:  job.ModelId,
+							GPUCount: int(job.GpuNumber),
+						},
+					}
+
 				}
 
 				if err = s.kubeClient.Create(ctx, &newJob); err != nil {
@@ -763,7 +790,7 @@ func (s *SyncJob) createPVC(ctx context.Context, pvcName, pvcSize, storageClass 
 			AccessModes: []v1.PersistentVolumeAccessMode{
 				v1.ReadWriteMany,
 			},
-			Resources: v1.ResourceRequirements{
+			Resources: v1.VolumeResourceRequirements{
 				Requests: map[v1.ResourceName]resource.Quantity{
 					v1.ResourceStorage: resource.MustParse(pvcSize),
 				},

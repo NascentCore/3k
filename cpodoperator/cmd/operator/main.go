@@ -39,6 +39,7 @@ import (
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	mpiv2 "github.com/kubeflow/mpi-operator/pkg/apis/kubeflow/v2beta1"
 	tov1 "github.com/kubeflow/training-operator/pkg/apis/kubeflow.org/v1"
+	rayv1 "github.com/ray-project/kuberay/ray-operator/apis/ray/v1"
 )
 
 var (
@@ -54,6 +55,7 @@ func init() {
 	utilruntime.Must(tov1.AddToScheme(scheme))
 	utilruntime.Must(mpiv2.AddToScheme(scheme))
 	utilruntime.Must(kservev1beta1.AddToScheme(scheme))
+	utilruntime.Must(rayv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -69,6 +71,7 @@ func main() {
 	var OssBucketName string
 	var inferenceIngressDomain string
 	var inferenceWebuiImage string
+	var inferenceBackendRayImage string
 	var finetuneGPUProduct string
 	var inferencePrefix string
 	var jupyterLabImage string
@@ -86,9 +89,10 @@ func main() {
 	flag.StringVar(&OssBucketName, "oss-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
 	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
 	flag.StringVar(&inferenceWebuiImage, "inference-webui-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/chatui:v2.3", "inference webui image")
+	flag.StringVar(&inferenceBackendRayImage, "inference-backend-ray-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ray:v2.2", "inference webui image")
 	flag.StringVar(&finetuneGPUProduct, "finetune-gpu-product", "NVIDIA-GeForce-RTX-3090", "the gpu product for finetune usage")
 	flag.StringVar(&inferencePrefix, "inference-prefix", "/inference/api", "the prefix of inference ingress path")
-	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "dockerhub.kubekey.local/kubesphereio/jupyterlab-llamafactory:v13", "the image of jupyterlab")
+	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ray:v2", "the image of ray inference backend")
 	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
 	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
 
@@ -152,6 +156,7 @@ func main() {
 			Domain:              inferenceIngressDomain,
 			InferenceWebuiImage: inferenceWebuiImage,
 			StorageClassName:    storageClassName,
+			RayImage:            inferenceBackendRayImage,
 			InferencePathPrefix: inferencePrefix,
 			OssOption: controller.OssOption{
 				OssAK:           OssAK,

@@ -552,7 +552,7 @@ func (r *JupyterLabReconciler) createSts(ctx context.Context, jupyterlab *cpodv1
 					Spec: v1.PersistentVolumeClaimSpec{
 						AccessModes:      []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
 						StorageClassName: &r.Option.StorageClassName,
-						Resources: v1.ResourceRequirements{
+						Resources: v1.VolumeResourceRequirements{
 							Requests: v1.ResourceList{
 								v1.ResourceStorage: resource.MustParse(jupyterlab.Spec.DataVolumeSize),
 							},

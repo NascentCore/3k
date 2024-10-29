@@ -657,7 +657,7 @@ func (c *CPodJobReconciler) GetCKPTPVC(ctx context.Context, cpodjob *cpodv1beta1
 				},
 				Spec: corev1.PersistentVolumeClaimSpec{
 					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-					Resources: corev1.ResourceRequirements{
+					Resources: corev1.VolumeResourceRequirements{
 						Requests: corev1.ResourceList{
 							corev1.ResourceStorage: *resource.NewQuantity((int64(cpodjob.Spec.CKPTVolumeSize) * 1024 * 1024), resource.BinarySI),
 						},
@@ -702,7 +702,7 @@ func (c *CPodJobReconciler) GetModelSavePVC(ctx context.Context, cpodjob *cpodv1
 				},
 				Spec: corev1.PersistentVolumeClaimSpec{
 					AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-					Resources: corev1.ResourceRequirements{
+					Resources: corev1.VolumeResourceRequirements{
 						Requests: corev1.ResourceList{
 							corev1.ResourceStorage: *resource.NewQuantity((int64(cpodjob.Spec.ModelSaveVolumeSize) * 1024 * 1024), resource.BinarySI),
 						},
@@ -1284,7 +1284,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
 						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadOnlyMany},
-						Resources: corev1.ResourceRequirements{
+						Resources: corev1.VolumeResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
 							},
@@ -1310,7 +1310,7 @@ func createModelstorage(ctx context.Context, kubeclient client.Client, dataID, d
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
 						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-						Resources: corev1.ResourceRequirements{
+						Resources: corev1.VolumeResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
 							},
@@ -1406,7 +1406,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
 						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-						Resources: corev1.ResourceRequirements{
+						Resources: corev1.VolumeResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
 							},
@@ -1433,7 +1433,7 @@ func createDatasetStorage(ctx context.Context, kubeclient client.Client, dataID,
 					},
 					Spec: corev1.PersistentVolumeClaimSpec{
 						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteMany},
-						Resources: corev1.ResourceRequirements{
+						Resources: corev1.VolumeResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceStorage: resource.MustParse(pvcSize),
 							},
