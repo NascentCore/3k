@@ -77,6 +77,15 @@ func main() {
 	c.Rsa.PrivateKey = os.Getenv("RSA_PRIVATE_KEY")
 	c.Rsa.PublicKey = os.Getenv("RSA_PUBLIC_KEY")
 
+	// insert dingtalk config
+	dingTalkAppKey := os.Getenv("DINGTALK_APP_KEY")
+	dingTalkAppSecret := os.Getenv("DINGTALK_APP_SECRET")
+	if dingTalkAppKey == "" || dingTalkAppSecret == "" {
+		log.Fatalf("env DINGTALK_APP_KEY or DINGTALK_APP_SECRET not defined")
+	}
+	c.DingTalk.AppKey = dingTalkAppKey
+	c.DingTalk.AppSecret = dingTalkAppSecret
+
 	// error handler
 	handler.InitErrorHandler()
 
