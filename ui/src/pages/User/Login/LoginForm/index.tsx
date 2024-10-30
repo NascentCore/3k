@@ -209,7 +209,7 @@ const Login: React.FC = ({ setType }) => {
               <Typography.Link
                 onClick={() => {
                   // 这里填写钉钉扫码登录的目标链接
-                  window.location.href = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingb9v5kibiwpnoqwzt&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://llm.nascentcore.net/user/login';
+                  window.location.href = 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingj9mplqbu3wpn8rzn&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://llm.nascentcore.net/user/login';
                 }}
               >
                 {intl.formatMessage({
