@@ -111,7 +111,7 @@ class DingTalkSync:
                 dept_id = dept['id']
                 try:
                     if dept_id in existing_dept_ids:
-                        # 更新现有部门
+                        # 更��现有部门
                         sql = """
                         UPDATE dingtalk_department 
                         SET department_name = %s, parent_department_id = %s 
@@ -180,15 +180,15 @@ class DingTalkSync:
                             if union_id in existing_union_ids:
                                 # 更新现有员工
                                 self._update_employee(cursor, user, dept['id'], union_id)
-                                logger.info(f"更新员工: {user['name']}({union_id})")
+                                logger.info(f"更新员工: {user['name']} (unionid: {union_id}, openid: {user.get('userid', 'N/A')})")
                             else:
                                 # 插入新员工
                                 self._insert_employee(cursor, user, dept['id'], union_id)
-                                logger.info(f"新增员工: {user['name']}({union_id})")
+                                logger.info(f"新增员工: {user['name']} (unionid: {union_id}, openid: {user.get('userid', 'N/A')})")
                             
                             existing_union_ids.discard(union_id)
                         except Exception as e:
-                            logger.error(f"处理用户 {user.get('name')} 时出错: {str(e)}")
+                            logger.error(f"处理用户 {user.get('name')} (unionid: {user.get('unionid', 'N/A')}, openid: {user.get('userid', 'N/A')}) 时出错: {str(e)}")
                             continue
                 except Exception as e:
                     logger.error(f"处理部门 {dept['name']} 的用户时出错: {str(e)}")
