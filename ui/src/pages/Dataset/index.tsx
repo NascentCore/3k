@@ -106,7 +106,7 @@ const Index: React.FC = () => {
                   type="primary"
                   onClick={() => {
                     window.open(
-                      'https://sxwl.ai/docs/document/cloud/sxwlctl-guide#%E4%B8%8A%E4%BC%A0',
+                      'https://www.sxwl.ai/docs/document/cloud/sxwlctl-guide#%E4%B8%8A%E4%BC%A0',
                     );
                   }}
                 >
