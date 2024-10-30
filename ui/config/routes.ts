@@ -79,24 +79,12 @@ export default [
     icon: 'TableOutlined',
     component: './Dataset',
   },
-  // {
-  //   path: '/Tensorboard',
-  //   name: 'Tensorboard',
-  //   icon: 'DashboardOutlined',
-  //   component: './Tensorboard',
-  // },
-  // {
-  //   path: '/Grafana',
-  //   name: 'Grafana',
-  //   icon: 'BarChartOutlined',
-  //   component: './Welcome',
-  // },
-  // {
-  //   path: '/Jupyterlalb',
-  //   name: 'Jupyterlalb',
-  //   icon: 'CodeOutlined',
-  //   component: './Welcome',
-  // },
+  {
+    path: '/Grafana',
+    name: 'Grafana',
+    icon: 'BarChartOutlined',
+    component: './Welcome',
+  },
   {
     path: '/ClusterInformation',
     name: 'ClusterInformation',
@@ -111,12 +99,6 @@ export default [
     component: './UserQuota',
     access: 'adminRouteFilter',
   },
-  // {
-  //   path: '/LLaMA-Factory',
-  //   name: 'LLaMA-Factory',
-  //   icon: 'DatabaseOutlined',
-  //   component: './LLaMAFactory',
-  // },
   {
     path: '/ClusterCpods',
     name: 'ClusterCpods',

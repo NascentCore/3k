@@ -150,7 +150,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading, editBtnOnClick
                     <Button
                       type={'link'}
                       onClick={() => {
-                        window.open(`//${record.job_name}.llm.sxwl.ai:30004`);
+                        window.open(`http://${record.job_name}.llm.sxwl.ai:30005`);
                       }}
                     >
                       LLaMA-Factory

@@ -17,17 +17,18 @@ const App: React.FC = ({ record }: any) => {
     const calculateParams = () => {
       const from = moment(record.createTime).valueOf(); // 创建时间的时间戳
       let to;
-      if (record.workStatus === 2) {
+      if (record.workStatus === 8) {
         to = moment(record.updateTime).valueOf(); // 状态为2时，使用更新时间的时间戳
       } else {
         to = 'now'; // 否则，使用当前时间的时间戳
       }
-      return { from, to };
+      const refresh = to === 'now' ? '&refresh=auto' : '';
+      return { from, to, refresh };
     };
     // 构建webUrl
-    const webUrl = `http://grafana.llm.sxwl.ai:30003/d/a85faaa0-8ff6-4f11-ac27-24cbb0fa4ee9/job-detail?orgId=1&var-ns=${
-      record.userId
-    }&var-pod=${record.jobName}&from=${calculateParams().from}&to=${calculateParams().to}`;
+    const { from, to, refresh } = calculateParams();
+    const webUrl = `http://grafana.llm.sxwl.ai:30005/d/a85faaa0-8ff6-4f11-ac27-24cbb0fa4ee9/job-detail?orgId=1&var-ns=${
+      record.userId}&var-pod=${record.jobName}&from=${from}&to=${to}${refresh}`;
     window.open(webUrl);
   };
 
