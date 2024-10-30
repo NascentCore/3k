@@ -3,9 +3,12 @@ import sys
 import time
 import hashlib
 import subprocess
+import paramiko
+from paramiko import SSHException, AutoAddPolicy
 from plumbum import colors, local, RETCODE, TF
 from plumbum.cmd import grep, ssh, awk, ls, scp, sed
-from .utils import kk_run, Conf, helm_run, kubectl_run, is_true
+from plumbum.commands import CommandNotFound
+from .utils import kk_run, Conf, helm_run, kubectl_run, is_true, kk_run_online
 from .software import load_installed_softwares, install_software
 
 
@@ -22,20 +25,32 @@ def install_kubernetes_cluster():
 
     print(colors.yellow | "===== [3kctl] create kubernetes cluster =====")
 
-    kk_run("create",
-           "cluster",
-           "-y"
-           )
+    kk_run("create", "cluster", "-y")
 
 
-def install_operators(software=""):
+def install_kubernetes_cluster_online():
+    print(colors.yellow | "===== [3kctl] install depend packages for all nodes =====")
+
+    for node in Conf.y.spec.hosts:
+        retcode = install_dependent_packages_oneline(node)
+        if retcode > 0:
+            print("failed: {}".format(node["name"]))
+            sys.exit(retcode)
+        print("success: {}".format(node["name"]))
+
+    print(colors.yellow | "===== [3kctl] create kubernetes cluster =====")
+
+    kk_run_online("create", "cluster", "-y")
+
+
+def install_operators(software="", online=""):
     print(colors.yellow | "===== [3kctl] install softwares =====")
 
     installed_softwares = load_installed_softwares()
     for sw in Conf.s.softwares:
         if software and software.strip() != sw["name"]:
             continue
-        install_software(sw, installed_softwares, Conf.s.softwares)
+        install_software(sw, installed_softwares, Conf.s.softwares, online)
 
 
 def install_ceph_csi_cephfs():
@@ -77,6 +92,54 @@ def delete_node(node):
     print(colors.yellow | "===== [3kctl] delete node for kubernetes cluster =====")
 
     kk_run("delete", "node", node, "-y")
+
+
+def install_dependent_packages_oneline(node):
+    host = node["internalAddress"]
+    username = node["user"]
+    port = node["port"]
+    password = node.get("password")
+    private_key = node.get("privateKeyPath")
+
+    try:
+        # 创建 SSH 客户端
+        client = paramiko.SSHClient()
+        # 自动添加主机密钥到 known_hosts
+        client.set_missing_host_key_policy(AutoAddPolicy())
+
+        # 连接到远程服务器
+        if private_key:
+            client.connect(host, port=port, username=username, key_filename=private_key)
+        else:
+            client.connect(host, port=port, username=username, password=password)
+
+        # 更新包列表并安装依赖包
+        commands = [
+            "sudo apt-get update",
+            "sudo apt-get install -y socat conntrack ebtables ipset ipvsadm"
+        ]
+
+        for command in commands:
+            print(f"Running command on {host}: {command}")
+            stdin, stdout, stderr = client.exec_command(command)
+            stdout.channel.recv_exit_status()  # 等待命令完成
+            output = stdout.read().decode()
+            error = stderr.read().decode()
+            print(output)
+            if error:
+                print(error)
+
+        print(f"Packages installed successfully on {host}")
+        return 0
+
+    except SSHException as e:
+        print(f"SSH connection error: {e}")
+        return 2
+    except Exception as e:
+        print(f"Failed to connect to {host}: {e}")
+        return 2
+    finally:
+        client.close()
 
 
 def install_dependent_packages(node):

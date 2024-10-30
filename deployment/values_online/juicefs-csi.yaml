@@ -1,0 +1,37 @@
+image:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/juicefs-csi-driver
+
+dashboardImage:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-dashboard
+
+defaultMountImage:
+  ce: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/mount:ce-v1.1.2
+
+sidecars:
+  livenessProbeImage:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/livenessprobe
+  nodeDriverRegistrarImage:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-node-driver-registrar
+  csiProvisionerImage:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-provisioner
+  csiResizerImage:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-resizer
+storageClasses:
+- name: juicefs-sc
+  enabled: true
+  reclaimPolicy: Delete
+  backend:
+    name: "myjfs"                                # JuiceFS 文件系统名
+    metaurl: "redis://{host_ip}:6379"            # 元数据引擎的 URL
+    storage: "minio"                             # 对象存储类型 (例如 s3、gcs、oss、cos)
+    bucket: "http://{host_ip}:9000/sxwl"         # 存储数据的桶路径
+    accessKey: "admin"
+    secretKey: "admin123456"
+  mountPod:
+    resources:                                   # Mount pod 的资源配置
+      requests:
+        cpu: "1"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "5Gi"

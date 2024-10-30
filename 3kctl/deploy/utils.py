@@ -56,6 +56,17 @@ def kk_run(action, obj, *args):
         sys.exit(retcode)
 
 
+def kk_run_online(action, obj, *args):
+    kk = local[os.path.join(Conf.c.deploy.work_dir, Conf.c.deploy.kk_bin)]
+
+    param = [action, obj, *args, "-f", Conf.c.deploy.cluster_config]
+
+    retcode = kk[param] & RETCODE(FG=True)
+
+    if retcode != 0:
+        sys.exit(retcode)
+
+
 def helm_run(*args):
     helm = local["helm"]
     retcode = helm[args] & RETCODE(FG=True)

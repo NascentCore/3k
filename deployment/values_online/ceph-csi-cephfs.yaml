@@ -1,0 +1,44 @@
+nodeplugin:
+  registrar:
+    image:
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-node-driver-registrar
+      tag: v2.8.0
+  
+  plugin:
+    image:
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cephcsi
+      tag: v3.9.0
+
+provisioner:
+  provisioner:
+    image:
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-provisioner
+      tag: v3.5.0
+
+  resizer:
+    image:
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-resizer
+      tag: v1.8.0
+
+  snapshotter:
+    image:
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-snapshotter
+      tag: v6.2.2
+
+csiConfig:
+  - clusterID: "<cluserID>"
+    monitors:
+      - "<monitor-host:port>"
+
+storageClass:
+  create: true
+  name: csi-cephfs-sc
+  clusterID: <clusterID>
+  fsName: ceph-filesystem
+
+secret:
+  create: true
+  name: csi-cephfs-secret
+  adminID: admin
+  adminKey: <adminKey>
+

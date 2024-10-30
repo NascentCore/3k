@@ -1,10 +1,17 @@
 softwares:
-  - name: "node-feature-discovery"         # 组件名称
-    type: "helm"                           # 安装类型，目前包含两种：helm|kubectl
-    namespace: "node-feature-discovery"    # 组件部署的命名空间，安装时 3kctl 会检查该命名空间下的 pod-ready
-    values: "node-feature-discovery.yaml"  # helm 部署时使用的自定义 values 文件
+  - name: "juicefs-csi-driver"             # 组件名称
+    type: "helm"                           # 安装类型，目前包含两种：helm|yaml
+    namespace: "kube-system"               # 组件部署的命名空间，安装时 3kctl 会检查该命名空间下的 pod-ready
+    values: "juicefs-csi.yaml"             # helm 部署时使用的自定义 values 文件
     dependencies: []                       # 组件是否依赖其他组件，如有依赖，会先安装被依赖的组件，前提是依赖组件也在 softwares 列表中
     deploy: true                           # 3kctl 安装时是否部署该组件
+
+  - name: "node-feature-discovery"
+    type: "helm"
+    namespace: "node-feature-discovery"
+    values: "node-feature-discovery.yaml"
+    dependencies: []
+    deploy: true
 
   - name: "gpu-operator"
     type: "helm"
@@ -27,26 +34,11 @@ softwares:
     dependencies: []
     deploy: true
 
-  - name: "rook-ceph"
-    type: "helm"
-    namespace: "rook-ceph"
-    values: "rook-ceph.yaml"
-    dependencies: []
-    deploy: true
-
-  - name: "rook-ceph-cluster"
-    type: "helm"
-    namespace: "rook-ceph"
-    values: "rook-ceph-cluster.yaml"                 # 如果单节点部署 ceph，可修改该值为 rook-ceph-cluster-single.yaml
-    dependencies: ["rook-ceph"]
-    deploy: true
-    deployNode: ["worker1", "worker2", "worker3"]    # 部署 ceph 时可指定部署的节点，根据实现部署环境进行修改
-
   - name: "loki-stack"
     type: "helm"
     namespace: "loki-stack"
     values: "loki-stack.yaml"
-    dependencies: ["rook-ceph-cluster"]
+    dependencies: []
     deploy: true
 
   - name: "kruise"
@@ -57,37 +49,30 @@ softwares:
     deploy: true
 
   - name: "volcano-development"
-    type: "kubectl"
+    type: "yaml"
     namespace: "volcano-system"
-    file: "volcano-development.yaml"      # file 是 kubectl 方式部署时指定的 yaml 文件
+    file: "volcano-development.yaml"      # file 是 yaml 方式部署时指定的 yaml 文件
     dependencies: []
     deploy: true
 
   - name: "mpi-operator"
-    type: "kubectl"
+    type: "yaml"
     namespace: "mpi-operator"
     file: "mpi-operator.yaml"
     dependencies: []
     deploy: true
 
   - name: "infiniband-exporter"
-    type: "kubectl"
+    type: "yaml"
     namespace: "network-operator"
     file: "infiniband-exporter.yaml"
     dependencies: ["network-operator"]
-    deploy: true
+    deploy: false
 
   - name: "training-operator"
-    type: "kubectl"
+    type: "yaml"
     namespace: "training-operator"
     file: "training-operator.yaml"
-    dependencies: []
-    deploy: true
-
-  - name: "cpodoperator"
-    type: "kubectl"
-    namespace: "cpod-system"
-    file: "cpodoperator.yaml"
     dependencies: []
     deploy: true
 
@@ -98,79 +83,72 @@ softwares:
     dependencies: []
     deploy: true
 
+  - name: "cpodoperator"
+    type: "helm"
+    namespace: "cpod-system"
+    values: "cpodoperator.yaml"
+    dependencies: []
+    deploy: true
+
   - name: "downloader-rbac"
-    type: "kubectl"
+    type: "yaml"
     namespace: ""                        # namespace 值为空时，3kctl 会跳过检查 pod-ready
     file: "downloader-rbac.yaml"
     dependencies: []
     deploy: true
 
+  - name: "shared-pv"
+    type: "yaml"
+    namespace: ""
+    file: "shared-pv.yaml"
+    dependencies: []
+    deploy: true
+
   - name: "image-preload"
-    type: "kubectl"
+    type: "yaml"
     namespace: ""
     file: "image-preload.yaml"
     dependencies: ["kruise"]
-    deploy: true
+    deploy: false
 
   - name: "ingress-nginx"
-    type: "kubectl"
+    type: "yaml"
     namespace: "ingress-nginx"
     file: "ingress-nginx.yaml"
     dependencies: []
     deploy: true
 
   - name: "cert-manager"
-    type: "kubectl"
+    type: "yaml"
     namespace: "cert-manager"
     file: "cert-manager.yaml"
     dependencies: []
     deploy: true
 
   - name: "kserve"
-    type: "kubectl"
+    type: "yaml"
     namespace: "kserve"
     file: "kserve.yaml"
     dependencies: ["ingress-nginx", "cert-manager"]
     deploy: true
 
-  - name: "tensorboard"
-    type: "kubectl"
-    namespace: ""
-    file: "tensorboard.yaml"
-    dependencies: ["rook-ceph-cluster"]
-    deploy: true
-
   - name: "opencost"
-    type: "kubectl"
+    type: "yaml"
     namespace: "opencost"
     file: "opencost.yaml"
     dependencies: []
     deploy: true
 
   - name: "kubernetes-dashboard"
-    type: "kubectl"
+    type: "yaml"
     namespace: "kubernetes-dashboard"
     file: "kubernetes-dashboard.yaml"
     dependencies: []
-    deploy: true
+    deploy: false
 
   - name: "dashboard-admin-sa"
-    type: "kubectl"
+    type: "yaml"
     namespace: ""
     file: "dashboard-admin-sa.yaml"
     dependencies: ["kubernetes-dashboard"]
-    deploy: true
-
-  - name: "jupyterlab"
-    type: "kubectl"
-    namespace: ""
-    file: "jupyterlab.yaml"
-    dependencies: []
-    deploy: true
-
-  - name: "milvus"
-    type: "kubectl"
-    namespace: ""
-    file: "milvus.yaml"
-    dependencies: []
-    deploy: true
+    deploy: false

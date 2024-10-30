@@ -1,0 +1,17 @@
+cephClusterSpec:
+  cephVersion:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ceph:v17.2.6
+  placement:
+    all:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: role
+                  operator: In
+                  values:
+                    - ceph
+
+toolbox:
+  enabled: true
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ceph:v17.2.6

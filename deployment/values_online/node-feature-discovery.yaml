@@ -1,0 +1,18 @@
+image:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/node-feature-discovery
+
+worker:
+  config:
+    sources:
+      pci:
+        deviceClassWhitelist:
+          - "02"
+          - "0200"
+          - "0207"
+          - "0300"
+          - "0302"
+
+master:
+  config:
+    extraLabelNs:
+      - "nvidia.com"
