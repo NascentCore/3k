@@ -111,7 +111,7 @@ class DingTalkSync:
                 dept_id = dept['id']
                 try:
                     if dept_id in existing_dept_ids:
-                        # 更��现有部门
+                        # 更现有部门
                         sql = """
                         UPDATE dingtalk_department 
                         SET department_name = %s, parent_department_id = %s 
@@ -237,35 +237,66 @@ class DingTalkSync:
     def _create_sys_user(self, dingtalk_user):
         """创建系统用户"""
         cursor = self.db.cursor()
-        
-        # 检查用户是否已存在
-        cursor.execute(
-            "SELECT user_id FROM sys_user WHERE new_user_id = %s",
-            (dingtalk_user.get('unionid', ''),)
-        )
-        if cursor.fetchone():
-            return
-        
-        # 创建新系统用户
-        sql = """
-        INSERT INTO sys_user 
-        (username, nick_name, gender, phone, email, avatar_path, 
-         enabled, `from`, create_time, user_type, new_user_id)
-        VALUES (%s, %s, %s, %s, %s, %s, 1, 'dingtalk', %s, 2, %s)
-        """
-        cursor.execute(sql, (
-            dingtalk_user['name'],
-            dingtalk_user['name'],
-            '1' if dingtalk_user.get('gender', 'male') == 'male' else '2',
-            dingtalk_user.get('mobile', ''),
-            dingtalk_user.get('email', '') or f"{uuid.uuid4().hex[:8]}@sxwl.ai",
-            dingtalk_user.get('avatar', ''),
-            datetime.now(),
-            dingtalk_user.get('unionid', '')
-        ))
-        
-        self.db.commit()
-        cursor.close()
+        try:
+            # 检查用户是否已存在
+            cursor.execute(
+                "SELECT user_id FROM sys_user WHERE new_user_id = %s",
+                (dingtalk_user.get('unionid', ''),)
+            )
+            if cursor.fetchone():
+                return
+            
+            # 创建新系统用户
+            sql = """
+            INSERT INTO sys_user 
+            (username, nick_name, gender, phone, email, avatar_path, 
+             enabled, `from`, create_time, update_time, user_type, new_user_id,
+             create_by, update_by)
+            VALUES (%s, %s, %s, %s, %s, %s, 1, 'dingtalk', %s, %s, 2, %s,
+                    'dingtalk-sync', 'dingtalk-sync')
+            """
+            now = datetime.now()
+            cursor.execute(sql, (
+                dingtalk_user['name'],
+                dingtalk_user['name'],
+                '1' if dingtalk_user.get('gender', 'male') == 'male' else '2',
+                dingtalk_user.get('mobile', ''),
+                dingtalk_user.get('email', '') or f"{uuid.uuid4().hex[:8]}@sxwl.ai",
+                dingtalk_user.get('avatar', ''),
+                now,  # create_time
+                now,  # update_time
+                dingtalk_user.get('unionid', '')
+            ))
+            
+            # 获取新创建用户的user_id
+            cursor.execute(
+                "SELECT user_id FROM sys_user WHERE new_user_id = %s",
+                (dingtalk_user.get('unionid', ''),)
+            )
+            user = cursor.fetchone()
+            if not user:
+                raise Exception("Failed to get user_id after creating user")
+            
+            # 初始化用户余额
+            sql = """
+            INSERT INTO user_balance 
+            (user_id, new_user_id, balance)
+            VALUES (%s, %s, 100.00)
+            """
+            cursor.execute(sql, (
+                user[0],  # user_id
+                dingtalk_user.get('unionid', '')  # new_user_id
+            ))
+            
+            logger.info(f"为用户 {dingtalk_user['name']} 初始化余额 100.00 元")
+            
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"创建用户 {dingtalk_user.get('name')} 时出错: {str(e)}")
+            raise
+        finally:
+            cursor.close()
     
     def sync(self):
         """执行完整的同步流程"""
