@@ -1,11 +1,9 @@
 name: Deploy sxcloud to Server
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: '0 10 * * 2'  # 每周二上午10点
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -28,6 +26,7 @@ jobs:
       - name: Extract and Build Images
         id: extract_and_build
         run: |
+          cd ui
           docker build -t $DOCKER_REGISTRY/$NAMESPACE/webui:latest .
           docker push $DOCKER_REGISTRY/$NAMESPACE/webui:latest
 
