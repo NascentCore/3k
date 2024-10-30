@@ -26,76 +26,23 @@ interface ContentProps {
 const Content = ({ record, onCancel }: ContentProps) => {
   const intl = useIntl();
   const [form] = Form.useForm();
-  const [maxPossibleInstances, setMaxPossibleInstances] = useState(10);
   const [formValues, setFormValues] = useState({
     model_name: record?.name,
-    // gpuProd: '',
-    // gpu_count: record?.inference_gpu_count,
     min_instances: 1,
     max_instances: 1,
   });
 
-  // 监听 GPU 型号的变化
-  const selectedGpuModel = Form.useWatch('gpu_model', form);
-  const minInstances = Form.useWatch('min_instances', form);
-  const maxInstances = Form.useWatch('max_instances', form);
-
-  // 当 GPU 型号变化时，重新计算最大可能实例数并调整表单值
-  useEffect(() => {
-    if (selectedGpuModel) {
-      const selectedGpuType = gpuTypeOptions?.find(x => x.value === selectedGpuModel);
-      const totalGpuCount = selectedGpuType?.gpuAllocatable || 0;
-      const gpuPerInstance = record?.inference_gpu_count || 1;
-      const newMaxPossibleInstances = Math.floor(totalGpuCount / gpuPerInstance);
-      
-      setMaxPossibleInstances(newMaxPossibleInstances);
-
-      // 调整当前的实例数值
-      const currentMin = form.getFieldValue('min_instances');
-      const currentMax = form.getFieldValue('max_instances');
-      
-      if (currentMax && currentMax > newMaxPossibleInstances) {
-        form.setFieldValue('max_instances', newMaxPossibleInstances);
-      }
-      
-      if (currentMin && currentMin > newMaxPossibleInstances) {
-        form.setFieldValue('min_instances', newMaxPossibleInstances);
-      }
-    }
-  }, [selectedGpuModel, form, gpuTypeOptions, record?.inference_gpu_count]);
-
-  // 当最大实例数变化时，确保最小实例数不大于最大实例数
-  useEffect(() => {
-    if (maxInstances && minInstances && minInstances > maxInstances) {
-      form.setFieldValue('min_instances', maxInstances);
-    }
-  }, [maxInstances, minInstances, form]);
-
-  // 当最小实例数变化时，确保最大实例数不小于最小实例数
-  useEffect(() => {
-    if (minInstances && maxInstances && maxInstances < minInstances) {
-      form.setFieldValue('max_instances', minInstances);
-    }
-  }, [minInstances, maxInstances, form]);
-
-  const gpuTypeOptions = useGpuTypeOptions({});
-
-  const gpuProdValue = Form.useWatch('gpu_model', form);
-
+  const gpuTypeOptions = useGpuTypeOptions();
   const adaptersOptions = useResourceAdaptersOptions();
-
-  // 是否显示适配器选项
   const isShowAdapter = record?.category === 'chat';
 
   const onFinish = () => {
     return form.validateFields().then(() => {
-      const currentModel = record;
       const values = form.getFieldsValue();
-      
-      // 检查实例数的合法性
       const minInstances = parseInt(values.min_instances, 10);
       const maxInstances = parseInt(values.max_instances, 10);
-      
+
+      // 检查最大实例数是否大于等于最小实例数
       if (minInstances && maxInstances && minInstances > maxInstances) {
         message.error(intl.formatMessage({
           id: 'pages.modelRepository.InferenceDrawer.validation.instancesError',
@@ -104,17 +51,13 @@ const Content = ({ record, onCancel }: ContentProps) => {
         return;
       }
 
-      // 计算单个实例需要的 GPU 数量
-      const gpuPerInstance = record?.inference_gpu_count || 1;
-      
-      // 获取选中的 GPU 型号的总数量
+      // 检查实例数是否超过GPU资源限制
       const selectedGpuType = gpuTypeOptions?.find(x => x.value === values.gpu_model);
       const totalGpuCount = selectedGpuType?.gpuAllocatable || 0;
-      
-      // 计算最大可能的实例数
+      const gpuPerInstance = record?.inference_gpu_count || 1;
       const maxPossibleInstances = Math.floor(totalGpuCount / gpuPerInstance);
-      
-      if (maxInstances && maxInstances > maxPossibleInstances) {
+
+      if (maxInstances > maxPossibleInstances) {
         message.error(intl.formatMessage({
           id: 'pages.modelRepository.InferenceDrawer.validation.maxInstancesError',
           defaultMessage: `最大实例数不能超过 ${maxPossibleInstances}（可用GPU数量 ${totalGpuCount} / 每实例所需GPU数量 ${gpuPerInstance}）`,
@@ -123,41 +66,37 @@ const Content = ({ record, onCancel }: ContentProps) => {
       }
 
       setFormValues(values);
-      console.log('Form values:', values);
       const currentAdapter = adaptersOptions?.find((x) => x.id === values.adapter);
       const params = {
         data: {
           gpu_model: values.gpu_model,
           model_category: record?.category,
           gpu_count: record?.inference_gpu_count,
-          model_id: currentModel.id,
-          model_name: currentModel.name,
-          model_path: currentModel.path,
-          model_size: currentModel.size,
-          model_is_public: currentModel.is_public,
-          model_template: currentModel.template,
+          model_id: record.id,
+          model_name: record.name,
+          model_path: record.path,
+          model_size: record.size,
+          model_is_public: record.is_public,
+          model_template: record.template,
           adapter_id: currentAdapter?.id,
           adapter_name: currentAdapter?.name,
           adapter_size: currentAdapter?.size,
           adapter_is_public: currentAdapter?.is_public,
-          min_instances: values.min_instances ? parseInt(values.min_instances, 10) : undefined,
-          max_instances: values.max_instances ? parseInt(values.max_instances, 10) : undefined,
+          min_instances: minInstances,
+          max_instances: maxInstances,
         },
       };
-      console.log('Form params:', params);
-      return apiInference(params).then((res) => {
+
+      return apiInference(params).then(() => {
         message.success(
           intl.formatMessage({
             id: 'pages.modelRepository.InferenceDrawer.submit.success',
-            // defaultMessage: '部署任务创建成功',
           }),
         );
         onCancel();
         history.push('/InferenceState');
       });
     });
-
-    // return;
   };
 
   return (
@@ -207,30 +146,6 @@ const Content = ({ record, onCancel }: ContentProps) => {
           />
         </Form.Item>
 
-        {/* <Form.Item
-          name="gpu_count"
-          label={intl.formatMessage({
-            id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
-            defaultMessage: 'GPU数量',
-          })}
-          rules={[{ required: true }]}
-        >
-          <Input
-            type="number"
-            min={1}
-            max={
-              gpuProdValue
-                ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
-                : 1
-            }
-            placeholder={intl.formatMessage({
-              id: 'pages.modelRepository.fineTuningDrawer.form.gpuAllocatable',
-              defaultMessage: 'GPU数量',
-            })}
-            allowClear
-          />
-        </Form.Item> */}
-
         {isShowAdapter && (
           <Form.Item
             name="adapter"
@@ -263,16 +178,41 @@ const Content = ({ record, onCancel }: ContentProps) => {
             id: 'pages.modelRepository.InferenceDrawer.form.minInstances',
             defaultMessage: '最小实例数',
           })}
+          rules={[
+            {
+              required: true,
+              message: intl.formatMessage({
+                id: 'pages.modelRepository.InferenceDrawer.validation.required',
+                defaultMessage: '请输入最小实例数',
+              }),
+            }
+          ]}
         >
           <Input
             type="number"
             min={1}
-            max={maxPossibleInstances}
+            step={1}
+            onKeyPress={(e) => {
+              if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === '.') {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              let value = e.target.value;
+              if (!value || parseInt(value, 10) < 1) {
+                form.setFieldValue('min_instances', 1);
+              }
+            }}
+            onBlur={(e) => {
+              let value = e.target.value;
+              if (!value || value.trim() === '') {
+                form.setFieldValue('min_instances', 1);
+              }
+            }}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.InferenceDrawer.form.minInstances.placeholder',
               defaultMessage: '请输入最小实例数',
             })}
-            allowClear
           />
         </Form.Item>
 
@@ -282,16 +222,41 @@ const Content = ({ record, onCancel }: ContentProps) => {
             id: 'pages.modelRepository.InferenceDrawer.form.maxInstances',
             defaultMessage: '最大实例数',
           })}
+          rules={[
+            {
+              required: true,
+              message: intl.formatMessage({
+                id: 'pages.modelRepository.InferenceDrawer.validation.required',
+                defaultMessage: '请输入最大实例数',
+              }),
+            }
+          ]}
         >
           <Input
             type="number"
             min={1}
-            max={maxPossibleInstances}
+            step={1}
+            onKeyPress={(e) => {
+              if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === '.') {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              let value = e.target.value;
+              if (!value || parseInt(value, 10) < 1) {
+                form.setFieldValue('max_instances', 1);
+              }
+            }}
+            onBlur={(e) => {
+              let value = e.target.value;
+              if (!value || value.trim() === '') {
+                form.setFieldValue('max_instances', 1);
+              }
+            }}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.InferenceDrawer.form.maxInstances.placeholder',
               defaultMessage: '请输入最大实例数',
             })}
-            allowClear
           />
         </Form.Item>
 
