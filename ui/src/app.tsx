@@ -57,7 +57,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         <Button
           type="link"
           onClick={() => {
-            window.open('https://sxwl.ai/pricing');
+            window.open('https://www.sxwl.ai/pricing');
           }}
         >
           {intl.formatMessage({
@@ -70,7 +70,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         <Button
           type="link"
           onClick={() => {
-            window.open('https://sxwl.ai/docs/cloud');
+            window.open('https://www.sxwl.ai/docs/cloud');
           }}
         >
           {intl.formatMessage({
