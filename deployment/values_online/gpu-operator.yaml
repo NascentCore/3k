@@ -1,0 +1,79 @@
+psp:
+  enabled: false
+
+nfd:
+  enabled: false
+
+validator:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+operator:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  initContainer:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  cleanupCRD: true
+  defaultRuntime: containerd
+
+driver:
+        #repoConfig:
+        #  configMapName: repo-config
+  rdma:
+    enabled: true
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  manager:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+toolkit:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  env:
+   - name: CONTAINERD_CONFIG
+     value: /etc/containerd/config.toml
+   - name: CONTAINERD_SOCKET
+     value: /run/containerd/containerd.sock
+   - name: CONTAINERD_RUNTIME_CLASS
+     value: nvidia
+   - name: CONTAINERD_SET_AS_DEFAULT
+     value: "true"
+
+devicePlugin:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+dcgm:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+dcgmExporter:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+gfd:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+migManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+nodeStatusExporter:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+gds:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+vgpuManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  driverManager:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+vgpuDeviceManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+vfioManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  driverManager:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+kataManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+sandboxDevicePlugin:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+ccManager:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai

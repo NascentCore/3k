@@ -22,11 +22,11 @@ def update_installed_softwares(installed_softwares):
         json.dump(list(installed_softwares), file)
 
 
-def install_with_helm(name, namespace, values):
+def install_with_helm(name, namespace, values, online=''):
     try:
         cmd = ["helm", "install", "--namespace", namespace, "--create-namespace", name, f"harbor/{name}"]
         if values:
-            cmd.extend(["-f", f"deploy/values/{values}"])
+            cmd.extend(["-f", f"deploy/values{online}/{values}"])
         subprocess.run(cmd, check=True)
         logger.info(f"Helm 安装 {name} 成功")
     except subprocess.CalledProcessError as e:
@@ -34,12 +34,12 @@ def install_with_helm(name, namespace, values):
         raise
 
 
-def apply_with_kubectl(filename):
+def apply_with_kubectl(filename, online=''):
     try:
         action = "apply"
         if filename == "volcano-development.yaml":
             action = "create"
-        subprocess.run(["kubectl", action, "-f", f"deploy/yaml_apps/{filename}"], check=True)
+        subprocess.run(["kubectl", action, "-f", f"deploy/yaml_apps{online}/{filename}"], check=True)
         logger.info(f"Kubectl 应用 {filename} 成功")
     except subprocess.CalledProcessError as e:
         logger.error(f"Kubectl 应用 {filename} 失败: {e}")
@@ -85,7 +85,7 @@ def check_pod_status(app_name, namespace, timeout=300, interval=10):
     return False
 
 
-def install_software(software, installed_softwares, softwares):
+def install_software(software, installed_softwares, softwares, online=""):
     """
     安装软件并根据需要检查依赖软件的状态。
 
@@ -102,7 +102,7 @@ def install_software(software, installed_softwares, softwares):
     # 安装依赖
     for dep_name in software.get("dependencies", []):
         dep_software = find_software_by_name(dep_name, softwares)
-        install_software(dep_software, installed_softwares, softwares)
+        install_software(dep_software, installed_softwares, softwares, online)
 
     # 安装软件本身
     try:
@@ -110,9 +110,9 @@ def install_software(software, installed_softwares, softwares):
             if name == "rook-ceph-cluster":
                 add_node_label(software["deployNode"])
 
-            install_with_helm(name, software["namespace"], software["values"])
-        elif software["type"] == "kubectl":
-            apply_with_kubectl(software["file"])
+            install_with_helm(name, software["namespace"], software["values"], online)
+        elif software["type"] == "yaml":
+            apply_with_kubectl(software["file"], online)
 
         # 检查软件的 Pod 是否成功运行
         if not check_pod_status(name, software["namespace"]):
@@ -124,8 +124,12 @@ def install_software(software, installed_softwares, softwares):
         logger.info(f"{name} 安装并运行成功")
 
     except Exception as e:
-        logger.error(f"安装 {name} 失败: {e}")
-        raise
+        if name == "kserve":
+            time.sleep(10)
+            install_software(software, installed_softwares, softwares, online)
+        else:
+            logger.error(f"安装 {name} 失败: {e}")
+            raise
 
 
 def find_software_by_name(name, softwares):

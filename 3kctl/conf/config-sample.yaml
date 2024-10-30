@@ -3,19 +3,23 @@ kind: Cluster
 metadata:
   name: sample
 spec:
-  addons: []
+  hosts:
+  - {name: master, address: 192.168.1.10, internalAddress: 192.168.1.10, user: root, password: password, port: 22}
+  roleGroups:
+    control-plane:
+    - master
+    etcd:
+    - master
+    # registry:
+    # - master
+    worker:
+    - master
   controlPlaneEndpoint:
     address: ''
     domain: lb.kubesphere.local
     port: 6443
   etcd:
     type: kubekey
-  hosts:
-  - internalAddress: 192.168.1.10
-    name: master
-    password: password
-    port: 22
-    user: root
   kubernetes:
     autoRenewCerts: true
     clusterName: cluster.local
@@ -27,23 +31,15 @@ spec:
     multusCNI:
       enabled: false
     plugin: calico
-  registry:
-    auths:
-      dockerhub.kubekey.local:
-        certsPath: /etc/docker/certs.d/dockerhub.kubekey.local
-        password: Harbor12345
-        username: admin
-    insecureRegistries: []
-    namespaceOverride: kubesphereio
-    privateRegistry: dockerhub.kubekey.local
-    registryMirrors: []
-    type: harbor
-  roleGroups:
-    control-plane:
-    - master
-    etcd:
-    - master
-    registry:
-    - master
-    worker:
-    - master
+  # registry:
+  #   auths:
+  #     dockerhub.kubekey.local:
+  #       certsPath: /etc/docker/certs.d/dockerhub.kubekey.local
+  #       password: Harbor12345
+  #       username: admin
+  #   insecureRegistries: []
+  #   namespaceOverride: kubesphereio
+  #   privateRegistry: dockerhub.kubekey.local
+  #   registryMirrors: []
+  #   type: harbor
+  

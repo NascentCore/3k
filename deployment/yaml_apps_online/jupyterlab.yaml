@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterlab-service
+spec:
+  type: NodePort
+  ports:
+  - port: 8888
+    targetPort: 8888
+    nodePort: 30002
+  selector:
+    app: jupyterlab
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyterlab-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyterlab
+  template:
+    metadata:
+      labels:
+        app: jupyterlab
+    spec:
+      containers:
+      - name: jupyterlab
+        env:
+        - name: JUPYTER_TOKEN
+          value: "jupyterlab"
+          #image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/jupyterlab:v5
+        image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/jupyterlab-llamafactory:v1
+        ports:
+        - containerPort: 8888
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1

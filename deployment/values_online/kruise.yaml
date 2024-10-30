@@ -1,0 +1,6 @@
+featureGates: "ImagePullJobGate=true"
+manager:
+  replicas: 2
+  image:
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/kruise-manager
+    tag: v1.5.1

@@ -60,25 +60,43 @@ class Charts(cli.Application):
 @Deploy.subcommand("install")
 class Install(cli.Application):
     """install kubernetes cluster or operators"""
+    online = cli.Flag("--online", help="Specify if installation should be done online")
+
+    def _pass_online_flag(self, subcommand_instance):
+        subcommand_instance.online = self.online
 
 
 @Install.subcommand("kubernetes")
 class Kubernetes(cli.Application):
     """install kubernetes cluster"""
+    online = False
 
     def main(self):
-        install_kubernetes_cluster()
+        self.parent._pass_online_flag(self)
+        if self.online:
+            print("Installing Kubernetes cluster online")
+            install_kubernetes_cluster_online()
+        else:
+            print("Installing Kubernetes cluster offline")
+            install_kubernetes_cluster()
         check_coredns_schedule()
 
 
 @Install.subcommand("operators")
 class Operators(cli.Application):
     """install nfdgpu/netowrk/prometheus/mpi operator"""
+    online = False
     software = cli.SwitchAttr("--software", str, mandatory=False, help="Install specified software, example: tensorboard,kruise")
 
     def main(self):
-        init_apt_source()
-        install_operators(self.software)
+        self.parent._pass_online_flag(self)
+        if self.online:
+            print("Installing operators online")
+            install_operators(self.software, "_online")
+        else:
+            print("Installing operators offline")
+            # init_apt_source()
+            install_operators(self.software)
 
 
 @Install.subcommand("ceph-csi-cephfs")

@@ -4,15 +4,15 @@ kubeStateMetrics:
 grafana:
   enabled: true
   image:
-    repository: dockerhub.kubekey.local/kubesphereio/grafana
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/grafana
   sidecar:
     image:
-      repository: dockerhub.kubekey.local/kubesphereio/k8s-sidecar
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/k8s-sidecar
   initChownData:
     image:
-      repository: dockerhub.kubekey.local/kubesphereio/busybox
+      repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/busybox
   testFramework:
-    image: dockerhub.kubekey.local/kubesphereio/bats
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/bats
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -35,44 +35,44 @@ grafana:
 
 kube-state-metrics:
   image:
-    registry: dockerhub.kubekey.local/kubesphereio
+    registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
     repository: kube-state-metrics
 
 prometheus-node-exporter:
   image:
-    registry: dockerhub.kubekey.local/kubesphereio
+    registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
     repository: node-exporter
 
 global:
-  imageRegistry: dockerhub.kubekey.local/kubesphereio
+  imageRegistry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
 
 alertmanager:
   alertmanagerSpec:
     image:
-      registry: dockerhub.kubekey.local/kubesphereio
+      registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
       repository: alertmanager
 
 prometheusOperator:
   image:
-    registry: dockerhub.kubekey.local/kubesphereio
+    registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
     repository: prometheus-operator
   admissionWebhooks:
     patch:
       image:
-        registry: dockerhub.kubekey.local/kubesphereio
+        registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
         repository: kube-webhook-certgen
   prometheusConfigReloader:
     image:
-      registry: dockerhub.kubekey.local/kubesphereio
+      registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
       repository: prometheus-config-reloader
   thanosImage:
-    registry: dockerhub.kubekey.local/kubesphereio
+    registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
     repository: thanos
 
 prometheus:
   prometheusSpec:
     image:
-      registry: dockerhub.kubekey.local/kubesphereio
+      registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
       repository: prometheus
     serviceMonitorSelectorNilUsesHelmValues: false
     additionalScrapeConfigs:
@@ -104,5 +104,5 @@ prometheus:
 thanosRuler:
   thanosRulerSpec:
     image:
-      registry: dockerhub.kubekey.local/kubesphereio
+      registry: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
       repository: thanos

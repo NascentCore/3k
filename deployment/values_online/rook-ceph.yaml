@@ -1,0 +1,49 @@
+image:
+  pullPolicy: IfNotPresent
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ceph
+  tag: v1.12.5
+imagePullSecrets:
+  - name: regsecret
+
+provisionerNodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: role
+            operator: In
+            values:
+              - ceph
+pluginNodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: role
+            operator: In
+            values:
+              - ceph
+
+csi:
+  cephcsi:
+    # -- Ceph CSI image
+    # @default -- `quay.io/cephcsi/cephcsi:v3.8.0`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cephcsi:v3.9.0
+  registrar:
+    # -- Kubernetes CSI registrar image
+    # @default -- `registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-node-driver-registrar:v2.8.0
+  provisioner:
+    # -- Kubernetes CSI provisioner image
+    # @default -- `registry.k8s.io/sig-storage/csi-provisioner:v3.4.0`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-provisioner:v3.5.0
+  snapshotter:
+    # -- Kubernetes CSI snapshotter image
+    # @default -- `registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-snapshotter:v6.2.2
+  attacher:
+    # -- Kubernetes CSI Attacher image
+    # @default -- `registry.k8s.io/sig-storage/csi-attacher:v4.1.0`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-attacher:v4.3.0
+  resizer:
+    # -- Kubernetes CSI resizer image
+    # @default -- `registry.k8s.io/sig-storage/csi-resizer:v1.7.0`
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/csi-resizer:v1.8.0

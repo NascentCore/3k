@@ -1,0 +1,57 @@
+nfd:
+  enabled: false
+
+sriovNetworkOperator:
+  enabled: false
+
+sriov-network-operator:
+  images:
+    operator: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/sriov-network-operator:network-operator-23.7.0
+
+deployCR: true
+
+operator:
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+ofedDriver:
+  deploy: true
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  #repoConfig:
+  #  name: repo-config
+
+nvPeerDriver:
+  deploy: false
+
+rdmaSharedDevicePlugin:
+  deploy: true
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  resources:
+    - name: rdma_shared_device_a
+      ifNames: [ibs10, ibs11, ibs18, ibs19]
+
+sriovDevicePlugin:
+  deploy: false
+  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+      #ibKubernetes:
+      #  deploy: true
+      #  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+      #
+      #nvIpam:
+      #  deploy: true
+      #  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+
+secondaryNetwork:
+  deploy: false
+  cniPlugins:
+    deploy: true
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  multus:
+    deploy: true
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+    #ipoib:
+    #  deploy: true
+    #  repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai
+  ipamPlugin:
+    deploy: true
+    repository: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai

@@ -1,0 +1,24 @@
+enabled: true
+namespace: cpod-system
+
+sxcloud:
+  apiAddress: "http://node_ip:30008"      # 私有化部署的算想云API地址
+  cpodId: ""                              # 通过此命令获取：kubectl get namespace kube-system -o jsonpath='{.metadata.uid}' | md5sum | awk '{print $1}'
+  ossBucket: ""                           # 私有化部署的OSS Bucket名称
+  storageClass: "juicefs-sc"              # K8S 的 StorageClass名称
+  logLevel: "INFO"
+
+cpodoperator:
+  rbacProxy:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/kube-rbac-proxy:0.15.0
+  manager:
+    image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/cpodoperator:60f1361
+    args:
+      jupyterlabImage: "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/jupyterlab-llamafactory:v13"
+      storageClassName: "juicefs-sc"
+      oss:                                # 私有化部署的OSS配置，要求可读写权限
+        ak: ""
+        as: ""
+
+portalsynch:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/portalsynch:60f1361

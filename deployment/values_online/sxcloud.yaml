@@ -1,0 +1,36 @@
+namespace: sxcloud
+enabled: true
+
+mysql:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/mysql:8.0
+  rootPassword: "rootPassword"
+  user: "aiadmin"
+  password: "userPassword"
+  storageClassName: "juicefs-sc"                     # K8S 的 StorageClass 名称
+
+gateway:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-gateway:v0.0.40
+  dsn: "aiadmin:userPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+
+scheduler:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/go-scheduler:v0.0.209
+  dsn: "aiadmin:userPassword@tcp(mysql:3306)/aiadmin?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+  adminAccessId: ""                                  # 私有化部署的 OSS 可读写 ID
+  adminAccessKey: ""                                 # 私有化部署的 OSS 可读写 Key
+  uploadAccessId: ""                                 # 私有化部署的 OSS 上传 ID
+  uploadAccessKey: ""                                # 私有化部署的 OSS 上传 Key
+  env:
+    K8S_BASE_API: "http://node_ip:5000"              # K8S API 地址
+    K8S_BASE_URL: "http://node_ip:30005"             # K8S Dashboard 地址
+
+persistence:
+  enabled: true
+  storageClass: "juicefs-sc"
+  accessMode: ReadWriteMany
+  size: 10Gi
+
+webui:
+  image: sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/webui:v75-sxcloud-master
+
+ingress:
+  domain: "sxcloud.example.com"                     # 外部访问平台的域名
