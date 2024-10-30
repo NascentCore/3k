@@ -160,14 +160,8 @@ export const request = {
 
 export function onRouteChange({ location }) {
   if (location.pathname === '/Grafana') {
-    const url = `http://grafana.llm.sxwl.ai:30003/d/85a562078cdf/user-pods?orgId=1&refresh=5s&var-datasource=default&var-cluster=&var-namespace=${user.id}&var-gpu=All`;
+    const url = `http://grafana.llm.sxwl.ai:30005/d/85a562078cdf/user-pods?orgId=1&refresh=5s&var-datasource=default&var-cluster=&var-namespace=${user.user_id}&var-gpu=All`;
     window.open(url);
     history.back();
   }
-
-  // if (location.pathname === '/Jupyterlalb') {
-  //   const url = `${window.location.protocol}//${window.location.hostname}:30002/lab?token=jupyterlab`;
-  //   window.open(url);
-  //   history.back();
-  // }
 }
