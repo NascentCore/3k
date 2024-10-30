@@ -42,9 +42,9 @@ jobs:
       - name: Deploy to Hosting Service
         run: |
           ssh cairong@sxwl.ai << EOF
-            GO_GATEWAY_CONTAINER=$(sudo docker ps --format '{{.Names}} {{.Image}}' | grep 'sxwl-ai/go-gateway' | awk '{print $1}')
+            GO_GATEWAY_CONTAINER=\$(sudo docker ps --format '{{.Names}} {{.Image}}' | grep 'sxwl-ai/go-gateway' | awk '{print \$1}')
             sudo docker pull $DOCKER_REGISTRY/$NAMESPACE/webui:latest
             sudo docker stop webui || true
             sudo docker rm webui || true
-            sudo docker run -d --name webui --link $GO_GATEWAY_CONTAINER:go-gateway-service -p 8088:80 $DOCKER_REGISTRY/$NAMESPACE/webui:latest
+            sudo docker run -d --name webui --link \$GO_GATEWAY_CONTAINER:go-gateway-service -p 8088:80 $DOCKER_REGISTRY/$NAMESPACE/webui:latest
           EOF
