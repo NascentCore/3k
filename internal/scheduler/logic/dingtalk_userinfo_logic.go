@@ -69,7 +69,7 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 	}
 
 	resp = &types.LoginResp{User: types.WrapUser{User: types.UserInfo{}}}
-	resp.User.User.UserID = userInfoResponse.UserInfo.OpenId
+	resp.User.User.UserID = userInfoResponse.UserInfo.UnionId
 	resp.User.User.Username = userInfoResponse.UserInfo.Nick
 	resp.User.User.IsAdmin = false
 
@@ -90,7 +90,7 @@ func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (re
 		"jti":      formattedUUID,
 		"username": userInfoResponse.UserInfo.Nick,
 		"userid":   0,
-		"user_id":  userInfoResponse.UserInfo.OpenId,
+		"user_id":  userInfoResponse.UserInfo.UnionId,
 		"sub":      userInfoResponse.UserInfo.Nick,
 	}
 
