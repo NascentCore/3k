@@ -35,9 +35,9 @@ func NewDingtalkUserinfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *DingtalkUserinfoLogic) DingtalkUserinfo(req *types.DingCallbackReq) (resp *types.LoginResp, err error) {
-	// 从钉钉获取用户信息
-	appKey := "dingb9v5kibiwpnoqwzt"
-	appSecret := "oTZsPAEPrIrPJcsTBlH7bnULvWq5hK2Sw25Ldy0KiWYEAy4Nv7-CdtgJUH-kpyyO"
+	// 使用配置中的AppKey和AppSecret
+	appKey := l.svcCtx.Config.DingTalk.AppKey
+	appSecret := l.svcCtx.Config.DingTalk.AppSecret
 
 	// 生成 timestamp 和 signature
 	timestamp := fmt.Sprintf("%d", time.Now().UnixNano()/int64(time.Millisecond))

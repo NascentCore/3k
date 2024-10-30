@@ -55,4 +55,8 @@ type Config struct {
 		CronBilling bool
 		CronBalance bool
 	} `json:"Billing"`
+	DingTalk struct {
+		AppKey    string
+		AppSecret string
+	} `json:"-"`
 }
