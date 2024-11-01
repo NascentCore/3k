@@ -621,6 +621,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						// TODO: fill PredictorSpec with infomation provided by portaljob
 						Spec: v1beta1.InferenceSpec{
 							Backend: v1beta1.InferenceBackendKserve,
+							ModelID: job.ModelId,
 							Predictor: kservev1beta1.PredictorSpec{
 								PodSpec: kservev1beta1.PodSpec{
 									Containers: []v1.Container{

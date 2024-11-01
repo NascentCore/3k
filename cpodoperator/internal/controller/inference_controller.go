@@ -870,6 +870,16 @@ func (i *InferenceReconciler) createInferenceService(ctx context.Context, infere
 }
 
 func (i *InferenceReconciler) prepareWebUI(ctx context.Context, inference *cpodv1beta1.Inference) error {
+	apiURL := fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", PredictorServiceName(i.getInferenceServiceName(inference)), inference.Namespace)
+	if inference.Spec.Backend == cpodv1beta1.InferenceBackendRay {
+		// 获取对应preidector service name
+		svcName := inference.Name + "-serve-svc"
+		// 如果 svcName 的长度大于 50，则截取后 50 个字符
+		if len(svcName) > 50 {
+			svcName = svcName[len(svcName)-50:]
+		}
+		apiURL = fmt.Sprintf("http://%s.%s.svc.cluster.local:8000/v1/chat/completions", svcName, inference.Namespace)
+	}
 	webUIDeployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      inference.Name + "-web-ui",
@@ -904,7 +914,7 @@ func (i *InferenceReconciler) prepareWebUI(ctx context.Context, inference *cpodv
 							Env: []corev1.EnvVar{
 								{
 									Name:  "API_URL",
-									Value: fmt.Sprintf("http://%s.%s.svc.cluster.local/v1/chat/completions", PredictorServiceName(i.getInferenceServiceName(inference)), inference.Namespace),
+									Value: apiURL,
 								},
 								{
 									Name:  "ENV_BASE_URL",
