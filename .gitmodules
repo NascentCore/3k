@@ -22,3 +22,6 @@
 [submodule "experimental/qmapper_prototype/qmapper/csrc/third_party/pybind11"]
 	path = experimental/qmapper_prototype/qmapper/csrc/third_party/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "examples/nim/chat-ui"]
+	path = examples/nim/chat-ui
+	url = git@github.com-sxwl-dg:NascentCore/chat-ui.git
