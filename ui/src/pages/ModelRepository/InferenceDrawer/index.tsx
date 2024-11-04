@@ -57,6 +57,14 @@ const Content = ({ record, onCancel }: ContentProps) => {
       const gpuPerInstance = record?.inference_gpu_count || 1;
       const maxPossibleInstances = Math.floor(totalGpuCount / gpuPerInstance);
 
+      if (totalGpuCount === 0) {
+        message.error(intl.formatMessage({
+          id: 'pages.modelRepository.InferenceDrawer.validation.noGpu',
+          defaultMessage: '无可用GPU',
+        }));
+        return;
+      }
+
       if (maxInstances > maxPossibleInstances) {
         message.error(intl.formatMessage({
           id: 'pages.modelRepository.InferenceDrawer.validation.maxInstancesError',
