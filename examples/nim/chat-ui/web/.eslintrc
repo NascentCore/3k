@@ -1,6 +1,0 @@
-{
-  "extends": "@antfu",
-  "rules": {
-    "eslint-disable-next-line": "no-console"
-  }
-}
