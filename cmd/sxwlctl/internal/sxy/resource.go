@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/spf13/viper"
@@ -23,13 +24,13 @@ func AddResource(token string, resource Resource) error {
 	// Convert resource to JSON
 	resourceJSON, err := json.Marshal(resource)
 	if err != nil {
-		return fmt.Errorf("Error marshaling resource to JSON: %s\n", err)
+		return fmt.Errorf("error marshaling resource to JSON: %s", err)
 	}
 
 	// Create a new request using http.NewRequest
-	req, err := http.NewRequest("POST", viper.GetString("resource_url"), bytes.NewBuffer(resourceJSON))
+	req, err := http.NewRequest(http.MethodPost, viper.GetString("resource_add_url"), bytes.NewBuffer(resourceJSON))
 	if err != nil {
-		return fmt.Errorf("Error creating request: %s\n", err)
+		return fmt.Errorf("error creating request: %s", err)
 	}
 
 	// Add an 'Authorization' header to the request
@@ -40,13 +41,68 @@ func AddResource(token string, resource Resource) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("Error sending request to API endpoint: %s\n", err)
+		return fmt.Errorf("error sending request to API endpoint: %s", err)
 	}
 	defer resp.Body.Close()
 
 	// Check if the response status code indicates success (200 OK)
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("request failed with status code: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+// LoadResourceReq 加载资源请求
+type LoadResourceReq struct {
+	Source       string `json:"source"`
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+}
+
+// LoadResource 调用resource/load接口
+func LoadResource(token string, req LoadResourceReq) error {
+	// 转换请求为JSON
+	reqJSON, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("error marshaling request to JSON: %s", err)
+	}
+
+	// 创建HTTP请求
+	httpReq, err := http.NewRequest(http.MethodPost, viper.GetString("resource_load_url"), bytes.NewBuffer(reqJSON))
+	if err != nil {
+		return fmt.Errorf("error creating request: %s", err)
+	}
+
+	// 添加请求头
+	httpReq.Header.Add("Authorization", "Bearer "+token)
+	httpReq.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return fmt.Errorf("error sending request to API endpoint: %s", err)
+	}
+	defer resp.Body.Close()
+
+	// 读取响应body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error reading response body: %s", err)
+	}
+
+	// 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		// 尝试解析错误响应
+		var errResp struct {
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(body, &errResp); err == nil {
+			return fmt.Errorf("request failed: message=%s", errResp.Message)
+		}
+		// 如果无法解析JSON,则返回原始响应
+		return fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
 	}
 
 	return nil

@@ -57,6 +57,7 @@ const (
 var (
 	MsgResourceDeleteOK = "资源删除成功"
 	MsgResourceAddOK    = "资源创建成功"
+	ErrResourceSyncTaskExists = errors.New("同步任务已存在")
 )
 
 var (

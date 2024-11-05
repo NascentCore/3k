@@ -37,16 +37,17 @@ type (
 	}
 
 	SysOssResource struct {
-		Id           int64     `db:"id"`            // 自增ID
-		ResourceId   string    `db:"resource_id"`   // 数据id
-		ResourceType string    `db:"resource_type"` // 数据类型
-		ResourceName string    `db:"resource_name"` // 缓存的数据名字
-		ResourceSize int64     `db:"resource_size"` // 资源体积(字节)
-		Public       int64     `db:"public"`        // 资源是否公开 1 公共 2 用户私有
-		UserId       string    `db:"user_id"`       // 用户ID
-		Meta         string    `db:"meta"`          // 扩展元数据
-		CreatedAt    time.Time `db:"created_at"`    // 创建时间
-		UpdatedAt    time.Time `db:"updated_at"`    // 更新时间
+		Id           int64          `db:"id"`            // 自增ID
+		ResourceId   string         `db:"resource_id"`   // 数据id
+		ResourceType string         `db:"resource_type"` // 数据类型
+		ResourceName string         `db:"resource_name"` // 缓存的数据名字
+		ResourceSize int64          `db:"resource_size"` // 资源体积(字节)
+		Public       int64          `db:"public"`        // 资源是否公开 1 公共 2 用户私有
+		UserId       string         `db:"user_id"`       // 用户ID
+		Meta         string         `db:"meta"`          // 扩展元数据
+		Readme       sql.NullString `db:"readme"`        // README
+		CreatedAt    time.Time      `db:"created_at"`    // 创建时间
+		UpdatedAt    time.Time      `db:"updated_at"`    // 更新时间
 	}
 )
 
@@ -92,14 +93,14 @@ func (m *defaultSysOssResourceModel) FindOneByResourceId(ctx context.Context, re
 }
 
 func (m *defaultSysOssResourceModel) Insert(ctx context.Context, data *SysOssResource) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, sysOssResourceRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.ResourceName, data.ResourceSize, data.Public, data.UserId, data.Meta)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysOssResourceRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.ResourceName, data.ResourceSize, data.Public, data.UserId, data.Meta, data.Readme)
 	return ret, err
 }
 
 func (m *defaultSysOssResourceModel) Update(ctx context.Context, newData *SysOssResource) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysOssResourceRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.ResourceId, newData.ResourceType, newData.ResourceName, newData.ResourceSize, newData.Public, newData.UserId, newData.Meta, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.ResourceId, newData.ResourceType, newData.ResourceName, newData.ResourceSize, newData.Public, newData.UserId, newData.Meta, newData.Readme, newData.Id)
 	return err
 }
 

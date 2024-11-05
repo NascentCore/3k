@@ -810,6 +810,13 @@ type ResourceListResp struct {
 	UserList   []Resource `json:"user_list"`
 }
 
+type ResourceLoadReq struct {
+	BaseReq
+	Source       string `json:"source"`        // 来源(例如huggingface)
+	ResourceID   string `json:"resource_id"`   // 资源ID
+	ResourceType string `json:"resource_type"` // 资源类型(model/dataset/adapter)
+}
+
 type ResourceMetaAddReq struct {
 	BaseReq
 	ResourceID   string `json:"resource_id"`
@@ -828,6 +835,32 @@ type ResourceMetaDelReq struct {
 
 type ResourceModelsReq struct {
 	UserID string `header:"Sx-User-ID"`
+}
+
+type ResourceSyncTask struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	Source       string `json:"source"`
+	Token        string `json:"token"`
+}
+
+type ResourceSyncTaskResp struct {
+	Data  []ResourceSyncTask `json:"data"`
+	Total int64              `json:"total"`
+}
+
+type ResourceTaskUpdate struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	Source       string `json:"source"`
+	Size         int64  `json:"size"`
+	Err          string `json:"err"`
+	OK           bool   `json:"ok"`
+}
+
+type ResourceTaskUpdateReq struct {
+	BaseReq
+	Data []ResourceTaskUpdate `json:"data"`
 }
 
 type SendEmailReq struct {

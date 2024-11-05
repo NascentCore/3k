@@ -14,21 +14,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
-				Path:    "/api/resource/adapters",
-				Handler: ResourceAdaptersHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/api/resource/datasets",
-				Handler: ResourceDatasetsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/api/resource/models",
-				Handler: ResourceModelsHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
 				Path:    "/cpod/gpu_type",
 				Handler: GpuTypeHandler(serverCtx),
 			},
@@ -249,9 +234,40 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: RechargeListHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPost,
+				Path:    "/user/newuserid",
+				Handler: CreateNewUserIDHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/user/register/:code",
+				Handler: registerHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/adapters",
+				Handler: ResourceAdaptersHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/resource/baseimages",
 				Handler: baseImageListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/datasets",
+				Handler: ResourceDatasetsHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/resource/load",
+				Handler: ResourceLoadHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
@@ -264,19 +280,24 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: ResourceMetaDelHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/resource/models",
+				Handler: ResourceModelsHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/resource/sync",
 				Handler: OssSyncHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/user/newuserid",
-				Handler: CreateNewUserIDHandler(serverCtx),
+				Method:  http.MethodGet,
+				Path:    "/resource/task",
+				Handler: ResourceTaskGetHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/user/register/:code",
-				Handler: registerHandler(serverCtx),
+				Method:  http.MethodPut,
+				Path:    "/resource/task",
+				Handler: ResourceTaskUpdateHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api"),
