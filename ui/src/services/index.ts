@@ -230,11 +230,14 @@ export const useGpuTypeOptions = () => {
   const intl = useIntl();
   const { data }: any = useApiGetGpuType();
   const options =
-    data?.map((x: any) => ({
-      ...x,
-      label: x.gpuProd,
-      value: x.gpuProd,
-    })) || [];
+    Array.from(new Set(data?.map((x: any) => x.gpuProd) || [])).map((gpuProd) => {
+      const item = data?.find((x: any) => x.gpuProd === gpuProd);
+      return {
+        ...item,
+        label: gpuProd,
+        value: gpuProd,
+      };
+    });
   return [
     ...options,
     {
