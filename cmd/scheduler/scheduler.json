@@ -903,6 +903,33 @@
         ]
       }
     },
+    "/api/resource/load": {
+      "post": {
+        "summary": "创建资源同步任务",
+        "operationId": "ResourceLoadHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceLoadReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/resource/meta": {
       "delete": {
         "summary": "删除数据资产信息",
@@ -1005,6 +1032,56 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/BaseReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/resource/task": {
+      "get": {
+        "summary": "获取资源同步任务",
+        "operationId": "ResourceTaskGet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ResourceSyncTaskResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "put": {
+        "summary": "更新资源同步任务",
+        "operationId": "ResourceTaskUpdate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceTaskUpdateReq"
             }
           }
         ],
@@ -2911,6 +2988,14 @@
         "gpu_count": {
           "type": "integer",
           "format": "int64"
+        },
+        "min_instances": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_instances": {
+          "type": "integer",
+          "format": "int64"
         }
       },
       "title": "InferenceDeployReq"
@@ -2998,6 +3083,14 @@
           "type": "integer",
           "format": "int64"
         },
+        "min_instances": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_instances": {
+          "type": "integer",
+          "format": "int64"
+        },
         "template": {
           "type": "string"
         },
@@ -3023,6 +3116,8 @@
         "adapter_is_public",
         "gpu_type",
         "gpu_number",
+        "min_instances",
+        "max_instances",
         "template",
         "cpod_id",
         "user_id"
@@ -4579,6 +4674,29 @@
         "user_list"
       ]
     },
+    "ResourceLoadReq": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": " 来源(例如huggingface)"
+        },
+        "resource_id": {
+          "type": "string",
+          "description": " 资源ID"
+        },
+        "resource_type": {
+          "type": "string",
+          "description": " 资源类型(model/dataset/adapter)"
+        }
+      },
+      "title": "ResourceLoadReq",
+      "required": [
+        "source",
+        "resource_id",
+        "resource_type"
+      ]
+    },
     "ResourceMetaAddReq": {
       "type": "object",
       "properties": {
@@ -4631,6 +4749,99 @@
     "ResourceModelsReq": {
       "type": "object",
       "title": "ResourceModelsReq"
+    },
+    "ResourceSyncTask": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "ResourceSyncTask",
+      "required": [
+        "resource_id",
+        "resource_type",
+        "source",
+        "token"
+      ]
+    },
+    "ResourceSyncTaskResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceSyncTask"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "ResourceSyncTaskResp",
+      "required": [
+        "data",
+        "total"
+      ]
+    },
+    "ResourceTaskUpdate": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "err": {
+          "type": "string"
+        },
+        "ok": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      },
+      "title": "ResourceTaskUpdate",
+      "required": [
+        "resource_id",
+        "resource_type",
+        "source",
+        "size",
+        "err",
+        "ok"
+      ]
+    },
+    "ResourceTaskUpdateReq": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceTaskUpdate"
+          }
+        }
+      },
+      "title": "ResourceTaskUpdateReq",
+      "required": [
+        "data"
+      ]
     },
     "SendEmailReq": {
       "type": "object",

@@ -59,4 +59,9 @@ type Config struct {
 		AppKey    string
 		AppSecret string
 	} `json:"-"`
+	ResourceLoad struct {
+		On        bool
+		CacheDir  string
+		CacheSize int64
+	} `json:"-"`
 }

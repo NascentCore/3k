@@ -3,14 +3,19 @@ package resource
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"path"
 	"strings"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/pkg/consts"
+	"sxwl/3k/pkg/orm"
 	"sxwl/3k/pkg/storage"
 	"time"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,12 +36,12 @@ func NewManager(svcCtx *svc.ServiceContext) *Manager {
 }
 
 func (m *Manager) SyncOSS() {
-	m.syncModels()
-	m.syncDatasets()
-	m.syncAdapter()
+	m.syncOSSModels()
+	m.syncOSSDatasets()
+	m.syncOSSAdapter()
 }
 
-func (m *Manager) syncModels() {
+func (m *Manager) syncOSSModels() {
 	OssResourceModel := m.svcCtx.OssResourceModel
 
 	// resource in db
@@ -109,21 +114,21 @@ func (m *Manager) syncModels() {
 	}
 
 	// insert
-	err = m.Insert(modelsToInsert)
+	err = m.OSSInsert(modelsToInsert)
 	if err != nil {
 		m.Errorf("SyncOSS insert err: %v", err)
 		return
 	}
 
 	// update
-	err = m.Update(modelsToUpdate)
+	err = m.OSSUpdate(modelsToUpdate)
 	if err != nil {
 		m.Errorf("SyncOSS update err: %v", err)
 		return
 	}
 }
 
-func (m *Manager) syncDatasets() {
+func (m *Manager) syncOSSDatasets() {
 	OssResourceModel := m.svcCtx.OssResourceModel
 
 	// resource in db
@@ -171,21 +176,21 @@ func (m *Manager) syncDatasets() {
 	}
 
 	// insert
-	err = m.Insert(datasetsToInsert)
+	err = m.OSSInsert(datasetsToInsert)
 	if err != nil {
 		m.Errorf("SyncOSS insert err: %v", err)
 		return
 	}
 
 	// update
-	err = m.Update(datasetsToUpdate)
+	err = m.OSSUpdate(datasetsToUpdate)
 	if err != nil {
 		m.Errorf("SyncOSS update err: %v", err)
 		return
 	}
 }
 
-func (m *Manager) syncAdapter() {
+func (m *Manager) syncOSSAdapter() {
 	OssResourceModel := m.svcCtx.OssResourceModel
 
 	// resource in db
@@ -242,21 +247,21 @@ func (m *Manager) syncAdapter() {
 	}
 
 	// insert
-	err = m.Insert(adaptersToInsert)
+	err = m.OSSInsert(adaptersToInsert)
 	if err != nil {
 		m.Errorf("SyncOSS insert err: %v", err)
 		return
 	}
 
 	// update
-	err = m.Update(adaptersToUpdate)
+	err = m.OSSUpdate(adaptersToUpdate)
 	if err != nil {
 		m.Errorf("SyncOSS update err: %v", err)
 		return
 	}
 }
 
-func (m *Manager) Insert(resources []model.SysOssResource) error {
+func (m *Manager) OSSInsert(resources []model.SysOssResource) error {
 	if len(resources) == 0 {
 		return nil
 	}
@@ -297,7 +302,7 @@ func (m *Manager) Insert(resources []model.SysOssResource) error {
 	return nil
 }
 
-func (m *Manager) Update(resources []model.SysOssResource) error {
+func (m *Manager) OSSUpdate(resources []model.SysOssResource) error {
 	for _, resource := range resources {
 		updateBuilder := m.svcCtx.OssResourceModel.UpdateBuilder().Set(
 			"resource_type", resource.ResourceType,
@@ -331,4 +336,177 @@ func (m *Manager) Update(resources []model.SysOssResource) error {
 	}
 
 	return nil
+}
+
+// HFLoad 处理huggingface资源同步任务
+func (m *Manager) HFLoad(task *model.ResourceSyncTask) error {
+	taskModel := m.svcCtx.ResourceSyncTaskModel
+	// 1. 更新任务状态为获取meta信息中
+	task.Status = model.ResourceSyncTaskStatusGettingMeta
+	if err := taskModel.Update(context.Background(), task); err != nil {
+		return fmt.Errorf("update task status failed: %v", err)
+	}
+
+	// 构建HF API请求URL
+	var apiUrl string
+	switch task.ResourceType {
+	case consts.Model:
+		apiUrl = fmt.Sprintf("https://huggingface.co/api/models/%s", task.ResourceId)
+	case consts.Dataset:
+		apiUrl = fmt.Sprintf("https://huggingface.co/api/datasets/%s", task.ResourceId)
+	default:
+		return fmt.Errorf("unsupported resource type: %s", task.ResourceType)
+	}
+
+	// 创建HTTP请求
+	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return fmt.Errorf("create request failed: %v", err)
+	}
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request failed with status: %d", resp.StatusCode)
+	}
+
+	// 读取响应内容
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("read response failed: %v", err)
+	}
+
+	// 将响应内容设置为任务的meta信息
+	task.Meta = orm.NullString(string(body))
+
+	// 读取README
+	readmeUrl := fmt.Sprintf("https://huggingface.co/%s/raw/main/README.md", task.ResourceId)
+	readmeReq, err := http.NewRequest(http.MethodGet, readmeUrl, nil)
+	if err != nil {
+		return fmt.Errorf("create readme request failed: %v", err)
+	}
+
+	readmeResp, err := client.Do(readmeReq)
+	if err != nil {
+		return fmt.Errorf("readme request failed: %v", err)
+	}
+	defer readmeResp.Body.Close()
+
+	// 如果返回404则说明没有README
+	if readmeResp.StatusCode == http.StatusNotFound {
+		task.Readme = orm.NullString("")
+	} else if readmeResp.StatusCode == http.StatusOK {
+		readmeBody, err := io.ReadAll(readmeResp.Body)
+		if err != nil {
+			return fmt.Errorf("read readme response failed: %v", err)
+		}
+		task.Readme = orm.NullString(string(readmeBody))
+	} else {
+		return fmt.Errorf("readme request failed with status: %d", readmeResp.StatusCode)
+	}
+
+	// 2. 更新任务状态为获取meta信息完成
+	task.Status = model.ResourceSyncTaskStatusGettingMetaDone
+	if err := taskModel.Update(context.Background(), task); err != nil {
+		return fmt.Errorf("update task status failed: %v", err)
+	}
+
+	return nil
+}
+
+// StartLoadTask 启动资源同步任务处理
+func (m *Manager) StartLoadTask() {
+	taskModel := m.svcCtx.ResourceSyncTaskModel
+	ossResourceModel := m.svcCtx.OssResourceModel
+
+	for {
+		// 1. 查询pending状态的任务
+		builder := taskModel.AllFieldsBuilder().
+			Where("status IN (?, ?)", model.ResourceSyncTaskStatusPending, model.ResourceSyncTaskStatusUploaded)
+
+		task, err := taskModel.FindOneByQuery(context.Background(), builder)
+		if err == model.ErrNotFound {
+			// 没有待处理的任务,等待一段时间后继续
+			time.Sleep(10 * time.Second)
+			continue
+		}
+		if err != nil {
+			m.Errorf("query pending task failed: %v", err)
+			continue
+		}
+
+		if task.Status == model.ResourceSyncTaskStatusUploaded {
+			// 上传完成的任务直接记录资源表
+			var resourceID string
+			if task.ResourceType == consts.Model {
+				resourceID = storage.ModelCRDName(storage.ResourceToOSSPath(consts.Model, task.ResourceId))
+			} else if task.ResourceType == consts.Dataset {
+				resourceID = storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, task.ResourceId))
+			} else {
+				m.Errorf("unsupported resource type: %s", task.ResourceType)
+				continue
+			}
+
+			meta := model.OssResourceModelMeta{
+				Template:     "default",
+				Category:     consts.ModelCategoryChat, // oss上没有这个信息，默认就当做chat模型
+				CanFinetune:  true,
+				CanInference: true,
+			}
+			metaJson, err := json.Marshal(meta)
+			if err != nil {
+				m.Errorf("marshal meta failed: %v", err)
+				continue
+			}
+			if _, err := ossResourceModel.Insert(context.Background(), &model.SysOssResource{
+				ResourceId:   resourceID,
+				ResourceType: task.ResourceType,
+				ResourceName: task.ResourceId,
+				ResourceSize: task.Size,
+				Public:       model.CachePublic,
+				UserId:       "public",
+				Meta:         string(metaJson),
+				Readme:       task.Readme,
+			}); err != nil {
+				m.Errorf("record resource failed: %v", err)
+				continue
+			}
+
+			// 更新任务状态为记录资源表完成
+			_, err = taskModel.UpdateColsByCond(context.Background(), taskModel.UpdateBuilder().Where(squirrel.Eq{
+				"id": task.Id,
+			}).SetMap(map[string]interface{}{
+				"status": model.ResourceSyncTaskStatusRecord,
+			}))
+			if err != nil {
+				m.Errorf("update task status failed: %v", err)
+				continue
+			}
+		} else {
+			// 新创建的下载任务根据source选择处理方式
+			switch task.Source {
+			case "huggingface":
+				if err := m.HFLoad(task); err != nil {
+					// 更新任务状态为失败
+					task.Status = model.ResourceSyncTaskStatusFailed
+					task.ErrInfo = err.Error()
+					_ = taskModel.Update(context.Background(), task)
+					continue
+				}
+			default:
+				// 不支持的source,更新任务状态为失败
+				task.Status = model.ResourceSyncTaskStatusFailed
+				task.ErrInfo = "unsupported source"
+				_ = taskModel.Update(context.Background(), task)
+				continue
+			}
+		}
+	}
 }

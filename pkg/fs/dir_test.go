@@ -93,3 +93,126 @@ func TestListFilesInDir(t *testing.T) {
 		}
 	}
 }
+
+func TestParseBytes(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    int64
+		wantErr bool
+	}{
+		{
+			name:    "正确的GB格式",
+			input:   "5.2 GB",
+			want:    5583457484, // 5.2 * 1024 * 1024 * 1024
+			wantErr: false,
+		},
+		{
+			name:    "正确的MB格式",
+			input:   "3MB",
+			want:    3145728, // 3 * 1024 * 1024
+			wantErr: false,
+		},
+		{
+			name:    "正确的KB格式",
+			input:   "1024.5KB",
+			want:    1049088, // 1024.5 * 1024
+			wantErr: false,
+		},
+		{
+			name:    "带额外空格的格式",
+			input:   "  2.5  GB  ",
+			want:    2684354560, // 2.5 * 1024 * 1024 * 1024
+			wantErr: false,
+		},
+		{
+			name:    "错误的单位",
+			input:   "5.2 TB",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "错误的数字格式",
+			input:   "abc GB",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "空字符串",
+			input:   "",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "无单位",
+			input:   "1024",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:    "错误的格式",
+			input:   "1024Bytes",
+			want:    0,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseBytes(tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseBytes() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("ParseBytes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestParseBytesAndFormatBytes 测试 ParseBytes 和 FormatBytes 的互操作性
+func TestParseBytesAndFormatBytes(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{
+			name:  "2.50 GB",
+			input: "2.50 GB",
+		},
+		{
+			name:  "1024.00 MB",
+			input: "1024.00 MB",
+		},
+		{
+			name:  "2048.00 KB",
+			input: "2048.00 KB",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// 先解析字符串到字节数
+			bytes, err := ParseBytes(tt.input)
+			if err != nil {
+				t.Fatalf("ParseBytes() error = %v", err)
+			}
+
+			// 再将字节数转回字符串
+			got := FormatBytes(bytes)
+
+			// 比较结果（注意：由于浮点数精度的原因，我们需要再次解析结果进行比较）
+			gotBytes, err := ParseBytes(got)
+			if err != nil {
+				t.Fatalf("ParseBytes() error = %v", err)
+			}
+
+			// 允许 1% 的误差
+			diff := float64(gotBytes-bytes) / float64(bytes)
+			if diff < -0.01 || diff > 0.01 {
+				t.Errorf("转换来回不匹配。原始值：%v，得到：%v，误差：%.2f%%", tt.input, got, diff*100)
+			}
+		})
+	}
+}

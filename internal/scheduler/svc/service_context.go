@@ -12,25 +12,26 @@ import (
 )
 
 type ServiceContext struct {
-	Config           config.Config
-	UserJobModel     model.SysUserJobModel
-	FileURLModel     model.SysFileurlModel
-	CpodCacheModel   model.SysCpodCacheModel
-	InferenceModel   model.SysInferenceModel
-	QuotaModel       model.SysQuotaModel
-	UserModel        model.SysUserModel
-	VerifyCodeModel  model.VerifyCodeModel
-	PriceModel       model.SysPriceModel
-	JupyterlabModel  model.SysJupyterlabModel
-	UserBalanceModel model.UserBalanceModel
-	UserBillingModel model.UserBillingModel
-	RechargeModel    model.UserRechargeModel
-	CpodNodeModel    model.SysCpodNodeModel
-	OssResourceModel model.SysOssResourceModel
-	AppModel         model.SysAppModel
-	AppJobModel      model.SysAppJobModel
-	EmailSender      email.Emailer
-	DB               sqlx.SqlConn
+	Config                config.Config
+	UserJobModel          model.SysUserJobModel
+	FileURLModel          model.SysFileurlModel
+	CpodCacheModel        model.SysCpodCacheModel
+	InferenceModel        model.SysInferenceModel
+	QuotaModel            model.SysQuotaModel
+	UserModel             model.SysUserModel
+	VerifyCodeModel       model.VerifyCodeModel
+	PriceModel            model.SysPriceModel
+	JupyterlabModel       model.SysJupyterlabModel
+	UserBalanceModel      model.UserBalanceModel
+	UserBillingModel      model.UserBillingModel
+	RechargeModel         model.UserRechargeModel
+	CpodNodeModel         model.SysCpodNodeModel
+	OssResourceModel      model.SysOssResourceModel
+	AppModel              model.SysAppModel
+	AppJobModel           model.SysAppJobModel
+	ResourceSyncTaskModel model.ResourceSyncTaskModel
+	EmailSender           email.Emailer
+	DB                    sqlx.SqlConn
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -57,24 +58,25 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	return &ServiceContext{
-		Config:           c,
-		UserJobModel:     model.NewSysUserJobModel(conn),
-		FileURLModel:     model.NewSysFileurlModel(conn),
-		CpodCacheModel:   model.NewSysCpodCacheModel(conn),
-		InferenceModel:   model.NewSysInferenceModel(conn),
-		QuotaModel:       model.NewSysQuotaModel(conn),
-		UserModel:        model.NewSysUserModel(conn),
-		VerifyCodeModel:  model.NewVerifyCodeModel(conn),
-		PriceModel:       model.NewSysPriceModel(conn),
-		JupyterlabModel:  model.NewSysJupyterlabModel(conn),
-		UserBalanceModel: model.NewUserBalanceModel(conn),
-		UserBillingModel: model.NewUserBillingModel(conn),
-		RechargeModel:    model.NewUserRechargeModel(conn),
-		CpodNodeModel:    model.NewSysCpodNodeModel(conn),
-		OssResourceModel: model.NewSysOssResourceModel(conn),
-		AppModel:         model.NewSysAppModel(conn),
-		AppJobModel:      model.NewSysAppJobModel(conn),
-		EmailSender:      emailSender,
-		DB:               conn,
+		Config:                c,
+		UserJobModel:          model.NewSysUserJobModel(conn),
+		FileURLModel:          model.NewSysFileurlModel(conn),
+		CpodCacheModel:        model.NewSysCpodCacheModel(conn),
+		InferenceModel:        model.NewSysInferenceModel(conn),
+		QuotaModel:            model.NewSysQuotaModel(conn),
+		UserModel:             model.NewSysUserModel(conn),
+		VerifyCodeModel:       model.NewVerifyCodeModel(conn),
+		PriceModel:            model.NewSysPriceModel(conn),
+		JupyterlabModel:       model.NewSysJupyterlabModel(conn),
+		UserBalanceModel:      model.NewUserBalanceModel(conn),
+		UserBillingModel:      model.NewUserBillingModel(conn),
+		RechargeModel:         model.NewUserRechargeModel(conn),
+		CpodNodeModel:         model.NewSysCpodNodeModel(conn),
+		OssResourceModel:      model.NewSysOssResourceModel(conn),
+		AppModel:              model.NewSysAppModel(conn),
+		AppJobModel:           model.NewSysAppJobModel(conn),
+		ResourceSyncTaskModel: model.NewResourceSyncTaskModel(conn),
+		EmailSender:           emailSender,
+		DB:                    conn,
 	}
 }

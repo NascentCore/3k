@@ -257,37 +257,6 @@ type (
 )
 
 type (
-	Resource {
-		ID                string   `json:"id"`
-		Name              string   `json:"name"`
-		Object            string   `json:"object"`
-		Owner             string   `json:"owner"`
-		Size              int64    `json:"size"`
-		IsPublic          bool     `json:"is_public"`
-		UserID            string   `json:"user_id"`
-		Tag               []string `json:"tag"`
-		Template          string   `json:"template"`
-		Category          string   `json:"category"`
-		BaseModel         string   `json:"base_model"`
-		FinetuneGPUCount  int      `json:"finetune_gpu_count"`
-		InferenceGPUCount int      `json:"inference_gpu_count"`
-	}
-	ResourceModelsReq {
-		UserID string `header:"Sx-User-ID"`
-	}
-	ResourceDatasetsReq {
-		UserID string `header:"Sx-User-ID"`
-	}
-	ResourceAdaptersReq {
-		UserID string `header:"Sx-User-ID"`
-	}
-	ResourceListResp {
-		PublicList []Resource `json:"public_list"`
-		UserList   []Resource `json:"user_list"`
-	}
-)
-
-type (
 	UploaderAccessReq {
 		UserID string `header:"Sx-User-ID"`
 	}
@@ -536,18 +505,6 @@ service scheduler-api {
 
 	@handler FinetuneHandler
 	post /job/finetune (FinetuneReq) returns (FinetuneResp)
-
-	@doc "模型列表"
-	@handler ResourceModelsHandler
-	get /api/resource/models (ResourceModelsReq) returns (ResourceListResp) // oss上存储的模型
-
-	@doc "数据集列表"
-	@handler ResourceDatasetsHandler
-	get /api/resource/datasets (ResourceDatasetsReq) returns (ResourceListResp) // oss上存储的数据集
-
-	@doc "适配器列表"
-	@handler ResourceAdaptersHandler
-	get /api/resource/adapters (ResourceAdaptersReq) returns (ResourceListResp) // oss上存储的适配器
 
 	@handler UploaderAccessHandler
 	get /resource/uploader_access (UploaderAccessReq) returns (UploaderAccessResp)
@@ -843,24 +800,6 @@ type (
 	}
 )
 
-// 资源管理
-type (
-	ResourceMetaAddReq {
-		BaseReq
-		ResourceID   string `json:"resource_id"`
-		ResourceType string `json:"resource_type"`
-		ResourceName string `json:"resource_name"`
-		ResourceSize int64  `json:"resource_size"`
-		IsPublic     bool   `json:"is_public"`
-		UserId       string `json:"user_id"`
-		Meta         string `json:"meta,optional"`
-	}
-	ResourceMetaDelReq {
-		BaseReq
-		ResourceID string `json:"resource_id"`
-	}
-)
-
 // python接口参数定义
 type (
 	BuildImageReq {
@@ -873,15 +812,6 @@ type (
 		UserID    string `json:"user_id"`
 		ImageName string `json:"image_name"`
 		Tag       string `json:"tag"`
-	}
-)
-
-type (
-	BaseImageListReq {
-		UserID string `header:"Sx-User-ID"`
-	}
-	BaseImageListResp {
-		Data []string `json:"data"`
 	}
 )
 
@@ -969,22 +899,6 @@ service scheduler-api {
 	@handler jobsDel
 	delete /job/jobs (JobsDelReq) returns (JobsDelResp)
 
-	@doc "基础镜像列表"
-	@handler baseImageList
-	get /resource/baseimages (BaseImageListReq) returns (BaseImageListResp)
-
-	@doc "oss资源同步"
-	@handler OssSync
-	post /resource/sync (BaseReq) returns (BaseResp)
-
-	@doc "新增数据资产信息"
-	@handler ResourceMetaAdd
-	post /resource/meta (ResourceMetaAddReq) returns (BaseResp)
-
-	@doc "删除数据资产信息"
-	@handler ResourceMetaDel
-	delete /resource/meta (ResourceMetaDelReq) returns (BaseResp)
-
 	@doc "余额充值"
 	@handler BalanceAdd
 	post /pay/balance (BalanceAddReq) returns (BalanceAddResp)
@@ -1020,6 +934,131 @@ service scheduler-api {
 	@doc "钉钉用户信息"
 	@handler DingtalkUserinfo
 	get /dingtalk/userinfo (DingCallbackReq) returns (LoginResp)
+}
+
+// 资源管理
+type (
+	Resource {
+		ID                string   `json:"id"`
+		Name              string   `json:"name"`
+		Object            string   `json:"object"`
+		Owner             string   `json:"owner"`
+		Size              int64    `json:"size"`
+		IsPublic          bool     `json:"is_public"`
+		UserID            string   `json:"user_id"`
+		Tag               []string `json:"tag"`
+		Template          string   `json:"template"`
+		Category          string   `json:"category"`
+		BaseModel         string   `json:"base_model"`
+		FinetuneGPUCount  int      `json:"finetune_gpu_count"`
+		InferenceGPUCount int      `json:"inference_gpu_count"`
+	}
+	ResourceModelsReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	ResourceDatasetsReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	ResourceAdaptersReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	ResourceListResp {
+		PublicList []Resource `json:"public_list"`
+		UserList   []Resource `json:"user_list"`
+	}
+	BaseImageListReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	BaseImageListResp {
+		Data []string `json:"data"`
+	}
+	ResourceMetaAddReq {
+		BaseReq
+		ResourceID   string `json:"resource_id"`
+		ResourceType string `json:"resource_type"`
+		ResourceName string `json:"resource_name"`
+		ResourceSize int64  `json:"resource_size"`
+		IsPublic     bool   `json:"is_public"`
+		UserId       string `json:"user_id"`
+		Meta         string `json:"meta,optional"`
+	}
+	ResourceMetaDelReq {
+		BaseReq
+		ResourceID string `json:"resource_id"`
+	}
+	ResourceLoadReq {
+		BaseReq
+		Source       string `json:"source"` // 来源(例如huggingface)
+		ResourceID   string `json:"resource_id"` // 资源ID
+		ResourceType string `json:"resource_type"` // 资源类型(model/dataset/adapter)
+	}
+	ResourceSyncTask {
+		ResourceID   string `json:"resource_id"`
+		ResourceType string `json:"resource_type"`
+		Source       string `json:"source"`
+		Token        string `json:"token"`
+	}
+	ResourceSyncTaskResp {
+		Data  []ResourceSyncTask `json:"data"`
+		Total int64              `json:"total"`
+	}
+	ResourceTaskUpdate {
+		ResourceID   string `json:"resource_id"`
+		ResourceType string `json:"resource_type"`
+		Source       string `json:"source"`
+		Size         int64  `json:"size"`
+		Err          string `json:"err"`
+		OK           bool   `json:"ok"`
+	}
+	ResourceTaskUpdateReq {
+		BaseReq
+		Data []ResourceTaskUpdate `json:"data"`
+	}
+)
+
+@server (
+	prefix: /api
+)
+service scheduler-api {
+	@doc "模型列表"
+	@handler ResourceModelsHandler
+	get /resource/models (ResourceModelsReq) returns (ResourceListResp) // oss上存储的模型
+
+	@doc "数据集列表"
+	@handler ResourceDatasetsHandler
+	get /resource/datasets (ResourceDatasetsReq) returns (ResourceListResp) // oss上存储的数据集
+
+	@doc "适配器列表"
+	@handler ResourceAdaptersHandler
+	get /resource/adapters (ResourceAdaptersReq) returns (ResourceListResp) // oss上存储的适配器
+
+	@doc "基础镜像列表"
+	@handler baseImageList
+	get /resource/baseimages (BaseImageListReq) returns (BaseImageListResp)
+
+	@doc "oss资源同步"
+	@handler OssSync
+	post /resource/sync (BaseReq) returns (BaseResp)
+
+	@doc "新增数据资产信息"
+	@handler ResourceMetaAdd
+	post /resource/meta (ResourceMetaAddReq) returns (BaseResp)
+
+	@doc "删除数据资产信息"
+	@handler ResourceMetaDel
+	delete /resource/meta (ResourceMetaDelReq) returns (BaseResp)
+
+	@doc "创建资源同步任务"
+	@handler ResourceLoadHandler
+	post /resource/load (ResourceLoadReq) returns (BaseResp)
+
+	@doc "获取资源同步任务"
+	@handler ResourceTaskGet
+	get /resource/task (BaseReq) returns (ResourceSyncTaskResp)
+
+	@doc "更新资源同步任务"
+	@handler ResourceTaskUpdate
+	put /resource/task (ResourceTaskUpdateReq) returns (BaseResp)
 }
 
 // 大模型应用管理
