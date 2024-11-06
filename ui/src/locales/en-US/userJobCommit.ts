@@ -3,13 +3,13 @@
  */
 export default {
   'pages.UserJobCommit.form.placeholder': 'Please enter',
-  'pages.UserJobCommit.form.ckptPath': 'CKPT Path',
+  'pages.UserJobCommit.form.ckptPath': 'Working Directory',
   'pages.UserJobCommit.form.ckptPath.tooltip':
     "The path where the data generated during training is stored, corresponding to the path set in the user's training program",
   'pages.UserJobCommit.form.ckptVol': 'Capacity',
   'pages.UserJobCommit.form.ckptVol.tooltip':
     'The CKPT path and model save path will mount the corresponding PV. The capacity is the size of PV that needs to be requested, based on the estimated data size of the training',
-  'pages.UserJobCommit.form.modelPath': 'Model Save Path',
+  'pages.UserJobCommit.form.modelPath': 'Output Directory',
   'pages.UserJobCommit.form.modelPath.tooltip':
     "The path to save the model after training is completed, corresponding to the save path set in the user's training program",
   'pages.UserJobCommit.form.modelVol': 'Capacity',
@@ -33,4 +33,5 @@ export default {
   'pages.UserJobCommit.form.datasetPath': 'Mount Path',
   'pages.UserJobCommit.form.path.error':'Mount path must start with "/"',
   'pages.UserJobCommit.form.runCommand': 'Run Command',
+  'pages.UserJobCommit.form.nodeCount': 'Node Count',
 };

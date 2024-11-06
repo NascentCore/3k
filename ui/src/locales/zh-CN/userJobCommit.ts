@@ -3,13 +3,13 @@
  */
 export default {
   'pages.UserJobCommit.form.placeholder': '请输入',
-  'pages.UserJobCommit.form.ckptPath': 'CKPT 路径',
+  'pages.UserJobCommit.form.ckptPath': '工作目录',
   'pages.UserJobCommit.form.ckptPath.tooltip':
     '训练过程中产生的数据存放路径，对应用户训练程序中设置的路径',
   'pages.UserJobCommit.form.ckptVol': '容量',
   'pages.UserJobCommit.form.ckptVol.tooltip':
     'CKPT 路径及模型保存路径将挂载对应的 PV ，容量是需要申请的 PV 大小，根据训练预估数据量大小填写',
-  'pages.UserJobCommit.form.modelPath': '模型保存路径',
+  'pages.UserJobCommit.form.modelPath': '输出目录',
   'pages.UserJobCommit.form.modelPath.tooltip':
     '训练完成后的模型保存路径，对应用户训练程序中设置的保存路径',
   'pages.UserJobCommit.form.modelVol': '容量',
@@ -32,4 +32,5 @@ export default {
   'pages.UserJobCommit.form.datasetPath': '挂载路径',
   'pages.UserJobCommit.form.path.error':'路径必须以"/"开头',
   'pages.UserJobCommit.form.runCommand': '启动命令',
+  'pages.UserJobCommit.form.nodeCount': '节点数量',
 };

@@ -12,4 +12,6 @@ export default {
   'pages.ClusterCpods.table.column.gpu_vendor': 'GPU厂商',
   'pages.ClusterCpods.table.column.create_time': '创建时间',
   'pages.ClusterCpods.table.column.update_time': '更新时间',
+  'pages.ClusterCpods.table.column.node_name': '节点名称',
+  'pages.ClusterCpods.table.column.node_type': '节点类型',
 };

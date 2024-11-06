@@ -6,7 +6,7 @@ import { useIntl } from '@umijs/max';
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  const { data, mutate, isLoading }: any = useApiClusterCpods();
+  const { data, isLoading }: any = useApiClusterCpods();
   console.log(1111, { data });
   const dataKeys = Object.keys(data || {});
   return (
@@ -27,16 +27,26 @@ const Index: React.FC = () => {
           >
             <Table
               columns={[
-                // {
-                //   title: intl.formatMessage({
-                //     id: 'pages.ClusterCpods.table.column.cpod_id',
-                //     defaultMessage: 'CPod ID',
-                //   }),
-                //   dataIndex: 'cpod_id',
-                //   key: 'cpod_id',
-                //   align: 'center',
-                //   width: 150,
-                // },
+                {
+                  title: intl.formatMessage({
+                    id: 'pages.ClusterCpods.table.column.node_name',
+                    defaultMessage: '节点名称',
+                  }),
+                  dataIndex: 'node_name',
+                  key: 'node_name',
+                  align: 'center',
+                  width: 200,
+                },
+                {
+                  title: intl.formatMessage({
+                    id: 'pages.ClusterCpods.table.column.node_type',
+                    defaultMessage: '节点类型',
+                  }),
+                  key: 'node_type',
+                  align: 'center',
+                  width: 150,
+                  render: () => 'control-plane,worker',
+                },
                 {
                   title: intl.formatMessage({
                     id: 'pages.ClusterCpods.table.column.gpu_prod',
@@ -56,8 +66,9 @@ const Index: React.FC = () => {
                   key: 'gpu_mem',
                   align: 'center',
                   width: 150,
-                  render: (text) => {
-                    return `${text} MB`;
+                  render: (bytes) => {
+                    const gb = Math.floor(bytes / (1024 * 1024 * 1024));
+                    return `${gb} GB`;
                   },
                 },
                 {
