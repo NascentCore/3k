@@ -65,6 +65,7 @@ type JobType string
 
 // These are the valid type of cpodjob.
 const (
+	JobTypeGeneral    JobType = "general"
 	JobTypeMPI        JobType = "mpi"
 	JobTypePytorch    JobType = "pytorch"
 	JobTypeTensorFlow JobType = "tensorFlow"
