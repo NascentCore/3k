@@ -265,36 +265,21 @@ const Welcome: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label={intl.formatMessage({
-              id: 'pages.UserJobCommit.form.nodeCount',
-              defaultMessage: '节点数量',
-            })}
-            name="nodeCount"
-            rules={[
-              {
-                required: true,
-                message: intl.formatMessage({
-                  id: 'pages.UserJobCommit.form.placeholder',
-                  defaultMessage: '请输入',
-                }),
-              },
-            ]}
-          >
-            <Input type="number" min={1} style={{ width: '100px' }} />
-          </Form.Item>
-
-          <Form.Item
             label={
               <>
-                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>GPU
+                <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
+                {intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.nodeCount',
+                  defaultMessage: '节点数量',
+                })}
               </>
             }
             style={{ marginBottom: 0 }}
           >
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Form.Item
                 style={{ flex: '0 0 100px' }}
-                name="gpuNumber"
+                name="nodeCount"
                 rules={[
                   {
                     required: true,
@@ -305,37 +290,61 @@ const Welcome: React.FC = () => {
                   },
                 ]}
               >
-                <Input
-                  type="number"
-                  min={1}
-                  max={
-                    gpuProdValue
-                      ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
-                      : 1
-                  }
-                />
+                <Input type="number" min={1} />
               </Form.Item>
+
               <Form.Item
                 style={{ flex: 1 }}
-                name="gpuType"
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
+                label="GPU"
+                required
               >
-                <Select
-                  allowClear
-                  options={gpuTypeOptions}
-                  placeholder={intl.formatMessage({
-                    id: 'pages.UserJobCommit.form.placeholder',
-                    defaultMessage: '请输入',
-                  })}
-                />
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <Form.Item
+                    style={{ flex: '0 0 100px', marginBottom: 0 }}
+                    name="gpuNumber"
+                    rules={[
+                      {
+                        required: true,
+                        message: intl.formatMessage({
+                          id: 'pages.UserJobCommit.form.placeholder',
+                          defaultMessage: '请输入',
+                        }),
+                      },
+                    ]}
+                  >
+                    <Input
+                      type="number"
+                      min={1}
+                      max={
+                        gpuProdValue
+                          ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
+                          : 1
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    style={{ flex: 1, marginBottom: 0 }}
+                    name="gpuType"
+                    rules={[
+                      {
+                        required: true,
+                        message: intl.formatMessage({
+                          id: 'pages.UserJobCommit.form.placeholder',
+                          defaultMessage: '请输入',
+                        }),
+                      },
+                    ]}
+                  >
+                    <Select
+                      allowClear
+                      options={gpuTypeOptions}
+                      placeholder={intl.formatMessage({
+                        id: 'pages.UserJobCommit.form.placeholder',
+                        defaultMessage: '请输入',
+                      })}
+                    />
+                  </Form.Item>
+                </div>
               </Form.Item>
             </div>
           </Form.Item>
