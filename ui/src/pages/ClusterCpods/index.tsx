@@ -35,7 +35,7 @@ const Index: React.FC = () => {
                   dataIndex: 'node_name',
                   key: 'node_name',
                   align: 'center',
-                  width: 200,
+                  width: 150,
                 },
                 {
                   title: intl.formatMessage({
@@ -55,7 +55,7 @@ const Index: React.FC = () => {
                   dataIndex: 'gpu_prod',
                   key: 'gpu_prod',
                   align: 'center',
-                  width: 150,
+                  width: 200,
                 },
                 {
                   title: intl.formatMessage({
@@ -65,7 +65,7 @@ const Index: React.FC = () => {
                   dataIndex: 'gpu_mem',
                   key: 'gpu_mem',
                   align: 'center',
-                  width: 150,
+                  width: 100,
                   render: (bytes) => {
                     const gb = Math.floor(bytes / (1024 * 1024 * 1024));
                     return `${gb} GB`;
@@ -79,7 +79,7 @@ const Index: React.FC = () => {
                   dataIndex: 'gpu_total',
                   key: 'gpu_total',
                   align: 'center',
-                  width: 150,
+                  width: 100,
                 },
                 {
                   title: intl.formatMessage({
@@ -89,7 +89,7 @@ const Index: React.FC = () => {
                   dataIndex: 'gpu_allocatable',
                   key: 'gpu_allocatable',
                   align: 'center',
-                  width: 150,
+                  width: 100,
                 },
                 // {
                 //   title: intl.formatMessage({
