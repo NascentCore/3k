@@ -61,7 +61,5 @@ type Config struct {
 	} `json:"-"`
 	ResourceLoad struct {
 		On        bool
-		CacheDir  string
-		CacheSize int64
 	} `json:"-"`
 }
