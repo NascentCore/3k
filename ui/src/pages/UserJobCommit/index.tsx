@@ -21,6 +21,7 @@ const Welcome: React.FC = () => {
     stopType: 0,
     gpuNumber: 1,
     stopTime: 0,
+    nodeCount: 1,
   });
   const gpuTypeOptions = useGpuTypeOptions();
   const resourceModelsOptions = useResourceModelsOptions();
@@ -40,7 +41,7 @@ const Welcome: React.FC = () => {
       console.log({ currentDataSet, currentModel });
       const params = {
         ...values,
-        // imagePath: values.imagePath[0],
+        nodeCount: Number(values.nodeCount),
         ckptVol: Number(values.ckptVol),
         gpuNumber: Number(values.gpuNumber),
         modelVol: Number(values.modelVol),
@@ -88,7 +89,7 @@ const Welcome: React.FC = () => {
                 <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.ckptPath',
-                  defaultMessage: 'CKPT 路径',
+                  defaultMessage: '工作目录',
                 })}
                 <Tooltip
                   title={intl.formatMessage({
@@ -179,7 +180,7 @@ const Welcome: React.FC = () => {
                 <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
                   id: 'pages.UserJobCommit.form.modelPath',
-                  defaultMessage: '模型保存路径',
+                  defaultMessage: '输出目录',
                 })}
                 <Tooltip
                   title={intl.formatMessage({
@@ -261,6 +262,25 @@ const Welcome: React.FC = () => {
                 />
               </Form.Item>
             </div>
+          </Form.Item>
+
+          <Form.Item
+            label={intl.formatMessage({
+              id: 'pages.UserJobCommit.form.nodeCount',
+              defaultMessage: '节点数量',
+            })}
+            name="nodeCount"
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.placeholder',
+                  defaultMessage: '请输入',
+                }),
+              },
+            ]}
+          >
+            <Input type="number" min={1} style={{ width: '100px' }} />
           </Form.Item>
 
           <Form.Item
@@ -387,6 +407,7 @@ const Welcome: React.FC = () => {
                 { label: 'MPI', value: 'MPI' },
                 { label: 'Pytorch', value: 'Pytorch' },
                 { label: 'TensorFlow', value: 'TensorFlow' },
+                { label: 'General', value: 'General' },
               ]}
               placeholder={intl.formatMessage({
                 id: 'pages.UserJobCommit.form.placeholder',
@@ -577,15 +598,6 @@ const Welcome: React.FC = () => {
                 })}
               </>
             }
-            rules={[
-              {
-                required: true,
-                message: intl.formatMessage({
-                  id: 'pages.UserJobCommit.form.placeholder',
-                  defaultMessage: '请输入',
-                }),
-              },
-            ]}
           >
             <Input
               placeholder={intl.formatMessage({

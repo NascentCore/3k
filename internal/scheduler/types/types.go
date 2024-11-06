@@ -221,6 +221,7 @@ type ClusterNodeInfo struct {
 type CpodInfo struct {
 	CpodID         string `json:"cpod_id"`
 	CpodVersion    string `json:"cpod_version"`
+	NodeName       string `json:"node_name"`
 	GPUVendor      string `json:"gpu_vendor"`
 	GPUProd        string `json:"gpu_prod"`
 	GPUMem         int64  `json:"gpu_mem"`

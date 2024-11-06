@@ -12,4 +12,6 @@ export default {
   'pages.ClusterCpods.table.column.gpu_vendor': 'GPU Vendor',
   'pages.ClusterCpods.table.column.create_time': 'Creation Time',
   'pages.ClusterCpods.table.column.update_time': 'Update Time',
+  'pages.ClusterCpods.table.column.node_name': 'Node Name',
+  'pages.ClusterCpods.table.column.node_type': 'Node Type',
 };
