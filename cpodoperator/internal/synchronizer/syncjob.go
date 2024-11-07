@@ -86,6 +86,8 @@ func jobTypeCheck(jobtype string) (v1beta1.JobType, bool) {
 		return v1beta1.JobTypeMPI, true
 	case string(v1beta1.JobTypePytorch):
 		return v1beta1.JobTypePytorch, true
+	case string(v1beta1.JobTypeGeneral):
+		return v1beta1.JobTypeGeneral, true
 	}
 	return "", false
 }
@@ -502,7 +504,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 						CKPTVolumeSize:        int32(job.CkptVol),
 						ModelSavePath:         job.ModelPath,
 						ModelSaveVolumeSize:   int32(job.ModelVol),
-						UploadModel:           true,
+						UploadModel:           false,
 						Duration:              int32(duration),
 						Image:                 job.ImagePath,
 						Command:               cmd,
