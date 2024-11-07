@@ -29,33 +29,35 @@ const Welcome: React.FC = () => {
 
   const gpuProdValue = Form.useWatch('gpuType', form);
 
+  // 添加一个新的 watch 来监听 jobType
+  const jobType = Form.useWatch('jobType', form);
+
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
       setFormValues(values);
-      console.log(values);
       const currentModel: any = resourceModelsOptions.find((x: any) => x.value === values.model_id);
       const currentDataSet: any = resourceDatasetsOption.find(
         (x: any) => x.value === values.dataset_id,
       );
-      console.log({ currentDataSet, currentModel });
+      
       const params = {
         ...values,
         nodeCount: Number(values.nodeCount),
         ckptVol: Number(values.ckptVol),
-        gpuNumber: Number(values.gpuNumber),
+        // 只有在 General 类型且未选择 GPU Type 时，才设置默认值
+        gpuNumber: (values.jobType === 'General' && !values.gpuType) ? 0 : Number(values.gpuNumber),
+        gpuType: (values.jobType === 'General' && !values.gpuType) ? '' : values.gpuType,
         modelVol: Number(values.modelVol),
 
         model_id: currentModel?.id,
         model_name: currentModel?.name,
-        // model_path: currentModel?.path,
         model_size: currentModel?.size,
         model_is_public: currentModel?.is_public,
         model_template: currentModel?.template,
-        //
+
         dataset_id: currentDataSet?.id,
         dataset_name: currentDataSet?.name,
-        // dataset_path: currentDataSet?.path,
         dataset_size: currentDataSet?.size,
         dataset_is_public: currentDataSet?.is_public,
       };
@@ -304,7 +306,7 @@ const Welcome: React.FC = () => {
                     name="gpuNumber"
                     rules={[
                       {
-                        required: true,
+                        required: jobType !== 'General',
                         message: intl.formatMessage({
                           id: 'pages.UserJobCommit.form.placeholder',
                           defaultMessage: '请输入',
@@ -317,7 +319,11 @@ const Welcome: React.FC = () => {
                       min={1}
                       max={
                         gpuProdValue
-                          ? gpuTypeOptions?.find((x) => x.gpuProd === gpuProdValue).gpuAllocatable
+                          ? Math.max(
+                              ...gpuTypeOptions
+                                .filter((x) => x.gpuProd === gpuProdValue)
+                                .map((x) => x.gpuAllocatable)
+                            )
                           : 1
                       }
                     />
@@ -327,7 +333,7 @@ const Welcome: React.FC = () => {
                     name="gpuType"
                     rules={[
                       {
-                        required: true,
+                        required: jobType !== 'General',
                         message: intl.formatMessage({
                           id: 'pages.UserJobCommit.form.placeholder',
                           defaultMessage: '请输入',
