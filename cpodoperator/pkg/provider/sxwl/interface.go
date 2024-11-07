@@ -144,6 +144,9 @@ type Scheduler interface {
 
 	// upload heartbeat info ,
 	HeartBeat(HeartBeatPayload) error
+
+	// upload resource info
+	UploadResource(resource ResourceInfo) error
 }
 
 type InferenceJobState struct {
@@ -172,6 +175,16 @@ type HeartBeatPayload struct {
 	YAMLResourceStatus   []YAMLResourceState       `json:"app_job_status"`
 	ResourceInfo         resource.CPodResourceInfo `json:"resource_info"`
 	UpdateTime           time.Time                 `json:"update_time"`
+}
+
+type ResourceInfo struct {
+	ResourceId   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	ResourceName string `json:"resource_name"`
+	ResourceSize int    `json:"resource_size"`
+	IsPublic     bool   `json:"is_public"`
+	Meta         string `json:"meta"`
+	UserID       string `json:"user_id"`
 }
 
 func NewScheduler(baseURL, accesskey, identify string) Scheduler {

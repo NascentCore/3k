@@ -35,6 +35,7 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
 	"github.com/NascentCore/cpodoperator/internal/controller"
+	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 
 	kservev1beta1 "github.com/kserve/kserve/pkg/apis/serving/v1beta1"
 	mpiv2 "github.com/kubeflow/mpi-operator/pkg/apis/kubeflow/v2beta1"
@@ -95,6 +96,9 @@ func main() {
 	flag.StringVar(&jupyterLabImage, "jupyterlab-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/ray:v2", "the image of ray inference backend")
 	flag.StringVar(&OssAK, "oss-ak", "*******", "the access key of oss")
 	flag.StringVar(&OssAS, "oss-as", "*******", "the secret key of oss")
+	sxwlBaseUrl := os.Getenv("API_ADDRESS") // from configmap provided by cairong
+	accessKey := os.Getenv("ACCESS_KEY")    // from configmap provided by cairong
+	cpodId := os.Getenv("CPOD_ID")          // from configmap provided by cairong
 
 	opts := zap.Options{
 		Development: true,
@@ -128,9 +132,10 @@ func main() {
 	}
 
 	if err = (&controller.CPodJobReconciler{
-		Client:   mgr.GetClient(),
-		Scheme:   mgr.GetScheme(),
-		Recorder: mgr.GetEventRecorderFor("cpodjob-controller"),
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		Recorder:  mgr.GetEventRecorderFor("cpodjob-controller"),
+		Scheduler: sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
 		Option: &controller.CPodJobOption{
 			StorageClassName:           storageClassName,
 			ModelUploadJobImage:        modelUploadJobImage,
