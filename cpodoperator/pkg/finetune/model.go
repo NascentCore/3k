@@ -179,6 +179,15 @@ var SupportModels = []Model{
 		Targetmodelsize:  143360,
 		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
 	},
+	{
+		Name:             "LLM-Research/Llama-3.2-1B-Instruct",
+		ModelStorageName: "model-storage-91f1b10f1fad84d0",
+		Image:            "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/llamafactory:finetune-v1alpha7",
+		Template:         "llama3",
+		LoRATarget:       "q_proj,v_proj",
+		Targetmodelsize:  30720,
+		RequireGPUType:   "NVIDIA-GeForce-RTX-3090",
+	},
 }
 
 func CheckModelWhetherSupport(supportModels []Model, modelName string) *Model {
