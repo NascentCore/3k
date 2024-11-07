@@ -40,6 +40,7 @@ FinetuneModel:
   meta-llama/Llama-2-7b: ""
   meta-llama/Meta-Llama-3-8B-Instruct: ""
   baichuan-inc/Baichuan2-7B-Chat: ""
+  LLM-Research/Llama-3.2-1B-Instruct: ""
 
 Billing:
   InitBalance: 100.00
