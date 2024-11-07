@@ -278,78 +278,81 @@ const Welcome: React.FC = () => {
             }
             style={{ marginBottom: 0 }}
           >
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              <Form.Item
-                style={{ flex: '0 0 100px' }}
-                name="nodeCount"
-                rules={[
-                  {
-                    required: true,
-                    message: intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.placeholder',
-                      defaultMessage: '请输入',
-                    }),
-                  },
-                ]}
-              >
-                <Input type="number" min={1} />
-              </Form.Item>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ flex: '0 0 100px' }}>
+                <Form.Item
+                  name="nodeCount"
+                  rules={[
+                    {
+                      required: true,
+                      message: intl.formatMessage({
+                        id: 'pages.UserJobCommit.form.placeholder',
+                        defaultMessage: '请输入',
+                      }),
+                    },
+                  ]}
+                >
+                  <Input type="number" min={1} />
+                </Form.Item>
+              </div>
 
               <Form.Item
-                style={{ flex: 1 }}
+                style={{ flex: 1, marginBottom: 0 }}
                 label="GPU"
                 required
               >
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <Form.Item
-                    style={{ flex: '0 0 100px', marginBottom: 0 }}
-                    name="gpuNumber"
-                    rules={[
-                      {
-                        required: jobType !== 'General',
-                        message: intl.formatMessage({
+                  <div style={{ flex: '0 0 100px' }}>
+                    <Form.Item
+                      name="gpuNumber"
+                      rules={[
+                        {
+                          required: jobType !== 'General',
+                          message: intl.formatMessage({
+                            id: 'pages.UserJobCommit.form.placeholder',
+                            defaultMessage: '请输入',
+                          }),
+                        },
+                      ]}
+                    >
+                      <Input
+                        type="number"
+                        min={1}
+                        max={
+                          gpuProdValue
+                            ? Math.max(
+                                ...gpuTypeOptions
+                                  .filter((x) => x.gpuProd === gpuProdValue)
+                                  .map((x) => x.gpuAllocatable)
+                              )
+                            : 1
+                        }
+                      />
+                    </Form.Item>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Form.Item
+                      name="gpuType"
+                      rules={[
+                        {
+                          required: jobType !== 'General',
+                          message: intl.formatMessage({
+                            id: 'pages.UserJobCommit.form.placeholder',
+                            defaultMessage: '请输入',
+                          }),
+                        },
+                      ]}
+                    >
+                      <Select
+                        allowClear
+                        options={gpuTypeOptions}
+                        placeholder={intl.formatMessage({
                           id: 'pages.UserJobCommit.form.placeholder',
                           defaultMessage: '请输入',
-                        }),
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      min={1}
-                      max={
-                        gpuProdValue
-                          ? Math.max(
-                              ...gpuTypeOptions
-                                .filter((x) => x.gpuProd === gpuProdValue)
-                                .map((x) => x.gpuAllocatable)
-                            )
-                          : 1
-                      }
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    style={{ flex: 1, marginBottom: 0 }}
-                    name="gpuType"
-                    rules={[
-                      {
-                        required: jobType !== 'General',
-                        message: intl.formatMessage({
-                          id: 'pages.UserJobCommit.form.placeholder',
-                          defaultMessage: '请输入',
-                        }),
-                      },
-                    ]}
-                  >
-                    <Select
-                      allowClear
-                      options={gpuTypeOptions}
-                      placeholder={intl.formatMessage({
-                        id: 'pages.UserJobCommit.form.placeholder',
-                        defaultMessage: '请输入',
-                      })}
-                    />
-                  </Form.Item>
+                        })}
+                      />
+                    </Form.Item>
+                  </div>
                 </div>
               </Form.Item>
             </div>
