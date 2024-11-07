@@ -388,6 +388,37 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 	var targetJob client.Object
 
 	switch cpodjob.Spec.JobType {
+	case cpodv1beta1.JobTypeGeneral:
+		targetJob = &batchv1.Job{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      cpodjob.Name,
+				Namespace: cpodjob.Namespace,
+				OwnerReferences: []metav1.OwnerReference{
+					c.generateOwnerRefCPodJob(ctx, cpodjob),
+				},
+			},
+			Spec: batchv1.JobSpec{
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						RestartPolicy: corev1.RestartPolicyNever,
+						Containers: []corev1.Container{
+							{
+								Env:          cpodjob.Spec.Envs,
+								Image:        cpodjob.Spec.Image,
+								Name:         "general",
+								Command:      cpodjob.Spec.Command,
+								Args:         cpodjob.Spec.Args,
+								VolumeMounts: volumeMounts,
+							},
+						},
+						Volumes: volumes,
+						NodeSelector: map[string]string{
+							"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
+						},
+					},
+				},
+			},
+		}
 	case cpodv1beta1.JobTypeMPI:
 		targetJob = &mpiv2.MPIJob{
 			ObjectMeta: metav1.ObjectMeta{
@@ -585,6 +616,8 @@ func (c *CPodJobReconciler) UpdateStatus(ctx context.Context, cpodjob *cpodv1bet
 func (c *CPodJobReconciler) GetBaseJob(ctx context.Context, cpodjob *cpodv1beta1.CPodJob) (client.Object, error) {
 	var targetJob client.Object
 	switch cpodjob.Spec.JobType {
+	case cpodv1beta1.JobTypeGeneral:
+		targetJob = &batchv1.Job{}
 	case cpodv1beta1.JobTypeMPI:
 		targetJob = &mpiv2.MPIJob{}
 	case cpodv1beta1.JobTypePytorch:
@@ -596,6 +629,14 @@ func (c *CPodJobReconciler) GetBaseJob(ctx context.Context, cpodjob *cpodv1beta1
 // 由于MPIJob使用的是mpi-controller中的定义，与training-operator的定义不一致，需要进行转换
 func (c *CPodJobReconciler) GetBaseJobStatus(ctx context.Context, cpodjob *cpodv1beta1.CPodJob, baseJob client.Object) *tov1.JobStatus {
 	switch cpodjob.Spec.JobType {
+	case cpodv1beta1.JobTypeGeneral:
+		generalJob := baseJob.(*batchv1.Job)
+		return &tov1.JobStatus{
+			Conditions:        c.ConvertGeneralJobConditionToCommonJobCondition(ctx, generalJob.Status.Conditions),
+			StartTime:         generalJob.Status.StartTime,
+			CompletionTime:    generalJob.Status.CompletionTime,
+			LastReconcileTime: &metav1.Time{Time: time.Now()},
+		}
 	case cpodv1beta1.JobTypePytorch:
 		pytJob := baseJob.(*tov1.PyTorchJob)
 		return &pytJob.Status
@@ -624,6 +665,30 @@ func (c *CPodJobReconciler) ConvertMPIJobConditionToCommonJobCondition(ctx conte
 			LastTransitionTime: mpiJobCondition.LastTransitionTime,
 			Reason:             mpiJobCondition.Reason,
 			Message:            mpiJobCondition.Message,
+		}
+	}
+	return res
+}
+
+func (c *CPodJobReconciler) ConvertGeneralJobConditionToCommonJobCondition(ctx context.Context, jobConditions []batchv1.JobCondition) []tov1.JobCondition {
+	res := make([]tov1.JobCondition, len(jobConditions))
+	for i, jc := range jobConditions {
+		var jcType tov1.JobConditionType
+		switch jc.Type {
+		case batchv1.JobFailed:
+			jcType = tov1.JobFailed
+		case batchv1.JobComplete:
+			jcType = tov1.JobSucceeded
+		default:
+			jcType = tov1.JobRunning
+		}
+		res[i] = tov1.JobCondition{
+			Type:               jcType,
+			Status:             jc.Status,
+			LastUpdateTime:     jc.LastProbeTime,
+			LastTransitionTime: jc.LastTransitionTime,
+			Reason:             jc.Reason,
+			Message:            jc.Message,
 		}
 	}
 	return res
