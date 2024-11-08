@@ -88,7 +88,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 				if node.CpuAllocatable < 1 {
 					continue
 				}
-				if node.GpuProd == job.GpuType.String && node.GpuAllocatable >= job.GpuNumber.Int64 {
+				if (node.GpuProd == job.GpuType.String && node.GpuAllocatable >= job.GpuNumber.Int64) || job.GpuType.String == "" {
 					assignedJobs = append(assignedJobs, job)
 					node.GpuAllocatable -= job.GpuNumber.Int64
 					node.CpuAllocatable -= 1
