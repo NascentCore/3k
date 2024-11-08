@@ -1,0 +1,56 @@
+name: Deploy sxcloud to Dev Server
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+    paths:
+      - 'ui/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REGISTRY: sxwl-registry.cn-beijing.cr.aliyuncs.com
+      NAMESPACE: sxwl-ai
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract and Build Images
+        id: extract_and_build
+        run: |
+          cd ui
+          sed -i 's/30005/30004/' src/app.tsx
+          sed -i 's/30005/30004/' src/pages/UserJob/DetailModel/index.tsx
+          docker build -t $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest .
+          docker push $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa nascentcore.net >> ~/.ssh/known_hosts
+
+      - name: Deploy to Hosting Service
+        run: |
+          ssh root@nascentcore.net << EOF
+            GO_GATEWAY_CONTAINER=\$(sudo docker ps --format '{{.Names}} {{.Image}}' | grep 'sxwl-ai/go-gateway' | awk '{print \$1}')
+            sudo docker pull $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest
+            sudo docker stop webui || true
+            sudo docker rm webui || true
+            sudo docker run -d --name webui --link \$GO_GATEWAY_CONTAINER:go-gateway-service -p 8088:80 $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest
+          EOF
