@@ -25,9 +25,11 @@ func TestMPIJob(t *testing.T) {
 	featBuilder.Assess("MPIJob mnist example", func(ctx context.Context, t *testing.T, c *envconf.Config) context.Context {
 		r, err := resources.New(cfg.Client().RESTConfig())
 		if err != nil {
-			t.Fail()
+			t.Fatal(err)
 		}
-		mpiv2beta.AddToScheme(r.GetScheme())
+		if err = mpiv2beta.AddToScheme(r.GetScheme()); err != nil {
+			t.Fatal(err)
+		}
 		r.WithNamespace(namespace)
 
 		err = decoder.DecodeEachFile(ctx, os.DirFS("./mpijob"), "*", decoder.CreateHandler(r), decoder.MutateNamespace(namespace))
@@ -63,7 +65,9 @@ func TestMPIJob(t *testing.T) {
 		if err != nil {
 			t.Fail()
 		}
-		tov1.AddToScheme(r.GetScheme())
+		if err = tov1.AddToScheme(r.GetScheme()); err != nil {
+			t.Fail()
+		}
 		r.WithNamespace(namespace)
 
 		err = decoder.DecodeEachFile(ctx, os.DirFS("./mpijob"), "*", decoder.DeleteHandler(r), decoder.MutateNamespace(namespace))

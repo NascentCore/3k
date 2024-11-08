@@ -24,9 +24,11 @@ func TestPytorchJob(t *testing.T) {
 	featBuilder.Assess("pytorch multinode", func(ctx context.Context, t *testing.T, c *envconf.Config) context.Context {
 		r, err := resources.New(cfg.Client().RESTConfig())
 		if err != nil {
-			t.Fail()
+			t.Fatal(err)
 		}
-		tov1.AddToScheme(r.GetScheme())
+		if err = tov1.AddToScheme(r.GetScheme()); err != nil {
+			t.Fatal(err)
+		}
 		r.WithNamespace(namespace)
 
 		err = decoder.DecodeEachFile(ctx, os.DirFS("./pytorchjob"), "*", decoder.CreateHandler(r), decoder.MutateNamespace(namespace))
@@ -57,7 +59,9 @@ func TestPytorchJob(t *testing.T) {
 		if err != nil {
 			t.Fail()
 		}
-		tov1.AddToScheme(r.GetScheme())
+		if err = tov1.AddToScheme(r.GetScheme()); err != nil {
+			t.Fail()
+		}
 		r.WithNamespace(namespace)
 
 		err = decoder.DecodeEachFile(ctx, os.DirFS("./pytorchjob"), "*", decoder.DeleteHandler(r), decoder.MutateNamespace(namespace))

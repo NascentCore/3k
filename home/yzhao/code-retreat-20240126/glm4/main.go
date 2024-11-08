@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	board  [height][width]bool
+	board    [height][width]bool
 	newBoard [height][width]bool
 )
 
@@ -75,7 +75,6 @@ func updateBoard() {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	initialize()
 
 	for {
@@ -85,4 +84,3 @@ func main() {
 		updateBoard()
 	}
 }
-
