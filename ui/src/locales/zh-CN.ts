@@ -30,7 +30,7 @@ export default {
   'menu.Adapter': 'LLM 适配器',
   'menu.ClusterCpods': '集群列表',
   'menu.ApplicationManagement':'大模型应用管理',
-  'menu.ApplicationMenu': '大模型应用',
+  'menu.ApplicationMenu': 'LLM 应用',
   'nav.title.Price': '价格',
   'nav.title.Document': '文档',
   ...global,
