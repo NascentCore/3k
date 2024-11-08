@@ -22,10 +22,13 @@ import (
 func TestIBNode(t *testing.T) {
 	r, err := resources.New(cfg.Client().RESTConfig())
 	if err != nil {
-		t.Fail()
+		t.Fatal(err)
 		return
 	}
-	tov1.AddToScheme(r.GetScheme())
+	if err = tov1.AddToScheme(r.GetScheme()); err != nil {
+		t.Fatal(err)
+		return
+	}
 	r.WithNamespace(namespace)
 	// Get IB Node count
 	var ibNodes corev1.NodeList
