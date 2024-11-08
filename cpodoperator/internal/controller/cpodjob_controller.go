@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"path/filepath"
@@ -46,6 +47,7 @@ import (
 	cpodv1 "github.com/NascentCore/cpodoperator/api/v1"
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
 	cpodv1beta1 "github.com/NascentCore/cpodoperator/api/v1beta1"
+	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 	"github.com/NascentCore/cpodoperator/pkg/util"
 
 	commonv1 "github.com/kubeflow/common/pkg/apis/common/v1"
@@ -80,6 +82,8 @@ type CPodJobReconciler struct {
 	Recorder record.EventRecorder
 
 	Option *CPodJobOption
+
+	Scheduler sxwl.Scheduler
 }
 
 //+kubebuilder:rbac:groups=cpod.cpod,resources=cpodjobs,verbs=get;list;watch;create;update;patch;delete
@@ -122,7 +126,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 			return ctrl.Result{}, err
 		}
 
-		if err := c.createGeneratedModelstorage(ctx, cpodjob); err != nil {
+		if _, err := c.createGeneratedModelstorage(ctx, cpodjob); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, nil
@@ -182,7 +186,9 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 		return ctrl.Result{}, err
 	}
 
-	if err := c.createGeneratedModelstorage(ctx, cpodjob); err != nil {
+	var resourceInfo *sxwl.ResourceInfo
+	resourceInfo, err := c.createGeneratedModelstorage(ctx, cpodjob)
+	if err != nil {
 		return ctrl.Result{}, err
 	}
 
@@ -203,7 +209,7 @@ func (c *CPodJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ 
 			}
 		}
 
-		err := c.uploadSavedModel(ctx, cpodjob, readableModelstorageName)
+		err := c.uploadSavedModel(ctx, cpodjob, readableModelstorageName, resourceInfo)
 		if err != nil {
 			return ctrl.Result{RequeueAfter: 10 * time.Second}, err
 		}
@@ -822,7 +828,7 @@ func (c *CPodJobReconciler) generateOwnerRefCPodJob(ctx context.Context, cpodjob
 	}
 }
 
-func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob, modelName string) error {
+func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1beta1.CPodJob, modelName string, resourceInfo *sxwl.ResourceInfo) error {
 	uploadJob := &batchv1.Job{}
 	uploadJobName := cpodjob.Name + "-upload"
 	completion := int32(1)
@@ -904,6 +910,11 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 	}
 	if uploadJob.Status.Succeeded == 1 {
 		util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobModelUploaded, corev1.ConditionTrue, "UploadModelSucceed", "Upload model succeed")
+		// TODO: 通知算想云
+		logrus.Info("DEBUG ", "cpodjob", cpodjob.Spec, "resourceInfo", *resourceInfo)
+		if err := c.Scheduler.UploadResource(*resourceInfo); err != nil {
+			return fmt.Errorf("failed to upload resource to sxwl:%v", err)
+		}
 	} else if uploadJob.Status.Failed >= c.Option.ModelUploadJobBackoffLimit {
 		util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobModelUploaded, corev1.ConditionFalse, "UploadModelSucceed", "modelupload backofflimit exceed")
 	} else {
@@ -997,9 +1008,9 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 	}
 }
 
-func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpodjob *v1beta1.CPodJob) error {
+func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpodjob *v1beta1.CPodJob) (*sxwl.ResourceInfo, error) {
 	if cpodjob.Spec.ModelSavePath == "" || cpodjob.Spec.ModelSaveVolumeSize == 0 || cpodjob.Spec.PretrainModelName == "" || cpodjob.Spec.PretrainModelPath == "" {
-		return nil
+		return nil, nil
 	}
 
 	preTrainModelStoreage := cpodv1.ModelStorage{}
@@ -1008,7 +1019,7 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 		preTrainModelName = preTrainModelName + v1beta1.CPodPublicStorageSuffix
 	}
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: preTrainModelName}, &preTrainModelStoreage); err != nil {
-		return err
+		return nil, err
 	}
 
 	readableModelstorageName := preTrainModelStoreage.Spec.ModelName + "-" + time.Now().String()
@@ -1020,23 +1031,57 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 
 	modelstorageName := generateModelstorageName(cpodjob, readableModelstorageName)
 	modelstorage := cpodv1.ModelStorage{}
+	resourceType := "model"
+	if _, ok := cpodjob.Labels[v1beta1.CPodUserIDLabel]; ok {
+		if cpodjob.Annotations != nil {
+			if !metav1.HasAnnotation(cpodjob.ObjectMeta, v1beta1.CPodAutoMergeAnno) {
+				resourceType = "adapter"
+			}
+		}
+	}
 
 	if err := c.Client.Get(ctx, client.ObjectKey{Namespace: cpodjob.Namespace, Name: modelstorageName}, &modelstorage); err != nil {
 		if apierrors.IsNotFound(err) {
 			if err := c.Client.Create(ctx, c.generateModelstorage(preTrainModelStoreage, cpodjob)); err != nil {
-				return err
+				return nil, err
 			}
 		}
-		return err
+		return nil, err
+	}
+
+	meta := map[string]string{
+		"template":      preTrainModelStoreage.Spec.Template,
+		"category":      "chat",
+		"can_finetune":  "true",
+		"can_inference": "true",
+	}
+	if resourceType == "adapter" {
+		meta = map[string]string{}
+		meta["base_model"] = preTrainModelStoreage.Spec.ModelName
+	}
+
+	metaBytes, err := json.Marshal(meta)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal meta: %v", err)
+	}
+
+	resourceInfo := &sxwl.ResourceInfo{
+		ResourceId:   modelstorageName,
+		ResourceType: resourceType,
+		ResourceName: fmt.Sprintf("%v/%v", cpodjob.Labels[v1beta1.CPodUserIDLabel], readableModelstorageName),
+		ResourceSize: int(cpodjob.Spec.ModelSaveVolumeSize * 1024 * 1024 * 1024),
+		IsPublic:     false,
+		UserID:       cpodjob.Labels[v1beta1.CPodUserIDLabel],
+		Meta:         string(metaBytes),
 	}
 
 	if modelstorage.Status.Phase != "done" {
 		modelstorage.Status.Phase = "done"
 		modelstorage.Status.Size = preTrainModelStoreage.Status.Size
-		return c.Client.Status().Update(ctx, &modelstorage)
+		return resourceInfo, c.Client.Status().Update(ctx, &modelstorage)
 	}
 
-	return nil
+	return resourceInfo, nil
 
 }
 

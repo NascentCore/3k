@@ -134,3 +134,33 @@ func (s *sxwl) HeartBeat(payload HeartBeatPayload) error {
 	}
 	return nil
 }
+
+func (s *sxwl) UploadResource(resource ResourceInfo) error {
+	urlStr, err := url.JoinPath(s.baseURL, v1beta1.URLPATH_UPLOAD_RESOURCE)
+	if err != nil {
+		return err
+	}
+	reqBytes, _ := json.Marshal(resource)
+	req, err := http.NewRequest(http.MethodPost, urlStr, bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Authorization", "Bearer "+s.accessKey)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		respData, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("statuscode(%d) != 200 and read body err : %v", resp.StatusCode, err)
+		}
+		fmt.Println(string(respData))
+		return fmt.Errorf("statuscode(%d) != 200", resp.StatusCode)
+	}
+
+	return nil
+}
