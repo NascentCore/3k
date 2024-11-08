@@ -1,5 +1,4 @@
-# Experimental
+# Home
 
-Stores code that is not ready for production but is meaningful for reference.
-For example, if you want to comment a block of code, but dont want to lose them,
-those code should be put inside experimental.
+For new team member to practice creating Pull Request to 3k repo.
+Each new team member should create a dir named after their ldap.
