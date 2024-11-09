@@ -47,7 +47,7 @@ const Welcome: React.FC = () => {
       defaultMessage: '运行成功',
     }),
     deleted: intl.formatMessage({
-      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.deleted',
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.stopped',
       defaultMessage: '已终止',
     }),
   };
@@ -128,81 +128,34 @@ const Welcome: React.FC = () => {
             key: 'action',
             width: 300,
             align: 'center',
-            render: (_, record) => (
-              <>
-                <Space>
-                  {['running'].includes(record.status) && (
-                    <>
-                      {record.model_category === 'chat' && (
-                        <>
-                          <Button
-                            type={'link'}
-                            onClick={() => {
-                              window.open(record?.url);
-                            }}
-                          >
-                            {intl.formatMessage({
-                              id: 'pages.inferenceState.table.column.action.startChat',
-                              // defaultMessage: '启动聊天',
-                            })}
-                          </Button>
-                          <Popover
-                            placement="left"
-                            content={
-                              <div>
-                                <Typography.Text>
-                                  <pre style={{ maxWidth: 400 }}>{record.api}</pre>
-                                </Typography.Text>
-                                <div>
-                                  <Button
-                                    onClick={() => {
-                                      if (!navigator.clipboard) {
-                                        return;
-                                      }
-                                      navigator.clipboard.writeText(record.api).then(function () {
-                                        message.success(
-                                          intl.formatMessage({
-                                            id: 'pages.inferenceState.table.column.action.copy.success',
-                                          }),
-                                        );
-                                      });
-                                    }}
-                                  >
-                                    {intl.formatMessage({
-                                      id: 'pages.inferenceState.table.column.action.copy',
-                                    })}
-                                  </Button>
-                                </div>
-                              </div>
-                            }
-                            title={intl.formatMessage({
-                              id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
-                            })}
-                            trigger="hover"
-                          >
-                            <Button type="link">
-                              {intl.formatMessage({
-                                id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
-                              })}
-                            </Button>
-                          </Popover>
-                        </>
-                      )}
-                      {record.model_category === 'embedding' && (
+            render: (_, record: API.InferenceInfo) => (
+              <Space>
+                {record.status === 'running' && (
+                  <>
+                    {record.model_category === 'chat' && (
+                      <>
+                        <Button
+                          type="link"
+                          onClick={() => {
+                            window.open(record?.url);
+                          }}
+                        >
+                          {intl.formatMessage({
+                            id: 'pages.inferenceState.table.column.action.startChat',
+                          })}
+                        </Button>
                         <Popover
                           placement="left"
                           content={
                             <div>
                               <Typography.Text>
-                                <pre style={{ maxWidth: 400 }}>{record.url}</pre>
+                                <pre style={{ maxWidth: 400 }}>{record.api}</pre>
                               </Typography.Text>
                               <div>
                                 <Button
                                   onClick={() => {
-                                    if (!navigator.clipboard) {
-                                      return;
-                                    }
-                                    navigator.clipboard.writeText(record.url).then(function () {
+                                    if (!navigator.clipboard) return;
+                                    navigator.clipboard.writeText(record.api).then(() => {
                                       message.success(
                                         intl.formatMessage({
                                           id: 'pages.inferenceState.table.column.action.copy.success',
@@ -221,6 +174,7 @@ const Welcome: React.FC = () => {
                           title={intl.formatMessage({
                             id: 'pages.inferenceState.table.column.action.copyApiEndPoint',
                           })}
+                          trigger="hover"
                         >
                           <Button type="link">
                             {intl.formatMessage({
@@ -228,60 +182,82 @@ const Welcome: React.FC = () => {
                             })}
                           </Button>
                         </Popover>
-                      )}
-                    </>
-                  )}
-
-                  {[
-                    'notassigned',
-                    'assigned',
-                    'datapreparing',
-                    'pending',
-                    'paused',
-                    'paused',
-                    'pausing',
-                    'running',
-                    'succeeded',
-                  ].includes(record.status) && (
-                    <Popconfirm
-                      title={intl.formatMessage({
-                        id: 'pages.global.confirm.title',
+                        <Popconfirm
+                          title={intl.formatMessage({
+                            id: 'pages.global.confirm.title',
+                          })}
+                          description={intl.formatMessage({
+                            id: 'pages.inferenceState.table.column.action.stop.confirm',
+                          })}
+                          onConfirm={() => {
+                            apiDeleteInference({
+                              params: {
+                                service_name: record.service_name,
+                              },
+                            }).then(() => {
+                              message.success(
+                                intl.formatMessage({
+                                  id: 'pages.inferenceState.table.column.action.stop.success',
+                                }),
+                              );
+                              mutate();
+                            });
+                          }}
+                          okText={intl.formatMessage({
+                            id: 'pages.global.confirm.okText',
+                          })}
+                          cancelText={intl.formatMessage({
+                            id: 'pages.global.confirm.cancelText',
+                          })}
+                        >
+                          <Button type="link">
+                            {intl.formatMessage({
+                              id: 'pages.inferenceState.table.column.action.stop',
+                            })}
+                          </Button>
+                        </Popconfirm>
+                      </>
+                    )}
+                  </>
+                )}
+                
+                {record.status === 'deleted' && (
+                  <Popconfirm
+                    title={intl.formatMessage({
+                      id: 'pages.global.confirm.title',
+                    })}
+                    description={intl.formatMessage({
+                      id: 'pages.inferenceState.table.column.action.delete.confirm',
+                    })}
+                    onConfirm={() => {
+                      apiDeleteInference({
+                        params: {
+                          service_name: record.service_name,
+                        },
+                      }).then(() => {
+                        message.success(
+                          intl.formatMessage({
+                            id: 'pages.inferenceState.table.column.action.delete.success',
+                          }),
+                        );
+                        mutate();
+                      });
+                    }}
+                    okText={intl.formatMessage({
+                      id: 'pages.global.confirm.okText',
+                    })}
+                    cancelText={intl.formatMessage({
+                      id: 'pages.global.confirm.cancelText',
+                    })}
+                  >
+                    <Button type="link">
+                      {intl.formatMessage({
+                        id: 'pages.inferenceState.table.column.action.delete',
                       })}
-                      description={intl.formatMessage({
-                        id: 'pages.inferenceState.table.column.action.stop.confirm',
-                      })}
-                      onConfirm={() => {
-                        apiDeleteInference({
-                          params: {
-                            service_name: record.service_name,
-                          },
-                        }).then((res) => {
-                          message.success(
-                            intl.formatMessage({
-                              id: 'pages.inferenceState.table.column.action.stop.success',
-                            }),
-                          );
-                          mutate();
-                        });
-                      }}
-                      onCancel={() => {}}
-                      okText={intl.formatMessage({
-                        id: 'pages.global.confirm.okText',
-                      })}
-                      cancelText={intl.formatMessage({
-                        id: 'pages.global.confirm.cancelText',
-                      })}
-                    >
-                      <Button type={'link'}>
-                        {intl.formatMessage({
-                          id: 'pages.inferenceState.table.column.action.stop',
-                          // defaultMessage: '终止',
-                        })}
-                      </Button>
-                    </Popconfirm>
-                  )}
-                </Space>
-              </>
+                    </Button>
+                  </Popconfirm>
+                )}
+              </Space>
             ),
           },
         ]}

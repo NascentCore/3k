@@ -17,7 +17,7 @@ const (
 	StrStatusRunning       = "running"       // 运行中
 	StrStatusFailed        = "failed"        // 运行失败
 	StrStatusSucceeded     = "succeeded"     // 运行成功
-	StrStatusDeleted       = "deleted"       // 删除
+	StrStatusStopped       = "stopped"       // 已终止
 )
 
 const (
@@ -30,12 +30,12 @@ const (
 	StatusRunning       = 6 // 运行中
 	StatusFailed        = 7 // 运行失败
 	StatusSucceeded     = 8 // 运行成功
-	StatusDeleted       = 9 // 终止删除
+	StatusStopped       = 9 // 已终止
 )
 
 func FinalStatus(status int64) bool {
 	switch status {
-	case StatusDeleted, StatusFailed, StatusSucceeded:
+	case StatusStopped, StatusFailed, StatusSucceeded:
 		return true
 	default:
 		return false
@@ -62,7 +62,7 @@ var StatusToInt = map[string]int{
 	StrStatusRunning:       StatusRunning,
 	StrStatusFailed:        StatusFailed,
 	StrStatusSucceeded:     StatusSucceeded,
-	StrStatusDeleted:       StatusDeleted,
+	StrStatusStopped:       StatusStopped,
 }
 
 var StatusToStr = map[int64]string{
@@ -75,5 +75,5 @@ var StatusToStr = map[int64]string{
 	StatusRunning:       StrStatusRunning,
 	StatusFailed:        StrStatusFailed,
 	StatusSucceeded:     StrStatusSucceeded,
-	StatusDeleted:       StrStatusDeleted,
+	StatusStopped:       StrStatusStopped,
 }

@@ -181,6 +181,14 @@ export async function apiDeleteInference(options?: { [key: string]: any }) {
   });
 }
 
+// 终止推理服务
+export async function apiStopInference(options?: { [key: string]: any }) {
+  return request('/api/job/inference/stop', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
+
 // 查询任务详情 /api/userJob
 export async function apiGetUserJob(options?: { [key: string]: any }) {
   return request('/api/job/training', {

@@ -12,7 +12,8 @@ import Dataseta from './zh-CN/dataset';
 import global from './zh-CN/global';
 import myAccount from './zh-CN/myAccount';
 import clusterCpods from './zh-CN/clusterCpods';
-import applicationMenu from './zh-CN/applicationMenu'
+import applicationMenu from './zh-CN/applicationMenu';
+import jobDetail from './zh-CN/jobDetail';
 
 export default {
   'menu.welcome': '欢迎',
@@ -31,6 +32,7 @@ export default {
   'menu.ClusterCpods': '集群列表',
   'menu.ApplicationManagement':'大模型应用管理',
   'menu.ApplicationMenu': 'LLM 应用',
+  'menu.JobDetail': '任务详情',
   'nav.title.Price': '价格',
   'nav.title.Document': '文档',
   ...global,
@@ -47,5 +49,6 @@ export default {
   ...Dataseta,
   ...myAccount,
   ...clusterCpods,
-  ...applicationMenu
+  ...applicationMenu,
+  ...jobDetail,
 };

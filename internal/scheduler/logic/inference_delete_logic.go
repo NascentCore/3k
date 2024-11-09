@@ -2,15 +2,10 @@ package logic
 
 import (
 	"context"
-	"fmt"
-	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
-	"sxwl/3k/pkg/orm"
-	"time"
 
 	"github.com/Masterminds/squirrel"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -42,38 +37,12 @@ func (l *InferenceDeleteLogic) InferenceDelete(req *types.InferenceDeleteReq) (r
 		return nil, err
 	}
 
-	if service.Status == model.StatusDeleted {
-		resp = &types.InferenceDeleteResp{
-			Message: fmt.Sprintf("service_name: %s is already stopped", req.ServiceName),
-		}
-		return
-	}
-
-	result, err := InferenceModel.UpdateColsByCond(l.ctx, InferenceModel.UpdateBuilder().Where(
-		squirrel.And{
-			squirrel.Eq{"service_name": req.ServiceName},
-			squirrel.Eq{"new_user_id": req.UserID},
-		}).SetMap(map[string]interface{}{
-		"status":        model.StatusDeleted,
-		"obtain_status": model.StatusObtainNotNeedSend,
-		"end_time":      orm.NullTime(time.Now()),
-	}))
+	// 删除service记录
+	err = InferenceModel.Delete(l.ctx, service.Id)
 	if err != nil {
-		l.Errorf("update inference service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
+		l.Errorf("Delete inference service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
 		return nil, err
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		l.Errorf("RowsAffected service_name=%s user_id=%s err=%s", req.ServiceName, req.UserID, err)
-		return nil, err
-	}
-
-	if rows != 1 {
-		l.Errorf("RowsAffected rows=%d service_name=%s user_id=%s err=%s", rows, req.ServiceName, req.UserID, err)
-	}
-
-	resp = &types.InferenceDeleteResp{Message: fmt.Sprintf("service_name: %s stopped", req.ServiceName)}
-
-	return
+	return &types.InferenceDeleteResp{}, nil
 }

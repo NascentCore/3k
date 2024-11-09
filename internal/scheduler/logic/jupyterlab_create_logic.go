@@ -62,7 +62,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 			"new_user_id": req.UserID,
 		},
 		squirrel.NotEq{
-			"status": model.StatusDeleted,
+			"status": model.StatusStopped,
 		},
 	}))
 	if err != nil {
@@ -71,7 +71,7 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 	}
 
 	for _, jupyterlab := range jupyterList {
-		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.StatusDeleted {
+		if jupyterlab.InstanceName == req.InstanceName && jupyterlab.Status != model.StatusStopped {
 			l.Errorf("JupyterlabCreate name duplicate userId: %s name: %s", req.UserID, req.InstanceName)
 			return nil, fmt.Errorf("实例名字重复")
 		}

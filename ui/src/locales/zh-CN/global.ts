@@ -18,4 +18,6 @@ export default {
   'pages.global.button.upload': '上传',
   'pages.global.button.submit': '提交',
   'pages.global.button.cancel': '取消',
+  'pages.global.confirm.stop.description': '确认要终止该任务吗？',
+  'pages.global.confirm.stop.button': '终止',
 };

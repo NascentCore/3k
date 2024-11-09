@@ -4,7 +4,7 @@
  */
 import { apiInference, useGpuTypeOptions, useResourceAdaptersOptions } from '@/services';
 import { Button, Drawer, Form, Input, Select, message, Row, Col } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
@@ -21,6 +21,19 @@ interface ContentProps {
     inference_gpu_count?: number;
   };
   onCancel: () => void;
+}
+
+interface IndexProps {
+  record: {
+    id: string;
+    name: string;
+    category?: string;
+    path?: string;
+    size?: number;
+    is_public?: boolean;
+    template?: string;
+    inference_gpu_count?: number;
+  };
 }
 
 const Content = ({ record, onCancel }: ContentProps) => {
@@ -102,7 +115,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
           }),
         );
         onCancel();
-        history.push('/InferenceState');
+        history.push('/JobDetail');
       });
     });
   };
@@ -289,7 +302,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
   );
 };
 
-const Index = ({ record }) => {
+const Index = ({ record }: IndexProps) => {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
   return (

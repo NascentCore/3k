@@ -143,7 +143,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	services, err := InferenceModel.FindAll(l.ctx, InferenceModel.AllFieldsBuilder().Where(
 		squirrel.Or{
 			squirrel.Eq{"status": model.StatusNotAssigned},
-			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusStopped}},
 		},
 	), "")
 	if err != nil {
@@ -207,7 +207,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	jupyterlabList, err := JupyterlabModel.Find(l.ctx, JupyterlabModel.AllFieldsBuilder().Where(
 		squirrel.Or{
 			squirrel.Eq{"status": model.StatusNotAssigned},
-			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusStopped}},
 		},
 	))
 	if err != nil {
@@ -280,7 +280,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	appJobList, err := AppJobModel.Find(l.ctx, AppJobModel.AllFieldsBuilder().Where(
 		squirrel.Or{
 			squirrel.Eq{"status": model.StatusNotAssigned},
-			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusDeleted}},
+			squirrel.And{squirrel.Eq{"cpod_id": req.CpodId}, squirrel.NotEq{"status": model.StatusStopped}},
 		},
 	))
 	if err != nil {

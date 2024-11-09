@@ -56,7 +56,7 @@ func (l *JobsDelLogic) JobsDel(req *types.JobsDelReq) (resp *types.JobsDelResp, 
 	_, err = InferModel.UpdateColsByCond(l.ctx, InferModel.UpdateBuilder().Where(
 		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
-		"status":        model.StatusDeleted,
+		"status":        model.StatusStopped,
 		"obtain_status": model.StatusObtainNotNeedSend,
 		"end_time":      orm.NullTime(time.Now()),
 	}))
@@ -69,7 +69,7 @@ func (l *JobsDelLogic) JobsDel(req *types.JobsDelReq) (resp *types.JobsDelResp, 
 	_, err = JupyterlabModel.UpdateColsByCond(l.ctx, JupyterlabModel.UpdateBuilder().Where(
 		squirrel.Eq{"new_user_id": req.ToUser},
 	).SetMap(map[string]interface{}{
-		"status":   model.StatusDeleted,
+		"status":   model.StatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {

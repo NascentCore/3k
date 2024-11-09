@@ -55,7 +55,7 @@ func (l *AppUnregisterLogic) AppUnregister(req *types.AppUnregisterReq) (resp *t
 			"app_id": req.AppID,
 		},
 		squirrel.NotEq{
-			"status": model.StatusDeleted,
+			"status": model.StatusStopped,
 		},
 	}))
 	if !errors.Is(errDuplicate, model.ErrNotFound) {

@@ -26,7 +26,7 @@ export default {
   'pages.jupyterLab.JupyterLabTab.table.column.status.running': '运行中',
   'pages.jupyterLab.JupyterLabTab.table.column.status.failed': '失败',
   'pages.jupyterLab.JupyterLabTab.table.column.status.succeeded': '运行成功',
-  'pages.jupyterLab.JupyterLabTab.table.column.status.deleted': '已终止',
+  'pages.jupyterLab.JupyterLabTab.table.column.status.stopped': '已终止',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.base_image': '基础镜像',
   'pages.jupyterLab.JupyterLabTab.BuildingImage.form.tips':
     '构建镜像时会执行如下逻辑：<br/>1. 将 /workspace 目录下的内容完整复制到镜像相同路径下<br/>2. 自动安装 /workspace 目录下的 requirements.txt<br/>请将代码及 requirements.txt 文件放到该路径下<br/>注：数据卷默认挂载路径为 /workspace',
