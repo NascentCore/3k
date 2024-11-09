@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 	"time"
@@ -41,6 +42,10 @@ func (l *JobGetLogic) JobGet(req *types.JobGetReq) (resp *types.JobGetResp, err 
 	for _, userJob := range userJobs {
 		job := types.Job{}
 		_ = copier.Copy(&job, userJob)
+		statusDesc, ok := model.StatusToStr[userJob.WorkStatus]
+		if ok {
+			job.Status = statusDesc
+		}
 		job.CreateTime = userJob.CreateTime.Time.Format(time.DateTime)
 		job.UpdateTime = userJob.UpdateTime.Time.Format(time.DateTime)
 		job.UserId = userJob.NewUserId

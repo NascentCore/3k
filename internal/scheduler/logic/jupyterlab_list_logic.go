@@ -36,7 +36,7 @@ func (l *JupyterlabListLogic) JupyterlabList(req *types.JupyterlabListReq) (resp
 			"new_user_id": req.UserID,
 		},
 		squirrel.NotEq{
-			"status": model.StatusDeleted,
+			"status": model.StatusStopped,
 		},
 	})
 	jupyterlabs, err := JupyterlabModel.Find(l.ctx, selectBuilder)

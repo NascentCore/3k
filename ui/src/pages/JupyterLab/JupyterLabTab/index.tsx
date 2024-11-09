@@ -54,7 +54,7 @@ const Index: React.FC = ({ tableDataSourceRes, mutate, isLoading, editBtnOnClick
       defaultMessage: '运行成功',
     }),
     deleted: intl.formatMessage({
-      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.deleted',
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.stopped',
       defaultMessage: 'Deleted',
     }),
   };

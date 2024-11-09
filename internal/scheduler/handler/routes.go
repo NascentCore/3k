@@ -13,6 +13,26 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/inference",
+				Handler: InferenceDeployHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/job/inference",
+				Handler: InferenceInfoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodDelete,
+				Path:    "/api/job/inference",
+				Handler: InferenceDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/inference/stop",
+				Handler: InferenceStopHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/cpod/gpu_type",
 				Handler: GpuTypeHandler(serverCtx),
@@ -26,21 +46,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/cpod/status",
 				Handler: CpodStatusHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/inference",
-				Handler: InferenceDeployHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/inference",
-				Handler: InferenceInfoHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodDelete,
-				Path:    "/inference",
-				Handler: InferenceDeleteHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

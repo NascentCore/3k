@@ -52,7 +52,7 @@ func (l *AppJobAddLogic) AppJobAdd(req *types.AppJobAddReq) (resp *types.BaseRes
 			"user_id": req.UserID,
 		},
 		squirrel.NotEq{
-			"status": model.StatusDeleted,
+			"status": model.StatusStopped,
 		},
 	}))
 	if !errors.Is(errDuplicate, model.ErrNotFound) {

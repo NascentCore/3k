@@ -12,7 +12,8 @@ import Dataseta from './en-US/dataset';
 import global from './en-US/global';
 import myAccount from './en-US/myAccount';
 import clusterCpods from './en-US/clusterCpods';
-import applicationMenu from './en-US/applicationMenu'
+import applicationMenu from './en-US/applicationMenu';
+import jobDetail from './en-US/jobDetail';
 
 export default {
   'menu.welcome': 'Welcome',
@@ -47,5 +48,6 @@ export default {
   ...Dataseta,
   ...myAccount,
   ...clusterCpods,
-  ...applicationMenu
+  ...applicationMenu,
+  ...jobDetail,
 };

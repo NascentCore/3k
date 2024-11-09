@@ -36,4 +36,8 @@ export default {
   'pages.modelRepository.InferenceDrawer.form.minInstances.placeholder': '请输入最小实例数',
   'pages.modelRepository.InferenceDrawer.form.maxInstances': '最大实例数',
   'pages.modelRepository.InferenceDrawer.form.maxInstances.placeholder': '请输入最大实例数',
+  'pages.modelRepository.InferenceDrawer.validation.required': '此字段为必填项',
+  'pages.modelRepository.InferenceDrawer.validation.instancesError': '最小实例数不能大于最大实例数',
+  'pages.modelRepository.InferenceDrawer.validation.noGpu': '无可用GPU',
+  'pages.modelRepository.InferenceDrawer.validation.maxInstancesError': '最大实例数不能超过 {maxInstances}（可用GPU数量 {totalGpu} / 每实例所需GPU数量 {gpuPerInstance}）',
 };

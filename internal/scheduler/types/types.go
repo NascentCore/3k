@@ -379,6 +379,11 @@ type InferenceStatus struct {
 	URL         string `json:"url"`
 }
 
+type InferenceStopReq struct {
+	BaseReq
+	ServiceName string `form:"service_name"`
+}
+
 type Job struct {
 	CkptPath            string `json:"ckptPath"`
 	CkptVol             string `json:"ckptVol"`
@@ -405,6 +410,7 @@ type Job struct {
 	UpdateTime          string `json:"updateTime"`
 	UserId              string `json:"userId"`
 	WorkStatus          int    `json:"workStatus"`
+	Status              string `json:"status"`
 	TensorURL           string `json:"tensor_url"`
 }
 
@@ -873,10 +879,13 @@ type SysInference struct {
 	Status      string `json:"status"`
 	Model
 	AdapterOptional
-	Url       string `json:"url"`
-	API       string `json:"api"`
-	StartTime string `json:"start_time"` // 推理服务启动时间
-	EndTime   string `json:"end_time"`   // 推理服务终止时间
+	Url        string `json:"url"`
+	API        string `json:"api"`
+	GPUModel   string `json:"gpu_model"`
+	GPUCount   int    `json:"gpu_count"`
+	CreateTime string `json:"create_time"` // 推理服务创建时间
+	StartTime  string `json:"start_time"`  // 推理服务启动时间
+	EndTime    string `json:"end_time"`    // 推理服务终止时间
 }
 
 type TaskBilling struct {

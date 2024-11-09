@@ -57,6 +57,8 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if ok {
 			inferResp.Status = statusDesc
 		}
+		inferResp.GPUModel = infer.GpuType.String
+		inferResp.GPUCount = int(infer.GpuNumber.Int64)
 		// if infer.ModelPublic.Int64 == model.CachePrivate {
 		//	inferResp.ModelIsPublic = false
 		// } else {
@@ -73,6 +75,7 @@ func (l *InferenceInfoLogic) InferenceInfo(req *types.InferenceInfoReq) (resp *t
 		if infer.EndTime.Valid {
 			inferResp.EndTime = infer.EndTime.Time.Format(time.DateTime)
 		}
+		inferResp.CreateTime = infer.CreatedAt.Format(time.DateTime)
 
 		resp.Data = append(resp.Data, inferResp)
 	}

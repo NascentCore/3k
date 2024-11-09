@@ -42,7 +42,7 @@ func (l *AppJobDeleteLogic) AppJobDelete(req *types.AppJobDelReq) (resp *types.B
 		return nil, err
 	}
 
-	if instance.Status == model.StatusDeleted {
+	if instance.Status == model.StatusStopped {
 		resp = &types.BaseResp{
 			Message: fmt.Sprintf("app job: %s is already stopped", instance.JobName),
 		}
@@ -54,7 +54,7 @@ func (l *AppJobDeleteLogic) AppJobDelete(req *types.AppJobDelReq) (resp *types.B
 			squirrel.Eq{"job_name": req.JobName},
 			squirrel.Eq{"user_id": req.UserID},
 		}).SetMap(map[string]interface{}{
-		"status":   model.StatusDeleted,
+		"status":   model.StatusStopped,
 		"end_time": orm.NullTime(time.Now()),
 	}))
 	if err != nil {

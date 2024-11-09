@@ -36,7 +36,7 @@ func (l *AppJobGetLogic) AppJobGet(req *types.BaseReq) (resp *types.AppJobGetRes
 			"user_id": req.UserID,
 		},
 		squirrel.NotEq{
-			"status": model.StatusDeleted,
+			"status": model.StatusStopped,
 		},
 	}))
 	if err != nil {

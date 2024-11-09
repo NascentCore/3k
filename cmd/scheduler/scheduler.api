@@ -300,6 +300,7 @@ type (
 		UpdateTime          string `json:"updateTime"`
 		UserId              string `json:"userId"`
 		WorkStatus          int    `json:"workStatus"`
+		Status              string `json:"status"`
 		TensorURL           string `json:"tensor_url"`
 	}
 	JobGetResp {
@@ -314,10 +315,13 @@ type (
 		Status      string `json:"status"`
 		Model
 		AdapterOptional
-		Url       string `json:"url"`
-		API       string `json:"api"`
-		StartTime string `json:"start_time"` // 推理服务启动时间
-		EndTime   string `json:"end_time"` // 推理服务终止时间
+		Url        string `json:"url"`
+		API        string `json:"api"`
+		GPUModel   string `json:"gpu_model"`
+		GPUCount   int    `json:"gpu_count"`
+		CreateTime string `json:"create_time"` // 推理服务创建时间
+		StartTime  string `json:"start_time"` // 推理服务启动时间
+		EndTime    string `json:"end_time"` // 推理服务终止时间
 	}
 	InferenceDeployReq {
 		Model
@@ -337,6 +341,10 @@ type (
 	}
 	InferenceInfoResp {
 		Data []SysInference `json:"data"`
+	}
+	InferenceStopReq {
+		BaseReq
+		ServiceName string `form:"service_name"`
 	}
 	InferenceDeleteReq {
 		ServiceName string `form:"service_name"`
@@ -510,13 +518,16 @@ service scheduler-api {
 	get /resource/uploader_access (UploaderAccessReq) returns (UploaderAccessResp)
 
 	@handler InferenceDeployHandler
-	post /inference (InferenceDeployReq) returns (InferenceDeployResp)
+	post /api/job/inference (InferenceDeployReq) returns (InferenceDeployResp)
 
 	@handler InferenceInfoHandler
-	get /inference (InferenceInfoReq) returns (InferenceInfoResp)
+	get /api/job/inference (InferenceInfoReq) returns (InferenceInfoResp)
+
+	@handler InferenceStopHandler
+	post /api/job/inference/stop (InferenceStopReq) returns (BaseResp)
 
 	@handler InferenceDeleteHandler
-	delete /inference (InferenceDeleteReq) returns (InferenceDeleteResp)
+	delete /api/job/inference (InferenceDeleteReq) returns (InferenceDeleteResp)
 
 	@handler NodeAddHandler
 	post /node (NodeAddReq) returns (NodeAddResp)

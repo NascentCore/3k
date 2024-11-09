@@ -32,10 +32,6 @@ Gateway:
       ToPath: "/job/finetune"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/job/inference"
-      ToPath: "/inference"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/job/training"
       ToPath: "/job/job"
       Auth: Yes
