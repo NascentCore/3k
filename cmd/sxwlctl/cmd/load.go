@@ -68,5 +68,5 @@ func init() {
 	loadCmd.Flags().SortFlags = false
 	loadCmd.Flags().StringVarP(&source, "source", "s", "", "资源来源[huggingface|modelscope]")
 	loadCmd.Flags().StringVarP(&resType, "type", "t", "model", "资源类型[model|dataset]")
-	loadCmd.Flags().StringVarP(&resID, "id", "i", "", "资源ID")
+	loadCmd.Flags().StringVarP(&resID, "id", "i", "", "资源ID 例如: meta-llama/Meta-Llama-3.1-8B")
 }

@@ -9,6 +9,7 @@ import (
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
@@ -29,6 +30,7 @@ func NewResourceTaskGetLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 
 func (l *ResourceTaskGetLogic) ResourceTaskGet(req *types.BaseReq) (resp *types.ResourceSyncTaskResp, err error) {
 	UserModel := l.svcCtx.UserModel
+	TaskModel := l.svcCtx.ResourceSyncTaskModel
 
 	// 1. 检查管理员权限
 	isAdmin, err := UserModel.IsAdmin(l.ctx, req.UserID)
@@ -101,7 +103,19 @@ func (l *ResourceTaskGetLogic) ResourceTaskGet(req *types.BaseReq) (resp *types.
 		return nil, ErrDB
 	}
 
-	// 3. 构造返回数据
+	// 3. 查询调用者所有未完成的任务
+	tasks, err = TaskModel.Find(l.ctx, TaskModel.AllFieldsBuilder().Where(
+		squirrel.And{
+			squirrel.Eq{"executor_id": req.UserID},
+			squirrel.NotEq{"status": model.ResourceSyncTaskStatusFailed},
+			squirrel.NotEq{"status": model.ResourceSyncTaskStatusRecord},
+		},
+	))
+	if err != nil && err != model.ErrNotFound {
+		l.Errorf("TaskModel.Find failed: %s", err)
+		return nil, ErrDB
+	}
+
 	resp = &types.ResourceSyncTaskResp{
 		Data: make([]types.ResourceSyncTask, 0, len(tasks)),
 	}
@@ -109,7 +123,7 @@ func (l *ResourceTaskGetLogic) ResourceTaskGet(req *types.BaseReq) (resp *types.
 		resp.Data = append(resp.Data, types.ResourceSyncTask{
 			ResourceID:   task.ResourceId,
 			ResourceType: task.ResourceType,
-			Source:      task.Source,
+			Source:       task.Source,
 		})
 	}
 	resp.Total = int64(len(resp.Data))
