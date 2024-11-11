@@ -124,6 +124,7 @@ func (l *ResourceTaskGetLogic) ResourceTaskGet(req *types.BaseReq) (resp *types.
 			ResourceID:   task.ResourceId,
 			ResourceType: task.ResourceType,
 			Source:       task.Source,
+			Status:       model.ResourceSyncTaskStatusMap[task.Status],
 		})
 	}
 	resp.Total = int64(len(resp.Data))

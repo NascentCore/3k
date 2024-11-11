@@ -848,6 +848,7 @@ type ResourceSyncTask struct {
 	ResourceID   string `json:"resource_id"`
 	ResourceType string `json:"resource_type"`
 	Source       string `json:"source"`
+	Status       string `json:"status"`
 	Token        string `json:"token"`
 }
 
@@ -856,13 +857,25 @@ type ResourceSyncTaskResp struct {
 	Total int64              `json:"total"`
 }
 
+type ResourceTaskStatusReq struct {
+	BaseReq
+	ResourceID   string `form:"resource_id,optional"`
+	ResourceType string `form:"resource_type,optional"`
+}
+
+type ResourceTaskStatusResp struct {
+	Data  []ResourceSyncTask `json:"data"`
+	Total int64              `json:"total"`
+}
+
 type ResourceTaskUpdate struct {
-	ResourceID   string `json:"resource_id"`
-	ResourceType string `json:"resource_type"`
-	Source       string `json:"source"`
-	Size         int64  `json:"size"`
-	Err          string `json:"err"`
-	OK           bool   `json:"ok"`
+	ResourceID        string `json:"resource_id"`
+	ResourceType      string `json:"resource_type"`
+	Source            string `json:"source"`
+	Size              int64  `json:"size"`
+	InferenceTemplate string `json:"inference_template,optional"`
+	Err               string `json:"err"`
+	OK                bool   `json:"ok"`
 }
 
 type ResourceTaskUpdateReq struct {

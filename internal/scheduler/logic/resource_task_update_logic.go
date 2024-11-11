@@ -68,6 +68,7 @@ func (l *ResourceTaskUpdateLogic) ResourceTaskUpdate(req *types.ResourceTaskUpda
 		if task.OK {
 			updateBuilder = updateBuilder.Set("status", model.ResourceSyncTaskStatusUploaded)
 			updateBuilder = updateBuilder.Set("size", task.Size)
+			updateBuilder = updateBuilder.Set("inference_template", task.InferenceTemplate)
 		} else {
 			updateBuilder = updateBuilder.Set("status", model.ResourceSyncTaskStatusFailed)
 			updateBuilder = updateBuilder.Set("err_info", task.Err)

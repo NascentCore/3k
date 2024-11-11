@@ -1008,19 +1008,30 @@ type (
 		ResourceID   string `json:"resource_id"`
 		ResourceType string `json:"resource_type"`
 		Source       string `json:"source"`
+		Status       string `json:"status"`
 		Token        string `json:"token"`
+	}
+	ResourceTaskStatusReq {
+		BaseReq
+		ResourceID   string `form:"resource_id,optional"`
+		ResourceType string `form:"resource_type,optional"`
+	}
+	ResourceTaskStatusResp {
+		Data  []ResourceSyncTask `json:"data"`
+		Total int64              `json:"total"`
 	}
 	ResourceSyncTaskResp {
 		Data  []ResourceSyncTask `json:"data"`
 		Total int64              `json:"total"`
 	}
 	ResourceTaskUpdate {
-		ResourceID   string `json:"resource_id"`
-		ResourceType string `json:"resource_type"`
-		Source       string `json:"source"`
-		Size         int64  `json:"size"`
-		Err          string `json:"err"`
-		OK           bool   `json:"ok"`
+		ResourceID        string `json:"resource_id"`
+		ResourceType      string `json:"resource_type"`
+		Source            string `json:"source"`
+		Size              int64  `json:"size"`
+		InferenceTemplate string `json:"inference_template,optional"`
+		Err               string `json:"err"`
+		OK                bool   `json:"ok"`
 	}
 	ResourceTaskUpdateReq {
 		BaseReq
@@ -1063,6 +1074,10 @@ service scheduler-api {
 	@doc "创建资源同步任务"
 	@handler ResourceLoadHandler
 	post /resource/load (ResourceLoadReq) returns (BaseResp)
+
+	@doc "查询资源同步任务状态"
+	@handler ResourceTaskStatus
+	get /resource/task/status (ResourceTaskStatusReq) returns (ResourceTaskStatusResp)
 
 	@doc "获取资源同步任务"
 	@handler ResourceTaskGet

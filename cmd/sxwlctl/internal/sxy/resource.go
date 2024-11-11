@@ -107,3 +107,48 @@ func LoadResource(token string, req LoadResourceReq) error {
 
 	return nil
 }
+
+type ResourceTaskStatus struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	Source       string `json:"source"`
+	Status       string `json:"status"`
+}
+
+type ResourceTaskStatusResp struct {
+	Data  []ResourceTaskStatus `json:"data"`
+	Total int64                `json:"total"`
+}
+
+// GetResourceSyncTaskStatus 查询资源同步任务状态
+func GetResourceSyncTaskStatus(token string) (*ResourceTaskStatusResp, error) {
+	// 发送GET请求
+	req, err := http.NewRequest(http.MethodGet, viper.GetString("resource_task_status_url"), nil)
+	if err != nil {
+		return nil, fmt.Errorf("create request failed: %v", err)
+	}
+
+	// 设置请求头
+	req.Header.Set("Sx-User-ID", token)
+
+	// 发送请求
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response failed: %v", err)
+	}
+
+	// 解析响应
+	var result ResourceTaskStatusResp
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("parse response failed: %v", err)
+	}
+
+	return &result, nil
+}
