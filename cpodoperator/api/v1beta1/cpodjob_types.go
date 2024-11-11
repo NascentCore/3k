@@ -104,7 +104,7 @@ type CPodJobSpec struct {
 	JobType JobType `json:"jobType,omitempty"`
 
 	// the gpu requirement for each replica
-	// +kubebuilder:default:=8
+	// +kubebuilder:default:=0
 	// +optional
 	GPURequiredPerReplica int32 `json:"gpuRequiredPerReplica,omitempty"`
 	// the path at which dataset volume will mount

@@ -136,7 +136,7 @@ spec:
                 - repository
                 type: object
               gpuRequiredPerReplica:
-                default: 8
+                default: 0
                 format: int32
                 type: integer
               gpuType:
