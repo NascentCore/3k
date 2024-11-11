@@ -159,7 +159,7 @@ export const request = {
 };
 
 export function onRouteChange({ location }) {
-  if (location.pathname === '/Grafana') {
+  if (location.pathname === '/grafana') {
     const url = `http://grafana.llm.sxwl.ai:30005/d/85a562078cdf/user-pods?orgId=1&refresh=5s&var-datasource=default&var-cluster=&var-namespace=${user.user_id}&var-gpu=All`;
     window.open(url);
     history.back();
