@@ -166,14 +166,6 @@ def main(task):
 if __name__ == "__main__":
     tasks = fetch_download_tasks()
     print(tasks)
-    tasks = [
-    {
-      "resource_id": "THUDM/glm-4-voice-9b",
-      "resource_type": "model",
-      "source": "huggingface",
-      "token": ""
-    }
-  ]
     for task in tasks:
         print(task)
         try:
