@@ -395,7 +395,7 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 
 	switch cpodjob.Spec.JobType {
 	case cpodv1beta1.JobTypeGeneral:
-		targetJob = &batchv1.Job{
+		job := &batchv1.Job{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      cpodjob.Name,
 				Namespace: cpodjob.Namespace,
@@ -418,13 +418,17 @@ func (c *CPodJobReconciler) CreateBaseJob(ctx context.Context, cpodjob *cpodv1be
 							},
 						},
 						Volumes: volumes,
-						NodeSelector: map[string]string{
-							"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
-						},
 					},
 				},
 			},
 		}
+
+		if cpodjob.Spec.GPURequiredPerReplica > 0 {
+			job.Spec.Template.Spec.NodeSelector = map[string]string{
+				"nvidia.com/gpu.product": cpodjob.Spec.GPUType,
+			}
+		}
+		targetJob = job
 	case cpodv1beta1.JobTypeMPI:
 		targetJob = &mpiv2.MPIJob{
 			ObjectMeta: metav1.ObjectMeta{

@@ -459,7 +459,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					duration = job.StopTime
 				}
 
-				var gpuPerWorker int32 = 8
+				var gpuPerWorker int32 = 0
 				var replicas int32 = 1
 				if job.GpuNumber < 8 {
 					gpuPerWorker = int32(job.GpuNumber)
@@ -471,6 +471,7 @@ func (s *SyncJob) processTrainningJobs(ctx context.Context, userIDs []sxwl.UserI
 					s.logger.Info("invalid jobtype", "jobtype", job.JobType, "jobname", job.JobName)
 					continue
 				}
+				s.logger.Info("DEBUG", "gpuPerWorker", gpuPerWorker, "jobname", job.JobName, "job", job)
 				var backoffLimit int32 = int32(job.BackoffLimit)
 
 				newJob := v1beta1.CPodJob{
