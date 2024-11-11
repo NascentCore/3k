@@ -338,8 +338,8 @@ func (m *Manager) OSSUpdate(resources []model.SysOssResource) error {
 	return nil
 }
 
-// HFLoad 处理huggingface资源同步任务
-func (m *Manager) HFLoad(task *model.ResourceSyncTask) error {
+// hfLoad 处理huggingface资源同步任务
+func (m *Manager) hfLoad(task *model.ResourceSyncTask) error {
 	taskModel := m.svcCtx.ResourceSyncTaskModel
 	// 1. 更新任务状态为获取meta信息中
 	task.Status = model.ResourceSyncTaskStatusGettingMeta
@@ -407,6 +407,110 @@ func (m *Manager) HFLoad(task *model.ResourceSyncTask) error {
 		if err != nil {
 			return fmt.Errorf("read readme response failed: %v", err)
 		}
+		task.Readme = orm.NullString(string(readmeBody))
+	} else {
+		return fmt.Errorf("readme request failed with status: %d", readmeResp.StatusCode)
+	}
+
+	// 2. 更新任务状态为获取meta信息完成
+	task.Status = model.ResourceSyncTaskStatusGettingMetaDone
+	if err := taskModel.Update(context.Background(), task); err != nil {
+		return fmt.Errorf("update task status failed: %v", err)
+	}
+
+	return nil
+}
+
+// msLoad 处理modelscope资源同步任务
+func (m *Manager) msLoad(task *model.ResourceSyncTask) error {
+	taskModel := m.svcCtx.ResourceSyncTaskModel
+	// 1. 更新任务状态为获取meta信息中
+	task.Status = model.ResourceSyncTaskStatusGettingMeta
+	if err := taskModel.Update(context.Background(), task); err != nil {
+		return fmt.Errorf("update task status failed: %v", err)
+	}
+
+	// 构建ModelScope API请求URL
+	var apiUrl string
+	switch task.ResourceType {
+	case consts.Model:
+		apiUrl = fmt.Sprintf("https://modelscope.cn/api/v1/models/%s", task.ResourceId)
+	case consts.Dataset:
+		apiUrl = fmt.Sprintf("https://modelscope.cn/api/v1/datasets/%s", task.ResourceId)
+	default:
+		return fmt.Errorf("unsupported resource type: %s", task.ResourceType)
+	}
+
+	// 创建HTTP请求
+	req, err := http.NewRequest(http.MethodGet, apiUrl, nil)
+	if err != nil {
+		return fmt.Errorf("create request failed: %v", err)
+	}
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request failed with status: %d", resp.StatusCode)
+	}
+
+	// 读取响应内容
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("read response failed: %v", err)
+	}
+
+	// 解析API响应
+	var apiResp struct {
+		Code      int             `json:"Code"`
+		Data      json.RawMessage `json:"Data"`
+		Message   string          `json:"Message"`
+		RequestId string          `json:"RequestId"`
+		Success   bool            `json:"Success"`
+	}
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return fmt.Errorf("parse response failed: %v", err)
+	}
+
+	if !apiResp.Success {
+		return fmt.Errorf("API request failed: %s", apiResp.Message)
+	}
+
+	// 将Data字段设置为任务的meta信息
+	task.Meta = orm.NullString(string(apiResp.Data))
+
+	// 读取README
+	readmeUrl := fmt.Sprintf("https://modelscope.cn/api/v1/models/%s/resolve/master/README.md", task.ResourceId)
+	if task.ResourceType == consts.Dataset {
+		readmeUrl = fmt.Sprintf("https://modelscope.cn/api/v1/datasets/%s/resolve/master/README.md", task.ResourceId)
+	}
+
+	readmeReq, err := http.NewRequest(http.MethodGet, readmeUrl, nil)
+	if err != nil {
+		return fmt.Errorf("create readme request failed: %v", err)
+	}
+
+	readmeResp, err := client.Do(readmeReq)
+	if err != nil {
+		return fmt.Errorf("readme request failed: %v", err)
+	}
+	defer readmeResp.Body.Close()
+
+	// 处理README响应
+	if readmeResp.StatusCode == http.StatusNotFound {
+		task.Readme = orm.NullString("")
+	} else if readmeResp.StatusCode == http.StatusOK {
+		readmeBody, err := io.ReadAll(readmeResp.Body)
+		if err != nil {
+			return fmt.Errorf("read readme response failed: %v", err)
+		}
+		// README内容直接就是响应体的内容
 		task.Readme = orm.NullString(string(readmeBody))
 	} else {
 		return fmt.Errorf("readme request failed with status: %d", readmeResp.StatusCode)
@@ -493,7 +597,15 @@ func (m *Manager) StartLoadTask() {
 			// 新创建的下载任务根据source选择处理方式
 			switch task.Source {
 			case "huggingface":
-				if err := m.HFLoad(task); err != nil {
+				if err := m.hfLoad(task); err != nil {
+					// 更新任务状态为失败
+					task.Status = model.ResourceSyncTaskStatusFailed
+					task.ErrInfo = err.Error()
+					_ = taskModel.Update(context.Background(), task)
+					continue
+				}
+			case "modelscope":
+				if err := m.msLoad(task); err != nil {
 					// 更新任务状态为失败
 					task.Status = model.ResourceSyncTaskStatusFailed
 					task.ErrInfo = err.Error()
