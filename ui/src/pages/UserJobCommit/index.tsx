@@ -70,7 +70,7 @@ const Welcome: React.FC = () => {
             defaultMessage: '操作成功',
           }),
         );
-        history.push('/UserJob');
+        history.push('/jobdetail');
       });
     });
   };

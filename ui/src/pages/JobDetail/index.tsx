@@ -71,47 +71,43 @@ const JobDetail: React.FC = () => {
 
   // 合并数据
   useEffect(() => {
-    if (inferenceList?.data && userJobList?.content) {
-      const inferenceData = inferenceList.data.map((item: any) => ({
-        ...item,
-        jobId: item.service_name,
-        modelName: item.model_name,
-        jobType: 'Inference',
-        gpuModel: item.gpu_model,
-        gpuCount: item.gpu_count,
-        startTime: item.start_time ? new Date(item.start_time).getTime() : 0,
-        endTime: item.end_time ? new Date(item.end_time).getTime() : 0,
-        status: item.status,
-        sortTime: new Date(item.create_time).getTime(), // 用于列表排序
-        sourceType: 'inference'
-      }));
+    // 确保即使数据为空也能正常工作
+    const inferenceData = inferenceList?.data?.map((item: any) => ({
+      ...item,
+      jobId: item.service_name,
+      modelName: item.model_name,
+      jobType: 'Inference',
+      gpuModel: item.gpu_model,
+      gpuCount: item.gpu_count,
+      startTime: item.start_time ? new Date(item.start_time).getTime() : 0,
+      endTime: item.end_time ? new Date(item.end_time).getTime() : 0,
+      status: item.status,
+      sortTime: new Date(item.create_time).getTime(),
+      sourceType: 'inference'
+    })) || [];
 
-      const userJobData = userJobList.content.map((item: any) => ({
-        ...item,
-        jobId: item.jobName,
-        modelName: '',
-        jobType: item.jobType === 'Finetune' ? 'Finetune' : 'GPUJob',
-        gpuModel: item.gpuType,
-        gpuCount: item.gpuNumber,
-        startTime: new Date(item.createTime).getTime(),
-        endTime: item.workStatus === 8 && item.updateTime ? new Date(item.updateTime).getTime() : 0,
-        sortTime: new Date(item.create_time).getTime(), // 用于列表排序
-        status: item.status,
-        sourceType: 'userJob'
-      }));
+    const userJobData = userJobList?.content?.map((item: any) => ({
+      ...item,
+      jobId: item.jobName,
+      modelName: '',
+      jobType: item.jobType === 'Finetune' ? 'Finetune' : 'GPUJob',
+      gpuModel: item.gpuType,
+      gpuCount: item.gpuNumber,
+      startTime: new Date(item.createTime).getTime(),
+      endTime: item.workStatus === 8 && item.updateTime ? new Date(item.updateTime).getTime() : 0,
+      sortTime: new Date(item.create_time).getTime(),
+      status: item.status,
+      sourceType: 'userJob'
+    })) || [];
 
-      console.log('Inference时间示例:', new Date(inferenceData[0]?.startTime).toISOString());
-      console.log('UserJob时间示例:', new Date(userJobData[0]?.startTime).toISOString());
+    const merged = [...inferenceData, ...userJobData].sort((a, b) => {
+      if (a.sortTime === 0) return 1;
+      if (b.sortTime === 0) return -1;
+      return b.sortTime - a.sortTime;
+    });
 
-      const merged = [...inferenceData, ...userJobData].sort((a, b) => {
-        if (a.sortTime === 0) return 1;
-        if (b.sortTime === 0) return -1;
-        return b.sortTime - a.sortTime;
-      });
-
-      setMergedData(merged);
-      setLoading(false);
-    }
+    setMergedData(merged);
+    setLoading(false);
   }, [inferenceList, userJobList]);
 
   const handleDelete = (record: any) => {
@@ -454,7 +450,7 @@ const JobDetail: React.FC = () => {
     },
   ];
 
-  // 修改其他列的 align 属性
+  // 改其他列的 align 属性
   const formattedColumns = columns.map(column => ({
     ...column,
     align: column.align as AlignType,
