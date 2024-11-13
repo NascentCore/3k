@@ -22,4 +22,5 @@ export default {
   'pages.userJob.table.column.action': '操作',
   'pages.userJob.table.column.action.detail': '任务日志',
   'pages.userJob.table.column.action.tensorboard': '训练指标',
+  'pages.userJob.table.column.action.log': '任务日志',
 };

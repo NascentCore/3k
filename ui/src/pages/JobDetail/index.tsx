@@ -89,7 +89,7 @@ const JobDetail: React.FC = () => {
     const userJobData = userJobList?.content?.map((item: any) => ({
       ...item,
       jobId: item.jobName,
-      modelName: '',
+      modelName: item.pretrainedModelName || '',
       jobType: item.jobType === 'Finetune' ? 'Finetune' : 'GPUJob',
       gpuModel: item.gpuType,
       gpuCount: item.gpuNumber,
@@ -416,6 +416,21 @@ const JobDetail: React.FC = () => {
                 {intl.formatMessage({
                   id: 'pages.userJob.table.column.action.tensorboard',
                   defaultMessage: '训练指标',
+                })}
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => {
+                  const logUrl = `http://grafana.llm.sxwl.ai:30005/d/a85faaa0-8ff6-4f11-ac27-24cbb0fa4ee9/job-log?orgId=1&var-ns=${
+                    record.userId}&var-pod=${record.jobName}&from=${record.startTime}&to=${
+                    record.endTime || 'now'}&${record.endTime ? '' : 'refresh=auto'}`;
+                  window.open(logUrl);
+                }}
+              >
+                {intl.formatMessage({
+                  id: 'pages.userJob.table.column.action.log',
+                  defaultMessage: '任务日志',
                 })}
               </Button>
               <DetailModel record={record} />

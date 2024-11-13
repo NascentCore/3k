@@ -64,7 +64,7 @@ func (l *ResourceTaskUpdateLogic) ResourceTaskUpdate(req *types.ResourceTaskUpda
 			continue
 		}
 
-		updateBuilder := TaskModel.UpdateBuilder()
+		updateBuilder := TaskModel.UpdateBuilder().Where("id = ?", existTask.Id)
 		if task.OK {
 			updateBuilder = updateBuilder.Set("status", model.ResourceSyncTaskStatusUploaded)
 			updateBuilder = updateBuilder.Set("size", task.Size)

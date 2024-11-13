@@ -107,8 +107,7 @@ func (l *ResourceTaskGetLogic) ResourceTaskGet(req *types.BaseReq) (resp *types.
 	tasks, err = TaskModel.Find(l.ctx, TaskModel.AllFieldsBuilder().Where(
 		squirrel.And{
 			squirrel.Eq{"executor_id": req.UserID},
-			squirrel.NotEq{"status": model.ResourceSyncTaskStatusFailed},
-			squirrel.NotEq{"status": model.ResourceSyncTaskStatusRecord},
+			squirrel.Eq{"status": model.ResourceSyncTaskStatusTransfering},
 		},
 	))
 	if err != nil && err != model.ErrNotFound {

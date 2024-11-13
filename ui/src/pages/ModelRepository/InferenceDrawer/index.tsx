@@ -117,7 +117,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
           }),
         );
         onCancel();
-        history.push('/JobDetail');
+        history.push('/jobdetail');
       });
     });
   };
