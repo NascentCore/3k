@@ -35,10 +35,12 @@ func (l *ResourceAdaptersLogic) ResourceAdapters(req *types.ResourceAdaptersReq)
 	}
 
 	adapters, err := OssResourceModel.Find(l.ctx, OssResourceModel.AllFieldsBuilder().Where(
-		squirrel.Eq{"resource_type": consts.Adapter},
-		squirrel.Or{
-			squirrel.Eq{"public": model.CachePublic},
-			squirrel.Eq{"user_id": req.UserID},
+		squirrel.And{
+			squirrel.Eq{"resource_type": consts.Adapter},
+			squirrel.Or{
+				squirrel.Eq{"public": model.CachePublic},
+				squirrel.Eq{"user_id": req.UserID},
+			},
 		},
 	))
 	if err != nil {
@@ -67,6 +69,7 @@ func (l *ResourceAdaptersLogic) ResourceAdapters(req *types.ResourceAdaptersReq)
 			IsPublic:          isPublic,
 			Size:              adapter.ResourceSize,
 			BaseModel:         meta.BaseModel,
+			Meta:              adapter.Meta,
 			FinetuneGPUCount:  1,
 			InferenceGPUCount: 1,
 		}
