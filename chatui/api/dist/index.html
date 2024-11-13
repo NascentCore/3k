@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="{{ base_url }}/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiChat</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <script src="assets/marked.min.js"></script>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="input-container">
+            <button id="voice-button" title="语音输入"></button>
+            <textarea id="user-input" placeholder="请在这里输入您的问题"></textarea>
+            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+            <button id="upload-button" title="上传图片">
+                <img src="assets/upload_image.png" alt="上传图片" style="width: 24px; height: 24px;">
+            </button>
+            <button id="clear-button" title="清除消息">
+                <img src="assets/ic_delete.png" alt="清除消息" style="width: 24px; height: 24px;">
+            </button>
+            <button id="send-button" title="发送消息"></button>
+        </div>
+    </div>
+    <div id="recording-indicator" class="floating-indicator" style="display: none;">正在录音...</div>
+    <script src="assets/script.js"></script>
+</body>
+</html>
