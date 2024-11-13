@@ -1075,7 +1075,7 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 		ResourceId:   modelstorageName,
 		ResourceType: resourceType,
 		ResourceName: fmt.Sprintf("%v/%v", cpodjob.Labels[v1beta1.CPodUserIDLabel], readableModelstorageName),
-		ResourceSize: int(cpodjob.Spec.ModelSaveVolumeSize * 1024 * 1024 * 1024),
+		ResourceSize: int(cpodjob.Spec.ModelSaveVolumeSize) * 1024 * 1024,
 		IsPublic:     false,
 		UserID:       cpodjob.Labels[v1beta1.CPodUserIDLabel],
 		Meta:         string(metaBytes),

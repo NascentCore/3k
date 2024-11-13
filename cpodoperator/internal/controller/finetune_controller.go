@@ -221,7 +221,6 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			return ctrl.Result{Requeue: true}, nil
 		}
-		logrus.Info("DEBUG3 RUNNING")
 		return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 	}
 }

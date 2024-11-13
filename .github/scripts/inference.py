@@ -1,224 +1,240 @@
+import json
 import time
 import requests
 import os 
 import atexit
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
 
-def delete_inference_service(service_name):
-    print("开始删除推理服务...")
-    delete_url = f"https://llm.sxwl.ai/api/job/inference"
-    delete_headers = {
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkOWUxYWNlMTliM2I0ZmNmOGZjZTgyYzBkMWYyZjMwMiIsInN1YiI6ImRnQHN4d2wuYWkiLCJ1c2VyX2lkIjoidXNlci01NGFlNjZhMi1lMDUzLTQwNmQtYTBiNC05OTE5YzQ3YjNhZjYiLCJ1c2VyaWQiOjE2NSwidXNlcm5hbWUiOiJkZ0BzeHdsLmFpIn0.s057vqqy9oWhkwojMkPFkIprB82s1EcUOfghrPCiERPjNSjR90GWCYijs9-pb73JnYZaoOCYaPDTDu2xoy3Udg',
-        'Origin': 'https://llm.sxwl.ai',
-        'Referer': 'https://llm.sxwl.ai/jobdetail'
-    }
-    
-    delete_params = {
-        'service_name': service_name
-    }
-    
-    try:
-        delete_response = requests.delete(delete_url, headers=delete_headers, params=delete_params)
-        if delete_response.status_code == 200:
-            print("推理服务删除成功")
-        else:
-            print(f"删除推理服务失败，状态码: {delete_response.status_code}")
-            print(f"错误信息: {delete_response.text}")
-    except Exception as e:
-        print(f"删除推理服务时发生错误: {str(e)}")
+# 从环境变量获取基础URL，如果未设置则使用默认值
+BASE_URL = os.getenv('SXWL_API_URL', 'https://llm.nascentcore.net')
 
-# 部署推理
-url = 'https://llm.sxwl.ai/api/job/inference'
-headers = {
-'Accept': 'application/json, text/plain, */*',
-'Authorization': f'Bearer {os.environ["SXWL_TOKEN"]}',
-'Connection': 'keep-alive',
-'Content-Type': 'application/json',
-'Origin': 'https://llm.sxwl.ai',
-'Referer': 'https://llm.sxwl.ai/models',
-'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
-}
-data = {
-"gpu_model": "NVIDIA-GeForce-RTX-3090",
-"model_category": "chat",
-"gpu_count": 1,
-"model_id": "model-storage-0ce92f029254ff34",
-"model_name": "google/gemma-2b-it",
-"model_size": 15065904829,
-"model_is_public": True,
-"model_template": "gemma",
-"min_instances": 1,
-"max_instances": 1
-}
+@dataclass
+class APIConfig:
+    base_url: str
+    token: str
+    headers: Dict[str, str]
 
-response = requests.post(url, headers=headers, json=data)
-
-if response.status_code != 200:
-    print(f"请求失败，状态码: {response.status_code}")
-    print(f"错误信息: {response.text}")
-    exit(1)
-
-response_json = response.json()
-service_name = response_json['service_name']
-print(f"服务名称: {service_name}")
-
-# 注册退出时的清理函数
-atexit.register(delete_inference_service, service_name)
-
-# 获取推理状态
-status_url = 'https://llm.sxwl.ai/api/job/inference'
-status_headers = {
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'zh,en;q=0.9,zh-CN;q=0.8,pt;q=0.7',
-    'Authorization': headers['Authorization'],
-    'Connection': 'keep-alive',
-    'Referer': 'https://llm.sxwl.ai/jobdetail',
-    'User-Agent': headers['User-Agent'],
-}
-
-status_response = requests.get(status_url, headers=status_headers)
-
-if status_response.status_code != 200:
-    print(f"获取状态失败，状态码: {status_response.status_code}")
-    print(f"错误信息: {status_response.text}")
-    exit(1)
-
-status_json = status_response.json()
-# 解析状态响应
-max_retries = 6
-retry_count = 0
-while retry_count < max_retries:
-    if 'data' in status_json:
-        # 遍历所有数据查找匹配的service_name
-        inference_info = None
-        for item in status_json['data']:
-            if item['service_name'] == service_name:
-                inference_info = item
-                break
-        
-        if inference_info:
-            status = inference_info['status']
-            model_name = inference_info['model_name']
-            url = inference_info['url']
-            api = inference_info['api']
-            create_time = inference_info['create_time']
-            
-            print(f"服务名称: {service_name}")
-            print(f"状态: {status}")
-            print(f"模型名称: {model_name}")
-            print(f"服务URL: {url}")
-            print(f"API地址: {api}")
-            print(f"创建时间: {create_time}")
-
-            if status == 'ready':
-                break
-        else:
-            print(f"未找到服务名称为 {service_name} 的推理任务")
-            exit(1)
-    else:
-        print("未找到任何推理任务信息")
-        exit(1)
-
-    retry_count += 1
-    if retry_count < max_retries:
-        print(f"等待10秒后重试... ({retry_count}/{max_retries})")
-        time.sleep(10)
-        status_response = requests.get(status_url, headers=status_headers)
-        if status_response.status_code == 200:
-            status_json = status_response.json()
-        else:
-            print(f"获取状态失败，状态码: {status_response.status_code}")
-            print(f"错误信息: {status_response.text}")
-            exit(1)
-
-if retry_count >= max_retries and status != 'ready':
-    print("推理服务启动超时")
-    exit(1)
-
-
-
-# 调用推理对话请求
-print("开始调用推理对话请求...")
-chat_url = f"{api}/v1/chat/completions"
-chat_headers = {
-    'accept': 'application/json',
-    'Content-Type': 'application/json'
-}
-
-chat_data = {
-    "model": "/mnt/models",
-    "messages": [
-        {
-            "role": "user",
-            "content": "你是谁"
+    @classmethod
+    def create_default(cls) -> 'APIConfig':
+        token = os.environ["SXWL_TOKEN"]
+        headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'Origin': BASE_URL,
+            'Connection': 'keep-alive',
+            'User-Agent': 'github-actions'
         }
-    ]
-}
+        return cls(BASE_URL, token, headers)
 
-chat_response = requests.post(chat_url, headers=chat_headers, json=chat_data)
+class APIClient:
+    def __init__(self, config: APIConfig):
+        self.config = config
 
-if chat_response.status_code == 200:
-    print("推理对话请求成功")
-    print("响应内容:", chat_response.json())
-else:
-    print(f"推理对话请求失败，状态码: {chat_response.status_code}")
-    print(f"错误信息: {chat_response.text}")
-    exit(1)
+    def _make_request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+        url = f"{self.config.base_url}/api{endpoint}"
+        response = requests.request(method, url, headers=self.config.headers, **kwargs)
+        response.raise_for_status()
+        return response
 
+    def get_models(self) -> List[Dict[str, Any]]:
+        """获取可用的模型列表"""
+        try:
+            response = self._make_request('GET', '/resource/models')
+            data = response.json()
+            models = data.get('public_list', []) + data.get('user_list', [])
+            print(f"获取到 {len(models)} 个模型")
+            return models
+        except Exception as e:
+            print(f"获取模型列表失败: {str(e)}")
+            return []
 
+    def delete_inference_service(self, service_name: str) -> None:
+        try:
+            self._make_request('DELETE', '/job/inference', params={'service_name': service_name})
+            print("推理服务删除成功")
+        except Exception as e:
+            print(f"删除推理服务失败: {str(e)}")
 
-# 微调
-print("开始微调...")
-finetune_url = f"{api}/job/finetune"
-finetune_headers = {
-    'Accept': 'application/json, text/plain, */*',
-    'Content-Type': 'application/json'
-}
+    def delete_finetune_job(self, finetune_id: str) -> None:
+        try:
+            self._make_request('POST', '/userJob/job_del', json={'job_id': finetune_id})
+            print("微调任务删除成功")
+        except Exception as e:
+            print(f"删除微调任务失败: {str(e)}")
 
-finetune_data = {
-    "model": "google/gemma-2b-it",
-    "training_file": "dataset-storage-f90b82cc7ab88911",
-    "gpu_model": "NVIDIA-GeForce-RTX-3090",
-    "gpu_count": 1,
-    "finetune_type": "lora",
-    "hyperparameters": {
-        "n_epochs": "3.0",
-        "batch_size": "4",
-        "learning_rate_multiplier": "5e-5"
-    },
-    "model_saved_type": "lora",
-    "model_id": "model-storage-0ce92f029254ff34",
-    "model_name": "google/gemma-2b-it",
-    "model_size": 15065904829,
-    "model_is_public": True,
-    "model_template": "gemma",
-    "model_category": "chat",
-    "dataset_id": "dataset-storage-f90b82cc7ab88911",
-    "dataset_name": "llama-factory/alpaca_data_zh_short",
-    "dataset_size": 14119,
-    "dataset_is_public": True
-}
+class InferenceService:
+    def __init__(self, client: APIClient):
+        self.client = client
+        self.service_name: Optional[str] = None
+        self.api_endpoint: Optional[str] = None
 
-finetune_response = requests.post(finetune_url, headers=finetune_headers, json=finetune_data)
+    def deploy(self, model_config: Dict[str, Any]) -> None:
+        response = self.client._make_request('POST', '/job/inference', json=model_config)
+        self.service_name = response.json()['service_name']
+        print(f"服务名称: {self.service_name}")
+        atexit.register(self.client.delete_inference_service, self.service_name)
+        self._wait_for_ready()
 
-if finetune_response.status_code == 200:
-    print("微调任务提交成功")
-    print("响应内容:", finetune_response.json())
-else:
-    print(f"微调任务提交失败，状态码: {finetune_response.status_code}")
-    print(f"错误信息: {finetune_response.text}")
-    exit(1)
+    def _wait_for_ready(self, max_retries: int = 60, retry_interval: int = 30) -> None:
+        for attempt in range(max_retries):
+            response = self.client._make_request('GET', '/job/inference')
+            status_json = response.json()
+            
+            for item in status_json.get('data', []):
+                if item['service_name'] == self.service_name:
+                    if item['status'] == 'running':
+                        self.api_endpoint = item['api']
+                        print(f"服务已就绪: {item}")
+                        return
+                    break
+            
+            print(f"服务启动中... ({attempt + 1}/{max_retries})")
+            time.sleep(retry_interval)
+        
+        raise TimeoutError("服务启动超时")
 
+    def chat(self, messages: list) -> Dict[str, Any]:
+        if not self.api_endpoint:
+            raise RuntimeError("服务尚未就绪")
+            
+        chat_url = self.api_endpoint
+        headers = {'accept': 'application/json', 'Content-Type': 'application/json'}
+        data = {"model": "/mnt/models", "messages": messages}
+        
+        response = requests.post(chat_url, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()
 
-# 获取微调状态
+class FinetuneJob:
+    def __init__(self, client: APIClient):
+        self.client = client
+        self.job_id: Optional[str] = None
+        self.adapter_id: Optional[str] = None
 
-# 删除微调
+    def start(self, finetune_config: Dict[str, Any]) -> None:
+        response = self.client._make_request('POST', '/job/finetune', json=finetune_config)
+        self.job_id = response.json()['job_id']
+        print(f"微调任务ID: {self.job_id}")
+        atexit.register(self.client.delete_finetune_job, self.job_id)
+        self._wait_for_completion()
+        self._get_adapter_id()
 
+    def _wait_for_completion(self, max_retries: int = 60, retry_interval: int = 30) -> None:
+        for _ in range(max_retries):
+            print(f"正在检查微调任务状态... (第 {_ + 1}/{max_retries} 次尝试)")
+            response = self.client._make_request('GET', '/job/training', 
+                                               params={'current': 1, 'size': 1000})
+            
+            print(f"API响应: {response.json()}")
+            for job in response.json().get('content', []):
+                if job['jobName'] == self.job_id:
+                    status = job['status']
+                    print(f"微调状态: {status}")
+                    
+                    if status == 'succeeded':
+                        return
+                    elif status in ['failed', 'error']:
+                        raise RuntimeError("微调任务失败")
+                    break
+            
+            time.sleep(retry_interval)
+        raise TimeoutError("微调任务超时")
 
-# 使用微调之后的适配器部署推理
+    def _get_adapter_id(self) -> None:
+        response = self.client._make_request('GET', '/resource/adapters')
+        
+        for adapter in response.json().get('user_list', []):
+            try:
+                meta = json.loads(adapter.get('meta', '{}'))
+                if meta.get('finetune_id') == self.job_id:
+                    self.adapter_id = adapter['id']
+                    print(f"适配器ID: {self.adapter_id}")
+                    return
+            except json.JSONDecodeError:
+                continue
+        
+        raise ValueError(f"未找到对应的适配器")
 
-# 获取适配器推理状态及地址
+def main():
+    # 初始化API客户端
+    config = APIConfig.create_default()
+    client = APIClient(config)
+    
+    # 获取可用模型列表
+    available_models = client.get_models()
+    # 检查目标模型是否在可用模型列表中
+    target_model_id = "model-storage-0ce92f029254ff34"
+    model_found = False
+    for model in available_models:
+        if model.get('id') == target_model_id:
+            model_found = True
+            print(f"找到目标模型: {model.get('name')}")
+            break
 
-# 调用适配器推理对话请求
+    if not model_found:
+        raise ValueError(f"未找到ID为 {target_model_id} 的模型")
+    
+    # 部署基础模型推理服务
+    base_model = InferenceService(client)
+    base_model_config = {
+        "gpu_model": "NVIDIA-GeForce-RTX-3090",
+        "model_category": "chat",
+        "gpu_count": 1,
+        "model_id": model.get('id'),
+        "model_name":model.get('name'),
+        "model_size": 15065904829,
+        "model_is_public": True,
+        "model_template": "gemma",
+        "min_instances": 1,
+        "model_meta": "{\"template\":\"gemma\",\"category\":\"chat\",\"can_finetune\":true,\"can_inference\":true}",
+        "max_instances": 1
+    }
+    base_model.deploy(base_model_config)
+    
+    # 测试基础模型对话
+    response = base_model.chat([{"role": "user", "content": "你是谁"}])
+    print("基础模型响应:", response)
+    
+    # 开始微调任务
+    finetune = FinetuneJob(client)
+    finetune_config = {
+        "model": model.get('name'),
+        "training_file": "dataset-storage-f90b82cc7ab88911",
+        "gpu_model": "NVIDIA-GeForce-RTX-3090",
+        "gpu_count": 1,
+        "finetune_type": "lora",
+        "hyperparameters": {
+            "n_epochs": "3.0",
+            "batch_size": "4",
+            "learning_rate_multiplier": "5e-5"
+        },
+        "model_saved_type": "lora",
+        "model_id": model.get('id'),
+        "model_name": model.get('name'),
+        "model_size": model.get('size'),
+        "model_is_public": model.get('is_public'),
+        "model_template": model.get('template'),
+        "model_category": "chat",
+        "dataset_id": "dataset-storage-f90b82cc7ab88911",
+        "model_meta": model.get('meta'),
+        "dataset_name": "llama-factory/alpaca_data_zh_short",
+        "dataset_size": 14119,
+        "dataset_is_public": True
+    }
+    finetune.start(finetune_config)
+    
+    # 部署微调后的模型
+    finetuned_model = InferenceService(client)
+    finetuned_model_config = {**base_model_config, 
+                             "adapter_id": finetune.adapter_id,
+                             "adapter_is_public": False}
+    finetuned_model.deploy(finetuned_model_config)
+    
+    # 测试微调后的模型对话
+    response = finetuned_model.chat([{"role": "user", "content": "你是谁"}])
+    print("微调后模型响应:", response)
 
-# 删除适配器推理服务
+if __name__ == "__main__":
+    main()

@@ -863,7 +863,7 @@ func (i *InferenceReconciler) createInferenceService(ctx context.Context, infere
 			MountPath: "/mnt/adapter",
 		})
 
-		is.Spec.Predictor.Containers[0].Command = append(is.Spec.Predictor.Containers[0].Command, []string{"--adapter_name_or_path", "/mnt/adapters"}...)
+		is.Spec.Predictor.Containers[0].Command = append(is.Spec.Predictor.Containers[0].Command, []string{"--adapter_name_or_path", "/mnt/adapter"}...)
 	}
 
 	return i.Client.Create(ctx, &is)
