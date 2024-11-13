@@ -304,6 +304,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/resource/task",
 				Handler: ResourceTaskUpdateHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/resource/task/status",
+				Handler: ResourceTaskStatusHandler(serverCtx),
+			},
 		},
 		rest.WithPrefix("/api"),
 	)

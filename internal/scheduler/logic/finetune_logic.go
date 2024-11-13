@@ -146,6 +146,7 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 			l.svcCtx.Config.OSS.Bucket,
 			storage.ResourceToOSSPath(consts.Model, req.ModelName)),
 		PretrainModelTemplate: req.ModelTemplate,
+		PretrainModelMeta:     req.ModelMeta,
 		DatasetUrl: storage.OssPathToOssURL(
 			l.svcCtx.Config.OSS.Bucket,
 			storage.ResourceToOSSPath(consts.Dataset, req.DatasetName)),

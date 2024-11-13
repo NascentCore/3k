@@ -18,6 +18,16 @@ const (
 	ResourceSyncTaskStatusFailed          = 9 // 同步失败
 )
 
+var ResourceSyncTaskStatusMap = map[int64]string{
+	ResourceSyncTaskStatusPending:         "Pending",
+	ResourceSyncTaskStatusGettingMeta:     "GettingMeta",
+	ResourceSyncTaskStatusGettingMetaDone: "GetMetaDone",
+	ResourceSyncTaskStatusTransfering:     "Transfering",
+	ResourceSyncTaskStatusUploaded:        "Uploaded", 
+	ResourceSyncTaskStatusRecord:          "RecordDone",
+	ResourceSyncTaskStatusFailed:          "Failed",
+}
+
 var _ ResourceSyncTaskModel = (*customResourceSyncTaskModel)(nil)
 
 type (

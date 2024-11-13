@@ -18,6 +18,7 @@ interface ContentProps {
     size?: number;
     is_public?: boolean;
     template?: string;
+    meta?: any;
     inference_gpu_count?: number;
   };
   onCancel: () => void;
@@ -99,6 +100,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
           model_size: record.size,
           model_is_public: record.is_public,
           model_template: record.template,
+          model_meta: record.meta,
           adapter_id: currentAdapter?.id,
           adapter_name: currentAdapter?.name,
           adapter_size: currentAdapter?.size,

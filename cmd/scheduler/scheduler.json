@@ -277,6 +277,128 @@
         ]
       }
     },
+    "/api/job/inference": {
+      "get": {
+        "operationId": "InferenceInfoHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceInfoResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      },
+      "delete": {
+        "operationId": "InferenceDeleteHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceDeleteResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceDeleteReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "post": {
+        "operationId": "InferenceDeployHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/inference/stop": {
+      "post": {
+        "operationId": "InferenceStopHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceStopReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/job/jobs": {
       "delete": {
         "summary": "终止用户所有任务",
@@ -1090,6 +1212,46 @@
         ]
       }
     },
+    "/api/resource/task/status": {
+      "get": {
+        "summary": "查询资源同步任务状态",
+        "operationId": "ResourceTaskStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ResourceTaskStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resource_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "resource_type",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/user/newuserid": {
       "post": {
         "summary": "生成所有user_id",
@@ -1258,99 +1420,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/CPODStatusReq"
-            }
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/inference": {
-      "get": {
-        "operationId": "InferenceInfoHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/InferenceInfoResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "service_name",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      },
-      "delete": {
-        "operationId": "InferenceDeleteHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/InferenceDeleteResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/InferenceDeleteReq"
-            }
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ],
-        "consumes": [
-          "multipart/form-data"
-        ]
-      },
-      "post": {
-        "operationId": "InferenceDeployHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/InferenceDeployResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/InferenceDeployReq"
             }
           }
         ],
@@ -2508,6 +2577,9 @@
         "cpod_version": {
           "type": "string"
         },
+        "node_name": {
+          "type": "string"
+        },
         "gpu_vendor": {
           "type": "string"
         },
@@ -2537,6 +2609,7 @@
       "required": [
         "cpod_id",
         "cpod_version",
+        "node_name",
         "gpu_vendor",
         "gpu_prod",
         "gpu_mem",
@@ -3143,6 +3216,18 @@
         "url"
       ]
     },
+    "InferenceStopReq": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceStopReq",
+      "required": [
+        "service_name"
+      ]
+    },
     "Job": {
       "type": "object",
       "properties": {
@@ -3228,6 +3313,9 @@
           "type": "integer",
           "format": "int32"
         },
+        "status": {
+          "type": "string"
+        },
         "tensor_url": {
           "type": "string"
         }
@@ -3254,6 +3342,7 @@
         "updateTime",
         "userId",
         "workStatus",
+        "status",
         "tensor_url"
       ]
     },
@@ -4762,6 +4851,9 @@
         "source": {
           "type": "string"
         },
+        "status": {
+          "type": "string"
+        },
         "token": {
           "type": "string"
         }
@@ -4771,6 +4863,7 @@
         "resource_id",
         "resource_type",
         "source",
+        "status",
         "token"
       ]
     },
@@ -4794,6 +4887,38 @@
         "total"
       ]
     },
+    "ResourceTaskStatusReq": {
+      "type": "object",
+      "properties": {
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        }
+      },
+      "title": "ResourceTaskStatusReq"
+    },
+    "ResourceTaskStatusResp": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceSyncTask"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "ResourceTaskStatusResp",
+      "required": [
+        "data",
+        "total"
+      ]
+    },
     "ResourceTaskUpdate": {
       "type": "object",
       "properties": {
@@ -4809,6 +4934,9 @@
         "size": {
           "type": "integer",
           "format": "int64"
+        },
+        "inference_template": {
+          "type": "string"
         },
         "err": {
           "type": "string"
@@ -4922,6 +5050,17 @@
         "api": {
           "type": "string"
         },
+        "gpu_model": {
+          "type": "string"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "create_time": {
+          "type": "string",
+          "description": " 推理服务创建时间"
+        },
         "start_time": {
           "type": "string",
           "description": " 推理服务启动时间"
@@ -4937,6 +5076,9 @@
         "status",
         "url",
         "api",
+        "gpu_model",
+        "gpu_count",
+        "create_time",
         "start_time",
         "end_time"
       ]

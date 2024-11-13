@@ -50,6 +50,7 @@ token: ""
 auth_url: "https://llm.sxwl.ai/api/resource/uploader_access"
 resource_add_url: "https://llm.sxwl.ai/api/resource/meta"
 resource_load_url: "https://llm.sxwl.ai/api/resource/load"
+resource_task_status_url: "https://llm.sxwl.ai/api/resource/task/status"
 bucket: sxwl-cache
 endpoint: https://oss-cn-beijing.aliyuncs.com
 EOL

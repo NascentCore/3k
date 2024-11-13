@@ -80,6 +80,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 	meta.GpuType = req.GpuModel
 	meta.GpuNumber = req.GpuCount
 	meta.Template = req.ModelTemplate
+	meta.ModelMeta = req.ModelMeta
 	meta.ServiceName = serviceName
 	meta.MinInstances = req.MinInstances
 	meta.MaxInstances = req.MaxInstances
@@ -97,6 +98,7 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		ModelId:       orm.NullString(req.ModelId),
 		ModelSize:     orm.NullInt64(req.ModelSize),
 		ModelPublic:   orm.NullInt64(modelPublic),
+		ModelMeta:     orm.NullString(req.ModelMeta),
 		GpuType:       orm.NullString(req.GpuModel),
 		GpuNumber:     orm.NullInt64(req.GpuCount),
 		Template:      orm.NullString(req.ModelTemplate),
