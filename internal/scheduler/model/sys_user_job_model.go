@@ -31,6 +31,7 @@ type JobJson struct {
 	PretrainModelPath     string `json:"pretrainedModelPath"`
 	PretrainModelUrl      string `json:"pretrainedModelUrl"`
 	PretrainModelTemplate string `json:"pretrainModelTemplate"`
+	PretrainModelMeta     string `json:"pretrainModelMeta"`
 	DatasetId             string `json:"datasetId"`
 	DatasetName           string `json:"datasetName"`
 	DatasetIsPublic       bool   `json:"datasetIsPublic"`

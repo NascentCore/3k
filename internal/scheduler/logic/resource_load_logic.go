@@ -6,6 +6,7 @@ import (
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/internal/scheduler/svc"
 	"sxwl/3k/internal/scheduler/types"
+	"sxwl/3k/pkg/orm"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -56,6 +57,7 @@ func (l *ResourceLoadLogic) ResourceLoad(req *types.ResourceLoadReq) (resp *type
 		ResourceId:   req.ResourceID,
 		ResourceType: req.ResourceType,
 		Source:       req.Source,
+		CustomMeta:   orm.NullString(req.Meta),
 		Status:       model.ResourceSyncTaskStatusPending,
 		CreatorId:    req.UserID,
 	})

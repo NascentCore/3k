@@ -360,6 +360,7 @@ type InferenceService struct {
 	ModelSize       int64  `json:"model_size"`
 	ModelIsPublic   bool   `json:"model_is_public"`
 	ModelCategory   string `json:"model_category"`
+	ModelMeta       string `json:"model_meta"`
 	AdapterName     string `json:"adapter_name"`
 	AdapterId       string `json:"adapter_id"`
 	AdapterSize     int64  `json:"adapter_size"`
@@ -651,6 +652,7 @@ type Model struct {
 	ModelSize     int64  `json:"model_size"`          // 模型体积，单位字节
 	ModelIsPublic bool   `json:"model_is_public"`     // 是否公共模型
 	ModelTemplate string `json:"model_template"`      // 模型的推理模版
+	ModelMeta     string `json:"model_meta"`          // 元信息
 	ModelCategory string `json:"model_category"`      // 模型分类
 }
 
@@ -661,6 +663,7 @@ type ModelOptional struct {
 	ModelSize     int64  `json:"model_size,optional"`      // 模型体积，单位字节
 	ModelIsPublic bool   `json:"model_is_public,optional"` // 是否公共模型
 	ModelTemplate string `json:"model_template,optional"`  // 模型的推理模版
+	ModelMeta     string `json:"model_meta,optional"`      // 元信息
 	ModelCategory string `json:"model_category,optional"`  // 模型分类
 }
 
@@ -790,6 +793,7 @@ type Resource struct {
 	UserID            string   `json:"user_id"`
 	Tag               []string `json:"tag"`
 	Template          string   `json:"template"`
+	Meta              string   `json:"meta"`
 	Category          string   `json:"category"`
 	BaseModel         string   `json:"base_model"`
 	FinetuneGPUCount  int      `json:"finetune_gpu_count"`
@@ -822,6 +826,7 @@ type ResourceLoadReq struct {
 	Source       string `json:"source"`        // 来源(例如huggingface)
 	ResourceID   string `json:"resource_id"`   // 资源ID
 	ResourceType string `json:"resource_type"` // 资源类型(model/dataset/adapter)
+	Meta         string `json:"meta"`          // 元信息
 }
 
 type ResourceMetaAddReq struct {
@@ -869,13 +874,12 @@ type ResourceTaskStatusResp struct {
 }
 
 type ResourceTaskUpdate struct {
-	ResourceID        string `json:"resource_id"`
-	ResourceType      string `json:"resource_type"`
-	Source            string `json:"source"`
-	Size              int64  `json:"size"`
-	InferenceTemplate string `json:"inference_template,optional"`
-	Err               string `json:"err"`
-	OK                bool   `json:"ok"`
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+	Source       string `json:"source"`
+	Size         int64  `json:"size"`
+	Err          string `json:"err"`
+	OK           bool   `json:"ok"`
 }
 
 type ResourceTaskUpdateReq struct {

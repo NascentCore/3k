@@ -36,22 +36,22 @@ type (
 	}
 
 	ResourceSyncTask struct {
-		Id                int64          `db:"id"`                 // 自增ID
-		ResourceId        string         `db:"resource_id"`        // 资源ID
-		ResourceType      string         `db:"resource_type"`      // 资源类型（如模型、数据集等）
-		Source            string         `db:"source"`             // 来源
-		Size              int64          `db:"size"`               // 资源体积(字节)
-		CreatorId         string         `db:"creator_id"`         // 创建者ID
-		ExecutorId        string         `db:"executor_id"`        // 执行者ID
-		Status            int64          `db:"status"`             // 状态：0等待下载、1下载中、2下载完成、3下载失败
-		ErrInfo           string         `db:"err_info"`           // 错误信息
-		Meta              sql.NullString `db:"meta"`               // 资源元信息
-		InferenceTemplate sql.NullString `db:"inference_template"` // 推理模板
-		Readme            sql.NullString `db:"readme"`             // 资源README
-		StartTime         sql.NullTime   `db:"start_time"`         // 任务开始时间
-		EndTime           sql.NullTime   `db:"end_time"`           // 任务结束时间
-		CreatedAt         time.Time      `db:"created_at"`         // 创建时间
-		UpdatedAt         time.Time      `db:"updated_at"`         // 更新时间
+		Id           int64          `db:"id"`            // 自增ID
+		ResourceId   string         `db:"resource_id"`   // 资源ID
+		ResourceType string         `db:"resource_type"` // 资源类型（如模型、数据集等）
+		Source       string         `db:"source"`        // 来源
+		Size         int64          `db:"size"`          // 资源体积(字节)
+		CreatorId    string         `db:"creator_id"`    // 创建者ID
+		ExecutorId   string         `db:"executor_id"`   // 执行者ID
+		Status       int64          `db:"status"`        // 状态：0等待下载、1下载中、2下载完成、3下载失败
+		ErrInfo      string         `db:"err_info"`      // 错误信息
+		SourceMeta   sql.NullString `db:"source_meta"`   // 平台上的元信息
+		CustomMeta   sql.NullString `db:"custom_meta"`   // 自定义的元信息
+		Readme       sql.NullString `db:"readme"`        // 资源README
+		StartTime    sql.NullTime   `db:"start_time"`    // 任务开始时间
+		EndTime      sql.NullTime   `db:"end_time"`      // 任务结束时间
+		CreatedAt    time.Time      `db:"created_at"`    // 创建时间
+		UpdatedAt    time.Time      `db:"updated_at"`    // 更新时间
 	}
 )
 
@@ -84,13 +84,13 @@ func (m *defaultResourceSyncTaskModel) FindOne(ctx context.Context, id int64) (*
 
 func (m *defaultResourceSyncTaskModel) Insert(ctx context.Context, data *ResourceSyncTask) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, resourceSyncTaskRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.Source, data.Size, data.CreatorId, data.ExecutorId, data.Status, data.ErrInfo, data.Meta, data.InferenceTemplate, data.Readme, data.StartTime, data.EndTime)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.Source, data.Size, data.CreatorId, data.ExecutorId, data.Status, data.ErrInfo, data.SourceMeta, data.CustomMeta, data.Readme, data.StartTime, data.EndTime)
 	return ret, err
 }
 
 func (m *defaultResourceSyncTaskModel) Update(ctx context.Context, data *ResourceSyncTask) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, resourceSyncTaskRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.Source, data.Size, data.CreatorId, data.ExecutorId, data.Status, data.ErrInfo, data.Meta, data.InferenceTemplate, data.Readme, data.StartTime, data.EndTime, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.ResourceId, data.ResourceType, data.Source, data.Size, data.CreatorId, data.ExecutorId, data.Status, data.ErrInfo, data.SourceMeta, data.CustomMeta, data.Readme, data.StartTime, data.EndTime, data.Id)
 	return err
 }
 

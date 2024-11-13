@@ -55,6 +55,7 @@ const Welcome: React.FC = () => {
         model_size: currentModel?.size,
         model_is_public: currentModel?.is_public,
         model_template: currentModel?.template,
+        model_meta: currentModel?.meta,
 
         dataset_id: currentDataSet?.id,
         dataset_name: currentDataSet?.name,

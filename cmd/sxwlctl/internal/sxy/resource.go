@@ -58,6 +58,7 @@ type LoadResourceReq struct {
 	Source       string `json:"source"`
 	ResourceID   string `json:"resource_id"`
 	ResourceType string `json:"resource_type"`
+	Meta         string `json:"meta"`
 }
 
 // LoadResource 调用resource/load接口

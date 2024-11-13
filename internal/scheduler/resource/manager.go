@@ -384,7 +384,7 @@ func (m *Manager) hfLoad(task *model.ResourceSyncTask) error {
 	}
 
 	// 将响应内容设置为任务的meta信息
-	task.Meta = orm.NullString(string(body))
+	task.SourceMeta = orm.NullString(string(body))
 
 	// 读取README
 	readmeUrl := fmt.Sprintf("https://huggingface.co/%s/raw/main/README.md", task.ResourceId)
@@ -483,7 +483,7 @@ func (m *Manager) msLoad(task *model.ResourceSyncTask) error {
 	}
 
 	// 将Data字段设置为任务的meta信息
-	task.Meta = orm.NullString(string(apiResp.Data))
+	task.SourceMeta = orm.NullString(string(apiResp.Data))
 
 	// 读取README
 	readmeUrl := fmt.Sprintf("https://modelscope.cn/api/v1/models/%s/resolve/master/README.md", task.ResourceId)
@@ -558,17 +558,6 @@ func (m *Manager) StartLoadTask() {
 				continue
 			}
 
-			meta := model.OssResourceModelMeta{
-				Template:     "default",
-				Category:     consts.ModelCategoryChat, // oss上没有这个信息，默认就当做chat模型
-				CanFinetune:  true,
-				CanInference: true,
-			}
-			metaJson, err := json.Marshal(meta)
-			if err != nil {
-				m.Errorf("marshal meta failed: %v", err)
-				continue
-			}
 			if _, err := ossResourceModel.Insert(context.Background(), &model.SysOssResource{
 				ResourceId:   resourceID,
 				ResourceType: task.ResourceType,
@@ -576,7 +565,7 @@ func (m *Manager) StartLoadTask() {
 				ResourceSize: task.Size,
 				Public:       model.CachePublic,
 				UserId:       "public",
-				Meta:         string(metaJson),
+				Meta:         task.CustomMeta.String,
 				Readme:       task.Readme,
 			}); err != nil {
 				m.Errorf("record resource failed: %v", err)

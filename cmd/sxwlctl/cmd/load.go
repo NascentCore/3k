@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	source string
-	resID  string
-	resType string
+	source    string
+	resID     string
+	resType   string
 	statusCmd bool
+	meta      string
 )
 
 // loadCmd represents the load command
@@ -41,7 +42,7 @@ var loadCmd = &cobra.Command{
 			fmt.Println("----------------------------------------")
 			for _, task := range resp.Data {
 				fmt.Printf("资源ID:   \t%s\n", task.ResourceID)
-				fmt.Printf("资源类型: \t%s\n", task.ResourceType) 
+				fmt.Printf("资源类型: \t%s\n", task.ResourceType)
 				fmt.Printf("来源:     \t%s\n", task.Source)
 				fmt.Printf("状态:     \t%s\n", task.Status)
 				fmt.Println("----------------------------------------")
@@ -55,7 +56,7 @@ var loadCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		if resID == "" {
-			fmt.Println("Please specify resource id with -i") 
+			fmt.Println("Please specify resource id with -i")
 			os.Exit(1)
 		}
 
@@ -72,13 +73,14 @@ var loadCmd = &cobra.Command{
 			Source:       source,
 			ResourceID:   resID,
 			ResourceType: resType,
+			Meta:         meta,
 		})
 		if err != nil {
 			fmt.Printf("load resource failed: resource_id=%s, type=%s, source=%s, error=%v\n", resID, resType, source, err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("Resource load task created successfully. Source: %s, ID: %s, Type: %s\n", 
+		fmt.Printf("Resource load task created successfully. Source: %s, ID: %s, Type: %s\n",
 			source, resID, resType)
 	},
 }
@@ -89,5 +91,6 @@ func init() {
 	loadCmd.Flags().StringVarP(&source, "source", "s", "", "资源来源[huggingface|modelscope]")
 	loadCmd.Flags().StringVarP(&resType, "type", "t", "model", "资源类型[model|dataset]")
 	loadCmd.Flags().StringVarP(&resID, "id", "i", "", "资源ID 例如: meta-llama/Meta-Llama-3.1-8B")
+	loadCmd.Flags().StringVar(&meta, "meta", "{}", "元信息")
 	loadCmd.Flags().BoolVar(&statusCmd, "status", false, "查询资源加载状态")
 }

@@ -55,8 +55,11 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 		meta := model.OssResourceModelMeta{}
 		err = json.Unmarshal([]byte(ossModel.Meta), &meta)
 		if err != nil {
-			l.Errorf("OssResourceModel find err: %v", err)
-			return nil, ErrDBFind
+			l.Errorf("OssResourceModel unmarshal meta err: %v", err)
+			meta.Template = "default"
+			meta.Category = consts.ModelCategoryChat
+			meta.CanFinetune = true
+			meta.CanInference = true
 		}
 
 		var tag []string
@@ -82,6 +85,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			Size:              ossModel.ResourceSize,
 			Tag:               tag,
 			Template:          meta.Template,
+			Meta:              ossModel.Meta,
 			Category:          meta.Category,
 			FinetuneGPUCount:  1,
 			InferenceGPUCount: 1,
