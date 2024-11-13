@@ -47,6 +47,10 @@ const JobDetail: React.FC = () => {
       id: 'pages.jupyterLab.JupyterLabTab.table.column.status.assigned',
       defaultMessage: '已下发',
     }),
+    datapreparing: intl.formatMessage({
+      id: 'pages.jupyterLab.JupyterLabTab.table.column.status.datapreparing',
+      defaultMessage: '数据准备中',
+    }),
     pending: intl.formatMessage({
       id: 'pages.jupyterLab.JupyterLabTab.table.column.status.pending',
       defaultMessage: '启动中',
