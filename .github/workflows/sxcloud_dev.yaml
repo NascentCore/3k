@@ -32,7 +32,7 @@ jobs:
         run: |
           cd ui
           sed -i 's/30005/30004/' src/app.tsx
-          sed -i 's/30005/30004/' src/pages/UserJob/DetailModel/index.tsx
+          sed -i 's/30005/30004/' src/pages/JobDetail/index.tsx
           docker build -t $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest .
           docker push $DOCKER_REGISTRY/$NAMESPACE/webui-dev:latest
 

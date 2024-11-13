@@ -22,4 +22,5 @@ export default {
   'pages.userJob.table.column.action': 'Action',
   'pages.userJob.table.column.action.detail': 'Logs',
   'pages.userJob.table.column.action.tensorboard': 'TensorBoard',
+  'pages.userJob.table.column.action.log': 'Job Log',
 };

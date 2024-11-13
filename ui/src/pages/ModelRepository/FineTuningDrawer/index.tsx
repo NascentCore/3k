@@ -82,7 +82,7 @@ const Content = ({ record, onCancel }) => {
           }),
         );
         onCancel();
-        history.push('/UserJob');
+        history.push('/jobdetail');
       });
     });
   };
