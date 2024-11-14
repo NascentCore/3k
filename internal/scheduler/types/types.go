@@ -275,6 +275,7 @@ type FinetuneReq struct {
 	UserID string `header:"Sx-User-ID"`
 	Model
 	Dataset
+	CpodID           string                 `json:"cpod_id,optional"`
 	GpuModel         string                 `json:"gpu_model,optional"`
 	GpuCount         int64                  `json:"gpu_count,optional"`
 	TrainedModelName string                 `json:"trainedModelName,optional"`
@@ -332,6 +333,7 @@ type InferenceDeleteResp struct {
 type InferenceDeployReq struct {
 	Model
 	AdapterOptional
+	CpodID       string `json:"cpod_id,optional"`
 	GpuModel     string `json:"gpu_model,optional"`
 	GpuCount     int64  `json:"gpu_count,optional"`
 	MinInstances int64  `json:"min_instances,optional"`
@@ -422,6 +424,7 @@ type JobCallBackReq struct {
 }
 
 type JobCreateReq struct {
+	CpodID           string `json:"cpod_id,optional"`
 	GpuNumber        int64  `json:"gpuNumber"`
 	GpuType          string `json:"gpuType"`
 	CkptPath         string `json:"ckptPath"`
@@ -514,6 +517,7 @@ type Jupyterlab struct {
 	InstanceName   string          `json:"instance_name"`
 	CPUCount       int64           `json:"cpu_count"`
 	Memory         int64           `json:"memory"`
+	CpodID         string          `json:"cpod_id,optional"`
 	GPUCount       int64           `json:"gpu_count,optional"`
 	GPUProduct     string          `json:"gpu_product,optional"`
 	DataVolumeSize int64           `json:"data_volume_size"`

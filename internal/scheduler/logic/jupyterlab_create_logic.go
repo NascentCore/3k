@@ -110,6 +110,10 @@ func (l *JupyterlabCreateLogic) JupyterlabCreate(req *types.JupyterlabCreateReq)
 		Resource:       string(jsonResource),
 		Replicas:       model.ReplicasRunning,
 	}
+	if req.CpodID != "" {
+		jupyterInstance.CpodId = req.CpodID
+		jupyterInstance.Status = model.StatusAssigned
+	}
 	_, err = JupyterlabModel.Insert(l.ctx, &jupyterInstance)
 	if err != nil {
 		l.Errorf("insert userId: %s err: %s", req.UserID, err)

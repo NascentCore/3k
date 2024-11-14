@@ -3,11 +3,12 @@ import {
   useGpuTypeOptions,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
+  useApiClusterCpods,
 } from '@/services';
 import { PageContainer } from '@ant-design/pro-components';
 import { history } from '@umijs/max';
 import { Form, Input, Select, Tooltip, message } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useIntl } from '@umijs/max';
 import { QuestionCircleFilled } from '@ant-design/icons';
 import AsyncButton from '@/components/AsyncButton';
@@ -22,15 +23,56 @@ const Welcome: React.FC = () => {
     gpuNumber: 1,
     stopTime: 0,
     nodeCount: 1,
+    cluster: undefined,
   });
   const gpuTypeOptions = useGpuTypeOptions();
   const resourceModelsOptions = useResourceModelsOptions();
   const resourceDatasetsOption = useResourceDatasetsOptions();
+  const { data: clusterResponse } = useApiClusterCpods();
+  const clusterList = clusterResponse ? Object.entries(clusterResponse).map(([id, nodes]) => ({
+    id,
+    name: id,
+    nodes,
+  })) : [];
+  const [filteredGpuTypeOptions, setFilteredGpuTypeOptions] = useState(gpuTypeOptions);
 
   const gpuProdValue = Form.useWatch('gpuType', form);
 
   // 添加一个新的 watch 来监听 jobType
   const jobType = Form.useWatch('jobType', form);
+
+  // 监听cluster的变化
+  const selectedCluster = Form.useWatch('cluster', form);
+
+  // 添加useEffect来处理GPU类型过滤
+  useEffect(() => {
+    if (!selectedCluster || !clusterResponse) {
+      setFilteredGpuTypeOptions(gpuTypeOptions);
+      return;
+    }
+
+    const clusterNodes = clusterResponse[selectedCluster] || [];
+    if (clusterNodes.length > 0) {
+      // 收集该集群所有节点的 GPU 类型
+      const clusterGpuTypes = new Set();
+      clusterNodes.forEach((node: any) => {
+        if (node.gpu_prod) {
+          clusterGpuTypes.add(node.gpu_prod);
+        }
+      });
+      
+      const filtered = gpuTypeOptions.filter(option => 
+        clusterGpuTypes.has(option.value)
+      );
+      setFilteredGpuTypeOptions(filtered);
+      
+      // 如果当前选择的GPU类型不在过滤后的列表中，清除选择
+      const currentGpuType = form.getFieldValue('gpuType');
+      if (currentGpuType && !filtered.find(opt => opt.value === currentGpuType)) {
+        form.setFieldValue('gpuType', undefined);
+      }
+    }
+  }, [selectedCluster, clusterResponse, gpuTypeOptions]);
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -268,6 +310,30 @@ const Welcome: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            name="cluster"
+            label={
+              <>
+                {intl.formatMessage({
+                  id: 'pages.UserJobCommit.form.cluster',
+                  defaultMessage: '集群',
+                })}
+              </>
+            }
+          >
+            <Select
+              allowClear
+              options={Array.isArray(clusterList) ? clusterList.map((cluster) => ({
+                label: cluster.name,
+                value: cluster.id,
+              })) : []}
+              placeholder={intl.formatMessage({
+                id: 'pages.UserJobCommit.form.placeholder',
+                defaultMessage: '请输入',
+              })}
+            />
+          </Form.Item>
+
+          <Form.Item
             label={
               <>
                 <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
@@ -346,7 +412,7 @@ const Welcome: React.FC = () => {
                     >
                       <Select
                         allowClear
-                        options={gpuTypeOptions}
+                        options={filteredGpuTypeOptions}
                         placeholder={intl.formatMessage({
                           id: 'pages.UserJobCommit.form.placeholder',
                           defaultMessage: '请输入',

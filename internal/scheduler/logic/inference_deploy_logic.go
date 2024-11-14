@@ -106,6 +106,11 @@ func (l *InferenceDeployLogic) InferenceDeploy(req *types.InferenceDeployReq) (r
 		Metadata:      orm.NullString(string(bytes)),
 	}
 
+	if req.CpodID != "" {
+		infer.CpodId = req.CpodID
+		infer.Status = model.StatusAssigned
+	}
+
 	_, err = InferenceModel.Insert(l.ctx, infer)
 	if err != nil {
 		l.Errorf("insert userId: %s err: %s", req.UserID, err)

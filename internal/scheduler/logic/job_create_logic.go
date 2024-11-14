@@ -87,6 +87,9 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 	if req.ModelName != "" {
 		userJob.DatasetName = orm.NullString(req.ModelName)
 	}
+	if req.CpodID != "" {
+		userJob.CpodId = orm.NullString(req.CpodID)
+	}
 	userJob.CreateTime = orm.NullTime(time.Now())
 	userJob.UpdateTime = orm.NullTime(time.Now())
 	userJob.BillingStatus = model.BillingStatusContinue

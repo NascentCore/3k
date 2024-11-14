@@ -56,4 +56,5 @@ export default {
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action': 'Action',
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.copy': 'Copy Image Address',
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.delete': 'Delete',
+  'pages.jupyterLab.AddJupyterLab.form.cluster_pod': 'Cluster',
 };
