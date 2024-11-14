@@ -99,7 +99,7 @@ const JobDetail: React.FC = () => {
       gpuCount: item.gpuNumber,
       startTime: new Date(item.createTime).getTime(),
       endTime: item.workStatus === 8 && item.updateTime ? new Date(item.updateTime).getTime() : 0,
-      sortTime: new Date(item.create_time).getTime(),
+      sortTime: new Date(item.createTime).getTime(),
       status: item.status,
       sourceType: 'userJob'
     })) || [];

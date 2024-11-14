@@ -40,10 +40,12 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 	var validPublicModels, otherPublicModels []types.Resource
 
 	models, err := OssResourceModel.Find(l.ctx, OssResourceModel.AllFieldsBuilder().Where(
-		squirrel.Eq{"resource_type": consts.Model},
-		squirrel.Or{
-			squirrel.Eq{"public": model.CachePublic},
-			squirrel.Eq{"user_id": req.UserID},
+		squirrel.And{
+			squirrel.Eq{"resource_type": consts.Model},
+			squirrel.Or{
+				squirrel.Eq{"public": model.CachePublic},
+				squirrel.Eq{"user_id": req.UserID},
+			},
 		},
 	))
 	if err != nil {
@@ -60,6 +62,7 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			meta.Category = consts.ModelCategoryChat
 			meta.CanFinetune = true
 			meta.CanInference = true
+			err = nil
 		}
 
 		var tag []string
