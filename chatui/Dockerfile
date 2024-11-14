@@ -1,3 +1,4 @@
+# This builds the Docker image for the ChatUI
 FROM python:3.11-slim
 WORKDIR /app
 COPY api/requirements.txt /app/api/requirements.txt
