@@ -56,4 +56,5 @@ export default {
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action': '操作',
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.copy': '复制镜像地址',
   'pages.jupyterLab.ImageManagementTab.ImageDetail.table.action.delete': '删除',
+  'pages.jupyterLab.AddJupyterLab.form.cluster_pod': '集群',
 };

@@ -66,6 +66,7 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 		return nil, err
 	}
 
+	// finetune and cpodjob
 	jobs, err := UserJobModel.Find(l.ctx, UserJobModel.AllFieldsBuilder().Where(squirrel.Eq{
 		"obtain_status": model.StatusObtainNeedSend,
 		"deleted":       0,
@@ -79,7 +80,6 @@ func (l *CpodJobLogic) CpodJob(req *types.CpodJobReq) (resp *types.CpodJobResp, 
 	assignedJobs := make([]*model.SysUserJob, 0)       // 本次被分配的任务
 	assignedNodes := make(map[*model.SysCpodNode]bool) // 本次被分配任务的node
 
-	// finetune and cpodjob
 	for _, job := range jobs {
 		if job.CpodId.String == "" {
 			for _, node := range nodes {

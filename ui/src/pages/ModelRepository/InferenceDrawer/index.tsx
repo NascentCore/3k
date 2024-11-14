@@ -2,9 +2,9 @@
  * @name 推理
  * @description 推理
  */
-import { apiInference, useGpuTypeOptions, useResourceAdaptersOptions } from '@/services';
+import { apiInference, useGpuTypeOptions, useResourceAdaptersOptions, useApiClusterCpods } from '@/services';
 import { Button, Drawer, Form, Input, Select, message, Row, Col } from 'antd';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { history } from '@umijs/max';
 import { useIntl } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
@@ -22,6 +22,7 @@ interface ContentProps {
     inference_gpu_count?: number;
   };
   onCancel: () => void;
+  clusterPodsOptions: any;
 }
 
 interface IndexProps {
@@ -37,7 +38,7 @@ interface IndexProps {
   };
 }
 
-const Content = ({ record, onCancel }: ContentProps) => {
+const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
   const intl = useIntl();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
@@ -49,6 +50,41 @@ const Content = ({ record, onCancel }: ContentProps) => {
   const gpuTypeOptions = useGpuTypeOptions();
   const adaptersOptions = useResourceAdaptersOptions();
   const isShowAdapter = record?.category === 'chat';
+
+  const selectedClusterPod = Form.useWatch('cluster_pod', form);
+
+  const formattedClusterOptions = useMemo(() => {
+    if (!clusterPodsOptions?.data) {
+      return [];
+    }
+    return Object.keys(clusterPodsOptions.data).map(key => ({
+      label: key,
+      value: key
+    }));
+  }, [clusterPodsOptions?.data]);
+
+  const filteredGpuOptions = (() => {
+    if (!selectedClusterPod) {
+      return gpuTypeOptions;
+    }
+
+    if (!clusterPodsOptions?.data?.[selectedClusterPod]) {
+      return gpuTypeOptions;
+    }
+
+    const clusterNodes = clusterPodsOptions.data[selectedClusterPod];
+    const availableGpuTypes = new Set();
+    
+    clusterNodes.forEach((node: any) => {
+      if (node.gpu_prod) {
+        availableGpuTypes.add(node.gpu_prod);
+      }
+    });
+
+    return gpuTypeOptions.filter(option => 
+      availableGpuTypes.has(option.value)
+    );
+  })();
 
   const onFinish = () => {
     return form.validateFields().then(() => {
@@ -66,7 +102,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
       }
 
       // 检查实例数是否超过GPU资源限制
-      const selectedGpuType = gpuTypeOptions?.find(x => x.value === values.gpu_model);
+      const selectedGpuType = filteredGpuOptions?.find(x => x.value === values.gpu_model);
       const totalGpuCount = selectedGpuType?.gpuAllocatable || 0;
       const gpuPerInstance = record?.inference_gpu_count || 1;
       const maxPossibleInstances = Math.floor(totalGpuCount / gpuPerInstance);
@@ -152,6 +188,24 @@ const Content = ({ record, onCancel }: ContentProps) => {
         </Form.Item>
 
         <Form.Item
+          name="cluster_pod"
+          label={intl.formatMessage({
+            id: 'pages.modelRepository.fineTuningDrawer.form.clusterPod',
+            defaultMessage: '集群',
+          })}
+        >
+          <Select
+            allowClear
+            loading={!clusterPodsOptions}
+            options={formattedClusterOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.modelRepository.fineTuningDrawer.form.clusterPod.placeholder',
+              defaultMessage: '请选择集群',
+            })}
+          />
+        </Form.Item>
+
+        <Form.Item
           name="gpu_model"
           label={intl.formatMessage({
             id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
@@ -161,7 +215,7 @@ const Content = ({ record, onCancel }: ContentProps) => {
         >
           <Select
             allowClear
-            options={gpuTypeOptions}
+            options={filteredGpuOptions}
             placeholder={intl.formatMessage({
               id: 'pages.modelRepository.fineTuningDrawer.form.gpuProd',
               defaultMessage: '请选择',
@@ -307,6 +361,8 @@ const Content = ({ record, onCancel }: ContentProps) => {
 const Index = ({ record }: IndexProps) => {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
+  const clusterPodsOptions = useApiClusterCpods();
+
   return (
     <>
       <Button
@@ -330,7 +386,7 @@ const Index = ({ record }: IndexProps) => {
         onClose={() => setOpen(false)}
         open={open}
       >
-        {open && <Content record={record} onCancel={() => setOpen(false)} />}
+        {open && <Content record={record} onCancel={() => setOpen(false)} clusterPodsOptions={clusterPodsOptions} />}
       </Drawer>
     </>
   );
