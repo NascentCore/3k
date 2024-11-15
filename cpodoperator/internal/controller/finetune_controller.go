@@ -137,12 +137,14 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				finetune.Annotations[v1beta1.CPodAutoMergeAnno] = ""
 			}
 
+			annotations := finetune.Annotations
+			annotations[v1beta1.CPodFinetuneIDAnno] = finetune.Name
 			finetunCPodJob := cpodv1beta1.CPodJob{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace:   finetune.Namespace,
 					Name:        r.CPodJobName(finetune),
 					Labels:      map[string]string{},
-					Annotations: finetune.Annotations,
+					Annotations: annotations,
 					OwnerReferences: []metav1.OwnerReference{
 						r.generateOwnerRefInference(finetune),
 					},
@@ -219,7 +221,6 @@ func (r *FineTuneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			}
 			return ctrl.Result{Requeue: true}, nil
 		}
-		logrus.Info("DEBUG3 RUNNING")
 		return ctrl.Result{RequeueAfter: 20 * time.Second}, nil
 	}
 }

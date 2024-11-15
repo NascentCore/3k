@@ -1000,6 +1000,7 @@ func (c *CPodJobReconciler) generateModelstorage(preTrainModelStoreage cpodv1.Mo
 			Labels:    cpodjob.Labels,
 			Annotations: map[string]string{
 				v1beta1.CPodModelstorageBaseNameAnno: preTrainModelStoreage.Spec.ModelName,
+				v1beta1.CPodFinetuneIDAnno:           cpodjob.Annotations[v1beta1.CPodFinetuneIDAnno],
 			},
 		},
 		Spec: cpodv1.ModelStorageSpec{
@@ -1062,6 +1063,7 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 	if resourceType == "adapter" {
 		meta = map[string]string{}
 		meta["base_model"] = preTrainModelStoreage.Spec.ModelName
+		meta["finetune_id"] = cpodjob.Annotations[v1beta1.CPodFinetuneIDAnno]
 	}
 
 	metaBytes, err := json.Marshal(meta)
@@ -1073,7 +1075,7 @@ func (c *CPodJobReconciler) createGeneratedModelstorage(ctx context.Context, cpo
 		ResourceId:   modelstorageName,
 		ResourceType: resourceType,
 		ResourceName: fmt.Sprintf("%v/%v", cpodjob.Labels[v1beta1.CPodUserIDLabel], readableModelstorageName),
-		ResourceSize: int(cpodjob.Spec.ModelSaveVolumeSize * 1024 * 1024 * 1024),
+		ResourceSize: int(cpodjob.Spec.ModelSaveVolumeSize) * 1024 * 1024,
 		IsPublic:     false,
 		UserID:       cpodjob.Labels[v1beta1.CPodUserIDLabel],
 		Meta:         string(metaBytes),

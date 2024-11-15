@@ -43,12 +43,11 @@ func (m *Model) ConstructCommandArgs(finetuneName string, finetuningType v1beta1
 		trainStrings = append(trainStrings, accelerateConfig...)
 	}
 
-	outputDir := "/data/ckpt"
+	outputDir := "/data/save"
 	if finetuningType == "" {
 		finetuningType = v1beta1.FinetuneTypeLora
 	} else if finetuningType == v1beta1.FintuneTypeFull {
 		finetuningType = "full"
-		outputDir = "/data/save"
 	}
 
 	baseParam := []string{
