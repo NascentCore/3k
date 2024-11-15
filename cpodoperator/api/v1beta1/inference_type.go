@@ -48,6 +48,8 @@ type InferenceSpec struct {
 	GPUCount int `json:"gpuCount,omitempty"`
 
 	AutoscalerOptions *AutoscalerOptions `json:"autoscalerOptions,omitempty"`
+
+	Params *string `json:"params,omitempty"`
 }
 
 type AutoscalerOptions struct {

@@ -707,6 +707,8 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 									{
 										Name:  "llm",
 										Image: i.Options.RayImage,
+										Env:   []corev1.EnvVar{},
+
 										Resources: corev1.ResourceRequirements{
 											Requests: corev1.ResourceList{
 												corev1.ResourceCPU:    resource.MustParse("4"),
@@ -756,6 +758,20 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 				},
 			},
 		},
+	}
+
+	if inference.Spec.Params != nil {
+		rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env = append(rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "EXTRA_PARAMS",
+			Value: *inference.Spec.Params,
+		})
+	}
+
+	if inference.Spec.GPUCount > 1 {
+		rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env = append(rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "TENSOR_PARALLELISM",
+			Value: strconv.Itoa(inference.Spec.GPUCount),
+		})
 	}
 
 	if err := i.Client.Create(ctx, rayService); err != nil {

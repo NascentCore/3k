@@ -47,6 +47,8 @@ spec:
                 type: string
               modelIsPublic:
                 type: boolean
+              params:
+                type: string
               predictor:
                 properties:
                   activeDeadlineSeconds:
