@@ -92,6 +92,11 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 		userJob.GpuNumber = orm.NullInt64(req.GpuCount)
 	}
 
+	// cluster
+	if req.CpodID != "" {
+		userJob.CpodId = orm.NullString(req.CpodID)
+	}
+
 	// check gpu quota
 	ok, left, err := job.CheckQuota(l.ctx, l.svcCtx, req.UserID, userJob.GpuType.String, userJob.GpuNumber.Int64)
 	if err != nil {

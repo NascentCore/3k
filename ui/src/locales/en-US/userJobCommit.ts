@@ -34,4 +34,5 @@ export default {
   'pages.UserJobCommit.form.path.error':'Mount path must start with "/"',
   'pages.UserJobCommit.form.runCommand': 'Run Command',
   'pages.UserJobCommit.form.nodeCount': 'Node Count',
+  'pages.UserJobCommit.form.cluster': 'Cluster',
 };

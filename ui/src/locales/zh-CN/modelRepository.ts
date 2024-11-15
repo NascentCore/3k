@@ -26,6 +26,8 @@ export default {
     '微调后保存完整模型（默认保存Lora）',
   'pages.modelRepository.fineTuningDrawer.form.training_file.placeholder': '数据集',
   'pages.modelRepository.fineTuningDrawer.form.input.placeholder': '请输入',
+  'pages.modelRepository.fineTuningDrawer.form.clusterPod': '集群',
+  'pages.modelRepository.fineTuningDrawer.form.clusterPod.placeholder': '请选择集群',
 
   'pages.modelRepository.InferenceDrawer.title': '推理',
   'pages.modelRepository.InferenceDrawer.submit': '部署',

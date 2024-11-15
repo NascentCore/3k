@@ -5,9 +5,10 @@ import {
   useResourceAdaptersOptions,
   useResourceDatasetsOptions,
   useResourceModelsOptions,
+  useApiClusterCpods,
 } from '@/services';
 import { Button, Form, Input, Select, message } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useIntl, useModel } from '@umijs/max';
 import AsyncButton from '@/components/AsyncButton';
 
@@ -27,6 +28,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
   const modelsOptions = useResourceModelsOptions();
   const datasetsOptions = useResourceDatasetsOptions();
   const adaptersOptions = useResourceAdaptersOptions();
+  const clusterPodsOptions = useApiClusterCpods();
 
   const editDisabled = addJupterLabType === 'edit';
 
@@ -56,6 +58,41 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
   }, [addJupterLabRecord]);
   const gpu_product_watch = Form.useWatch('gpu_product', form);
 
+  const formattedClusterOptions = useMemo(() => {
+    if (!clusterPodsOptions?.data) {
+      return [];
+    }
+    return Object.keys(clusterPodsOptions.data).map(key => ({
+      label: key,
+      value: key
+    }));
+  }, [clusterPodsOptions?.data]);
+
+  const selectedClusterPod = Form.useWatch('cluster_pod', form);
+
+  const filteredGpuOptions = (() => {
+    if (!selectedClusterPod) {
+      return gpuTypeOptions;
+    }
+
+    if (!clusterPodsOptions?.data?.[selectedClusterPod]) {
+      return gpuTypeOptions;
+    }
+
+    const clusterNodes = clusterPodsOptions.data[selectedClusterPod];
+    const availableGpuTypes = new Set();
+    
+    clusterNodes.forEach((node: any) => {
+      if (node.gpu_prod) {
+        availableGpuTypes.add(node.gpu_prod);
+      }
+    });
+
+    return gpuTypeOptions.filter(option => 
+      availableGpuTypes.has(option.value)
+    );
+  })();
+
   const onFinish = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
@@ -70,7 +107,8 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             model_is_public: x.is_public,
             model_template: x.template,
             model_path: '/models',
-            model_category: x.category
+            model_category: x.category,
+            model_meta: x.meta,
           }));
         const datasets = datasetsOptions
           .filter((x) => values.resource.datasets?.includes(x.value))
@@ -210,6 +248,39 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
           />
         </Form.Item>
         <Form.Item
+          name="cluster_pod"
+          label={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.cluster_pod',
+            defaultMessage: '集群',
+          })}
+        >
+          <Select
+            allowClear
+            loading={!clusterPodsOptions}
+            options={formattedClusterOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+          />
+        </Form.Item>
+        <Form.Item
+          name="gpu_product"
+          label={intl.formatMessage({
+            id: 'pages.jupyterLab.AddJupyterLab.form.gpu_product',
+            defaultMessage: 'GPU类型',
+          })}
+        >
+          <Select
+            allowClear
+            options={filteredGpuOptions}
+            placeholder={intl.formatMessage({
+              id: 'pages.global.form.placeholder',
+              defaultMessage: '请输入',
+            })}
+          />
+        </Form.Item>
+        <Form.Item
           name="gpu_count"
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.gpu_count',
@@ -225,22 +296,6 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
             })}
             min={1}
             allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name="gpu_product"
-          label={intl.formatMessage({
-            id: 'pages.jupyterLab.AddJupyterLab.form.gpu_product',
-            defaultMessage: 'GPU类型',
-          })}
-        >
-          <Select
-            allowClear
-            options={gpuTypeOptions}
-            placeholder={intl.formatMessage({
-              id: 'pages.global.form.placeholder',
-              defaultMessage: '请输入',
-            })}
           />
         </Form.Item>
         <Form.Item

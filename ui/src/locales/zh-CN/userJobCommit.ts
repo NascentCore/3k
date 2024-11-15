@@ -33,4 +33,5 @@ export default {
   'pages.UserJobCommit.form.path.error':'路径必须以"/"开头',
   'pages.UserJobCommit.form.runCommand': '启动命令',
   'pages.UserJobCommit.form.nodeCount': '节点数量',
+  'pages.UserJobCommit.form.cluster': '集群',
 };
