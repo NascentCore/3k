@@ -173,6 +173,10 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
     parsed_args = build_app._parsed_args
     engine_args = AsyncEngineArgs.from_cli_args(parsed_args)
     engine_args.worker_use_ray = True
+    engine_args.trust_remote_code = True
+
+    if hasattr(engine_args,'model_path'):
+        engine_args.model_path = engine_args.model
 
     return VLLMDeployment.bind(
         engine_args,

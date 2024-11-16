@@ -59,3 +59,5 @@ coverage.xml
 # 调试二进制文件
 __debug_bin*
 .secrets
+
+cmd/main.go

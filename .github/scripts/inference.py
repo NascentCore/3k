@@ -18,6 +18,9 @@ class APIConfig:
     @classmethod
     def create_default(cls) -> 'APIConfig':
         token = os.environ["SXWL_TOKEN"]
+        if token and isinstance(token, bytes):
+            # 如果是 bytes，解码为字符串
+            token = token.decode('utf-8')
         headers = {
             'Accept': 'application/json, text/plain, */*',
             'Authorization': f'Bearer {token}',
