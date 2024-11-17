@@ -842,6 +842,7 @@ type (
 	CpodInfo {
 		CpodID         string `json:"cpod_id"`
 		CpodVersion    string `json:"cpod_version"`
+		CpodName       string `json:"cpod_name"`
 		NodeName       string `json:"node_name"`
 		GPUVendor      string `json:"gpu_vendor"`
 		GPUProd        string `json:"gpu_prod"`
@@ -853,6 +854,11 @@ type (
 	}
 	ClusterCpodsResp {
 		Data []CpodInfo `json:"data"`
+	}
+	ClusterCpodNamePutReq {
+		BaseReq
+		CpodID   string `json:"cpod_id"`
+		CpodName string `json:"cpod_name"`
 	}
 )
 
@@ -945,6 +951,10 @@ service scheduler-api {
 	@doc "集群列表"
 	@handler ClusterCpods
 	get /cluster/cpods (BaseReq) returns (ClusterCpodsResp)
+
+	@doc "修改集群名字"
+	@handler ClusterCpodNamePut
+	put /cluster/cpod/name (ClusterCpodNamePutReq) returns (BaseResp)
 
 	@doc "钉钉回调"
 	@handler DingtalkCallback

@@ -1,6 +1,7 @@
 import { concatArray, removeUserIdPrefixFromPath } from '@/utils';
 import { request, useIntl } from '@umijs/max';
 import useSWR from 'swr';
+import useSWRMutation from 'swr/mutation';
 
 const swrConfig = {
   revalidateIfStale: false,
@@ -556,3 +557,21 @@ export async function apiDeleteAppList(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+// 修改集群名称
+export async function apiClusterCpodNamePut(options?: { [key: string]: any }) {
+  return request('/api/cluster/cpod/name', {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}
+
+export const useApiClusterCpodNamePut = () => {
+  return useSWRMutation(
+    '/api/cluster/cpod/name',
+    (_, { arg }: { arg: { cpod_id: string; cpod_name: string } }) =>
+      apiClusterCpodNamePut({
+        data: arg,
+      }),
+  );
+};
