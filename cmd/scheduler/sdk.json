@@ -1,0 +1,718 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SDK",
+    "description": "算想云对开发者提供的API",
+    "version": "v1"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/job/finetune": {
+      "post": {
+        "operationId": "Finetune",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/FinetuneResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FinetuneReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/inference": {
+      "post": {
+        "operationId": "InferenceDeploy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceDeployReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/training": {
+      "post": {
+        "operationId": "JobCreate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobCreateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobCreateReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Adapter": {
+      "type": "object",
+      "properties": {
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        }
+      },
+      "title": "Adapter",
+      "required": [
+        "adapter_id",
+        "adapter_name",
+        "adapter_size",
+        "adapter_is_public"
+      ]
+    },
+    "AdapterOptional": {
+      "type": "object",
+      "properties": {
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        }
+      },
+      "title": "AdapterOptional"
+    },
+    "BaseReq": {
+      "type": "object",
+      "title": "BaseReq"
+    },
+    "BaseResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResp",
+      "required": [
+        "message"
+      ]
+    },
+    "Dataset": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        }
+      },
+      "title": "Dataset",
+      "required": [
+        "dataset_id",
+        "dataset_name",
+        "dataset_size",
+        "dataset_is_public"
+      ]
+    },
+    "DatasetOptional": {
+      "type": "object",
+      "properties": {
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        }
+      },
+      "title": "DatasetOptional"
+    },
+    "FinetuneReq": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        },
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        },
+        "cpod_id": {
+          "type": "string"
+        },
+        "gpu_model": {
+          "type": "string"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "trainedModelName": {
+          "type": "string"
+        },
+        "hyperparameters": {
+          "$ref": "#/definitions/Hyperparameters"
+        },
+        "model_saved_type": {
+          "type": "string"
+        },
+        "finetune_type": {
+          "type": "string"
+        }
+      },
+      "title": "FinetuneReq",
+      "required": [
+        "hyperparameters",
+        "model_saved_type"
+      ]
+    },
+    "FinetuneResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "FinetuneResp",
+      "required": [
+        "job_id"
+      ]
+    },
+    "Hyperparameters": {
+      "type": "object",
+      "properties": {
+        "n_epochs": {
+          "type": "string"
+        },
+        "batch_size": {
+          "type": "string"
+        },
+        "learning_rate_multiplier": {
+          "type": "string"
+        }
+      },
+      "title": "Hyperparameters",
+      "required": [
+        "n_epochs",
+        "batch_size",
+        "learning_rate_multiplier"
+      ]
+    },
+    "InferenceDeployReq": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        },
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        },
+        "cpod_id": {
+          "type": "string"
+        },
+        "gpu_model": {
+          "type": "string"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_instances": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_instances": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "InferenceDeployReq"
+    },
+    "InferenceDeployResp": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceDeployResp",
+      "required": [
+        "service_name"
+      ]
+    },
+    "JobCallBackReq": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "jobId": {
+          "type": "string"
+        }
+      },
+      "title": "JobCallBackReq",
+      "required": [
+        "status",
+        "url",
+        "jobId"
+      ]
+    },
+    "JobCreateReq": {
+      "type": "object",
+      "properties": {
+        "cpod_id": {
+          "type": "string"
+        },
+        "gpuNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gpuType": {
+          "type": "string"
+        },
+        "ckptPath": {
+          "type": "string"
+        },
+        "ckptVol": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "modelPath": {
+          "type": "string"
+        },
+        "modelVol": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "imagePath": {
+          "type": "string"
+        },
+        "jobType": {
+          "type": "string"
+        },
+        "stopType": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "stopTime": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        },
+        "dataset_id": {
+          "type": "string",
+          "description": " 数据集ID"
+        },
+        "dataset_name": {
+          "type": "string",
+          "description": " 数据集名字, owner/dataset"
+        },
+        "dataset_path": {
+          "type": "string",
+          "description": " 数据集的绑定路径"
+        },
+        "dataset_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 数据集体积，单位字节"
+        },
+        "dataset_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共数据集"
+        },
+        "trainedModelName": {
+          "type": "string"
+        },
+        "runCommand": {
+          "type": "string"
+        },
+        "callbackUrl": {
+          "type": "string"
+        }
+      },
+      "title": "JobCreateReq",
+      "required": [
+        "gpuNumber",
+        "gpuType",
+        "ckptPath",
+        "ckptVol",
+        "modelPath",
+        "modelVol",
+        "imagePath",
+        "jobType"
+      ]
+    },
+    "JobCreateResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "JobCreateResp",
+      "required": [
+        "job_id"
+      ]
+    },
+    "Model": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        }
+      },
+      "title": "Model",
+      "required": [
+        "model_id",
+        "model_name",
+        "model_size",
+        "model_is_public",
+        "model_template",
+        "model_meta",
+        "model_category"
+      ]
+    },
+    "ModelOptional": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": " 模型ID"
+        },
+        "model_name": {
+          "type": "string",
+          "description": " 模型名字, owner/model"
+        },
+        "model_path": {
+          "type": "string",
+          "description": " 模型的绑定路径"
+        },
+        "model_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 模型体积，单位字节"
+        },
+        "model_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共模型"
+        },
+        "model_template": {
+          "type": "string",
+          "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
+        "model_category": {
+          "type": "string",
+          "description": " 模型分类"
+        }
+      },
+      "title": "ModelOptional"
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

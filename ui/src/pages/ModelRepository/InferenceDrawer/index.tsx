@@ -128,6 +128,7 @@ const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
       const params = {
         data: {
           gpu_model: values.gpu_model,
+          cpod_id: values.cluster_pod,
           model_category: record?.category,
           gpu_count: record?.inference_gpu_count,
           model_id: record.id,

@@ -277,6 +277,38 @@
         ]
       }
     },
+    "/api/job/finetune": {
+      "post": {
+        "operationId": "FinetuneHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/FinetuneResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FinetuneReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/job/inference": {
       "get": {
         "operationId": "InferenceInfoHandler",
@@ -729,6 +761,77 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/JupyterlabResumeReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
+    "/api/job/training": {
+      "get": {
+        "operationId": "JobGetHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobGetResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      },
+      "post": {
+        "operationId": "JobCreateHandler",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/JobCreateResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JobCreateReq"
             }
           }
         ],
@@ -1446,109 +1549,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/ModelUrlReq"
-            }
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/job/finetune": {
-      "post": {
-        "operationId": "FinetuneHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/FinetuneResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/FinetuneReq"
-            }
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ]
-      }
-    },
-    "/job/job": {
-      "get": {
-        "operationId": "JobGetHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/JobGetResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "current",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "tags": [
-          "scheduler-api"
-        ],
-        "consumes": [
-          "multipart/form-data"
-        ]
-      },
-      "post": {
-        "operationId": "JobCreateHandler",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/JobCreateResp"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "Sx-User-ID",
-            "in": "header",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/JobCreateReq"
             }
           }
         ],
@@ -2800,6 +2800,10 @@
           "type": "string",
           "description": " 模型的推理模版"
         },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
         "model_category": {
           "type": "string",
           "description": " 模型分类"
@@ -2825,6 +2829,9 @@
           "type": "boolean",
           "format": "boolean",
           "description": " 是否公共数据集"
+        },
+        "cpod_id": {
+          "type": "string"
         },
         "gpu_model": {
           "type": "string"
@@ -3029,6 +3036,10 @@
           "type": "string",
           "description": " 模型的推理模版"
         },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
         "model_category": {
           "type": "string",
           "description": " 模型分类"
@@ -3054,6 +3065,9 @@
           "type": "boolean",
           "format": "boolean",
           "description": " 是否公共适配器"
+        },
+        "cpod_id": {
+          "type": "string"
         },
         "gpu_model": {
           "type": "string"
@@ -3135,6 +3149,9 @@
         "model_category": {
           "type": "string"
         },
+        "model_meta": {
+          "type": "string"
+        },
         "adapter_name": {
           "type": "string"
         },
@@ -3183,6 +3200,7 @@
         "model_size",
         "model_is_public",
         "model_category",
+        "model_meta",
         "adapter_name",
         "adapter_id",
         "adapter_size",
@@ -3369,6 +3387,9 @@
     "JobCreateReq": {
       "type": "object",
       "properties": {
+        "cpod_id": {
+          "type": "string"
+        },
         "gpuNumber": {
           "type": "integer",
           "format": "int64"
@@ -3429,6 +3450,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
         },
         "model_category": {
           "type": "string",
@@ -3726,6 +3751,9 @@
           "type": "integer",
           "format": "int64"
         },
+        "cpod_id": {
+          "type": "string"
+        },
         "gpu_count": {
           "type": "integer",
           "format": "int64"
@@ -3779,6 +3807,9 @@
         "memory": {
           "type": "integer",
           "format": "int64"
+        },
+        "cpod_id": {
+          "type": "string"
         },
         "gpu_count": {
           "type": "integer",
@@ -4186,6 +4217,10 @@
           "type": "string",
           "description": " 模型的推理模版"
         },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
+        },
         "model_category": {
           "type": "string",
           "description": " 模型分类"
@@ -4198,6 +4233,7 @@
         "model_size",
         "model_is_public",
         "model_template",
+        "model_meta",
         "model_category"
       ]
     },
@@ -4229,6 +4265,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
         },
         "model_category": {
           "type": "string",
@@ -4664,6 +4704,9 @@
         "template": {
           "type": "string"
         },
+        "meta": {
+          "type": "string"
+        },
         "category": {
           "type": "string"
         },
@@ -4690,6 +4733,7 @@
         "user_id",
         "tag",
         "template",
+        "meta",
         "category",
         "base_model",
         "finetune_gpu_count",
@@ -4777,13 +4821,18 @@
         "resource_type": {
           "type": "string",
           "description": " 资源类型(model/dataset/adapter)"
+        },
+        "meta": {
+          "type": "string",
+          "description": " 元信息"
         }
       },
       "title": "ResourceLoadReq",
       "required": [
         "source",
         "resource_id",
-        "resource_type"
+        "resource_type",
+        "meta"
       ]
     },
     "ResourceMetaAddReq": {
@@ -4935,9 +4984,6 @@
           "type": "integer",
           "format": "int64"
         },
-        "inference_template": {
-          "type": "string"
-        },
         "err": {
           "type": "string"
         },
@@ -5017,6 +5063,10 @@
         "model_template": {
           "type": "string",
           "description": " 模型的推理模版"
+        },
+        "model_meta": {
+          "type": "string",
+          "description": " 元信息"
         },
         "model_category": {
           "type": "string",

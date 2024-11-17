@@ -1,0 +1,75 @@
+syntax = "v1"
+
+info (
+	title:   "类型定义"
+	desc:    "后端服务中用到的类型定义"
+	author:  "chenshu"
+	date:    "2024 年 11 月 16 日"
+	version: "v1"
+)
+
+type (
+	BaseReq {
+		UserID string `header:"Sx-User-ID"`
+	}
+	BaseResp {
+		Message string `json:"message"`
+	}
+)
+
+type (
+	Model {
+		ModelId       string `json:"model_id"` // 模型ID
+		ModelName     string `json:"model_name"` // 模型名字, owner/model
+		ModelPath     string `json:"model_path,optional"` // 模型的绑定路径
+		ModelSize     int64  `json:"model_size"` // 模型体积，单位字节
+		ModelIsPublic bool   `json:"model_is_public"` // 是否公共模型
+		ModelTemplate string `json:"model_template"` // 模型的推理模版
+		ModelMeta     string `json:"model_meta"` // 元信息
+		ModelCategory string `json:"model_category"` // 模型分类
+	}
+	ModelOptional {
+		ModelId       string `json:"model_id,optional"` // 模型ID
+		ModelName     string `json:"model_name,optional"` // 模型名字, owner/model
+		ModelPath     string `json:"model_path,optional"` // 模型的绑定路径
+		ModelSize     int64  `json:"model_size,optional"` // 模型体积，单位字节
+		ModelIsPublic bool   `json:"model_is_public,optional"` // 是否公共模型
+		ModelTemplate string `json:"model_template,optional"` // 模型的推理模版
+		ModelMeta     string `json:"model_meta,optional"` // 元信息
+		ModelCategory string `json:"model_category,optional"` // 模型分类
+	}
+	Dataset {
+		DatasetId       string `json:"dataset_id"` // 数据集ID
+		DatasetName     string `json:"dataset_name"` // 数据集名字, owner/dataset
+		DatasetPath     string `json:"dataset_path,optional"` // 数据集的绑定路径
+		DatasetSize     int64  `json:"dataset_size"` // 数据集体积，单位字节
+		DatasetIsPublic bool   `json:"dataset_is_public"` // 是否公共数据集
+	}
+	DatasetOptional {
+		DatasetId       string `json:"dataset_id,optional"` // 数据集ID
+		DatasetName     string `json:"dataset_name,optional"` // 数据集名字, owner/dataset
+		DatasetPath     string `json:"dataset_path,optional"` // 数据集的绑定路径
+		DatasetSize     int64  `json:"dataset_size,optional"` // 数据集体积，单位字节
+		DatasetIsPublic bool   `json:"dataset_is_public,optional"` // 是否公共数据集
+	}
+	Adapter {
+		AdapterId       string `json:"adapter_id"` // 适配器ID
+		AdapterName     string `json:"adapter_name"` // 适配器名字, owner/adapter
+		AdapterPath     string `json:"adapter_path,optional"` // 适配器的绑定路径
+		AdapterSize     int64  `json:"adapter_size"` // 适配器体积，单位字节
+		AdapterIsPublic bool   `json:"adapter_is_public"` // 是否公共适配器
+	}
+	AdapterOptional {
+		AdapterId       string `json:"adapter_id,optional"` // 适配器ID
+		AdapterName     string `json:"adapter_name,optional"` // 适配器名字, owner/adapter
+		AdapterPath     string `json:"adapter_path,optional"` // 适配器的绑定路径
+		AdapterSize     int64  `json:"adapter_size,optional"` // 适配器体积，单位字节
+		AdapterIsPublic bool   `json:"adapter_is_public,optional"` // 是否公共适配器
+	}
+)
+
+type JobCallBackReq {
+	Status string `json:"status"`
+	URL    string `json:"url"`
+	JobID  string `json:"jobId"`
+}

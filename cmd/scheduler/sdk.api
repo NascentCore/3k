@@ -1,0 +1,86 @@
+syntax = "v1"
+
+info (
+	title:   "SDK"
+	desc:    "算想云对开发者提供的API"
+	author:  "chenshu"
+	date:    "2024 年 11 月 16 日"
+	version: "v1"
+)
+
+import "types.api"
+
+type (
+	Hyperparameters {
+		NEpochs                string `json:"n_epochs"`
+		BatchSize              string `json:"batch_size"`
+		LearningRateMultiplier string `json:"learning_rate_multiplier"`
+	}
+	FinetuneReq {
+		UserID string `header:"Sx-User-ID"`
+		Model
+		Dataset
+		CpodID           string                 `json:"cpod_id,optional"`
+		GpuModel         string                 `json:"gpu_model,optional"`
+		GpuCount         int64                  `json:"gpu_count,optional"`
+		TrainedModelName string                 `json:"trainedModelName,optional"`
+		Hyperparameters  Hyperparameters        `json:"hyperparameters"`
+		ModelSavedType   string                 `json:"model_saved_type"`
+		FinetuneType     string                 `json:"finetune_type,optional"`
+	}
+	FinetuneResp {
+		JobId string `json:"job_id"`
+	}
+)
+
+type (
+	JobCreateReq {
+		CpodID           string `json:"cpod_id,optional"`
+		GpuNumber        int64  `json:"gpuNumber"`
+		GpuType          string `json:"gpuType"`
+		CkptPath         string `json:"ckptPath"`
+		CkptVol          int64  `json:"ckptVol"`
+		CreatedModelPath string `json:"modelPath"`
+		CreatedModelVol  int64  `json:"modelVol"`
+		ImagePath        string `json:"imagePath"`
+		JobType          string `json:"jobType"`
+		StopType         int64  `json:"stopType,optional"`
+		StopTime         int64  `json:"stopTime,optional"`
+		ModelOptional
+		DatasetOptional
+		TrainedModelName string `json:"trainedModelName,optional"`
+		RunCommand       string `json:"runCommand,optional"`
+		CallbackUrl      string `json:"callbackUrl,optional,omitempty"`
+		UserID           string `header:"Sx-User-ID"`
+	}
+	JobCreateResp {
+		JobId string `json:"job_id"`
+	}
+)
+
+type (
+	InferenceDeployReq {
+		Model
+		AdapterOptional
+		CpodID       string `json:"cpod_id,optional"`
+		GpuModel     string `json:"gpu_model,optional"`
+		GpuCount     int64  `json:"gpu_count,optional"`
+		MinInstances int64  `json:"min_instances,optional"`
+		MaxInstances int64  `json:"max_instances,optional"`
+		UserID       string `header:"Sx-User-ID"`
+	}
+	InferenceDeployResp {
+		ServiceName string `json:"service_name"`
+	}
+)
+
+service scheduler-api {
+	@handler Finetune
+	post /api/job/finetune (FinetuneReq) returns (FinetuneResp)
+
+    @handler JobCreate
+	post /api/job/training (JobCreateReq) returns (JobCreateResp)
+
+    @handler InferenceDeploy
+	post /api/job/inference (InferenceDeployReq) returns (InferenceDeployResp)
+}
