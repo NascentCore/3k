@@ -61,29 +61,17 @@ export default [
     icon: 'ProfileOutlined',
     component: './UserJobCommit',
   },
-  // {
-  //   path: '/UserJob',
-  //   name: 'UserJob',
-  //   icon: 'ProfileOutlined',
-  //   component: './UserJob',
-  // },
-  // {
-  //   path: '/InferenceState',
-  //   name: 'InferenceState',
-  //   icon: 'CheckCircleOutlined',
-  //   component: './InferenceState',
-  // },
-  {
-    path: '/jobdetail',
-    name: 'JobDetail',
-    icon: 'CheckCircleOutlined',
-    component: './JobDetail',
-  },
   {
     path: '/datasets',
     name: 'Dataset',
     icon: 'TableOutlined',
     component: './Dataset',
+  },
+  {
+    path: '/jobdetail',
+    name: 'JobDetail',
+    icon: 'CheckCircleOutlined',
+    component: './JobDetail',
   },
   {
     path: '/grafana',
