@@ -606,7 +606,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 		}
 	}
 
-	extraParams := ""
+	extraParams := "{}"
 	if inference.Spec.Params != nil {
 		extraParams = *inference.Spec.Params
 	}
@@ -720,12 +720,12 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 										Resources: corev1.ResourceRequirements{
 											Requests: corev1.ResourceList{
 												corev1.ResourceCPU:    resource.MustParse("4"),
-												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												corev1.ResourceMemory: resource.MustParse("30Gi"),
 												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
 											},
 											Limits: corev1.ResourceList{
 												corev1.ResourceCPU:    resource.MustParse("4"),
-												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												corev1.ResourceMemory: resource.MustParse("30Gi"),
 												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
 											},
 										},
@@ -747,7 +747,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 										VolumeSource: corev1.VolumeSource{
 											EmptyDir: &corev1.EmptyDirVolumeSource{
 												Medium:    corev1.StorageMediumMemory,
-												SizeLimit: resource.NewQuantity(20*1024*1024*1024, resource.BinarySI),
+												SizeLimit: resource.NewQuantity(30*1024*1024*1024, resource.BinarySI),
 											},
 										},
 									},

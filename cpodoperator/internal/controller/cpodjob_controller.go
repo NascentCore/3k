@@ -843,7 +843,6 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 	if cpodjob.Annotations != nil {
 		if !metav1.HasAnnotation(cpodjob.ObjectMeta, v1beta1.CPodAutoMergeAnno) {
 			resource = "adapter"
-			pvcName = c.GetCKPTPVCName(cpodjob)
 		}
 	}
 

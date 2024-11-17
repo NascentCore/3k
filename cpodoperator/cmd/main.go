@@ -55,8 +55,8 @@ func main() {
       runtime_env:
         working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"
         env_vars:
-          EXTRA_PARAMS: %v
-          TENSOR_PARALLELISM: "%v"`, extraParams, 4)
+          EXTRA_PARAMS: ''
+          TENSOR_PARALLELISM: "%v"`, 4)
 
 	fmt.Println(serverConfigStr)
 
