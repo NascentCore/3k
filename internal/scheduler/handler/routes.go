@@ -13,11 +13,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
-				Path:    "/api/job/inference",
-				Handler: InferenceDeployHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodGet,
 				Path:    "/api/job/inference",
 				Handler: InferenceInfoHandler(serverCtx),
@@ -31,6 +26,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/api/job/inference/stop",
 				Handler: InferenceStopHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/job/training",
+				Handler: JobGetHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
@@ -51,21 +51,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/info/upload_status",
 				Handler: UploadStatusHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/job/finetune",
-				Handler: FinetuneHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/job/job",
-				Handler: JobCreateHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/job/job",
-				Handler: JobGetHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
@@ -347,5 +332,25 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/finetune",
+				Handler: FinetuneHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/inference",
+				Handler: InferenceDeployHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/training",
+				Handler: JobCreateHandler(serverCtx),
+			},
+		},
 	)
 }

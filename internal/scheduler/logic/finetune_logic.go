@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sxwl/3k/internal/scheduler/config"
 	"sxwl/3k/internal/scheduler/job"
 	"sxwl/3k/internal/scheduler/model"
 	"sxwl/3k/pkg/consts"
@@ -119,16 +118,16 @@ func (l *FinetuneLogic) Finetune(req *types.FinetuneReq) (resp *types.FinetuneRe
 	// billing_status
 	userJob.BillingStatus = model.BillingStatusContinue
 	// Hyperparameters
-	epochs, ok := req.Hyperparameters[config.ParamEpochs]
-	if !ok {
+	epochs := req.Hyperparameters.NEpochs
+	if epochs == "" {
 		epochs = "3.0"
 	}
-	batchSize, ok := req.Hyperparameters[config.ParamBatchSize]
-	if !ok {
+	batchSize := req.Hyperparameters.BatchSize
+	if batchSize == "" {
 		batchSize = "4"
 	}
-	learningRate, ok := req.Hyperparameters[config.ParamLearningRate]
-	if !ok {
+	learningRate := req.Hyperparameters.LearningRateMultiplier
+	if learningRate == "" {
 		learningRate = "5e-5"
 	}
 	// finetuneType

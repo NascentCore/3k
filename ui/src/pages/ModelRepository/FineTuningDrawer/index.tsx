@@ -106,6 +106,7 @@ const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
       );
       const params = {
         ...values,
+        cpod_id: values.cluster_pod,
         gpu_count: Number(values.gpu_count),
         model_id: currentModel.id,
         model_name: currentModel.name,

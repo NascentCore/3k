@@ -28,14 +28,6 @@ Gateway:
       ToPath: "/auth/info"
       Auth: Yes
       Server: scheduler
-    - Path: "/api/job/finetune"
-      ToPath: "/job/finetune"
-      Auth: Yes
-      Server: scheduler
-    - Path: "/api/job/training"
-      ToPath: "/job/job"
-      Auth: Yes
-      Server: scheduler
     - Path: "/api/resource/gpus"
       ToPath: "/cpod/gpu_type"
       Auth: Yes

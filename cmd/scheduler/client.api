@@ -1,8 +1,0 @@
-syntax = "v1"
-
-type JobCallBackReq {
-	Status string `json:"status"`
-	URL    string `json:"url"`
-	JobID  string `json:"jobId"`
-}
-

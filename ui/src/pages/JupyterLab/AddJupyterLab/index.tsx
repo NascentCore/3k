@@ -68,7 +68,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
     }));
   }, [clusterPodsOptions?.data]);
 
-  const selectedClusterPod = Form.useWatch('cluster_pod', form);
+  const selectedClusterPod = Form.useWatch('cpod_id', form);
 
   const filteredGpuOptions = (() => {
     if (!selectedClusterPod) {
@@ -248,7 +248,7 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
           />
         </Form.Item>
         <Form.Item
-          name="cluster_pod"
+          name="cpod_id"
           label={intl.formatMessage({
             id: 'pages.jupyterLab.AddJupyterLab.form.cluster_pod',
             defaultMessage: '集群',

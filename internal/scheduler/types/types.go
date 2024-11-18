@@ -275,14 +275,13 @@ type FinetuneReq struct {
 	UserID string `header:"Sx-User-ID"`
 	Model
 	Dataset
-	CpodID           string                 `json:"cpod_id,optional"`
-	GpuModel         string                 `json:"gpu_model,optional"`
-	GpuCount         int64                  `json:"gpu_count,optional"`
-	TrainedModelName string                 `json:"trainedModelName,optional"`
-	Hyperparameters  map[string]string      `json:"hyperparameters,optional,omitempty"`
-	Config           map[string]interface{} `json:"config,optional,omitempty"`
-	ModelSavedType   string                 `json:"model_saved_type"`
-	FinetuneType     string                 `json:"finetune_type,optional"`
+	CpodID           string          `json:"cpod_id,optional"`
+	GpuModel         string          `json:"gpu_model,optional"`
+	GpuCount         int64           `json:"gpu_count,optional"`
+	TrainedModelName string          `json:"trainedModelName,optional"`
+	Hyperparameters  Hyperparameters `json:"hyperparameters"`
+	ModelSavedType   string          `json:"model_saved_type"`
+	FinetuneType     string          `json:"finetune_type,optional"`
 }
 
 type FinetuneResp struct {
@@ -313,6 +312,12 @@ type GPUTypeResp struct {
 	Amount         float64 `json:"amount"`
 	GPUProd        string  `json:"gpuProd"`
 	GPUAllocatable int64   `json:"gpuAllocatable"`
+}
+
+type Hyperparameters struct {
+	NEpochs                string `json:"n_epochs"`
+	BatchSize              string `json:"batch_size"`
+	LearningRateMultiplier string `json:"learning_rate_multiplier"`
 }
 
 type ImageDelReq struct {
@@ -437,11 +442,10 @@ type JobCreateReq struct {
 	StopTime         int64  `json:"stopTime,optional"`
 	ModelOptional
 	DatasetOptional
-	TrainedModelName string            `json:"trainedModelName,optional"`
-	RunCommand       string            `json:"runCommand,optional"`
-	CallbackUrl      string            `json:"callbackUrl,optional,omitempty"`
-	Env              map[string]string `json:"env,optional,omitempty"`
-	UserID           string            `header:"Sx-User-ID"`
+	TrainedModelName string `json:"trainedModelName,optional"`
+	RunCommand       string `json:"runCommand,optional"`
+	CallbackUrl      string `json:"callbackUrl,optional,omitempty"`
+	UserID           string `header:"Sx-User-ID"`
 }
 
 type JobCreateResp struct {

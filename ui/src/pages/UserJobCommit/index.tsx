@@ -23,7 +23,7 @@ const Welcome: React.FC = () => {
     gpuNumber: 1,
     stopTime: 0,
     nodeCount: 1,
-    cluster: undefined,
+    cpod_id: undefined,
   });
   const gpuTypeOptions = useGpuTypeOptions();
   const resourceModelsOptions = useResourceModelsOptions();
@@ -42,7 +42,7 @@ const Welcome: React.FC = () => {
   const jobType = Form.useWatch('jobType', form);
 
   // 监听cluster的变化
-  const selectedCluster = Form.useWatch('cluster', form);
+  const selectedCluster = Form.useWatch('cpod_id', form);
 
   // 添加useEffect来处理GPU类型过滤
   useEffect(() => {
@@ -310,7 +310,7 @@ const Welcome: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            name="cluster"
+            name="cpod_id"
             label={
               <>
                 {intl.formatMessage({
