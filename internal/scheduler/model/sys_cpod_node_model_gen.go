@@ -39,6 +39,7 @@ type (
 		Id             int64        `db:"id"`              // id
 		CpodId         string       `db:"cpod_id"`         // cpod id
 		CpodVersion    string       `db:"cpod_version"`    // pod 版本
+		CpodName       string       `db:"cpod_name"`       // 集群名称
 		UserId         string       `db:"user_id"`         // 算力源注册ID
 		NodeName       string       `db:"node_name"`       // node名字
 		GpuVendor      string       `db:"gpu_vendor"`      // gpu vendor
@@ -84,14 +85,14 @@ func (m *defaultSysCpodNodeModel) FindOne(ctx context.Context, id int64) (*SysCp
 }
 
 func (m *defaultSysCpodNodeModel) Insert(ctx context.Context, data *SysCpodNode) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodNodeRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.UserId, data.NodeName, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CpuTotal, data.CpuAllocatable, data.MemTotal, data.MemAllocatable, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, sysCpodNodeRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.CpodName, data.UserId, data.NodeName, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CpuTotal, data.CpuAllocatable, data.MemTotal, data.MemAllocatable, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultSysCpodNodeModel) Update(ctx context.Context, data *SysCpodNode) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, sysCpodNodeRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.UserId, data.NodeName, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CpuTotal, data.CpuAllocatable, data.MemTotal, data.MemAllocatable, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.CpodId, data.CpodVersion, data.CpodName, data.UserId, data.NodeName, data.GpuVendor, data.GpuProd, data.GpuMem, data.GpuTotal, data.GpuAllocatable, data.CpuTotal, data.CpuAllocatable, data.MemTotal, data.MemAllocatable, data.DeletedAt, data.Id)
 	return err
 }
 

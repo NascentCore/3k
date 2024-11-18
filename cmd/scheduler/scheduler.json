@@ -170,6 +170,33 @@
         ]
       }
     },
+    "/api/cluster/cpod/name": {
+      "put": {
+        "summary": "修改集群名字",
+        "operationId": "ClusterCpodNamePut",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ClusterCpodNamePutReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ]
+      }
+    },
     "/api/cluster/cpods": {
       "get": {
         "summary": "集群列表",
@@ -2492,6 +2519,22 @@
         "inference_gpu_count"
       ]
     },
+    "ClusterCpodNamePutReq": {
+      "type": "object",
+      "properties": {
+        "cpod_id": {
+          "type": "string"
+        },
+        "cpod_name": {
+          "type": "string"
+        }
+      },
+      "title": "ClusterCpodNamePutReq",
+      "required": [
+        "cpod_id",
+        "cpod_name"
+      ]
+    },
     "ClusterCpodsResp": {
       "type": "object",
       "properties": {
@@ -2577,6 +2620,9 @@
         "cpod_version": {
           "type": "string"
         },
+        "cpod_name": {
+          "type": "string"
+        },
         "node_name": {
           "type": "string"
         },
@@ -2609,6 +2655,7 @@
       "required": [
         "cpod_id",
         "cpod_version",
+        "cpod_name",
         "node_name",
         "gpu_vendor",
         "gpu_prod",

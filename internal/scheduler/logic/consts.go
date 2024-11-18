@@ -67,3 +67,8 @@ var (
 	MsgAppAddOK        = "应用实例创建成功"
 	MsgAppUnregisterOK = "应用注销成功"
 )
+
+// cluster
+var (
+	ErrCpodNotFound = errors.New("集群不存在")
+)

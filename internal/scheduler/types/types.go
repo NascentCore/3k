@@ -198,6 +198,12 @@ type Cache struct {
 	InferenceGPUCount int64  `json:"inference_gpu_count"`
 }
 
+type ClusterCpodNamePutReq struct {
+	BaseReq
+	CpodID   string `json:"cpod_id"`
+	CpodName string `json:"cpod_name"`
+}
+
 type ClusterCpodsResp struct {
 	Data []CpodInfo `json:"data"`
 }
@@ -221,6 +227,7 @@ type ClusterNodeInfo struct {
 type CpodInfo struct {
 	CpodID         string `json:"cpod_id"`
 	CpodVersion    string `json:"cpod_version"`
+	CpodName       string `json:"cpod_name"`
 	NodeName       string `json:"node_name"`
 	GPUVendor      string `json:"gpu_vendor"`
 	GPUProd        string `json:"gpu_prod"`

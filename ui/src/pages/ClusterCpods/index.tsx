@@ -1,13 +1,33 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, Table } from 'antd';
-import React from 'react';
-import { useApiClusterCpods } from '@/services';
+import { Card, Table, Button, Modal, Input, message } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { useApiClusterCpods, useApiClusterCpodNamePut } from '@/services';
 import { useIntl } from '@umijs/max';
 
 const Index: React.FC = () => {
   const intl = useIntl();
-  const { data, isLoading }: any = useApiClusterCpods();
-  console.log(1111, { data });
+  const { data, isLoading, mutate } = useApiClusterCpods();
+  const { trigger: updateCpodName, isMutating } = useApiClusterCpodNamePut();
+  
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingCpodId, setEditingCpodId] = useState('');
+  const [newCpodName, setNewCpodName] = useState('');
+  
+  const handleEditName = async () => {
+    try {
+      await updateCpodName({
+        cpod_id: editingCpodId,
+        cpod_name: newCpodName,
+      });
+      message.success('更新成功');
+      setEditModalVisible(false);
+      mutate(); // 刷新数据
+    } catch (error) {
+      message.error('更新失败');
+    }
+  };
+
   const dataKeys = Object.keys(data || {});
   return (
     <PageContainer>
@@ -20,7 +40,16 @@ const Index: React.FC = () => {
                   id: 'pages.ClusterCpods.card.title',
                   defaultMessage: '集群ID',
                 })}
-                : {title}
+                : {title} ({data[title]?.[0]?.cpod_name || ''})
+                <Button
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={() => {
+                    setEditingCpodId(title);
+                    setNewCpodName(data[title]?.[0]?.cpod_name || '');
+                    setEditModalVisible(true);
+                  }}
+                />
               </>
             }
             style={{ marginBottom: 15 }}
@@ -140,6 +169,20 @@ const Index: React.FC = () => {
           </Card>
         </>
       ))}
+
+      <Modal
+        title="编辑集群名称"
+        open={editModalVisible}
+        onOk={handleEditName}
+        onCancel={() => setEditModalVisible(false)}
+        confirmLoading={isMutating}
+      >
+        <Input
+          placeholder="请输入新的集群名称"
+          value={newCpodName}
+          onChange={(e) => setNewCpodName(e.target.value)}
+        />
+      </Modal>
     </PageContainer>
   );
 };
