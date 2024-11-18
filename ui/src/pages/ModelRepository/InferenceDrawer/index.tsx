@@ -57,10 +57,13 @@ const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
     if (!clusterPodsOptions?.data) {
       return [];
     }
-    return Object.keys(clusterPodsOptions.data).map(key => ({
-      label: key,
-      value: key
-    }));
+    return Object.entries(clusterPodsOptions.data).map(([cpodId, nodes]) => {
+      const cpodName = nodes[0]?.cpod_name || cpodId;
+      return {
+        label: cpodName,
+        value: cpodId
+      };
+    });
   }, [clusterPodsOptions?.data]);
 
   const filteredGpuOptions = (() => {
@@ -305,7 +308,7 @@ const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
               required: true,
               message: intl.formatMessage({
                 id: 'pages.modelRepository.InferenceDrawer.validation.required',
-                defaultMessage: '请输入最大实例数',
+                defaultMessage: '请输入最大实���数',
               }),
             }
           ]}

@@ -29,11 +29,14 @@ const Welcome: React.FC = () => {
   const resourceModelsOptions = useResourceModelsOptions();
   const resourceDatasetsOption = useResourceDatasetsOptions();
   const { data: clusterResponse } = useApiClusterCpods();
-  const clusterList = clusterResponse ? Object.entries(clusterResponse).map(([id, nodes]) => ({
-    id,
-    name: id,
-    nodes,
-  })) : [];
+  const clusterList = clusterResponse ? Object.entries(clusterResponse).map(([id, nodes]: [string, any[]]) => {
+    const cpodName = nodes[0]?.cpod_name || id;
+    return {
+      id,
+      name: cpodName,
+      nodes,
+    };
+  }) : [];
   const [filteredGpuTypeOptions, setFilteredGpuTypeOptions] = useState(gpuTypeOptions);
 
   const gpuProdValue = Form.useWatch('gpuType', form);

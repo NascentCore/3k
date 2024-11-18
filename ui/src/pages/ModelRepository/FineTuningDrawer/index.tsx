@@ -83,10 +83,14 @@ const Content = ({ record, onCancel, clusterPodsOptions }: ContentProps) => {
     if (!clusterPodsOptions?.data) {
       return [];
     }
-    return Object.keys(clusterPodsOptions.data).map(key => ({
-      label: key,
-      value: key
-    }));
+    return Object.entries(clusterPodsOptions.data).map(([cpodId, nodes]) => {
+      // 假设第一个节点的 cpod_name 就是这个集群的名称
+      const cpodName = nodes[0]?.cpod_name || cpodId;
+      return {
+        label: cpodName,
+        value: cpodId
+      };
+    });
   }, [clusterPodsOptions?.data]);
 
   const onFinish = () => {
