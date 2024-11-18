@@ -62,10 +62,13 @@ const Index = ({ addJupterLabType, addJupterLabRecord, onChange, onCancel }: IPr
     if (!clusterPodsOptions?.data) {
       return [];
     }
-    return Object.keys(clusterPodsOptions.data).map(key => ({
-      label: key,
-      value: key
-    }));
+    return Object.entries(clusterPodsOptions.data).map(([cpodId, nodes]) => {
+      const cpodName = nodes[0]?.cpod_name || cpodId;
+      return {
+        label: cpodName,
+        value: cpodId
+      };
+    });
   }, [clusterPodsOptions?.data]);
 
   const selectedClusterPod = Form.useWatch('cpod_id', form);
