@@ -48,6 +48,39 @@
         ]
       }
     },
+    "/api/job/finetune/status": {
+      "get": {
+        "operationId": "FinetuneStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/FinetuneStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "job_id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/job/inference": {
       "post": {
         "operationId": "InferenceDeploy",
@@ -80,6 +113,39 @@
         ]
       }
     },
+    "/api/job/inference/status": {
+      "get": {
+        "operationId": "InferenceStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/InferenceStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/job/training": {
       "post": {
         "operationId": "JobCreate",
@@ -109,6 +175,87 @@
         ],
         "tags": [
           "scheduler-api"
+        ]
+      }
+    },
+    "/api/resource/adapter/name": {
+      "get": {
+        "operationId": "AdapterByName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Adapter"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "adapter_name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/resource/dataset/name": {
+      "get": {
+        "operationId": "DatasetByName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Dataset"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "dataset_name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/resource/model/name": {
+      "get": {
+        "operationId": "ModelByName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Model"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "model_name",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
         ]
       }
     }
@@ -146,6 +293,18 @@
         "adapter_name",
         "adapter_size",
         "adapter_is_public"
+      ]
+    },
+    "AdapterByNameReq": {
+      "type": "object",
+      "properties": {
+        "adapter_name": {
+          "type": "string"
+        }
+      },
+      "title": "AdapterByNameReq",
+      "required": [
+        "adapter_name"
       ]
     },
     "AdapterOptional": {
@@ -224,6 +383,18 @@
         "dataset_name",
         "dataset_size",
         "dataset_is_public"
+      ]
+    },
+    "DatasetByNameReq": {
+      "type": "object",
+      "properties": {
+        "dataset_name": {
+          "type": "string"
+        }
+      },
+      "title": "DatasetByNameReq",
+      "required": [
+        "dataset_name"
       ]
     },
     "DatasetOptional": {
@@ -354,6 +525,56 @@
         "job_id"
       ]
     },
+    "FinetuneStatusReq": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "FinetuneStatusReq",
+      "required": [
+        "job_id"
+      ]
+    },
+    "FinetuneStatusResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "adapter_id": {
+          "type": "string",
+          "description": " 适配器ID"
+        },
+        "adapter_name": {
+          "type": "string",
+          "description": " 适配器名字, owner/adapter"
+        },
+        "adapter_path": {
+          "type": "string",
+          "description": " 适配器的绑定路径"
+        },
+        "adapter_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 适配器体积，单位字节"
+        },
+        "adapter_is_public": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " 是否公共适配器"
+        }
+      },
+      "title": "FinetuneStatusResp",
+      "required": [
+        "job_id",
+        "status"
+      ]
+    },
     "Hyperparameters": {
       "type": "object",
       "properties": {
@@ -464,6 +685,42 @@
       "title": "InferenceDeployResp",
       "required": [
         "service_name"
+      ]
+    },
+    "InferenceStatusReq": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceStatusReq",
+      "required": [
+        "service_name"
+      ]
+    },
+    "InferenceStatusResp": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "chat_url": {
+          "type": "string"
+        },
+        "api_url": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceStatusResp",
+      "required": [
+        "service_name",
+        "status",
+        "chat_url",
+        "api_url"
       ]
     },
     "JobCallBackReq": {
@@ -664,6 +921,18 @@
         "model_template",
         "model_meta",
         "model_category"
+      ]
+    },
+    "ModelByNameReq": {
+      "type": "object",
+      "properties": {
+        "model_name": {
+          "type": "string"
+        }
+      },
+      "title": "ModelByNameReq",
+      "required": [
+        "model_name"
       ]
     },
     "ModelOptional": {

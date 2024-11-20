@@ -347,14 +347,39 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: FinetuneHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/api/job/finetune/status",
+				Handler: FinetuneStatusHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/api/job/inference",
 				Handler: InferenceDeployHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/api/job/inference/status",
+				Handler: InferenceStatusHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/api/job/training",
 				Handler: JobCreateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/resource/adapter/name",
+				Handler: AdapterByNameHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/resource/dataset/name",
+				Handler: DatasetByNameHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/resource/model/name",
+				Handler: ModelByNameHandler(serverCtx),
 			},
 		},
 	)
