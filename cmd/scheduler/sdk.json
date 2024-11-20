@@ -146,6 +146,35 @@
         ]
       }
     },
+    "/api/job/inference/stop": {
+      "post": {
+        "operationId": "InferenceStop",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/InferenceStopReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/job/training": {
       "post": {
         "operationId": "JobCreate",
@@ -721,6 +750,18 @@
         "status",
         "chat_url",
         "api_url"
+      ]
+    },
+    "InferenceStopReq": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        }
+      },
+      "title": "InferenceStopReq",
+      "required": [
+        "service_name"
       ]
     },
     "JobCallBackReq": {

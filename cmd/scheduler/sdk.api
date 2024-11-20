@@ -102,9 +102,6 @@ type (
 	InferenceDeployResp {
 		ServiceName string `json:"service_name"`
 	}
-)
-
-type (
 	InferenceStatusReq {
 		BaseReq
 		ServiceName string `form:"service_name"`
@@ -114,6 +111,10 @@ type (
 		Status      string `json:"status"`
 		ChatURL     string `json:"chat_url"`
 		APIURL      string `json:"api_url"`
+	}
+	InferenceStopReq {
+		BaseReq
+		ServiceName string `form:"service_name"`
 	}
 )
 
@@ -141,4 +142,7 @@ service scheduler-api {
 
 	@handler InferenceStatus
 	get /api/job/inference/status (InferenceStatusReq) returns (InferenceStatusResp)
+
+	@handler InferenceStop
+	post /api/job/inference/stop (InferenceStopReq) returns (BaseResp)
 }
