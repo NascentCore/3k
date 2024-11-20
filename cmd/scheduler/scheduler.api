@@ -229,10 +229,6 @@ type (
 	InferenceInfoResp {
 		Data []SysInference `json:"data"`
 	}
-	InferenceStopReq {
-		BaseReq
-		ServiceName string `form:"service_name"`
-	}
 	InferenceDeleteReq {
 		ServiceName string `form:"service_name"`
 		UserID      string `header:"Sx-User-ID"`
@@ -393,23 +389,14 @@ service scheduler-api {
 	@handler JobStopHandler
 	post /job/stop (JobStopReq) returns (JobStopResp)
 
-	// @handler JobCreateHandler
-	// post /job/job (JobCreateReq) returns (JobCreateResp)
 	@handler JobGetHandler
 	get /api/job/training (JobGetReq) returns (JobGetResp)
 
-	// @handler FinetuneHandler
-	// post /job/finetune (FinetuneReq) returns (FinetuneResp)
 	@handler UploaderAccessHandler
 	get /resource/uploader_access (UploaderAccessReq) returns (UploaderAccessResp)
 
-	// @handler InferenceDeployHandler
-	// post /api/job/inference (InferenceDeployReq) returns (InferenceDeployResp)
 	@handler InferenceInfoHandler
 	get /api/job/inference (InferenceInfoReq) returns (InferenceInfoResp)
-
-	@handler InferenceStopHandler
-	post /api/job/inference/stop (InferenceStopReq) returns (BaseResp)
 
 	@handler InferenceDeleteHandler
 	delete /api/job/inference (InferenceDeleteReq) returns (InferenceDeleteResp)

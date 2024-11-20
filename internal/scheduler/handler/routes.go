@@ -23,11 +23,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: InferenceDeleteHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/api/job/inference/stop",
-				Handler: InferenceStopHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodGet,
 				Path:    "/api/job/training",
 				Handler: JobGetHandler(serverCtx),
@@ -360,6 +355,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/api/job/inference/status",
 				Handler: InferenceStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/inference/stop",
+				Handler: InferenceStopHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
