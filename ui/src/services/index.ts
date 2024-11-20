@@ -251,7 +251,7 @@ export const useGpuTypeOptions = () => {
     ...options,
     {
       label: `A100 (${intl.formatMessage({
-        id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder.10000',
         defaultMessage: '充值超过 10000 可选',
       })})`,
       value: 'A100',
@@ -259,10 +259,26 @@ export const useGpuTypeOptions = () => {
     },
     {
       label: `H100 (${intl.formatMessage({
-        id: 'pages.golbal.gpu.select.option.disabled.placeholder',
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder.10000',
         defaultMessage: '充值超过 10000 可选',
       })})`,
       value: 'H100',
+      disabled: true,
+    },
+    {
+      label: `AMD MI 250 (${intl.formatMessage({
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder.1000',
+        defaultMessage: '充值超过 1000 可选',
+      })})`,
+      value: 'AMD MI 250',
+      disabled: true,
+    },
+    {
+      label: `AMD MI 300 (${intl.formatMessage({
+        id: 'pages.golbal.gpu.select.option.disabled.placeholder.2000',
+        defaultMessage: '充值超过 2000 可选',
+      })})`,
+      value: 'AMD MI 300',
       disabled: true,
     },
   ];
