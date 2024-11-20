@@ -62,7 +62,16 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			meta.Category = consts.ModelCategoryChat
 			meta.CanFinetune = true
 			meta.CanInference = true
+			meta.FinetuneGPUCount = 1
+			meta.InferenceGPUCount = 1
 			err = nil
+		}
+
+		if meta.FinetuneGPUCount == 0 {
+			meta.FinetuneGPUCount = 1
+		}
+		if meta.InferenceGPUCount == 0 {
+			meta.InferenceGPUCount = 1
 		}
 
 		var tag []string
@@ -90,8 +99,8 @@ func (l *ResourceModelsLogic) ResourceModels(req *types.ResourceModelsReq) (resp
 			Template:          meta.Template,
 			Meta:              ossModel.Meta,
 			Category:          meta.Category,
-			FinetuneGPUCount:  1,
-			InferenceGPUCount: 1,
+			FinetuneGPUCount:  meta.FinetuneGPUCount,
+			InferenceGPUCount: meta.InferenceGPUCount,
 		}
 
 		if isPublic {

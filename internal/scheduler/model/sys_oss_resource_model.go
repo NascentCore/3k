@@ -9,10 +9,12 @@ import (
 )
 
 type OssResourceModelMeta struct {
-	Template     string `json:"template"`
-	Category     string `json:"category"`
-	CanFinetune  bool   `json:"can_finetune"`
-	CanInference bool   `json:"can_inference"`
+	Template          string `json:"template"`
+	Category          string `json:"category"`
+	CanFinetune       bool   `json:"can_finetune"`
+	CanInference      bool   `json:"can_inference"`
+	FinetuneGPUCount  int    `json:"finetune_gpu_count"`
+	InferenceGPUCount int    `json:"inference_gpu_count"`
 }
 
 type OssResourceAdapterMeta struct {
