@@ -23,4 +23,4 @@ jobs:
       - name: Run task
         run: python .github/scripts/gpu_task.py
         env:
-          SXWL_TOKEN: ${{ secrets.AUTHORIZATION }}
+          SXWL_TOKEN: ${{ secrets.AUTHORIZATION_PRD }}
