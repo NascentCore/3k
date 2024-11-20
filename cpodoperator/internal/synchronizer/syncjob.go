@@ -2,6 +2,7 @@ package synchronizer
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -559,8 +560,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 			s.logger.Error(err, "failed to list inference job")
 			return
 		}
-		s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items)
-
 		for _, job := range portaljobs {
 			if job.UserID != string(user) {
 				continue
@@ -609,6 +608,19 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						anno[v1beta1.CPodPreTrainModelCategoryAnno] = "embedding"
 					}
 
+					params := ""
+					if job.ModelMeta != "" {
+						var modelMeta struct {
+							Params string `json:"params,omitempty"`
+						}
+						if err := json.Unmarshal([]byte(job.ModelMeta), &modelMeta); err == nil {
+							if modelMeta.Params != "" {
+								params = modelMeta.Params
+							}
+						}
+					}
+					s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items, "params", params)
+
 					// create
 					newJob = v1beta1.Inference{
 						ObjectMeta: metav1.ObjectMeta{
@@ -625,6 +637,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						Spec: v1beta1.InferenceSpec{
 							Backend: v1beta1.InferenceBackendKserve,
 							ModelID: job.ModelId,
+							Params:  &params,
 							Predictor: kservev1beta1.PredictorSpec{
 								PodSpec: kservev1beta1.PodSpec{
 									Containers: []v1.Container{

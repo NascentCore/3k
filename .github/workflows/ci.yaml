@@ -21,6 +21,6 @@ jobs:
           pip install requests  # 添加必要的依赖
 
       - name: Run task
-        run: python .github/scripts/inference.py
+        run: timeout --preserve-status --signal=TERM 30m python .github/scripts/inference.py
         env:
           SXWL_TOKEN: ${{ secrets.AUTHORIZATION }}

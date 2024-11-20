@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -605,16 +606,18 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 		}
 	}
 
-	rayService := &rayv1.RayService{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      inference.Name,
-			Namespace: inference.Namespace,
-			OwnerReferences: []metav1.OwnerReference{
-				i.generateOwnerRefInference(ctx, inference),
-			},
-		},
-		Spec: rayv1.RayServiceSpec{
-			ServeConfigV2: fmt.Sprintf(`applications:
+	extraParams := "{}"
+	if inference.Spec.Params != nil {
+		extraParams = *inference.Spec.Params
+	}
+	_, err := json.Marshal(extraParams)
+	if err != nil {
+		return fmt.Errorf("failed to marshal extra params: %v", err)
+	}
+
+	logrus.Infof("DEBUG5", "extraParams", extraParams, "escapedParams: %v", extraParams)
+
+	serveConfig := fmt.Sprintf(`applications:
     - name: llm
       route_prefix: /
       import_path: vllm_app:model 
@@ -636,22 +639,27 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
           downscale_delay_s: 600.0
           upscale_delay_s: 30.0
       runtime_env:
-        working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"`, minReplicas, maxReplicas),
+        working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"
+        env_vars:
+          EXTRA_PARAMS: '%v'
+          TENSOR_PARALLELISM: "%v"`, minReplicas, maxReplicas, extraParams, inference.Spec.GPUCount)
+
+	rayService := &rayv1.RayService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      inference.Name,
+			Namespace: inference.Namespace,
+			OwnerReferences: []metav1.OwnerReference{
+				i.generateOwnerRefInference(ctx, inference),
+			},
+		},
+		Spec: rayv1.RayServiceSpec{
+			ServeConfigV2: serveConfig,
 			RayClusterSpec: rayv1.RayClusterSpec{
 				EnableInTreeAutoscaling: ptr.To(true),
-				AutoscalerOptions: &rayv1.AutoscalerOptions{
-					Resources: &corev1.ResourceRequirements{
-						Requests: corev1.ResourceList{
-							"nvidia.com/gpu": resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
-						},
-						Limits: corev1.ResourceList{
-							"nvidia.com/gpu": resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
-						},
-					},
-				},
 				HeadGroupSpec: rayv1.HeadGroupSpec{
 					RayStartParams: map[string]string{
 						"dashboard-host": "0.0.0.0",
+						"num-gpus":       "0",
 					},
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
@@ -699,7 +707,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 						MaxReplicas: &maxReplicas,
 						GroupName:   "gpu-group",
 						RayStartParams: map[string]string{
-							"num-cpus": fmt.Sprintf("%d", inference.Spec.GPUCount),
+							"num-gpus": fmt.Sprintf("%d", inference.Spec.GPUCount),
 						},
 						Template: corev1.PodTemplateSpec{
 							Spec: corev1.PodSpec{
@@ -707,15 +715,17 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 									{
 										Name:  "llm",
 										Image: i.Options.RayImage,
+										Env:   []corev1.EnvVar{},
+
 										Resources: corev1.ResourceRequirements{
 											Requests: corev1.ResourceList{
 												corev1.ResourceCPU:    resource.MustParse("4"),
-												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												corev1.ResourceMemory: resource.MustParse("30Gi"),
 												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
 											},
 											Limits: corev1.ResourceList{
 												corev1.ResourceCPU:    resource.MustParse("4"),
-												corev1.ResourceMemory: resource.MustParse("20Gi"),
+												corev1.ResourceMemory: resource.MustParse("30Gi"),
 												"nvidia.com/gpu":      resource.MustParse(strconv.FormatInt(int64(inference.Spec.GPUCount), 10)),
 											},
 										},
@@ -737,7 +747,7 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 										VolumeSource: corev1.VolumeSource{
 											EmptyDir: &corev1.EmptyDirVolumeSource{
 												Medium:    corev1.StorageMediumMemory,
-												SizeLimit: resource.NewQuantity(20*1024*1024*1024, resource.BinarySI),
+												SizeLimit: resource.NewQuantity(30*1024*1024*1024, resource.BinarySI),
 											},
 										},
 									},
@@ -756,6 +766,20 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
 				},
 			},
 		},
+	}
+
+	if inference.Spec.Params != nil {
+		rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env = append(rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "EXTRA_PARAMS",
+			Value: *inference.Spec.Params,
+		})
+	}
+
+	if inference.Spec.GPUCount > 1 {
+		rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env = append(rayService.Spec.RayClusterSpec.WorkerGroupSpecs[0].Template.Spec.Containers[0].Env, corev1.EnvVar{
+			Name:  "TENSOR_PARALLELISM",
+			Value: strconv.Itoa(inference.Spec.GPUCount),
+		})
 	}
 
 	if err := i.Client.Create(ctx, rayService); err != nil {
