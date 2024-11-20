@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import requests
 import time
@@ -91,6 +92,7 @@ def main():
 
     except Exception as e:
         print(f"任务处理失败: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
