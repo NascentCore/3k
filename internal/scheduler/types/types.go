@@ -9,6 +9,10 @@ type Adapter struct {
 	AdapterIsPublic bool   `json:"adapter_is_public"`     // 是否公共适配器
 }
 
+type AdapterByNameReq struct {
+	AdapterName string `form:"adapter_name"`
+}
+
 type AdapterOptional struct {
 	AdapterId       string `json:"adapter_id,optional"`        // 适配器ID
 	AdapterName     string `json:"adapter_name,optional"`      // 适配器名字, owner/adapter
@@ -261,6 +265,10 @@ type Dataset struct {
 	DatasetIsPublic bool   `json:"dataset_is_public"`     // 是否公共数据集
 }
 
+type DatasetByNameReq struct {
+	DatasetName string `form:"dataset_name"`
+}
+
 type DatasetOptional struct {
 	DatasetId       string `json:"dataset_id,optional"`        // 数据集ID
 	DatasetName     string `json:"dataset_name,optional"`      // 数据集名字, owner/dataset
@@ -293,6 +301,17 @@ type FinetuneReq struct {
 
 type FinetuneResp struct {
 	JobId string `json:"job_id"`
+}
+
+type FinetuneStatusReq struct {
+	BaseReq
+	JobId string `form:"job_id"`
+}
+
+type FinetuneStatusResp struct {
+	JobId  string `json:"job_id"`
+	Status string `json:"status"`
+	Adapter
 }
 
 type GPUInfo struct {
@@ -392,6 +411,18 @@ type InferenceStatus struct {
 	ServiceName string `json:"service_name"`
 	Status      string `json:"status"`
 	URL         string `json:"url"`
+}
+
+type InferenceStatusReq struct {
+	BaseReq
+	ServiceName string `form:"service_name"`
+}
+
+type InferenceStatusResp struct {
+	ServiceName string `json:"service_name"`
+	Status      string `json:"status"`
+	ChatURL     string `json:"chat_url"`
+	APIURL      string `json:"api_url"`
 }
 
 type InferenceStopReq struct {
@@ -669,6 +700,10 @@ type Model struct {
 	ModelTemplate string `json:"model_template"`      // 模型的推理模版
 	ModelMeta     string `json:"model_meta"`          // 元信息
 	ModelCategory string `json:"model_category"`      // 模型分类
+}
+
+type ModelByNameReq struct {
+	ModelName string `form:"model_name"`
 }
 
 type ModelOptional struct {

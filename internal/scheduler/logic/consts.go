@@ -55,11 +55,14 @@ const (
 
 // resource
 var (
-	MsgResourceDeleteOK = "资源删除成功"
-	MsgResourceAddOK    = "资源创建成功"
+	MsgResourceDeleteOK       = "资源删除成功"
+	MsgResourceAddOK          = "资源创建成功"
 	ErrResourceSyncTaskExists = errors.New("同步任务已存在")
+	ErrModelNotFound          = errors.New("模型不存在")
+	ErrDatasetNotFound        = errors.New("数据集不存在")
 )
 
+// app
 var (
 	ErrAppDuplicate    = errors.New("已经有该类型的应用实例")
 	ErrAppNotExists    = errors.New("应用不存在")
@@ -71,4 +74,9 @@ var (
 // cluster
 var (
 	ErrCpodNotFound = errors.New("集群不存在")
+)
+
+// job
+var (
+	ErrPermissionDenied = errors.New("无权访问该任务")
 )
