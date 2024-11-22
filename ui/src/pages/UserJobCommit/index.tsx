@@ -18,7 +18,7 @@ const Welcome: React.FC = () => {
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState({
     ckptPath: '/workspace/ckpt',
-    modelPath: '/workspace/saved_model',
+    created_model_path: '/workspace/saved_model',
     stopType: 0,
     gpuNumber: 1,
     stopTime: 0,
@@ -93,7 +93,7 @@ const Welcome: React.FC = () => {
         // 只有在 General 类型且未选择 GPU Type 时，才设置默认值
         gpuNumber: (values.jobType === 'General' && !values.gpuType) ? 0 : Number(values.gpuNumber),
         gpuType: (values.jobType === 'General' && !values.gpuType) ? '' : values.gpuType,
-        modelVol: Number(values.modelVol),
+        created_model_vol: Number(values.created_model_vol),
 
         model_id: currentModel?.id,
         model_name: currentModel?.name,
@@ -227,12 +227,12 @@ const Welcome: React.FC = () => {
               <>
                 <span style={{ color: '#ff4d4f', marginRight: 4 }}>*</span>
                 {intl.formatMessage({
-                  id: 'pages.UserJobCommit.form.modelPath',
+                  id: 'pages.UserJobCommit.form.created_model_path',
                   defaultMessage: '输出目录',
                 })}
                 <Tooltip
                   title={intl.formatMessage({
-                    id: 'pages.UserJobCommit.form.modelPath.tooltip',
+                    id: 'pages.UserJobCommit.form.created_model_path.tooltip',
                     defaultMessage: '',
                   })}
                 >
@@ -244,7 +244,7 @@ const Welcome: React.FC = () => {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <Form.Item
                 style={{ flex: 1 }}
-                name="modelPath"
+                name="created_model_path"
                 rules={[
                   {
                     required: true,
@@ -273,16 +273,16 @@ const Welcome: React.FC = () => {
               </Form.Item>
               <Form.Item
                 style={{ flex: 1 }}
-                name="modelVol"
+                name="created_model_vol"
                 label={
                   <>
                     {intl.formatMessage({
-                      id: 'pages.UserJobCommit.form.modelVol',
+                      id: 'pages.UserJobCommit.form.created_model_vol',
                       defaultMessage: '容量',
                     })}
                     <Tooltip
                       title={intl.formatMessage({
-                        id: 'pages.UserJobCommit.form.modelVol.tooltip',
+                        id: 'pages.UserJobCommit.form.created_model_vol.tooltip',
                         defaultMessage: '',
                       })}
                     >

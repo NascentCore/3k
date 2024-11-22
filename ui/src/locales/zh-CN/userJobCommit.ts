@@ -9,11 +9,11 @@ export default {
   'pages.UserJobCommit.form.ckptVol': '容量',
   'pages.UserJobCommit.form.ckptVol.tooltip':
     'CKPT 路径及模型保存路径将挂载对应的 PV ，容量是需要申请的 PV 大小，根据训练预估数据量大小填写',
-  'pages.UserJobCommit.form.modelPath': '输出目录',
-  'pages.UserJobCommit.form.modelPath.tooltip':
+  'pages.UserJobCommit.form.created_model_path': '输出目录',
+  'pages.UserJobCommit.form.created_model_path.tooltip':
     '训练完成后的模型保存路径，对应用户训练程序中设置的保存路径',
-  'pages.UserJobCommit.form.modelVol': '容量',
-  'pages.UserJobCommit.form.modelVol.tooltip': '根据训练预估模型数据量大小，方便更好的存储模型',
+  'pages.UserJobCommit.form.created_model_vol': '容量',
+  'pages.UserJobCommit.form.created_model_vol.tooltip': '根据训练预估模型数据量大小，方便更好的存储模型',
   'pages.UserJobCommit.form.imagePath': '容器镜像',
   'pages.UserJobCommit.form.imagePath.tooltip':
     '用户需要将训练程序、训练数据以及所需环境打包成镜像，并将镜像上传到公网可访问的镜像仓库，镜像打包过程可参考附录一',
