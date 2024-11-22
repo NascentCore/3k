@@ -96,6 +96,8 @@ func (l *JobCreateLogic) JobCreate(req *types.JobCreateReq) (resp *types.JobCrea
 
 	jsonAll := &model.JobJson{
 		JobName:               jobName,
+		CreatedModelPath:      req.CreatedModelPath,
+		CreatedModelVol:       req.CreatedModelVol,
 		PretrainModelId:       req.ModelId,
 		PretrainModelName:     req.ModelName,
 		PretrainModelIsPublic: req.ModelIsPublic,

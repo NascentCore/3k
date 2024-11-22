@@ -9,11 +9,11 @@ export default {
   'pages.UserJobCommit.form.ckptVol': 'Capacity',
   'pages.UserJobCommit.form.ckptVol.tooltip':
     'The CKPT path and model save path will mount the corresponding PV. The capacity is the size of PV that needs to be requested, based on the estimated data size of the training',
-  'pages.UserJobCommit.form.modelPath': 'Output Directory',
-  'pages.UserJobCommit.form.modelPath.tooltip':
+  'pages.UserJobCommit.form.created_model_path': 'Output Directory',
+  'pages.UserJobCommit.form.created_model_path.tooltip':
     "The path to save the model after training is completed, corresponding to the save path set in the user's training program",
-  'pages.UserJobCommit.form.modelVol': 'Capacity',
-  'pages.UserJobCommit.form.modelVol.tooltip':
+  'pages.UserJobCommit.form.created_model_vol': 'Capacity',
+  'pages.UserJobCommit.form.created_model_vol.tooltip':
     'Based on the estimated model data size of the training, for better model storage',
   'pages.UserJobCommit.form.imagePath': 'Container Image',
   'pages.UserJobCommit.form.imagePath.tooltip':

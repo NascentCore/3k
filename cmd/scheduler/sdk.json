@@ -804,10 +804,10 @@
           "type": "integer",
           "format": "int64"
         },
-        "modelPath": {
+        "created_model_path": {
           "type": "string"
         },
-        "modelVol": {
+        "created_model_vol": {
           "type": "integer",
           "format": "int64"
         },
@@ -897,8 +897,8 @@
         "gpuType",
         "ckptPath",
         "ckptVol",
-        "modelPath",
-        "modelVol",
+        "created_model_path",
+        "created_model_vol",
         "imagePath",
         "jobType"
       ]
