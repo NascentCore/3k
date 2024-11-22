@@ -1,4 +1,6 @@
+import os
 import jieba
+from text2vec import Similarity
 
 def rouge_score(text1, text2):
     """
@@ -51,3 +53,16 @@ def rouge_score(text1, text2):
     f1 = 2 * recall * precision / (recall + precision)
     
     return f1
+
+def bert_score(
+    continuation: str,
+    reference: str
+) -> float:
+    """
+    Note:
+        Requesting the network to connect to Hugging Face.
+    """
+    #sim = Similarity(model_name_or_path="src/text2vec-base-chinese")
+    sim = Similarity(model_name_or_path=os.path.join(os.path.dirname(__file__), "sentence-transformers/bge-base-zh-v1.5"))
+    score = sim.get_score(continuation, reference)
+    return score
