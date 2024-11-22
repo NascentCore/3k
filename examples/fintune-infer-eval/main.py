@@ -6,7 +6,7 @@ from sxwl_client.api import SchedulerApiApi
 from sxwl_client.models.finetune_req import FinetuneReq
 from sxwl_client.models.inference_deploy_req import InferenceDeployReq
 from config import API_HOST, API_TOKEN, EVALUATION_CONFIG, SX_USER_ID, FINETUNE_CONFIG
-from calculate_score import rouge_score
+from calculate_score import rouge_score, bert_score
 import jieba  # 因为rouge_score函数依赖jieba
 
 def log_message(message: str) -> None:
@@ -111,10 +111,10 @@ def main():
         deploy_duration = deploy_end_time - deploy_start_time
         total_duration = finetune_duration + deploy_duration
         
-        log_message(f"\nInference Service: {inference_status.service_name} is ready")
+        log_message(f"Inference Service: {inference_status.service_name} is ready")
         log_message(f"Inference API URL: {inference_status.api_url}")
         log_message(f"Inference Chat URL: {inference_status.chat_url}")
-        log_message("\n耗时统计:")
+        log_message("耗时统计:")
         log_message(f"微调训练耗时: {finetune_duration:.2f} 秒 ({finetune_duration/60:.2f} 分钟)")
         log_message(f"推理部署耗时: {deploy_duration:.2f} 秒 ({deploy_duration/60:.2f} 分钟)")
         log_message(f"总耗时: {total_duration:.2f} 秒 ({total_duration/60:.2f} 分钟)")
@@ -156,7 +156,8 @@ def main():
                         "user_content": eval_item["user_content"],
                         "original_response": eval_item["original_response"],
                         "model_response": result["choices"][0]["message"]["content"],
-                        "score": rouge_score(eval_item["original_response"], result)
+                        "rouge_score": rouge_score(eval_item["original_response"], result),
+                        "bert_score": bert_score(eval_item["original_response"], result)
                     })
                     
                     log_message(f"评测项 {idx + 1} 完成")
@@ -174,10 +175,15 @@ def main():
                 json.dump(evaluation_results, f, ensure_ascii=False, indent=2)
             
             # 打印一下评测结果的最高score、最低score、平均score
-            scores = [result["score"] for result in evaluation_results]
-            log_message(f"评测结果最高score: {max(scores)}")
-            log_message(f"评测结果最低score: {min(scores)}")
-            log_message(f"评测结果平均score: {sum(scores) / len(scores)}")
+            scores = [result["rouge_score"] for result in evaluation_results]
+            log_message(f"评测结果最高rouge_score: {max(scores)}")
+            log_message(f"评测结果最低rouge_score: {min(scores)}")
+            log_message(f"评测结果平均rouge_score: {sum(scores) / len(scores)}")
+            
+            scores = [result["bert_score"] for result in evaluation_results]
+            log_message(f"评测结果最高bert_score: {max(scores)}")
+            log_message(f"评测结果最低bert_score: {min(scores)}")
+            log_message(f"评测结果平均bert_score: {sum(scores) / len(scores)}")
             
             log_message(f"评测结果已保存到: {output_file}")
 
