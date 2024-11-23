@@ -120,8 +120,8 @@ def main():
         log_message(f"总耗时: {total_duration:.2f} 秒 ({total_duration/60:.2f} 分钟)")
 
         # 使用评测集调用推理接口生成数据
-        # inference_api_url = inference_status.api_url
-        inference_api_url = "http://test.llm.sxwl.ai:30004/inference/api/infer-6451530b-792b-4ad0-b08f-8ec37a3fe483/v1/chat/completions"
+        inference_api_url = inference_status.api_url
+        # inference_api_url = "http://test.llm.sxwl.ai:30004/inference/api/infer-6451530b-792b-4ad0-b08f-8ec37a3fe483/v1/chat/completions"
         with open(EVALUATION_CONFIG["evaluation_file"], "r") as file:
             eval_data = json.load(file)
             
@@ -150,14 +150,15 @@ def main():
                     )
                     
                     result = response.json()
+                    model_response = result["choices"][0]["message"]["content"]
                     
                     # 保存评测结果
                     evaluation_results.append({
                         "user_content": eval_item["user_content"],
                         "original_response": eval_item["original_response"],
-                        "model_response": result["choices"][0]["message"]["content"],
-                        "rouge_score": rouge_score(eval_item["original_response"], result),
-                        "bert_score": bert_score(eval_item["original_response"], result)
+                        "model_response": model_response,
+                        "rouge_score": rouge_score(eval_item["original_response"], model_response),
+                        "bert_score": bert_score(eval_item["original_response"], model_response)
                     })
                     
                     log_message(f"评测项 {idx + 1} 完成")
