@@ -29,7 +29,7 @@ class GPUJobTester:
         url = f"{self.base_url}/api/job/training"
         for attempt in range(max_retries):
             print(f"检查任务状态 (尝试 {attempt + 1}/{max_retries})...")
-            response = requests.get(url, headers=self.headers, params={"current": 1, "size": 1000})
+            response = requests.get(url, headers=self.headers, params={"current": 1, "size": 100})
             response.raise_for_status()
             jobs = response.json().get('content', [])
             for job in jobs:
@@ -62,19 +62,21 @@ def main():
     # 定义任务配置
     job_config = {
         "ckptPath": "/workspace/ckpt",
-        "ckptVol": 100,
+        "ckptVol": 1024,
         "modelPath": "/workspace/saved_model",
-        "modelVol": 100,
+        "modelVol": 1024,
         "nodeCount": 1,
         "gpuNumber": 1,
         "gpuType": "NVIDIA-GeForce-RTX-3090",
-        "imagePath": "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/generaljob-example:v2",
-        "jobType": "General",
-        "dataset_id": "dataset-storage-5172f0de7b73c55a",
-        "dataset_path": "/mnt/datasets",
-        "dataset_name": "llama-factory/oaast_sft_zh",
-        "dataset_size": 1069203,
-        "dataset_is_public": True
+        "imagePath": "dockerhub.kubekey.local/kubesphereio/jupyterlab-llamafactory:v13",
+        "jobType": "Pytorch",
+        "model_id": "model-storage-10e872cd960e38cb",
+        "model_path": "/models/ZhipuAI/chatglm3-6b",
+        "model_name": "ZhipuAI/chatglm3-6b",
+        "model_size": 24975600249,
+        "model_template": "chatglm3",
+        "model_is_public": True,
+        "runCommand": "llamafactory-cli train --stage sft --do_train True --model_name_or_path /models/ZhipuAI/chatglm3-6b --preprocessing_num_workers 16 --finetuning_type lora --template default --flash_attn auto --dataset_dir /llamafactory/data --dataset alpaca_zh_demo --cutoff_len 1024 --learning_rate 5e-05 --num_train_epochs 3.0 --max_samples 100000 --per_device_train_batch_size 2 --gradient_accumulation_steps 8 --lr_scheduler_type cosine --max_grad_norm 1.0 --logging_steps 5 --save_steps 100 --warmup_steps 0 --optim adamw_torch --packing False --report_to none --output_dir saves/ZhipuAIchatglm3-6b/lora/train_lora --fp16 True --plot_loss True --lora_rank 8 --lora_alpha 16 --lora_dropout 0 --lora_target query_key_value"
     }
 
     try:
