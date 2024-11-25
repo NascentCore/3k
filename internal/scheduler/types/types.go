@@ -323,6 +323,25 @@ type GPUInfo struct {
 	Status  string `json:"status"`
 }
 
+type GPUJobStatusReq struct {
+	BaseReq
+	JobId string `form:"job_id"`
+}
+
+type GPUJobStatusResp struct {
+	JobId  string `json:"job_id"`
+	Status string `json:"status"`
+}
+
+type GPUJobStopReq struct {
+	BaseReq
+	JobId string `form:"job_id"`
+}
+
+type GPUJobStopResp struct {
+	Message string `json:"message"`
+}
+
 type GPUSummary struct {
 	Allocatable int    `json:"allocatable"`
 	Total       int    `json:"total"`

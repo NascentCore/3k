@@ -74,6 +74,21 @@ type (
 	JobCreateResp {
 		JobId string `json:"job_id"`
 	}
+	GPUJobStatusReq {
+		BaseReq
+		JobId string `form:"job_id"`
+	}
+	GPUJobStatusResp {
+		JobId  string `json:"job_id"`
+		Status string `json:"status"`
+	}
+	GPUJobStopReq {
+		BaseReq
+		JobId string `form:"job_id"`
+	}
+	GPUJobStopResp {
+		Message string `json:"message"`
+	}
 )
 
 type (
@@ -133,6 +148,12 @@ service scheduler-api {
 
     @handler JobCreate
 	post /api/job/training (JobCreateReq) returns (JobCreateResp)
+
+	@handler GpuJobStatus
+	get /api/job/gpu/status (GPUJobStatusReq) returns (GPUJobStatusResp)
+
+	@handler GpuJobStop
+	post /api/job/gpu/stop (GPUJobStopReq) returns (BaseResp)
 
 	@handler FinetuneStatus
 	get /api/job/finetune/status (FinetuneStatusReq) returns (FinetuneStatusResp)

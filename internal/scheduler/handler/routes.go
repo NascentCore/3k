@@ -347,6 +347,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: FinetuneStatusHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodGet,
+				Path:    "/api/job/gpu/status",
+				Handler: GpuJobStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/job/gpu/stop",
+				Handler: GpuJobStopHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodPost,
 				Path:    "/api/job/inference",
 				Handler: InferenceDeployHandler(serverCtx),

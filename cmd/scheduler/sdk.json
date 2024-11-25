@@ -81,6 +81,68 @@
         ]
       }
     },
+    "/api/job/gpu/status": {
+      "get": {
+        "operationId": "GpuJobStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/GPUJobStatusResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Sx-User-ID",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "job_id",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/job/gpu/stop": {
+      "post": {
+        "operationId": "GpuJobStop",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/BaseResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GPUJobStopReq"
+            }
+          }
+        ],
+        "tags": [
+          "scheduler-api"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
     "/api/job/inference": {
       "post": {
         "operationId": "InferenceDeploy",
@@ -602,6 +664,58 @@
       "required": [
         "job_id",
         "status"
+      ]
+    },
+    "GPUJobStatusReq": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "GPUJobStatusReq",
+      "required": [
+        "job_id"
+      ]
+    },
+    "GPUJobStatusResp": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "title": "GPUJobStatusResp",
+      "required": [
+        "job_id",
+        "status"
+      ]
+    },
+    "GPUJobStopReq": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "title": "GPUJobStopReq",
+      "required": [
+        "job_id"
+      ]
+    },
+    "GPUJobStopResp": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "GPUJobStopResp",
+      "required": [
+        "message"
       ]
     },
     "Hyperparameters": {
