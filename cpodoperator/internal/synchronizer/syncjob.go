@@ -580,14 +580,19 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 				}
 				params := ""
 				if job.ModelMeta != "" {
-					startIndex := strings.Index(job.ModelMeta, "\"params\":") + len("\"params\":")
-					endIndex := strings.LastIndex(job.ModelMeta, "}")
-					if startIndex != -1 && endIndex != -1 && startIndex < endIndex {
-						params = job.ModelMeta[startIndex:endIndex]
+					// 检查是否包含params字段
+					if strings.Contains(job.ModelMeta, "\"params\":") {
+						startIndex := strings.Index(job.ModelMeta, "\"params\":") + len("\"params\":")
+						endIndex := strings.LastIndex(job.ModelMeta, "}")
+						if startIndex != -1 && endIndex != -1 && startIndex < endIndex {
+							params = job.ModelMeta[startIndex:endIndex]
+						} else {
+							s.logger.Error(fmt.Errorf("failed to parse model meta"), "modelmeta", job.ModelMeta)
+						}
 					} else {
-						s.logger.Error(fmt.Errorf("failed to parse model meta"), "modelmeta", job.ModelMeta)
+						// 如果不包含params字段,则设置为空字符串
+						params = "{}"
 					}
-
 				}
 				s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items, "parsedParams", params)
 
