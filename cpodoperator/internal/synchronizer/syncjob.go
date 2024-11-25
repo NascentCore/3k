@@ -2,7 +2,6 @@ package synchronizer
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -579,6 +578,19 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 					v1beta1.CPodAdapterReadableNameAnno:       job.AdapterName,
 					v1beta1.CPodAdapterSizeAnno:               fmt.Sprintf("%d", job.AdapterSize),
 				}
+				params := ""
+				if job.ModelMeta != "" {
+					startIndex := strings.Index(job.ModelMeta, "\"params\":") + len("\"params\":")
+					endIndex := strings.LastIndex(job.ModelMeta, "}")
+					if startIndex != -1 && endIndex != -1 && startIndex < endIndex {
+						params = job.ModelMeta[startIndex:endIndex]
+					} else {
+						s.logger.Error(fmt.Errorf("failed to parse model meta"), "modelmeta", job.ModelMeta)
+					}
+
+				}
+				s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items, "parsedParams", params)
+
 				if job.AdapterId != "" || job.ModelCategory == "embedding" {
 					template := job.Template
 					if template == "" {
@@ -607,19 +619,6 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 						img = s.embeddingImage
 						anno[v1beta1.CPodPreTrainModelCategoryAnno] = "embedding"
 					}
-
-					params := ""
-					if job.ModelMeta != "" {
-						var modelMeta struct {
-							Params string `json:"params,omitempty"`
-						}
-						if err := json.Unmarshal([]byte(job.ModelMeta), &modelMeta); err == nil {
-							if modelMeta.Params != "" {
-								params = modelMeta.Params
-							}
-						}
-					}
-					s.logger.Info("DEBUG sync inference job of user", "user", user, "jobs", portaljobs, "existing", cpodInferenceJobs.Items, "params", params)
 
 					// create
 					newJob = v1beta1.Inference{
@@ -723,6 +722,7 @@ func (s *SyncJob) processInferenceJobs(ctx context.Context, userIDs []sxwl.UserI
 							},
 							ModelID:  job.ModelId,
 							GPUCount: int(job.GpuNumber),
+							Params:   &params,
 						},
 					}
 
