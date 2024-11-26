@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0px;
+  height: calc(100vh - 160px);
+  min-height: 0;
+}
+
+.topSection {
+  width: 100%;
+  padding: 12px;
+  background-color: #f6f8fa;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.leftSection {
+  flex: 3;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 1200px;
+  overflow: hidden;
+}
+
+.chatContainer {
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+
+  iframe {
+    display: block;
+    width: calc(100% / 0.9);
+    height: calc(100% / 0.9);
+    border: none;
+    transform: scale(0.9);
+    transform-origin: 0 0;
+    border-radius: 8px;
+  }
+}
+
+.rightSection {
+  flex: 2;
+  padding: 12px;
+  display: flex;
+  min-width: 0;
+//   height: 100%;
+  background-color: #f6f8fa;
+  border-radius: 8px;
+  margin-right: 12px;
+  position: relative;
+
+  :global {
+    pre, code {
+      font-size: 16px !important;
+      * {
+        font-size: 16px !important;
+      }
+    }
+  }
+
+  .copyButton {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    opacity: 0.8;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+} 

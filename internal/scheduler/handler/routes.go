@@ -24,6 +24,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/api/job/inference/playground",
+				Handler: InferencePlaygroundHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/api/job/training",
 				Handler: JobGetHandler(serverCtx),
 			},

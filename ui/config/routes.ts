@@ -80,6 +80,12 @@ export default [
     component: './Welcome',
   },
   {
+    path: '/playground',
+    name: 'Playground',
+    icon: 'ExperimentOutlined',
+    component: './Playground',
+  },
+  {
     path: '/ClusterInformation',
     name: 'ClusterInformation',
     icon: 'ClusterOutlined',

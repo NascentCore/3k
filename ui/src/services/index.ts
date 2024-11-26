@@ -591,3 +591,10 @@ export const useApiClusterCpodNamePut = () => {
       }),
   );
 };
+
+export async function apiInferencePlayground(options?: { [key: string]: any }) {
+  return request('/api/job/inference/playground', {
+    method: 'GET',
+    ...(options || {}),
+  });  
+}
