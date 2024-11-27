@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sxwl/3k/pkg/config"
 	"sxwl/3k/pkg/fs"
@@ -368,11 +369,21 @@ func UploadDir(bucketName, localDirPath, ossDirPath string, verbose bool) (int64
 			return err
 		}
 
-		// Update total bytes
-		totalBytes += info.Size()
+		// 获取上传后的文件信息
+		props, err := bucket.GetObjectDetailedMeta(ossPath)
+		if err != nil {
+			log.SLogger.Errorw("get object meta err", "error", err, "ossPath", ossPath)
+			return err
+		}
 
-		if verbose {
-			log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", info.Size())
+		// 从 OSS 元数据中获取文件大小
+		if contentLength := props["Content-Length"]; len(contentLength) > 0 {
+			if size, err := strconv.ParseInt(contentLength[0], 10, 64); err == nil {
+				totalBytes += size
+				if verbose {
+					log.SLogger.Infow("file uploaded", "ossPath", ossPath, "filePath", filePath, "size", size)
+				}
+			}
 		}
 
 		return nil
