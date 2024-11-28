@@ -19,14 +19,16 @@ import (
 )
 
 var (
-	dir       string
-	resource  string
-	template  string
-	baseModel string
-	category  string
-	public    bool
-	owner     string
-	verbose   bool
+	dir            string
+	resource       string
+	template       string
+	baseModel      string
+	category       string
+	public         bool
+	owner          string
+	verbose        bool
+	datasetPreview string
+	datasetTotal   int64
 )
 
 type Config struct {
@@ -85,6 +87,15 @@ var uploadCmd = &cobra.Command{
 				log.Fatalf("Please use --base_model to set the base model for the adapter")
 			}
 		case consts.Dataset:
+			datasetPreview, err = fs.PreviewJSONArray(filepath.Join(dir, "dataset.json"), 5)
+			if err != nil {
+				log.Printf("Please check dataset.json in the dataset dir: %v", err)
+			}
+
+			datasetTotal, err = fs.CountJSONArray(filepath.Join(dir, "dataset.json"))
+			if err != nil {
+				log.Printf("Please check dataset.json in the dataset dir: %v", err)
+			}
 		default:
 			fmt.Println("data_type should be [model|dataset|adapter]")
 			os.Exit(1)
@@ -149,6 +160,11 @@ var uploadCmd = &cobra.Command{
 				})
 			case consts.Dataset:
 				resourceID = storage.DatasetCRDName(storage.ResourceToOSSPath(consts.Dataset, resourceName))
+				metaBytes, _ = json.Marshal(model.OssResourceDatasetMeta{
+					Preview: datasetPreview,
+					Total:   datasetTotal,
+					Size:    size,
+				})
 			case consts.Adapter:
 				metaBytes, _ = json.Marshal(model.OssResourceAdapterMeta{
 					BaseModel: baseModel,

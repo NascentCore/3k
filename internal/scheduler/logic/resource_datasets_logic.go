@@ -58,6 +58,7 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 			Owner:    dataset.UserId,
 			IsPublic: isPublic,
 			Size:     dataset.ResourceSize,
+			Meta:     dataset.Meta,
 		}
 
 		if isPublic {

@@ -1,4 +1,7 @@
-FROM golang:1.21-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
+
+ARG TARGETARCH
+ARG BUILDPLATFORM
 
 ENV GOPROXY https://goproxy.cn,direct
 WORKDIR /build
@@ -8,7 +11,7 @@ ADD ./cmd/uploader ./cmd/uploader
 ADD ./pkg ./pkg
 
 WORKDIR /build/cmd/uploader
-RUN go build -o app main.go
+RUN GOOS=linux GOARCH=$TARGETARCH go build -o app main.go
 
 FROM alpine:3.19
 
