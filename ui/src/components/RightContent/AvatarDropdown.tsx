@@ -161,7 +161,14 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
                 </div>
               </div>
             }
-            title="Api Token"
+            title={
+              <span>
+                Api Token
+                <span style={{ marginLeft: 4, color: '#999' }}>
+                  ({currentUser?.user_id})
+                </span>
+              </span>
+            }
           >
             <div>
               {intl.formatMessage({

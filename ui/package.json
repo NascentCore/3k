@@ -47,6 +47,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.8.1",
     "@ant-design/pro-components": "^2.6.48",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@umijs/route-utils": "^2.2.2",
     "antd": "^5.13.2",
     "antd-style": "^3.6.1",
@@ -62,6 +63,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-helmet-async": "^1.3.0",
+    "react-syntax-highlighter": "^15.6.1",
     "swr": "^2.2.5"
   },
   "devDependencies": {

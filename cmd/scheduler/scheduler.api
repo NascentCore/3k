@@ -401,6 +401,9 @@ service scheduler-api {
 	@handler InferenceDeleteHandler
 	delete /api/job/inference (InferenceDeleteReq) returns (InferenceDeleteResp)
 
+	@handler InferencePlayground
+	get /api/job/inference/playground (BaseReq) returns (InferenceInfoResp)
+
 	@handler NodeAddHandler
 	post /node (NodeAddReq) returns (NodeAddResp)
 

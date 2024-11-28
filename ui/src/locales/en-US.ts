@@ -14,6 +14,7 @@ import myAccount from './en-US/myAccount';
 import clusterCpods from './en-US/clusterCpods';
 import applicationMenu from './en-US/applicationMenu';
 import jobDetail from './en-US/jobDetail';
+import playground from './en-US/playground';
 
 export default {
   'menu.welcome': 'Welcome',
@@ -32,6 +33,8 @@ export default {
   'menu.ClusterCpods': 'Clusters',
   'menu.ApplicationManagement': 'Large Model Application Management',
   'menu.ApplicationMenu': 'Large Model Application',
+  'menu.JobDetail': 'Job Details',
+  'menu.Playground': 'Playground', 
   'nav.title.Price': 'Price',
   'nav.title.Document': 'Document',
   ...global,
@@ -50,4 +53,5 @@ export default {
   ...clusterCpods,
   ...applicationMenu,
   ...jobDetail,
+  ...playground,
 };
