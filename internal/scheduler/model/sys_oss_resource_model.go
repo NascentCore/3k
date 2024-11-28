@@ -21,6 +21,12 @@ type OssResourceAdapterMeta struct {
 	BaseModel string `json:"base_model"`
 }
 
+type OssResourceDatasetMeta struct {
+	Preview string `json:"preview"`
+	Total   int64  `json:"total"`
+	Size    int64  `json:"size"`
+}
+
 var _ SysOssResourceModel = (*customSysOssResourceModel)(nil)
 
 type (
