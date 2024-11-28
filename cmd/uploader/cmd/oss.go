@@ -69,7 +69,7 @@ var ossCmd = &cobra.Command{
 			fmt.Printf("upload failed, error: %v\n", err)
 			os.Exit(1)
 		} else {
-			fmt.Printf("%s has been uploaded. size: %s used time: %s\n", dir, fs.FormatBytes(size), time.Since(start).String())
+			fmt.Printf("%s has been uploaded. size: %d bytes (%s) used time: %s \n", dir, size, fs.FormatBytes(size), time.Since(start).String())
 		}
 	},
 }
