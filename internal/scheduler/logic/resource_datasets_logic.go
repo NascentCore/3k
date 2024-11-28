@@ -34,10 +34,12 @@ func (l *ResourceDatasetsLogic) ResourceDatasets(req *types.ResourceDatasetsReq)
 	}
 
 	datasets, err := OssResourceModel.Find(l.ctx, OssResourceModel.AllFieldsBuilder().Where(
-		squirrel.Eq{"resource_type": consts.Dataset},
-		squirrel.Or{
-			squirrel.Eq{"public": model.CachePublic},
-			squirrel.Eq{"user_id": req.UserID},
+		squirrel.And{
+			squirrel.Eq{"resource_type": consts.Dataset},
+			squirrel.Or{
+				squirrel.Eq{"public": model.CachePublic},
+				squirrel.Eq{"user_id": req.UserID},
+			},
 		},
 	))
 	if err != nil {
