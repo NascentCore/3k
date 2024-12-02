@@ -35,6 +35,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/record"
 	"knative.dev/pkg/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -75,7 +76,8 @@ type CPodJobOption struct {
 // CPodJobReconciler reconciles a CPodJob object
 type CPodJobReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	KubeClient *kubernetes.Clientset
+	Scheme     *runtime.Scheme
 
 	// Recorder is an event recorder for recording Event resources to the
 	// Kubernetes API.
@@ -912,6 +914,52 @@ func (c *CPodJobReconciler) uploadSavedModel(ctx context.Context, cpodjob *v1bet
 		return err
 	}
 	if uploadJob.Status.Succeeded == 1 {
+		// TODO：获取 job对应 pod的日志输出
+		// 获取 uploadJob 对应的 pod
+		var pods corev1.PodList
+		if err := c.Client.List(ctx, &pods, client.InNamespace(uploadJob.Namespace), client.MatchingLabels{"job-name": uploadJob.Name}); err != nil {
+			return fmt.Errorf("failed to get upload job pod: %v", err)
+		}
+		if len(pods.Items) == 0 {
+			return fmt.Errorf("no pod found for upload job")
+		}
+		// 获取 pod 最后一行日志
+		logs, err := c.KubeClient.CoreV1().Pods(pods.Items[0].Namespace).GetLogs(pods.Items[0].Name, &corev1.PodLogOptions{}).Do(ctx).Raw()
+		if err != nil {
+			return fmt.Errorf("failed to get pod logs: %v", err)
+		}
+		// 获取最后一行日志
+		logLines := strings.Split(string(logs), "\n")
+		var lastLine string
+		for i := len(logLines) - 1; i >= 0; i-- {
+			if logLines[i] != "" {
+				lastLine = logLines[i]
+				break
+			}
+		}
+		// 解析日志中的文件大小
+		sizeStr := ""
+		if strings.Contains(lastLine, "size:") {
+			parts := strings.Split(lastLine, "size:")
+			if len(parts) > 1 {
+				sizeStr = strings.TrimSpace(strings.Split(parts[1], "used")[0])
+			}
+		}
+
+		var sizeBytes int64
+		if strings.Contains(sizeStr, "MB") {
+			size, _ := strconv.ParseFloat(strings.TrimSpace(strings.TrimSuffix(sizeStr, "MB")), 64)
+			sizeBytes = int64(size * 1024 * 1024)
+		} else if strings.Contains(sizeStr, "GB") {
+			size, _ := strconv.ParseFloat(strings.TrimSpace(strings.TrimSuffix(sizeStr, "GB")), 64)
+			sizeBytes = int64(size * 1024 * 1024 * 1024)
+		} else if strings.Contains(sizeStr, "KB") {
+			size, _ := strconv.ParseFloat(strings.TrimSpace(strings.TrimSuffix(sizeStr, "KB")), 64)
+			sizeBytes = int64(size * 1024)
+		}
+		resourceInfo.ResourceSize = int(sizeBytes)
+
+		logrus.Info("DEBUG FETCHED LOG", "lastLine", lastLine, "logs", string(logs), "sizeBytes", sizeBytes)
 		util.UpdateJobConditions(&cpodjob.Status, cpodv1beta1.JobModelUploaded, corev1.ConditionTrue, "UploadModelSucceed", "Upload model succeed")
 		// TODO: 通知算想云
 		logrus.Info("DEBUG ", "cpodjob", cpodjob.Spec, "resourceInfo", *resourceInfo)
