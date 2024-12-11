@@ -1,0 +1,48 @@
+# 操作系统生成的文件
+.DS_Store
+Thumbs.db
+
+# IDE 和编辑器文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 依赖目录
+node_modules/
+vendor/
+.env
+.venv/
+.python-version
+
+# 编译输出
+dist/
+build/
+out/
+*.class
+*.o
+*.pyc
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 本地配置文件
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 缓存目录
+.cache/
+.temp/
+.tmp/
+
+# 数据目录
+data/images/
+
+# 测试覆盖率报告
+coverage/
