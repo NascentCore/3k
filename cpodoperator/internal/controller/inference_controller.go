@@ -94,7 +94,7 @@ func (i *InferenceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	if err := i.prepareData(ctx, inference); err != nil {
 		logrus.Error("prepare model and adapter failed", "err", err, "inference", inference)
 		inferenceDeepcopy.Status.DataReady = false
-		return ctrl.Result{}, err
+		return ctrl.Result{RequeueAfter: 20 * time.Second}, err
 	}
 	inferenceDeepcopy.Status.DataReady = true
 
