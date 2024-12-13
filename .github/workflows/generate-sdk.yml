@@ -26,7 +26,7 @@ jobs:
       - name: Generate Python SDK
         run: |
           openapi-generator-cli generate \
-          -i 3k/cmd/scheduler/sdk.json \
+          -i ./cmd/scheduler/sdk.json \
           -g python \
           -o ./sxwl-python-sdk/ \
           --package-name sxwl_client \
