@@ -1,0 +1,45 @@
+name: Generate and Push SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'SDK Version to Generate (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  generate-and-push-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install OpenAPI Generator CLI
+        run: npm install @openapitools/openapi-generator-cli -g
+
+      - name: Generate Python SDK
+        run: |
+          openapi-generator-cli generate \
+          -i 3k/cmd/scheduler/sdk.json \
+          -g python \
+          -o ./sxwl-python-sdk/ \
+          --package-name sxwl_client \
+          --additional-properties=packageVersion=${{ github.event.inputs.version }}
+
+      - name: Push SDK to `sxwl-python-sdk` Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ./sxwl-python-sdk
+          git init
+          git remote add origin https://github.com/NascentCore/sxwl-python-sdk.git
+          git checkout -b main
+          git add .
+          git commit -m "Generated SDK for version ${{ github.event.inputs.version }}"
+          git push origin main --force
