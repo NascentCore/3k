@@ -28,23 +28,21 @@ jobs:
           openapi-generator-cli generate \
           -i ./cmd/scheduler/sdk.json \
           -g python \
-          -o ./sxwl-python-sdk/ \
+          -o /tmp/sxwl-python-sdk \
           --package-name sxwl_client \
           --additional-properties=packageVersion=${{ github.event.inputs.version }}
 
-      - name: Configure Git
+      - name: Checkout `sxwl-python-sdk` Repository
+        uses: actions/checkout@v3
+        with:
+          repository: NascentCore/sxwl-python-sdk
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          persist-credentials: false
+      
+      - name: Copy Generated SDK to Target Repository
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Push SDK to `sxwl-python-sdk` Repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd ./sxwl-python-sdk
-          git init
-          git remote add origin https://${{ secrets.GITHUB_TOKEN }}@github.com/NascentCore/sxwl-python-sdk.git
-          git checkout -b main
+          rsync -av --delete /tmp/sxwl-python-sdk/ .
           git add .
           git commit -m "Generated SDK for version ${{ github.event.inputs.version }}"
-          git push origin main --force
+          git push
