@@ -42,7 +42,7 @@ jobs:
       
       - name: Copy Generated SDK to Target Repository
         run: |
-          rsync -av --delete /tmp/sxwl-python-sdk/ .
+          rsync -av --delete --exclude=".git" /tmp/sxwl-python-sdk/ .
           git add .
           git commit -m "Generated SDK for version ${{ github.event.inputs.version }}"
           git push
