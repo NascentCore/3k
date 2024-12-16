@@ -27,10 +27,6 @@
             >
               <el-icon><Camera /></el-icon>
             </el-button>
-            <div v-if="uploadedImageUrl" class="thumbnail-container">
-              <img :src="uploadedImageUrl" class="thumbnail-image" />
-              <el-icon class="remove-thumbnail" @click="removeThumbnail"><Close /></el-icon>
-            </div>
           </template>
           <template #append>
             <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -67,10 +63,21 @@
     </div>
 
     <div class="search-results">
-      <div v-if="hasSearched && searchImageUrl" class="search-reference">
-        <h3 class="reference-title">搜索图片参考：</h3>
+      <div v-if="uploadedImageUrl || (hasSearched && searchImageUrl)" class="search-reference">
+        <h3 class="reference-title">您上传的图片：</h3>
         <div class="reference-image-container">
-          <img :src="searchImageUrl" class="reference-image" @click="showLargeImage(searchImageUrl)">
+          <img 
+            :src="uploadedImageUrl || searchImageUrl" 
+            class="reference-image" 
+            @click="showLargeImage(uploadedImageUrl || searchImageUrl)"
+          >
+          <el-icon 
+            v-if="uploadedImageUrl" 
+            class="remove-reference-image" 
+            @click="removeThumbnail"
+          >
+            <Close />
+          </el-icon>
         </div>
       </div>
 
@@ -84,28 +91,31 @@
         暂无搜索结果
       </div>
       
-      <el-row v-else :gutter="20">
-        <el-col 
-          v-for="item in searchResults" 
-          :key="item.id" 
-          :xs="24" 
-          :sm="12" 
-          :md="8" 
-          :lg="6"
-        >
-          <el-card class="image-card">
-            <img 
-              :src="item.image_url" 
-              class="image" 
-              @click="showLargeImage(item.image_url)"
-            >
-            <div class="image-info">
-              <p>航空公司: {{ item.airline }}</p>
-              <p>机型: {{ item.aircraft_type }}</p>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
+      <template v-else-if="searchResults.length > 0">
+        <h3 v-if="searchImageUrl" class="similar-images-title">相似图片</h3>
+        <el-row :gutter="20">
+          <el-col 
+            v-for="item in searchResults" 
+            :key="item.id" 
+            :xs="24" 
+            :sm="12" 
+            :md="8" 
+            :lg="6"
+          >
+            <el-card class="image-card">
+              <img 
+                :src="item.image_url" 
+                class="image" 
+                @click="showLargeImage(item.image_url)"
+              >
+              <div class="image-info">
+                <p>航空公司: {{ item.airline }}</p>
+                <p>机型: {{ item.aircraft_type }}</p>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </template>
     </div>
 
     <!-- 添加图片预览对话框 -->
@@ -190,7 +200,10 @@ export default {
         console.log('搜索结果:', response.data)
         searchResults.value = response.data.data
         
-        uploadedImageUrl.value = ''
+        if (uploadedImageUrl.value) {
+          uploadedImageUrl.value = ''
+          searchForm.value.keyword = ''
+        }
       } catch (error) {
         console.error('搜索失败:', error)
         ElMessage.error('搜索失败，请稍后重试')
@@ -248,6 +261,10 @@ export default {
         if (response.data && response.data.url) {
           ElMessage.success('图片上传成功')
           uploadedImageUrl.value = response.data.url
+          searchResults.value = []
+          hasSearched.value = false
+          searchImageUrl.value = ''
+          handleSearch()
         } else {
           ElMessage.error('图片上传失败：服务器响应格式错误')
         }
@@ -440,6 +457,18 @@ export default {
 
 .search-results {
   padding: 20px;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+:deep(.el-row) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+:deep(.el-col) {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
 }
 
 .large-image {
@@ -497,22 +526,7 @@ export default {
   color: #409eff;
 }
 
-.thumbnail-container {
-  position: absolute;
-  top: -60px;
-  right: 8px;
-  display: inline-block;
-}
-
-.thumbnail-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-}
-
-.remove-thumbnail {
+.remove-reference-image {
   position: absolute;
   top: -8px;
   right: -8px;
@@ -525,7 +539,7 @@ export default {
   border: 1px solid #dcdfe6;
 }
 
-.remove-thumbnail:hover {
+.remove-reference-image:hover {
   color: #f56c6c;
   border-color: #f56c6c;
 }
@@ -540,15 +554,15 @@ export default {
 }
 
 .search-reference {
-  margin: 20px auto;
-  max-width: 1200px;
-  padding: 0 20px;
+  margin: 20px 0;
+  text-align: left;
 }
 
 .reference-title {
   font-size: 16px;
   color: #606266;
   margin-bottom: 15px;
+  padding: 0;
 }
 
 .reference-image-container {
@@ -611,5 +625,13 @@ export default {
 .example-link:hover {
   color: #66b1ff;
   text-decoration: underline;
+}
+
+.similar-images-title {
+  font-size: 16px;
+  color: #606266;
+  margin: 20px 0;
+  padding: 0;
+  text-align: left;
 }
 </style> 
