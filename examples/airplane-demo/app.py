@@ -14,6 +14,9 @@ from config import (
     PROMPT_TEMPLATE,
     UPLOAD_URL,
     MODEL_BASE_URL,
+    MODEL_TEMPERATURE,
+    MODEL_TOP_P,
+    MODEL_MAX_TOKENS,
 )
 
 app = FastAPI(title="飞机图片检索服务")
@@ -68,7 +71,7 @@ async def search_images(
             # 如果有多个关键词，假设第一个是航司，第二个是机型
             results = searcher.search_by_text(keywords[0], keywords[1])
         else:
-            # 单个关键词时使用原有的关键���搜索
+            # 单个关键词时使用原有的关键搜索
             results = searcher.search_by_keyword(keyword)
         return {"status": "success", "data": results}
     
@@ -110,7 +113,10 @@ def _call_multimodal_api(image_url: str) -> Optional[tuple[str, str]]:
                         }
                     ]
                 }
-            ]
+            ],
+            "temperature": MODEL_TEMPERATURE,
+            "top_p": MODEL_TOP_P,
+            "max_tokens": MODEL_MAX_TOKENS,
         }
         
         response = requests.post(API_URL, headers=headers, json=payload)
@@ -163,7 +169,10 @@ def _extract_search_info(keyword: str) -> Optional[tuple[str, str]]:
                         }
                     ]
                 }
-            ]
+            ],
+            "temperature": MODEL_TEMPERATURE,
+            "top_p": MODEL_TOP_P,
+            "max_tokens": MODEL_MAX_TOKENS,
         }
         
         response = requests.post(API_URL, headers=headers, json=payload)

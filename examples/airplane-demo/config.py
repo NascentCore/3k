@@ -80,3 +80,8 @@ If any information is not present, fill in None for the corresponding value.
 Change the airline company name and aircraft type to the format of the following list:
 ''' + PROBABLE_AIRLINE_AIRCRAFT
 
+# 添加模型参数配置
+MODEL_TEMPERATURE = 0.1  # 较低的温度使输出更加确定性
+MODEL_TOP_P = 0.1       # 较低的 top_p 限制词的选择范围
+MODEL_MAX_TOKENS = 100  # 限制输出长度
+
