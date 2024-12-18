@@ -642,7 +642,8 @@ func (i *InferenceReconciler) createRayService(ctx context.Context, inference *c
         working_dir: "https://sxwl-dg.oss-cn-beijing.aliyuncs.com/ray/ray_vllm/va.zip"
         env_vars:
           EXTRA_PARAMS: '%v'
-          TENSOR_PARALLELISM: "%v"`, minReplicas, maxReplicas, extraParams, inference.Spec.GPUCount)
+          MODEL_NAME: '%v'
+          TENSOR_PARALLELISM: "%v"`, minReplicas, maxReplicas, extraParams, ms.Spec.ModelName, inference.Spec.GPUCount)
 
 	rayService := &rayv1.RayService{
 		ObjectMeta: metav1.ObjectMeta{

@@ -80,6 +80,9 @@ class VLLMDeployment:
         # 将解析逻辑移到 worker 节点的初始化函数中
         parsed_args = parse_vllm_args(cli_args)
         engine_args = AsyncEngineArgs.from_cli_args(parsed_args)
+        engine_args.served_model_name = parsed_args.served_model_name
+        if isinstance(engine_args.served_model_name, list):
+            engine_args.served_model_name = engine_args.served_model_name[0] 
         engine_args.worker_use_ray = True
         engine_args.trust_remote_code = True
 
@@ -107,15 +110,21 @@ class VLLMDeployment:
         if not self.openai_serving_chat:
             model_config = await self.engine.get_model_config()
             
-            model_path = BaseModelPath(
+            # 创建两个 BaseModelPath，一个用于实际路径，一个用于显示名称
+            actual_model_path = BaseModelPath(
                 name=self.engine_args.model,
                 model_path=self.engine_args.model
             )
             
+            display_model_path = BaseModelPath(
+                name=self.engine_args.served_model_name,  # 使用指定的显示名称
+                model_path=self.engine_args.model  # 实际的模型路径
+            )
+        
             self.openai_serving_chat = OpenAIServingChat(
                 self.engine,
                 model_config,
-                base_model_paths=[model_path],
+                base_model_paths=[actual_model_path, display_model_path],
                 response_role=self.response_role,
                 lora_modules=self.lora_modules,
                 chat_template=self.chat_template,
@@ -158,9 +167,10 @@ def build_app(cli_args: Dict[str, str]) -> serve.Application:
 
 model = build_app(
     {"model": os.environ.get('MODEL_ID','/mnt/models'), 
+     "served-model-name": os.environ.get('MODEL_NAME', "/mnt/models"),
      "tensor-parallel-size": os.environ.get('TENSOR_PARALLELISM',1), 
      "pipeline-parallel-size": os.environ.get('PIPELINE_PARALLELISM',1),
      "extra-params": os.environ.get('EXTRA_PARAMS', "{}"),
-     "max-model-len": os.environ.get('MAX_MODEL_LEN', 8192),
+     "max-model-len": os.environ.get('MAX_MODEL_LEN', 4096),
     }
     )
