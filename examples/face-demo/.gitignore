@@ -1,0 +1,52 @@
+# 数据目录
+data/
+
+# docker数据目录
+volumes/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 模型文件
+*.pth
+*.pt
+*.h5
+
+# 日志文件
+*.log
+logs/
+
+# 环境配置
+.env
+venv/
+
+# Milvus数据
+milvus/
+
+# Vue.js 项目
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# 日志文件
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# 编辑器目录和文件
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
