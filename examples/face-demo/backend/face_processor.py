@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import numpy as np
-from config import (DEVICE)
+from config import (DEVICE, FACENET_WEIGHTS)
 from util import logger
 
 class FaceProcessor:
@@ -21,8 +21,14 @@ class FaceProcessor:
             image_size=160
         )
         
+        # 加载 FaceNet 模型
         logger.info("加载 FaceNet 模型...")
-        self.facenet = InceptionResnetV1(pretrained='vggface2').eval().to(self.device)
+        self.facenet = InceptionResnetV1(classify=False, pretrained=None).eval().to(self.device)
+        state_dict = torch.load(FACENET_WEIGHTS, map_location=self.device)
+        # 移除分类层权重
+        state_dict = {k: v for k, v in state_dict.items() if not k.startswith("logits.")}
+        self.facenet.load_state_dict(state_dict)
+        logger.info("FaceNet 模型加载完成！")
 
     def extract_face(self, image_path):
         """

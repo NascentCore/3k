@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from fastapi import FastAPI, File, UploadFile, HTTPException, Path
+from fastapi import FastAPI, File, UploadFile, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Optional, List
@@ -11,7 +11,6 @@ from config import OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET, OSS_BUCKET_NAME, OS
 from pydantic import BaseModel
 import logging
 from db import db_manager
-import mimetypes
 
 logging.basicConfig(
     level=logging.INFO,
