@@ -39,7 +39,8 @@ class DatabaseManager:
                     x1 FLOAT,
                     y1 FLOAT,
                     x2 FLOAT,
-                    y2 FLOAT
+                    y2 FLOAT,
+                    tag TEXT
                 )
             ''')
             conn.commit()
@@ -133,13 +134,13 @@ class DatabaseManager:
             conn.commit()
             return cursor.lastrowid  # 返回新插入记录的 id 值
 
-    def insert_face(self, image_id: int, face_index: int, x1: float, y1: float, x2: float, y2: float) -> int:
+    def insert_face(self, image_id: int, face_index: int, x1: float, y1: float, x2: float, y2: float, tag: str = None) -> int:
         """插入人脸记录"""
         with self.get_sqlite_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO faces (image_id, face_index, x1, y1, x2, y2) VALUES (?, ?, ?, ?, ?, ?)",
-                (image_id, face_index, x1, y1, x2, y2)
+                "INSERT INTO faces (image_id, face_index, x1, y1, x2, y2, tag) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (image_id, face_index, x1, y1, x2, y2, tag)
             )
             conn.commit()
             return cursor.lastrowid  # 返回新插入记录的 id 值
@@ -282,7 +283,7 @@ class DatabaseManager:
             # # 执行压缩操作以回收空间
             # self.collection.compact()
             
-            logger.info(f"成功删除图片ID {photo_id} 的人脸向量")
+            logger.info(f"成功删除片ID {photo_id} 的人脸向量")
             return True
         except Exception as e:
             logger.error(f"删除人脸向量失败: {str(e)}")
@@ -341,6 +342,118 @@ class DatabaseManager:
                     "y2": row[3]
                 }
             return None
+
+    def get_all_faces_for_image(self, image_id: int):
+        """获取指定图片的所有人脸信息"""
+        query = """
+            SELECT face_index, x1, y1, x2, y2, tag
+            FROM faces 
+            WHERE image_id = ?
+            ORDER BY face_index
+        """
+        with self.get_sqlite_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, (image_id,))
+            faces = cursor.fetchall()
+        
+        return [
+            {
+                'face_index': face[0],
+                'face_coords': {
+                    'x1': face[1],
+                    'y1': face[2],
+                    'x2': face[3],
+                    'y2': face[4]
+                },
+                'tag': face[5]
+            }
+            for face in faces
+        ]
+
+    def get_face_vector(self, image_id: int, face_index: int) -> Optional[List[float]]:
+        """获取指定人脸的向量"""
+        try:
+            # 加载集合
+            self.collection.load()
+            
+            # 构建查询表达式
+            expr = f"photo_id == {image_id} && face_index == {face_index}"
+            
+            # 执行查询
+            results = self.collection.query(
+                expr=expr,
+                output_fields=["face_vector"]
+            )
+            
+            if results and len(results) > 0:
+                return results[0]["face_vector"]
+            return None
+        except Exception as e:
+            logger.error(f"获取人脸向量失败: {str(e)}")
+            return None
+
+    def update_face_tag(self, image_id: int, face_index: int, tag: str) -> bool:
+        """更新人脸标签"""
+        try:
+            with self.get_sqlite_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    UPDATE faces 
+                    SET tag = ? 
+                    WHERE image_id = ? AND face_index = ?
+                    """,
+                    (tag, image_id, face_index)
+                )
+                conn.commit()
+                return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"更新人脸标签失败: {str(e)}")
+            return False
+
+    def get_face_tag(self, image_id: int, face_index: int) -> Optional[str]:
+        """获取人脸标签"""
+        with self.get_sqlite_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT tag FROM faces WHERE image_id=? AND face_index=?",
+                (image_id, face_index)
+            )
+            result = cursor.fetchone()
+            return result[0] if result else None
+
+    def search_faces_by_tag(self, tag_query: str) -> List[Dict[str, Any]]:
+        """通过标签模糊搜索人脸"""
+        with self.get_sqlite_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT DISTINCT i.id, i.original_filename, i.oss_url, i.sha1, i.size,
+                       f.face_index, f.x1, f.y1, f.x2, f.y2, f.tag
+                FROM images i
+                JOIN faces f ON i.id = f.image_id
+                WHERE f.tag LIKE ?
+                ORDER BY i.id DESC
+            """, (f"%{tag_query}%",))
+            
+            rows = cursor.fetchall()
+            results = []
+            for row in rows:
+                results.append({
+                    "id": row[0],
+                    "original_filename": row[1],
+                    "oss_url": row[2],
+                    "sha1": row[3],
+                    "size": row[4],
+                    "face_index": row[5],
+                    "face_coords": {
+                        "x1": row[6],
+                        "y1": row[7],
+                        "x2": row[8],
+                        "y2": row[9]
+                    },
+                    "tag": row[10]
+                })
+            return results
 
 # 创建全局数据库管理器实例
 db_manager = DatabaseManager()

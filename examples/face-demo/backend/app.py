@@ -7,7 +7,7 @@ from typing import Optional, List
 import os
 from face_processor import FaceProcessor
 from oss2 import Auth, Bucket
-from config import OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET, OSS_BUCKET_NAME, OSS_ENDPOINT, CACHE_DIR, OSS_ROOT_DIR
+from config import OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET, OSS_BUCKET_NAME, OSS_ENDPOINT, CACHE_DIR, OSS_ROOT_DIR, SIMILARITY_FOR_TAG
 from pydantic import BaseModel
 import logging
 from db import db_manager
@@ -51,6 +51,11 @@ class ImageResponse(BaseModel):
 class PaginationParams(BaseModel):
     page: Optional[int] = 1
     page_size: Optional[int] = 10
+
+class FaceTagRequest(BaseModel):
+    image_id: int
+    face_index: int
+    tag: str
 
 @app.post("/api/upload")
 async def upload_image(file: UploadFile = File(...)):
@@ -100,11 +105,21 @@ async def upload_image(file: UploadFile = File(...)):
     os.remove(temp_path)
 
     if process_result[0]:
-        # 保存到milvus
-        db_manager.insert_face_vectors(id, process_result[1]['embeddings'])
         # 保存人脸坐标
         for i, box in enumerate(process_result[1]['boxes']):
-            db_manager.insert_face(id, i, box[0], box[1], box[2], box[3])
+            tag = None
+            similar_faces = db_manager.search_similar_faces(process_result[1]['embeddings'][i].tolist())
+            if similar_faces:
+                # 找出相似度最大的人脸
+                max_similarity_face = max(similar_faces, key=lambda face: face['similarity'])
+                if max_similarity_face['similarity'] > SIMILARITY_FOR_TAG:
+                    tag = db_manager.get_face_tag(max_similarity_face['id'], max_similarity_face['face_index'])
+
+            db_manager.insert_face(id, i, box[0], box[1], box[2], box[3], tag)
+            
+        # 保存到milvus
+        db_manager.insert_face_vectors(id, process_result[1]['embeddings'])
+
         return JSONResponse(
             status_code=200,
             content={
@@ -123,7 +138,7 @@ async def upload_image(file: UploadFile = File(...)):
             }
         )
 
-@app.post("/api/search")
+@app.post("/api/image/search")
 async def search(file: UploadFile = File(...)):
     logging.info(f"接收到搜索请求，文件名：{file.filename}")
     logging.info(f"文件内容类型：{file.content_type}")
@@ -177,17 +192,11 @@ async def search(file: UploadFile = File(...)):
                     "status": "success"
                 }
             )
-        elif len(face_embedding) > 1:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "message": "图片中有多张人脸",
-                    "status": "error"
-                }
-            )
             
         # 使用 milvus 搜索相似人脸
-        similar_faces = db_manager.search_similar_faces(face_embedding[0].tolist())
+        similar_faces = []
+        for embedding in face_embedding:
+            similar_faces.extend(db_manager.search_similar_faces(embedding.tolist()))
             
         if not similar_faces:
             return JSONResponse(
@@ -253,7 +262,15 @@ async def get_images(
     page: Optional[int] = 1,
     page_size: Optional[int] = 10
 ):
+    # 获取分页的图片信息
     images, total = db_manager.get_images_paginated(page, page_size)
+    
+    # 为每张图片添加人脸信息
+    for image in images:
+        # 获取该图片的所有人脸坐标
+        faces = db_manager.get_all_faces_for_image(image['id'])
+        image['faces'] = faces
+
     return {
         "data": images,
         "total": total,
@@ -300,6 +317,115 @@ async def delete_image(id: int = Path(...)):
             status_code=500,
             content={
                 "message": f"删除图片失败: {str(e)}",
+                "status": "error"
+            }
+        )
+
+@app.post("/api/face/tag")
+async def tag_face(request: FaceTagRequest):
+    try:
+        # 获取指定人脸的向量
+        face_vector = db_manager.get_face_vector(request.image_id, request.face_index)
+        if not face_vector:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "message": "未找到指定的人脸",
+                    "status": "error"
+                }
+            )
+
+        # 搜索相似人脸
+        similar_faces = db_manager.search_similar_faces(face_vector)
+        
+        # 更新所有相似人脸的标签
+        updated_count = 0
+        if similar_faces:
+            for face in similar_faces:
+                if db_manager.update_face_tag(face['id'], face['face_index'], request.tag):
+                    updated_count += 1
+
+        # 确保当前选中的人脸也被标记
+        if db_manager.update_face_tag(request.image_id, request.face_index, request.tag):
+            updated_count += 1
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "已更新所有相似人脸的标签",
+                "status": "success",
+                "updated_count": updated_count
+            }
+        )
+
+    except Exception as e:
+        logging.error(f"更新人脸标签失败: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "message": f"更新人脸标签失败: {str(e)}",
+                "status": "error"
+            }
+        )
+
+class TextSearchRequest(BaseModel):
+    query: str
+
+@app.post("/api/text/search")
+async def text_search(request: TextSearchRequest):
+    try:
+        # 通过标签搜索人脸
+        search_results = db_manager.search_faces_by_tag(request.query)
+        
+        if not search_results:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "data": [],
+                    "message": "未找到匹配的标签",
+                    "status": "success"
+                }
+            )
+        
+        # 重组数据，将相同图片的多个人脸信息合并
+        image_map = {}
+        for result in search_results:
+            image_id = result['id']
+            if image_id not in image_map:
+                image_map[image_id] = {
+                    'id': result['id'],
+                    'original_filename': result['original_filename'],
+                    'oss_url': result['oss_url'],
+                    'sha1': result['sha1'],
+                    'size': result['size'],
+                    'faces': []
+                }
+            
+            # 添加人脸信息
+            image_map[image_id]['faces'].append({
+                'face_index': result['face_index'],
+                'face_coords': result['face_coords'],
+                'tag': result['tag']
+            })
+        
+        # 转换为列表
+        result_images = list(image_map.values())
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "data": result_images,
+                "message": "搜索完成",
+                "status": "success"
+            }
+        )
+            
+    except Exception as e:
+        logging.error(f"文本搜索失败: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "message": f"文本搜索失败: {str(e)}",
                 "status": "error"
             }
         )
