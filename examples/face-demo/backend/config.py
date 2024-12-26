@@ -32,6 +32,7 @@ SEARCH_PARAMS = {
 }
 FACE_SIMILARITY_THRESHOLD = 0.65 # 人脸相似度阈值
 FACE_SEARCH_LIMIT = 1000 # 人脸搜索返回的最大结果数
+SIMILARITY_FOR_TAG = 0.75 # 自动标记人脸的相似度阈值
 
 # 模型配置
 FACENET_WEIGHTS = "./data/models/20180402-114759-vggface2.pt"  # FaceNet模型权重路径

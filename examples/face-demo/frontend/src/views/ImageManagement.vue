@@ -36,6 +36,9 @@
               <div class="image-info">
                 <span>{{ image.original_filename }}</span>
                 <div class="image-actions" v-if="!image.uploading">
+                  <el-button type="text" @click="handleTag(image)">
+                    <el-icon><PriceTag /></el-icon>
+                  </el-button>
                   <el-button type="text" @click="handleDownload(image)">
                     <el-icon><Download /></el-icon>
                   </el-button>
@@ -65,12 +68,23 @@
       </template>
     </el-card>
     
-    <!-- 添加图片预览组件 -->
+    <!-- 图片预览组件 -->
     <el-image-viewer
-      v-if="showViewer"
+      v-if="showViewer && !showTagViewer"
       @close="showViewer = false"
       :url-list="[previewUrl]"
       :initial-index="0"
+    />
+    
+    <!-- 标签预览组件 -->
+    <image-preview
+      v-if="showTagViewer"
+      v-model="showTagViewer"
+      :image-url="previewUrl"
+      :image-id="currentImage.id"
+      :faces="currentFaces"
+      @update:modelValue="showTagViewer = $event"
+      @close="handleTagViewerClose"
     />
     
     <!-- 添加隐藏的文件上传输入框 -->
@@ -87,8 +101,9 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElImageViewer, ElMessageBox } from 'element-plus'
-import { Delete, Download, Upload } from '@element-plus/icons-vue'
+import { Delete, Download, Upload, PriceTag } from '@element-plus/icons-vue'
 import axios from 'axios'
+import ImagePreview from '../components/ImagePreview.vue'
 
 export default {
   name: 'ImageManagement',
@@ -96,7 +111,8 @@ export default {
     Delete,
     Download,
     Upload,
-    ElImageViewer
+    PriceTag,
+    ImagePreview
   },
   setup() {
     const images = ref([])
@@ -107,6 +123,9 @@ export default {
     const showViewer = ref(false)
     const previewUrl = ref('')
     const uploadingImage = ref(null)
+    const showTagViewer = ref(false)
+    const currentFaces = ref([])
+    const currentImage = ref(null)
 
     const fetchImages = async () => {
       try {
@@ -121,7 +140,7 @@ export default {
           images.value = response.data.data
           total.value = response.data.total
         } else {
-          ElMessage.error('获取图片列��失败')
+          ElMessage.error('获取图片列表失败')
         }
       } catch (error) {
         console.error('获取图片列表错误:', error)
@@ -196,6 +215,7 @@ export default {
     const handlePreview = (image) => {
       previewUrl.value = image.oss_url
       showViewer.value = true
+      showTagViewer.value = false
     }
 
     const handleView = (image) => {
@@ -244,6 +264,21 @@ export default {
       document.body.removeChild(link)
     }
 
+    const handleTag = (image) => {
+      previewUrl.value = image.oss_url
+      currentFaces.value = image.faces || []
+      currentImage.value = image
+      showTagViewer.value = true
+      showViewer.value = false
+    }
+
+    const handleTagViewerClose = () => {
+      showTagViewer.value = false
+      showViewer.value = false
+      previewUrl.value = ''
+      currentFaces.value = []
+    }
+
     return {
       images,
       fileInput,
@@ -261,6 +296,11 @@ export default {
       handlePreview,
       handleDownload,
       uploadingImage,
+      handleTag,
+      showTagViewer,
+      currentFaces,
+      handleTagViewerClose,
+      currentImage,
     }
   }
 }
@@ -313,11 +353,21 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+}
+
+.image-info span {
+  flex: 1;
+  min-width: 0;  /* 允许 flex 项目收缩到比内容更小 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .image-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;  /* 防止操作按钮被压缩 */
 }
 
 .image-actions .el-button {

@@ -2,6 +2,21 @@
   <div class="search-container">
     <h2>图片搜索</h2>
     
+    <div class="text-search-area">
+      <el-input
+        v-model="searchText"
+        placeholder="请输入搜索关键词"
+        class="text-search-input"
+        @keyup.enter="handleTextSearch"
+      >
+        <template #append>
+          <el-button type="primary" @click="handleTextSearch" :loading="textSearching" style="background-color: var(--el-color-primary); color: white;">
+            搜索
+          </el-button>
+        </template>
+      </el-input>
+    </div>
+
     <div class="search-area" v-loading="searching" 
          element-loading-text="正在搜索中..."
          element-loading-background="rgba(255, 255, 255, 0.8)">
@@ -55,7 +70,7 @@
                 </div>
               </div>
               <div class="result-info">
-                <span>相似度: {{ (item.similarity * 100).toFixed(2) }}%</span>
+                <span v-if="!isNaN(item.similarity)">相似度: {{ (item.similarity * 100).toFixed(2) }}%</span>
                 <div class="result-actions">
                   <el-button type="text" @click="handleDownload(item)">
                     <el-icon><Download /></el-icon>
@@ -100,6 +115,8 @@ export default {
     const previewUrl = ref('')
     const uploadedImageUrl = ref('')
     const imageElements = ref([])
+    const searchText = ref('')
+    const textSearching = ref(false)
 
     const handleExceed = () => {
       ElMessage({
@@ -123,7 +140,7 @@ export default {
         const formData = new FormData()
         formData.append('file', file.raw)
 
-        const response = await axios.post('/api/search', formData, {
+        const response = await axios.post('/api/image/search', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -223,7 +240,7 @@ export default {
       const boxWidth = ((face.face_coords.x2 - face.face_coords.x1) / imageSize.width) * displayWidth
       const boxHeight = ((face.face_coords.y2 - face.face_coords.y1) / imageSize.height) * displayHeight
       
-      // 根据人脸框大小动态计算边框粗细
+      // 根据人脸框大小动态计算框粗细
       // 当框小于 30px 时使用 1.5px，小于 60px 时使用 2px，其他情况使用 3px
       const borderWidth = Math.min(boxWidth, boxHeight) < 30 ? 1.5 : 
                          Math.min(boxWidth, boxHeight) < 60 ? 2 : 3
@@ -234,6 +251,44 @@ export default {
         width: `${boxWidth}px`,
         height: `${boxHeight}px`,
         borderWidth: `${borderWidth}px`  // 动态设置边框粗细
+      }
+    }
+
+    const handleTextSearch = async () => {
+      if (!searchText.value.trim()) {
+        ElMessage({
+          message: '请输入搜索关键词',
+          type: 'warning',
+          duration: 2000,
+          showClose: true
+        })
+        return
+      }
+
+      textSearching.value = true
+      try {
+        const response = await axios.post('/api/text/search', {
+          query: searchText.value.trim()
+        })
+        
+        if (response.data.status === 'success') {
+          searchResults.value = response.data.data
+            .map(item => ({
+              url: item.oss_url,
+              filename: item.original_filename,
+              similarity: Math.max(...item.faces.map(face => face.similarity)),
+              faces: item.faces
+            }))
+            .sort((a, b) => b.similarity - a.similarity)
+          imageElements.value = new Array(searchResults.value.length)
+        } else {
+          ElMessage.error(response.data.message || '搜索失败')
+        }
+      } catch (error) {
+        console.error('搜索错误:', error)
+        ElMessage.error('搜索失败: ' + (error.response?.data?.message || '未知错误'))
+      } finally {
+        textSearching.value = false
       }
     }
 
@@ -261,6 +316,9 @@ export default {
       imageElements,
       handleImageLoad,
       getFaceBoxStyle,
+      searchText,
+      textSearching,
+      handleTextSearch,
     }
   }
 }
@@ -269,6 +327,15 @@ export default {
 <style scoped>
 .search-container {
   padding: 20px;
+}
+
+.text-search-area {
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.text-search-input {
+  width: 100%;
 }
 
 .search-area {
