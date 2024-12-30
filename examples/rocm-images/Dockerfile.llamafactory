@@ -1,0 +1,36 @@
+# 使用 rocm/rocm-terminal:latest 作为基础镜像，已包含 ROCm 环境
+FROM rocm/rocm-terminal:latest
+
+# 切换到 root 用户以执行权限相关的命令
+USER root
+
+# 设置工作目录
+WORKDIR /workspace
+
+# 更新并安装 Python 相关工具
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    git \
+    build-essential \
+    cmake \
+    curl \
+    && apt-get clean
+
+# 安装 PyTorch ROCm 版本
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install torch==2.3.1 --extra-index-url https://download.pytorch.org/whl/rocm6.2
+
+# 安装其他依赖库
+RUN python3 -m pip install transformers datasets
+
+# 克隆 llama-factory 仓库
+RUN git clone https://github.com/hiyouga/LLaMA-Factory
+WORKDIR /workspace/LLaMA-Factory
+
+# 安装 llama-factory 的 Python 依赖
+RUN pip install -r requirements.txt
+
+# 设置环境变量
+ENV PYTHONPATH=/workspace/LLaMA-Factory:$PYTHONPATH
+

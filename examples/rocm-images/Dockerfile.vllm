@@ -1,0 +1,36 @@
+# 使用 ROCm 官方基础镜像
+FROM rocm/rocm-terminal:latest
+
+# 切换为 root 用户
+USER root
+
+# 清理 apt 缓存并更新软件包
+RUN rm -rf /var/lib/apt/lists/* && apt-get update && apt-get install -y rustc cargo
+
+# 安装必要的依赖
+RUN apt-get install -y \
+    python3-pip \
+    python3-dev \
+    git \
+    build-essential \
+    cmake \
+    curl
+
+# 安装 PyTorch ROCm 版本
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install torch==2.3.1 --extra-index-url https://download.pytorch.org/whl/rocm6.2
+
+# 安装其他依赖库
+RUN python3 -m pip install transformers datasets
+
+# 安装 vLLM 及其依赖
+RUN python3 -m pip install vllm
+
+# 设置 ROCm 环境变量
+ENV ROCM_PATH=/opt/rocm
+ENV PATH=$ROCM_PATH/bin:$PATH
+ENV LD_LIBRARY_PATH=$ROCM_PATH/lib:$ROCM_PATH/lib64:$LD_LIBRARY_PATH
+ENV HIP_VISIBLE_DEVICES=0 
+
+# 默认运行 vLLM 服务
+CMD ["vllm", "serve"]
