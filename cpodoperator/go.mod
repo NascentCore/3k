@@ -51,6 +51,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.54.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
@@ -102,6 +103,7 @@ require (
 	github.com/prometheus/client_golang v1.19.1
 	github.com/ray-project/kuberay/ray-operator v1.2.2
 	github.com/sirupsen/logrus v1.9.1
+	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.30.2
 	k8s.io/utils v0.0.0-20240502163921-fe8a2dddb1d0
 	knative.dev/pkg v0.0.0-20231115001034-97c7258e3a98
