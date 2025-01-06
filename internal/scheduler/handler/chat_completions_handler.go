@@ -34,7 +34,7 @@ func ChatCompletionsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			if _, err := l.ChatCompletions(&req); err != nil {
 				// 对于流式响应，我们需要以 SSE 格式发送错误
 				if _, writeErr := w.Write([]byte(fmt.Sprintf("event: error\ndata: %s\n\n", err.Error()))); writeErr != nil {
-					logx.Errorf("failed to write error response: %v", writeErr)
+					logx.Errorf("failed to write error response is: %v", writeErr)
 				}
 			}
 			return
