@@ -19,7 +19,6 @@ const Playground: React.FC = () => {
   const [models, setModels] = useState<PlaygroundModel[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>();
   const [chatUrl, setChatUrl] = useState<string>();
-  const [baseUrl, setBaseUrl] = useState<string>();
   const [showCopyButton, setShowCopyButton] = useState(false);
 
   const fetchModels = async () => {
@@ -28,10 +27,7 @@ const Playground: React.FC = () => {
       setModels(response.data || []);
       if (response.data?.length > 0) {
         setSelectedModel(response.data[0].model_name);
-        setChatUrl(response.data[0].url);
-        const rawBaseUrl = response.data[0].api || '';
-        const trimmedBaseUrl = rawBaseUrl.replace(/\/chat\/completions$/, '');
-        setBaseUrl(trimmedBaseUrl);
+        setChatUrl(response.data[0].chat_url);
       }
     } catch (error) {
       console.error('Failed to fetch models:', error);
@@ -46,20 +42,17 @@ const Playground: React.FC = () => {
     setSelectedModel(value);
     const selectedModelData = models.find(m => m.model_name === value);
     setChatUrl(selectedModelData?.chat_url);
-    const rawBaseUrl = selectedModelData?.base_url || '';
-    const trimmedBaseUrl = rawBaseUrl.replace(/\/chat\/completions$/, '');
-    setBaseUrl(trimmedBaseUrl);
   };
 
   const sampleCode = `from openai import OpenAI
 
 client = OpenAI(
-    base_url="${baseUrl}",
-    api_key="dummy",
+    base_url="${window.location.origin}/api/v1",
+    api_key="dummy", # 算想云token
 )
 
 response = client.chat.completions.create(
-    model="/mnt/models",
+    model="${selectedModel}",
     messages=[
         {"role": "user", "content": "How to learn python?"}
     ],

@@ -60,6 +60,8 @@ func main() {
 	c.K8S.BaseApi = os.Getenv("K8S_BASE_API")
 	c.K8S.BaseUrl = os.Getenv("K8S_BASE_URL")
 	c.K8S.AppUrl = os.Getenv("K8S_APP_URL")
+	c.K8S.PlaygroundUrl = os.Getenv("K8S_PLAYGROUND_URL")
+	c.K8S.PlaygroundToken = os.Getenv("K8S_PLAYGROUND_TOKEN")
 
 	// insert auth secret
 	c.Auth.Secret = os.Getenv("AUTH_SECRET")

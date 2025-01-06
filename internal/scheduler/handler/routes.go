@@ -343,6 +343,17 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/v1/chat/completions",
+				Handler: ChatCompletionsHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
 				Path:    "/api/job/finetune",
 				Handler: FinetuneHandler(serverCtx),
 			},
