@@ -228,6 +228,41 @@ type ClusterNodeInfo struct {
 	Role       []string `json:"role"`
 }
 
+type Completion struct {
+	Model            string    `json:"model"`
+	Messages         []Message `json:"messages,optional"`
+	MaxTokens        int       `json:"max_tokens,optional"`
+	Temperature      float64   `json:"temperature,optional"`
+	TopP             float64   `json:"top_p,optional"`
+	N                int       `json:"n,optional"`
+	Stream           bool      `json:"stream,optional"`
+	Stop             []string  `json:"stop,optional"`
+	PresencePenalty  float64   `json:"presence_penalty,optional"`
+	FrequencyPenalty float64   `json:"frequency_penalty,optional"`
+	User             string    `json:"user,optional"`
+}
+
+type CompletionChoice struct {
+	Text         string  `json:"text,optional"`
+	Message      Message `json:"message,optional"`
+	Index        int     `json:"index"`
+	FinishReason string  `json:"finish_reason"`
+}
+
+type CompletionReq struct {
+	BaseReq
+	Completion
+}
+
+type CompletionResp struct {
+	Id      string             `json:"id"`
+	Object  string             `json:"object"`
+	Created int64              `json:"created"`
+	Model   string             `json:"model"`
+	Choices []CompletionChoice `json:"choices"`
+	Usage   Usage              `json:"usage"`
+}
+
 type CpodInfo struct {
 	CpodID         string `json:"cpod_id"`
 	CpodVersion    string `json:"cpod_version"`
@@ -710,6 +745,11 @@ type MemInfo struct {
 	Usage int `json:"usage"`
 }
 
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 type Model struct {
 	ModelId       string `json:"model_id"`            // 模型ID
 	ModelName     string `json:"model_name"`          // 模型名字, owner/model
@@ -992,6 +1032,12 @@ type UploaderAccessResp struct {
 	AccessKey string `json:"access_key"`
 	UserID    string `json:"user_id"`
 	IsAdmin   bool   `json:"is_admin"`
+}
+
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
 }
 
 type User struct {

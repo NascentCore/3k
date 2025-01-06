@@ -38,9 +38,11 @@ type Config struct {
 	} `json:"-"`
 	FinetuneModel map[string]string `json:"FinetuneModel"`
 	K8S           struct {
-		BaseApi string // k8s管理
-		BaseUrl string // 组件入口
-		AppUrl  string // 大模型应用URL
+		BaseApi         string // k8s管理
+		BaseUrl         string // 组件入口
+		AppUrl          string // 大模型应用URL
+		PlaygroundUrl   string // playgroundURL
+		PlaygroundToken string // playground token
 	} `json:"-"`
 	Auth struct {
 		Secret string
@@ -60,6 +62,6 @@ type Config struct {
 		AppSecret string
 	} `json:"-"`
 	ResourceLoad struct {
-		On        bool
+		On bool
 	} `json:"-"`
 }

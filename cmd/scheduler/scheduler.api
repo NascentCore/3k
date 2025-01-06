@@ -1064,3 +1064,56 @@ service scheduler-api {
 	get /app/job (BaseReq) returns (AppJobGetResp)
 }
 
+// ChatCompletions
+type (
+	CompletionReq {
+		BaseReq
+		Completion
+	}
+	Completion {
+		Model            string    `json:"model"`
+		Messages         []Message `json:"messages,optional"`
+		MaxTokens        int       `json:"max_tokens,optional"`
+		Temperature      float64   `json:"temperature,optional"`
+		TopP             float64   `json:"top_p,optional"`
+		N                int       `json:"n,optional"`
+		Stream           bool      `json:"stream,optional"`
+		Stop             []string  `json:"stop,optional"`
+		PresencePenalty  float64   `json:"presence_penalty,optional"`
+		FrequencyPenalty float64   `json:"frequency_penalty,optional"`
+		User             string    `json:"user,optional"`
+	}
+	Message {
+		Role    string `json:"role"`
+		Content string `json:"content"`
+	}
+	CompletionChoice {
+		Text         string  `json:"text,optional"`
+		Message      Message `json:"message,optional"`
+		Index        int     `json:"index"`
+		FinishReason string  `json:"finish_reason"`
+	}
+	CompletionResp {
+		Id      string             `json:"id"`
+		Object  string             `json:"object"`
+		Created int64              `json:"created"`
+		Model   string             `json:"model"`
+		Choices []CompletionChoice `json:"choices"`
+		Usage   Usage              `json:"usage"`
+	}
+	Usage {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+		TotalTokens      int `json:"total_tokens"`
+	}
+)
+
+@server (
+	prefix: /api
+)
+service scheduler-api {
+	@doc "ChatCompletions"
+	@handler ChatCompletions
+	post /v1/chat/completions (CompletionReq) returns (CompletionResp)
+}
+
