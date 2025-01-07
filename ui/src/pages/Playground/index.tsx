@@ -10,7 +10,7 @@ import { useIntl } from '@umijs/max';
 
 interface PlaygroundModel {
   model_name: string;
-  chat_url: string;
+  url: string;
   base_url: string;
 }
 
@@ -27,7 +27,7 @@ const Playground: React.FC = () => {
       setModels(response.data || []);
       if (response.data?.length > 0) {
         setSelectedModel(response.data[0].model_name);
-        setChatUrl(response.data[0].chat_url);
+        setChatUrl(response.data[0].url);
       }
     } catch (error) {
       console.error('Failed to fetch models:', error);
@@ -41,7 +41,7 @@ const Playground: React.FC = () => {
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
     const selectedModelData = models.find(m => m.model_name === value);
-    setChatUrl(selectedModelData?.chat_url);
+    setChatUrl(selectedModelData?.url);
   };
 
   const sampleCode = `from openai import OpenAI
