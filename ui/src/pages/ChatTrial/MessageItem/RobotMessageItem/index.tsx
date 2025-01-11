@@ -11,7 +11,7 @@ interface IProps {
 }
 
 const Index: React.FC<IProps> = ({ messageItem }) => {
-  console.log('RobotMessageItem messageItem', messageItem);
+  // console.log('RobotMessageItem messageItem', messageItem);
   const sourceDocsCount = messageItem.source_documents?.length;
 
   const show_images = messageItem.show_images || [];

@@ -56,30 +56,15 @@ export const getChatResponseJsonFromResponseText = (responseText: string) => {
 };
 
 export const getChatResponseJsonFromResponseText_modalType = (responseText: string) => {
-  let json: any = {};
-  try {
-    const data = JSON.parse(responseText);
-    json = data;
-  } catch (e) {
-    console.error('解析JSON时出错:', e);
-  }
-  const { choices, message } = json;
-  let content = '';
-  try {
-    content = choices[0].message.content;
-  } catch (error) {
-    console.error(error);
-    content = message;
-  }
   const msgId = generateUUID();
   const chatMsgItem: IChatItemMsg = {
-    content,
+    content: responseText,
     source_documents: [],
     show_images: [],
     role: 'assistant',
     id: msgId,
     date: '',
-    raw: json,
+    raw: {},
   };
   return chatMsgItem;
 };
@@ -256,6 +241,7 @@ export const cahtActionH5_ModalType = async ({
       //'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YjgxMDczMmIxNWY0NzYxOTYyMGM4YmEyMDFiNTMwNSIsInN1YiI6InBsYXlncm91bmRAc3h3bC5haSIsInVzZXJfaWQiOiJ1c2VyLTc4ZGM1NTU3LTZiYjktNGMwZi05ZGQzLTIxZmE5YTc3MTM0OSIsInVzZXJpZCI6ODgsInVzZXJuYW1lIjoicGxheWdyb3VuZEBzeHdsLmFpIn0.RSyYZNQMH9LGrzo2qrDCwSNW97-8pEPi9fuAsU2SLzXRhD5Y5bNki8yCdHYG_WrfT1TR5bm3QO_gKBaX332xgQ',
     },
     body: JSON.stringify({
+      stream: true,
       model: sessionStorage.getItem('chat-h5-model-model'), //'google/gemma-2b-it',
       messages: [
         {
@@ -275,37 +261,38 @@ export const cahtActionH5_ModalType = async ({
     if (done) break;
     const chunk = decoder.decode(value);
     fullChunk += chunk;
-    console.log('chunk', chunk);
-    // const lines = chunk.split('\n');
-    // for (const line of lines) {
-    //   if (line.startsWith('data: ')) {
-    //     try {
-    //       const data = JSON.parse(line.slice(6));
-    //       if (data.response) {
-    //         fullResponse += data.response;
-    //         console.log('fullResponse', fullResponse);
-    //         const chatMsgItem: IChatItemMsg = {
-    //           content: fullResponse,
-    //           role: 'assistant',
-    //           id: id,
-    //           date: '',
-    //         };
-    //         onMessage(chatMsgItem);
-    //       }
-    //     } catch (e) {
-    //       console.error('解析JSON时出错:', e);
-    //     }
-    //   }
-    // }
+    // console.log('chunk', chunk);
+    const lines = chunk.split('\n');
+    for (const line of lines) {
+      if (line === 'data: [DONE]') {
+        break;
+      }
+      if (line.startsWith('data: ')) {
+        // console.log('line', line);
+        try {
+          const data = JSON.parse(line.slice(6));
+          const content = data.choices[0].delta.content;
+          if (content) {
+            fullResponse += content;
+            console.log('fullResponse', fullResponse);
+            const chatMsgItem: IChatItemMsg = {
+              content: fullResponse,
+              role: 'assistant',
+              id: id,
+              date: '',
+            };
+            // console.log(Date.now())
+            // console.log('chatMsgItem', chatMsgItem);
+            onMessage(chatMsgItem);
+          }
+        } catch (e: any) {
+          console.log('解析JSON时出错:', e.message);
+        }
+      }
+    }
   }
-  const chatMsgItem2: IChatItemMsg = getChatResponseJsonFromResponseText_modalType(fullChunk);
-  const chatMsgItem: IChatItemMsg = {
-    content: '',
-    role: 'assistant',
-    id: id,
-    date: '',
-  };
-  onMessage(chatMsgItem);
+  const chatMsgItem2: IChatItemMsg = getChatResponseJsonFromResponseText_modalType(fullResponse);
+  // console.log('chatMsgItem2', chatMsgItem2);
   onSuccess({ ...chatMsgItem2, id: id });
 };
 export function formatFileSize(bytes: number): string {

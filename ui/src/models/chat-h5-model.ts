@@ -45,7 +45,7 @@ export default () => {
   const [chatModel, setChatModel] = useState<any>('');
   const [chatStore, setChatStore] = useState<IChatStore>(testChatStore);
   const [activeChat, setActiveChat] = useState('demo');
-  console.log('chatStore', chatStore);
+  // console.log('chatStore', chatStore);
   useEffect(() => {
     const init = async () => {
       const _chatStoreJson: any = await storage.getItem(chat_store_key);
