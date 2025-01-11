@@ -27,7 +27,8 @@ const Playground: React.FC = () => {
       setModels(response.data || []);
       if (response.data?.length > 0) {
         setSelectedModel(response.data[0].model_name);
-        setChatUrl(response.data[0].url);
+        // setChatUrl(response.data[0].url);
+        setChatUrl(`/chat-trial?model=${response.data[0].model_name}`);
       }
     } catch (error) {
       console.error('Failed to fetch models:', error);
@@ -40,8 +41,8 @@ const Playground: React.FC = () => {
 
   const handleModelChange = (value: string) => {
     setSelectedModel(value);
-    const selectedModelData = models.find(m => m.model_name === value);
-    setChatUrl(selectedModelData?.url);
+    const selectedModelData = models.find((m) => m.model_name === value);
+    setChatUrl(`/chat-trial?model=${selectedModelData?.model_name}`);
   };
 
   const sampleCode = `from openai import OpenAI
@@ -71,7 +72,8 @@ for chunk in response:
 `;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(sampleCode)
+    navigator.clipboard
+      .writeText(sampleCode)
       .then(() => {
         message.success(intl.formatMessage({ id: 'playground.copy.success' }));
       })
@@ -88,7 +90,7 @@ for chunk in response:
             style={{ width: 200 }}
             value={selectedModel}
             onChange={handleModelChange}
-            options={models.map(model => ({
+            options={models.map((model) => ({
               label: model.model_name,
               value: model.model_name,
             }))}
@@ -100,14 +102,14 @@ for chunk in response:
               {chatUrl && (
                 <iframe
                   src={chatUrl}
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
+                  style={{
+                    width: '100%',
+                    height: '100%',
                     border: 'none',
                     transform: 'scale(1)',
                     transformOrigin: '0 0',
                     minWidth: '100%',
-                    minHeight: '100%'
+                    minHeight: '100%',
                   }}
                   sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
                   allow="camera *; microphone *"
@@ -118,7 +120,7 @@ for chunk in response:
               )}
             </div>
           </div>
-          <div 
+          <div
             className={styles.rightSection}
             onMouseEnter={() => setShowCopyButton(true)}
             onMouseLeave={() => setShowCopyButton(false)}
@@ -133,7 +135,7 @@ for chunk in response:
                 {intl.formatMessage({ id: 'playground.copy.button' })}
               </Button>
             )}
-            <SyntaxHighlighter 
+            <SyntaxHighlighter
               language="python"
               style={vscDarkPlus}
               customStyle={{
@@ -143,7 +145,7 @@ for chunk in response:
               codeTagProps={{
                 style: {
                   lineHeight: '1',
-                }
+                },
               }}
             >
               {sampleCode}
@@ -155,4 +157,4 @@ for chunk in response:
   );
 };
 
-export default Playground; 
+export default Playground;

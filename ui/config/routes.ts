@@ -106,6 +106,13 @@ export default [
     component: './ClusterCpods',
   },
   {
+    path: '/chat-trial',
+    name: 'ChatTrial',
+    component: './ChatTrial',
+    layout: false,
+  },
+
+  {
     path: '*',
     layout: false,
     component: './404',
