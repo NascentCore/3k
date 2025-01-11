@@ -1,0 +1,45 @@
+.MessageInputInner {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  border-radius: 25px;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100vw - 40px);
+  max-width: 760px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+
+  .sendInput {
+    flex: 1;
+    border: none;
+    background-color: transparent;
+    color: white;
+    padding: 5px;
+    font-size: 16px;
+    resize: none;
+    height: 25px;
+    max-height: 80px;
+    outline: none;
+  }
+
+  .deleteBtn {
+    width: 35px;
+    height: 35px;
+    background-image: url(./assets/ic_delete.png);
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    background-position: center;
+  }
+  .sendBtn {
+    width: 35px;
+    height: 35px;
+    background-image: url(./assets/send-icon.png);
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    background-position: center;
+  }
+}
