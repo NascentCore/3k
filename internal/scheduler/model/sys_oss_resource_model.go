@@ -25,6 +25,7 @@ type OssResourceDatasetMeta struct {
 	Preview string `json:"preview"`
 	Total   int64  `json:"total"`
 	Size    int64  `json:"size"`
+	Eval    bool   `json:"eval"`
 }
 
 var _ SysOssResourceModel = (*customSysOssResourceModel)(nil)
