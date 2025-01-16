@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/NascentCore/cpodoperator/api/v1beta1"
+	"github.com/NascentCore/cpodoperator/pkg/provider/litellm"
 	"github.com/NascentCore/cpodoperator/pkg/provider/sxwl"
 
 	"github.com/go-logr/logr"
@@ -27,16 +28,19 @@ type Manager struct {
 	period time.Duration
 }
 
-func NewManager(cpodId, inferImage, embeddingImage, storageClassName string, uploadTrainedModel, autoDownloadResource bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
+func NewManager(cpodId, inferImage, embeddingImage, storageClassName string, playgroundBaseURL, accessKey, sxwlInferenceBaseURL, playgroundNamespace string, uploadTrainedModel, autoDownloadResource bool, kubeClient client.Client, scheduler sxwl.Scheduler, period time.Duration, logger logr.Logger) *Manager {
 	ch := make(chan sxwl.HeartBeatPayload, 1)
 	syncJob := NewSyncJob(kubeClient, scheduler, logger.WithName("syncjob"), uploadTrainedModel, autoDownloadResource, inferImage, embeddingImage, storageClassName)
 	uploader := NewUploader(ch, scheduler, period, logger.WithName("uploader"))
 	cpodObserver := NewCPodObserver(kubeClient, cpodId, v1beta1.CPOD_NAMESPACE, ch, logger.WithName("cpodobserver"))
+	playground := NewPlayground(kubeClient, litellm.NewLitellm(playgroundBaseURL, accessKey), sxwlInferenceBaseURL, playgroundNamespace, logger.WithName("playground"))
+
 	return &Manager{
 		runables: []Runnable{
 			syncJob,
 			uploader,
 			cpodObserver,
+			playground,
 		},
 		period: period,
 	}
