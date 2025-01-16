@@ -22,6 +22,7 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
+	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -85,7 +86,7 @@ func main() {
 	flag.StringVar(&downloaderImage, "artifact-downloader-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/downloader:v0.0.7", "The artifact download job image ")
 	flag.StringVar(&tensorrtConvertImage, "tensorrt-convert-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/trtinfer:build-engine", "The image to implement tensorrt convert job")
 	flag.StringVar(&storageClassName, "storageClassName", "juicefs-sc", "which storagecalss the artifact downloader should create")
-	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/uploader:v0.0.1", "the image of model upload job")
+	flag.StringVar(&modelUploadJobImage, "model-upload-job-image", "sxwl-registry.cn-beijing.cr.aliyuncs.com/sxwl-ai/uploader:v0.0.2", "the image of model upload job")
 	flag.IntVar(&modelUploadJobBackoffLimit, "model-upload-job-backoff-lmit", 10, "the backoff limit of model upload job")
 	flag.StringVar(&OssBucketName, "oss-bucket-name", "sxwl-cache", "the oss bucket name of model upload job")
 	flag.StringVar(&inferenceIngressDomain, "inference-ingress-domain", "llm.sxwl.ai", "the domain of inference ingress")
@@ -131,11 +132,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	kubeClient, err := kubernetes.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		setupLog.Error(err, "unable to create kube client")
+		os.Exit(1)
+	}
+
 	if err = (&controller.CPodJobReconciler{
-		Client:    mgr.GetClient(),
-		Scheme:    mgr.GetScheme(),
-		Recorder:  mgr.GetEventRecorderFor("cpodjob-controller"),
-		Scheduler: sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
+		Client:     mgr.GetClient(),
+		KubeClient: kubeClient,
+		Scheme:     mgr.GetScheme(),
+		Recorder:   mgr.GetEventRecorderFor("cpodjob-controller"),
+		Scheduler:  sxwl.NewScheduler(sxwlBaseUrl, accessKey, cpodId),
 		Option: &controller.CPodJobOption{
 			StorageClassName:           storageClassName,
 			ModelUploadJobImage:        modelUploadJobImage,
