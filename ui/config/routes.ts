@@ -32,6 +32,13 @@ export default [
     ],
   },
   {
+    path: '/runpod/console/home',
+    name: 'RunpodHome',
+    icon: 'HomeOutlined',
+    component: './RunpodHome',
+    layout: false,
+  },
+  {
     path: '/models',
     name: 'ModelRepository',
     icon: 'DatabaseOutlined',
@@ -111,7 +118,6 @@ export default [
     component: './ChatTrial',
     layout: false,
   },
-
   {
     path: '*',
     layout: false,
