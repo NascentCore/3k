@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy to Hosting Service
         run: |
-          ssh cairong@sxwl.ai << EOF
+          ssh root@sxwl.ai << EOF
             GO_GATEWAY_CONTAINER=\$(sudo docker ps --format '{{.Names}} {{.Image}}' | grep 'sxwl-ai/go-gateway' | awk '{print \$1}')
             sudo docker pull $DOCKER_REGISTRY/$NAMESPACE/webui:latest
             sudo docker stop webui || true
