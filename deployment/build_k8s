@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $# < 2 ]]; then
+if [[ $# -lt 1 ]]; then
   echo "Build K8S Cluster:  $0 <k8s version>"
   echo "Exiting ..."
   exit 1
@@ -8,14 +8,24 @@ fi
 
 workpath="${HOME}/kubernetes"
 
-mkdir ${workpath}
+mkdir -p ${workpath}
 cd ${workpath}
 echo "create workpath ${workpath} !"
 
 echo "请输入sudo密码："
 read pwd
-echo $pwd | sudo -S apt-get install socat conntrack ebtables ipset 
-echo $pwd | sudo -S export KKZONE=cn
+echo $pwd | sudo -S apt-get install -y socat conntrack ebtables ipset
+export KKZONE=cn
+
+# ---- Fix 1: 将 hostname 转为小写 ----
+# KubeKey 使用原始 hostname 操作节点，但 Kubernetes 会将节点名注册为小写，
+# 导致 taint/label/CNI 部署等操作因节点名不匹配而失败。
+ORIG_HOSTNAME=$(hostname)
+LOWER_HOSTNAME=$(echo "$ORIG_HOSTNAME" | tr '[:upper:]' '[:lower:]')
+if [ "$ORIG_HOSTNAME" != "$LOWER_HOSTNAME" ]; then
+  echo "检测到 hostname 含大写字母: $ORIG_HOSTNAME -> $LOWER_HOSTNAME"
+  echo $pwd | sudo -S hostnamectl set-hostname "$LOWER_HOSTNAME"
+fi
 
 while [ ! -f "${workpath}/kk" ]; do
     if curl -fL -C - https://get-kk.kubesphere.io | VERSION=v3.0.2 sh -;then
@@ -28,6 +38,46 @@ done
 
 chmod +x kk
 
-echo $pwd | sudo -S ./kk create cluster --with-kubernetes v$1 <<< "yes"
+# ---- Fix 2: 使用 sudo -E 保留 KKZONE=cn 环境变量 ----
+echo $pwd | sudo -S -E ./kk create cluster --with-kubernetes v$1 --container-manager containerd <<< "yes"
+
+# ---- Fix 3: 安装后验证与兜底 ----
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+echo "等待节点注册..."
+for i in $(seq 1 30); do
+  NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+  if [ -n "$NODE_NAME" ]; then
+    break
+  fi
+  sleep 5
+done
+
+if [ -z "$NODE_NAME" ]; then
+  echo "错误: 未检测到节点注册，请检查 kubelet 日志"
+  exit 1
+fi
+
+echo "节点已注册: $NODE_NAME"
+
+# 移除 master/control-plane taint，允许调度 Pod
+kubectl taint nodes "$NODE_NAME" node-role.kubernetes.io/master:NoSchedule- 2>/dev/null
+kubectl taint nodes "$NODE_NAME" node-role.kubernetes.io/control-plane:NoSchedule- 2>/dev/null
+
+# 添加 worker label
+kubectl label --overwrite node "$NODE_NAME" node-role.kubernetes.io/worker= 2>/dev/null
+
+# 检查 CNI 是否已部署，若未部署则兜底安装 Calico
+CALICO_PODS=$(kubectl get pods -n kube-system -l k8s-app=calico-node --no-headers 2>/dev/null | wc -l)
+if [ "$CALICO_PODS" -eq 0 ]; then
+  echo "未检测到 Calico CNI，开始兜底部署..."
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  bash "${SCRIPT_DIR}/calico/deploy_calico.sh"
+fi
+
+# 等待节点 Ready
+echo "等待节点 Ready..."
+kubectl wait --for=condition=Ready node "$NODE_NAME" --timeout=120s
+
 echo "build k8s successfully !"
-echo $pwd | sudo -S kubectl get nodes 
+kubectl get nodes
