@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3K Platform - Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-text">3K</span>
+          <span class="logo-subtitle">Platform Demo</span>
+        </div>
+      </div>
+      <nav class="nav-menu">
+        <a href="#overview" class="nav-item active">
+          <span class="nav-icon">🏠</span>
+          Overview
+        </a>
+        <a href="#models" class="nav-item">
+          <span class="nav-icon">📦</span>
+          Model Repository
+        </a>
+        <a href="#jobs" class="nav-item">
+          <span class="nav-icon">⚡</span>
+          Training Jobs
+        </a>
+        <a href="#inference" class="nav-item">
+          <span class="nav-icon">🔮</span>
+          Inference
+        </a>
+        <a href="#jupyterlab" class="nav-item">
+          <span class="nav-icon">📓</span>
+          JupyterLab
+        </a>
+        <a href="#datasets" class="nav-item">
+          <span class="nav-icon">📊</span>
+          Datasets
+        </a>
+        <a href="#cluster" class="nav-item">
+          <span class="nav-icon">🖥️</span>
+          Cluster Info
+        </a>
+        <a href="#playground" class="nav-item">
+          <span class="nav-icon">🎮</span>
+          Playground
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar">U</div>
+          <span>Demo User</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Overview Section -->
+      <section id="overview" class="section active">
+        <header class="section-header">
+          <h1>3K Platform Overview</h1>
+          <p class="subtitle">Cloud-native LLM training & inference platform</p>
+        </header>
+
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-value">1000+</div>
+            <div class="metric-label">GPUs</div>
+            <div class="metric-desc">千卡 A100 or equivalent compute cluster</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">100B+</div>
+            <div class="metric-label">Parameters</div>
+            <div class="metric-desc">千亿参数 large model training & inference</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">1000+</div>
+            <div class="metric-label">Hours</div>
+            <div class="metric-desc">千小时 uninterrupted training</div>
+          </div>
+        </div>
+
+        <div class="feature-cards">
+          <h2>Key Capabilities</h2>
+          <div class="card-grid">
+            <div class="feature-card">
+              <div class="feature-icon">📦</div>
+              <h3>Model Repository</h3>
+              <p>Manage models from ModelScope, OSS. Fine-tune and deploy to inference.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <h3>Training Jobs</h3>
+              <p>PyTorchJob, MPIJob. Multi-node distributed training with DeepSpeed.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🔮</div>
+              <h3>Inference</h3>
+              <p>KServe InferenceService, RayService. Deploy models for serving.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">📓</div>
+              <h3>JupyterLab</h3>
+              <p>Development environment with LLaMAFactory. Build custom images.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Model Repository Section -->
+      <section id="models" class="section">
+        <header class="section-header">
+          <h1>Model Repository</h1>
+          <p class="subtitle">Browse and manage models for training and inference</p>
+        </header>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Model Name</th>
+                <th>Owner</th>
+                <th>Category</th>
+                <th>Size</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="models-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Training Jobs Section -->
+      <section id="jobs" class="section">
+        <header class="section-header">
+          <h1>Training Jobs</h1>
+          <p class="subtitle">Submit and monitor GPU training jobs</p>
+        </header>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Model</th>
+                <th>Resources</th>
+                <th>Status</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Inference Section -->
+      <section id="inference" class="section">
+        <header class="section-header">
+          <h1>Inference Services</h1>
+          <p class="subtitle">Deployed models ready for inference</p>
+        </header>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Service Name</th>
+                <th>Model</th>
+                <th>Endpoint</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="inference-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- JupyterLab Section -->
+      <section id="jupyterlab" class="section">
+        <header class="section-header">
+          <h1>JupyterLab</h1>
+          <p class="subtitle">Development environments with GPU</p>
+        </header>
+        <div class="card-grid">
+          <div class="env-card">
+            <div class="env-status running">Running</div>
+            <h3>llama2-7b-dev</h3>
+            <p>1h8g · A100 · LLaMAFactory</p>
+            <div class="env-actions">
+              <button class="btn btn-primary">Open</button>
+              <button class="btn btn-secondary">Pause</button>
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-status paused">Paused</div>
+            <h3>qwen-14b-experiment</h3>
+            <p>2h8g · A100 · Custom</p>
+            <div class="env-actions">
+              <button class="btn btn-primary">Resume</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Datasets Section -->
+      <section id="datasets" class="section">
+        <header class="section-header">
+          <h1>Datasets</h1>
+          <p class="subtitle">Manage datasets for training</p>
+        </header>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Dataset Name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Records</th>
+              </tr>
+            </thead>
+            <tbody id="datasets-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Cluster Info Section -->
+      <section id="cluster" class="section">
+        <header class="section-header">
+          <h1>Cluster Information</h1>
+          <p class="subtitle">GPU cluster nodes and availability</p>
+        </header>
+        <div class="cluster-stats">
+          <div class="stat-box">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Total Nodes</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">192</span>
+            <span class="stat-label">Total GPUs</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">156</span>
+            <span class="stat-label">Available GPUs</span>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Node</th>
+                <th>GPU Type</th>
+                <th>GPUs</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="cluster-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Playground Section -->
+      <section id="playground" class="section">
+        <header class="section-header">
+          <h1>Playground</h1>
+          <p class="subtitle">Chat with deployed models (demo - no actual inference)</p>
+        </header>
+        <div class="playground-container">
+          <div class="chat-messages">
+            <div class="message user">
+              <div class="msg-content">What is the 3K platform?</div>
+            </div>
+            <div class="message assistant">
+              <div class="msg-content">The 3K platform is a cloud-native large model training and inference platform, named after its 3 core metrics: 1000+ GPUs, 100B+ parameters, and 1000+ hours of uninterrupted training.</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" placeholder="Type a message (demo - no response)" disabled>
+            <button class="btn btn-primary" disabled>Send</button>
+          </div>
+          <p class="demo-note">Demo mode: Chat interface shown for display only.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="demo.js"></script>
+</body>
+</html>
