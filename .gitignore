@@ -61,3 +61,6 @@ __debug_bin*
 .secrets
 
 cmd/main.go
+
+# Cursor 运行时文件
+/.cursor/hooks/state/
