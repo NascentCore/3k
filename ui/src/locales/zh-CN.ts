@@ -19,10 +19,10 @@ import playground from './zh-CN/playground';
 export default {
   'menu.welcome': '欢迎',
   'menu.ModelRepository': 'LLM 仓库',
-  'menu.UserJobCommit': 'GPU 任务',
+  'menu.UserJobCommit': '提交任务',
   'menu.UserJob': '任务详情',
   'menu.InferenceState': '推理实例',
-  'menu.Grafana': '资源看板(Grafana)',
+  'menu.Grafana': '资源看板',
   'menu.Tensorboard': '训练看板(TensorBoard)',
   'menu.Jupyterlalb': '开发实验室(JupyterLab)',
   'menu.JupyterLab': '开发实验室',
