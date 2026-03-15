@@ -29,15 +29,18 @@ function copyRecursive(src, dest) {
   }
 }
 
-// Clear demo dir except README if present
-const readmePath = path.join(demoDir, 'README.md');
-let readmeContent = null;
-if (fs.existsSync(readmePath)) {
-  readmeContent = fs.readFileSync(readmePath, 'utf8');
+// Clear demo dir except preserved docs
+const preserveFiles = ['README.md', '使用说明.md', '安装Node最简步骤.md'];
+const preserved = {};
+for (const name of preserveFiles) {
+  const fullPath = path.join(demoDir, name);
+  if (fs.existsSync(fullPath)) {
+    preserved[name] = fs.readFileSync(fullPath, 'utf8');
+  }
 }
 for (const name of fs.readdirSync(demoDir)) {
   const p = path.join(demoDir, name);
-  if (name === 'README.md') continue;
+  if (preserveFiles.includes(name)) continue;
   fs.rmSync(p, { recursive: true, force: true });
 }
 
@@ -46,8 +49,8 @@ for (const name of fs.readdirSync(distDir)) {
   copyRecursive(path.join(distDir, name), path.join(demoDir, name));
 }
 
-if (readmeContent != null) {
-  fs.writeFileSync(readmePath, readmeContent);
+for (const [name, content] of Object.entries(preserved)) {
+  fs.writeFileSync(path.join(demoDir, name), content);
 }
 
 console.log('Demo updated at examples/3k-platform-demo');
