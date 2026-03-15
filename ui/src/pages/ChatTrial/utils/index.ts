@@ -1,7 +1,10 @@
+import { DEMO_CHAT_REPLIES } from '@/constants/demo';
 import { IChatItemMsg } from '@/models/chat-h5-model';
 import { getActiveChatSettingConfigured } from './chatSettingConfigured';
 import { BaseUrl } from '../services';
 import { getToken } from '@/utils';
+
+const isDemo = process.env.REACT_APP_DEMO === 'true' || process.env.UMI_APP_DEMO === 'true';
 
 export function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -231,6 +234,22 @@ export const cahtActionH5_ModalType = async ({
   onMessage: (chatMsgItem: IChatItemMsg) => void;
   onSuccess: (chatMsgItem: IChatItemMsg) => void;
 }) => {
+  if (isDemo && DEMO_CHAT_REPLIES.length > 0) {
+    const reply =
+      DEMO_CHAT_REPLIES[Math.floor(Math.random() * DEMO_CHAT_REPLIES.length)];
+    const delay = 400 + Math.random() * 400;
+    await new Promise((r) => setTimeout(r, delay));
+    const chatMsgItem: IChatItemMsg = {
+      content: reply,
+      role: 'assistant',
+      id,
+      date: '',
+    };
+    onMessage(chatMsgItem);
+    onSuccess({ ...chatMsgItem, id });
+    return;
+  }
+
   const response = await fetch(`/api/v1/chat/completions`, {
     method: 'POST',
     headers: {

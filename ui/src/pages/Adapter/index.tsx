@@ -50,7 +50,6 @@ const Index: React.FC = () => {
   const intl = useIntl();
   const [searchText, setSearchText] = useState('');
   const { data, isLoading }: any = useApiResourceAdapters();
-  console.log(1111, { data });
   const items = [
     {
       key: '1',

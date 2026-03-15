@@ -1,58 +1,33 @@
 # 3K Platform Demo
 
-A **standalone demo** that showcases the 3K platform's functionality. No backend, API, or Kubernetes required—just open the HTML file in a browser.
+This folder contains the **same web UI as the real 3K platform** (算想云), built in demo mode so you can log in with dummy data and click around without a backend.
 
-## What It Shows
+- **演示账号（dummy 登录）**: 邮箱 `test@sxwl.ai`，密码 `sxwl666!` — 使用该账号点击「登录」会直接通过，不会请求后端，避免 404。
+- **Data**: 登录后的其他 API 可能因无后端而报错或空状态；仅用于界面演示与点击流程。
 
-The demo presents the key capabilities of the 3K platform:
+## 方式一：本地开发带 dummy 登录（推荐）
 
-- **Overview** – 3 core metrics (1000+ GPUs, 100B+ params, 1000+ hours) and feature cards
-- **Model Repository** – Browse models (LLaMA2, Qwen, ChatGLM, etc.) with Fine-tune/Deploy actions
-- **Training Jobs** – Submit and monitor GPU training jobs (PyTorchJob, MPIJob)
-- **Inference** – Deployed models and endpoints (KServe)
-- **JupyterLab** – Development environments with GPU
-- **Datasets** – Manage datasets for training
-- **Cluster Info** – GPU nodes and availability
-- **Playground** – Chat UI (display only, no actual inference)
-
-All data is **mock/static**—buttons and links are for display only.
-
-## How to Run
-
-### Option 1: Open directly
+在项目根目录执行：
 
 ```bash
-# From project root
-open examples/3k-platform-demo/index.html
-
-# Or with a browser
-xdg-open examples/3k-platform-demo/index.html   # Linux
+cd ui && npm run start:demo
 ```
 
-### Option 2: Simple HTTP server (recommended)
+用浏览器打开终端里显示的地址（如 http://localhost:8000），进入 `/user/login`，用上面演示账号登录即可，不会出现 404。
+
+## 方式二：使用本目录静态构建
+
+**必须先**用 demo 模式构建并复制到本目录，否则登录会 404。在项目根目录执行：
 
 ```bash
-cd examples/3k-platform-demo
-python3 -m http.server 8080
-# Then open http://localhost:8080
+cd ui && npm run deploy:demo
 ```
 
-Or with Node.js:
+然后用静态服务打开本目录，例如：
 
 ```bash
-cd examples/3k-platform-demo
 npx serve .
-# Then open the URL shown (e.g. http://localhost:3000)
+# 或: python3 -m http.server 8080
 ```
 
-## Files
-
-- `index.html` – Main demo page
-- `styles.css` – Styling
-- `demo.js` – Mock data and navigation
-- `README.md` – This file
-
-## Notes
-
-- This is a **UI demo only**. No API calls, no Kubernetes, no real training or inference.
-- Use it for presentations, onboarding, or to preview the platform’s look and feel.
+打开终端里显示的地址（如 http://localhost:3000），进入登录页，用演示账号 `test@sxwl.ai` / `sxwl666!` 登录。

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { apiAuthLogin, apiCodeSendEmail } from '@/services';
 import { saveToken } from '@/utils';
+import { DEMO_CREDENTIALS, DEMO_USER } from '@/constants/demo';
 import { Form, Input, Button, Checkbox, Space, Typography, message } from 'antd';
 import { Store } from 'antd/lib/form/interface';
 import { apiUsersRegisterUser } from '@/services';
@@ -19,11 +20,15 @@ enum ILoginType {
   PASSWORD = 'PASSWORD',
 }
 
+const isDemo = process.env.REACT_APP_DEMO === 'true';
+
 const Login: React.FC = ({ setType }) => {
   const intl = useIntl();
   const { initialState, setInitialState } = useModel('@@initialState');
   const [form] = Form.useForm();
-  const [loginType, setLoginType] = useState<ILoginType>();
+  const [loginType, setLoginType] = useState<ILoginType>(
+    isDemo ? ILoginType.PASSWORD : undefined,
+  );
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -41,6 +46,23 @@ const Login: React.FC = ({ setType }) => {
   const handleSubmit = () => {
     return form.validateFields().then(() => {
       const values = form.getFieldsValue();
+      // Demo 模式：演示账号直接通过，不请求后端
+      if (
+        isDemo &&
+        values.username === DEMO_CREDENTIALS.email &&
+        values.password === DEMO_CREDENTIALS.password
+      ) {
+        saveToken('demo');
+        flushSync(() => {
+          setInitialState((s) => ({
+            ...s,
+            currentUser: DEMO_USER,
+          }));
+        });
+        const urlParams = new URL(window.location.href).searchParams;
+        history.push(urlParams.get('redirect') || '/');
+        return;
+      }
       // 登录
       return apiAuthLogin({
         data: {
@@ -98,7 +120,15 @@ const Login: React.FC = ({ setType }) => {
           name="registration_form"
           form={form}
           onFinish={handleSubmit}
-          initialValues={{ remember: true }}
+          initialValues={{
+            remember: true,
+            ...(isDemo
+              ? {
+                  username: DEMO_CREDENTIALS.email,
+                  password: DEMO_CREDENTIALS.password,
+                }
+              : {}),
+          }}
           size={'large'}
         >
           <Form.Item

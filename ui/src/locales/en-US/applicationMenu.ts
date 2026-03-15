@@ -10,4 +10,5 @@ export default {
   'pages.applicationMenu.appAddForm.form.app_name': 'Application Name',
   'pages.applicationMenu.appAddForm.form.inference_select': 'Inference Instance',
   'pages.applicationMenu.appAddForm.form.inference_select_placeholder': 'Please choice inference instance',
+  'pages.applicationMenu.appCard.integrationGuide': 'Integration guide',
 };

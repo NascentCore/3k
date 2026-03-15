@@ -5,11 +5,17 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
 
-const { REACT_APP_ENV = 'dev' } = process.env;
+const { REACT_APP_ENV = 'dev', REACT_APP_DEMO } = process.env;
+const isDemo = REACT_APP_DEMO === 'true';
 
 export default defineConfig({
   base: '/',
   publicPath: '/',
+  // 确保 demo 模式在客户端生效，避免仍请求 /api 导致 504
+  define: {
+    'process.env.REACT_APP_DEMO': JSON.stringify(process.env.REACT_APP_DEMO || ''),
+    'process.env.UMI_APP_DEMO': JSON.stringify(process.env.UMI_APP_DEMO || ''),
+  },
   /**
    * @name 开启 hash 模式
    * @description 让 build 之后的产物包含 hash 后缀。通常用于增量发布和避免浏览器加载缓存。
@@ -100,8 +106,8 @@ export default defineConfig({
     // default zh-CN
     default: 'zh-CN',
     antd: true,
-    // default true, when it is true, will use `navigator.language` overwrite default
-    baseNavigator: true,
+    // demo 模式固定中文；否则按浏览器语言
+    baseNavigator: !isDemo,
   },
   /**
    * @name antd 插件

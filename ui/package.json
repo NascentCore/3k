@@ -6,6 +6,8 @@
   "scripts": {
     "analyze": "cross-env ANALYZE=1 max build",
     "build": "max build",
+    "build:demo": "npx cross-env REACT_APP_DEMO=true npm run build",
+    "deploy:demo": "npm run build:demo && node scripts/copy-demo.js",
     "deploy": "npm run build && npm run gh-pages",
     "dev": "npm run start:dev",
     "gh-pages": "gh-pages -d dist",
@@ -24,6 +26,7 @@
     "record": "cross-env NODE_ENV=development REACT_APP_ENV=test max record --scene=login",
     "serve": "umi-serve",
     "start": "cross-env UMI_ENV=dev max dev",
+    "start:demo": "cross-env UMI_APP_DEMO=true REACT_APP_DEMO=true REACT_APP_ENV=dev MOCK=none UMI_ENV=dev max dev",
     "start:dev": "cross-env REACT_APP_ENV=dev MOCK=none UMI_ENV=dev max dev",
     "start:no-mock": "cross-env MOCK=none UMI_ENV=dev max dev",
     "start:pre": "cross-env REACT_APP_ENV=pre UMI_ENV=dev max dev",

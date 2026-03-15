@@ -7,8 +7,11 @@ import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import React from 'react';
 import { apiAuthInfo } from './services';
+import { DEMO_USER } from './constants/demo';
 import { Button } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
 const isDev = process.env.NODE_ENV === 'development';
+const isDemo = process.env.REACT_APP_DEMO === 'true';
 const loginPath = '/user/login';
 let user: any = {};
 
@@ -22,6 +25,11 @@ export async function getInitialState(): Promise<{
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
+    if (isDemo) {
+      user = DEMO_USER;
+      (window as any).__user = user;
+      return DEMO_USER;
+    }
     try {
       const res = await apiAuthInfo();
       user = res.user;
@@ -35,16 +43,18 @@ export async function getInitialState(): Promise<{
   // 如果不是登录页面，执行
   const { location } = history;
   if (location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
-    };
+    const currentUser = isDemo ? DEMO_USER : await fetchUserInfo();
+  return {
+    fetchUserInfo,
+    currentUser,
+    settings: defaultSettings as Partial<LayoutSettings>,
+    settingDrawerOpen: false,
+  };
   }
   return {
     fetchUserInfo,
     settings: defaultSettings as Partial<LayoutSettings>,
+    settingDrawerOpen: false,
   };
 }
 
@@ -80,6 +90,18 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </Button>
       </>,
       <SelectLang key="SelectLang" />,
+      ...(isDev
+        ? [
+            <Button
+              key="SettingDrawerTrigger"
+              type="link"
+              icon={<SettingOutlined />}
+              onClick={() => {
+                setInitialState((prev) => ({ ...prev, settingDrawerOpen: true }));
+              }}
+            />,
+          ]
+        : []),
     ],
     avatarProps: {
       // src: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
@@ -94,8 +116,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
-      // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      // 如果没有登录，重定向到 login（demo 模式下不重定向）
+      if (!isDemo && !initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
       }
     },
@@ -134,6 +156,13 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
               disableUrlParams
               enableDarkTheme
               settings={initialState?.settings}
+              collapse={initialState?.settingDrawerOpen}
+              onCollapseChange={(open) => {
+                setInitialState((preInitialState) => ({
+                  ...preInitialState,
+                  settingDrawerOpen: open,
+                }));
+              }}
               onSettingChange={(settings) => {
                 setInitialState((preInitialState) => ({
                   ...preInitialState,
@@ -159,7 +188,8 @@ export const request = {
 };
 
 export function onRouteChange({ location }) {
-  if (location.pathname === '/grafana') {
+  const isDemoUser = (typeof window !== 'undefined' && (window as any).__user?.user_id === 'demo');
+  if (location.pathname === '/grafana' && !isDemo && !isDemoUser) {
     const url = `http://grafana.llm.sxwl.ai:30005/d/85a562078cdf/user-pods?orgId=1&refresh=5s&var-datasource=default&var-cluster=&var-namespace=${user.user_id}&var-gpu=All`;
     window.open(url);
     history.back();

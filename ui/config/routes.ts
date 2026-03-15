@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
  * @param path  path 只支持两种占位符配置，第一种是动态参数 :id 的形式，第二种是 * 通配符，通配符只能出现路由字符串的最后。
@@ -81,12 +81,6 @@ export default [
     component: './JobDetail',
   },
   {
-    path: '/grafana',
-    name: 'Grafana',
-    icon: 'BarChartOutlined',
-    component: './Welcome',
-  },
-  {
     path: '/playground',
     name: 'Playground',
     icon: 'ExperimentOutlined',
@@ -111,6 +105,12 @@ export default [
     name: 'ClusterCpods',
     icon: 'DashboardOutlined',
     component: './ClusterCpods',
+  },
+  {
+    path: '/grafana',
+    name: 'Grafana',
+    icon: 'BarChartOutlined',
+    component: './Grafana',
   },
   {
     path: '/chat-trial',

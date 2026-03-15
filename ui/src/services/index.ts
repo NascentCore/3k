@@ -2,6 +2,21 @@ import { concatArray, removeUserIdPrefixFromPath } from '@/utils';
 import { request, useIntl } from '@umijs/max';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
+import {
+  DEMO_ADAPTERS,
+  DEMO_APPS,
+  DEMO_CLUSTER_CPODS,
+  DEMO_CREDENTIALS,
+  DEMO_DATASETS,
+  DEMO_GPUS,
+  DEMO_JOB_DETAIL_INFERENCE,
+  DEMO_JOB_DETAIL_USER_JOB,
+  DEMO_JOB_JUPYTER_IMAGES,
+  DEMO_JUPYTERLAB_INSTANCES,
+  DEMO_MODELS,
+  DEMO_PLAYGROUND_MODELS,
+  DEMO_USER,
+} from '@/constants/demo';
 
 const swrConfig = {
   revalidateIfStale: false,
@@ -11,8 +26,18 @@ const swrConfig = {
   refreshInterval: 1000 * 60 * 60,
 };
 
+const isDemo =
+  process.env.REACT_APP_DEMO === 'true' || process.env.UMI_APP_DEMO === 'true';
+
 // 登录接了 /auth/login
 export async function apiAuthLogin(options?: { [key: string]: any }) {
+  if (isDemo) {
+    const username = options?.data?.username;
+    const password = options?.data?.password;
+    if (username === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
+      return { token: 'demo', user: DEMO_USER };
+    }
+  }
   return request('/api/user/login', {
     method: 'POST',
     ...(options || {}),
@@ -35,6 +60,9 @@ export async function apiGetDingtalkUserInfo(code: string) {
 
 // 获取用户信息 /auth/info
 export async function apiAuthInfo(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return { user: DEMO_USER };
+  }
   return request('/api/user/info', {
     method: 'GET',
     ...(options || {}),
@@ -58,6 +86,9 @@ export async function apiUsersRegisterUser(codemes: string, options?: { [key: st
 
 // 模型列表
 export async function apiResourceModels(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_MODELS;
+  }
   return request('/api/resource/models', {
     method: 'GET',
     ...(options || {}),
@@ -69,6 +100,9 @@ export const useApiResourceModels = (options?: { [key: string]: any }) =>
   useSWR(
     ['/api/resource/models', options],
     ([url, data]) => {
+      if (isDemo && url === '/api/resource/models') {
+        return Promise.resolve(DEMO_MODELS);
+      }
       return request(url, {
         method: 'GET',
         ...(data || {}),
@@ -91,6 +125,9 @@ export const useResourceModelsOptions = () => {
 
 // 数据集列表
 export async function apiResourceDatasets(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_DATASETS;
+  }
   return request('/api/resource/datasets', {
     method: 'GET',
     ...(options || {}),
@@ -101,6 +138,9 @@ export const useApiResourceDatasets = (options?: { [key: string]: any }) =>
   useSWR(
     ['/api/resource/datasets', options],
     ([url, data]) => {
+      if (isDemo && url === '/api/resource/datasets') {
+        return Promise.resolve(DEMO_DATASETS);
+      }
       return request(url, {
         method: 'GET',
         ...(data || {}),
@@ -122,6 +162,9 @@ export const useResourceDatasetsOptions = () => {
 
 // 适配器 api/resource/adapters
 export async function apiResourceAdapters(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_ADAPTERS;
+  }
   return request('/api/resource/adapters', {
     method: 'GET',
     ...(options || {}),
@@ -159,6 +202,9 @@ export async function apiInference(options?: { [key: string]: any }) {
 
 // 2.7.2 查询推理服务状态
 export async function apiGetInference(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return { data: DEMO_JOB_DETAIL_INFERENCE };
+  }
   return request('/api/job/inference', {
     method: 'GET',
     ...(options || {}),
@@ -167,15 +213,11 @@ export async function apiGetInference(options?: { [key: string]: any }) {
 
 // 推理服务列表
 export const useApiGetInference = (options?: { [key: string]: any }) =>
-  useSWR(['/api/job/inference', options], ([url, data]) => {
-    return request(url, {
-      method: 'GET',
-      ...(data || {}),
-    });
-  });
+  useSWR(['/api/job/inference', options], () => apiGetInference(options));
 
 // 推理服务删除
 export async function apiDeleteInference(options?: { [key: string]: any }) {
+  if (isDemo) return Promise.resolve(undefined);
   return request('/api/job/inference', {
     method: 'DELETE',
     ...(options || {}),
@@ -184,6 +226,7 @@ export async function apiDeleteInference(options?: { [key: string]: any }) {
 
 // 终止推理服务
 export async function apiStopInference(options?: { [key: string]: any }) {
+  if (isDemo) return Promise.resolve(undefined);
   return request('/api/job/inference/stop', {
     method: 'POST',
     ...(options || {}),
@@ -192,6 +235,9 @@ export async function apiStopInference(options?: { [key: string]: any }) {
 
 // 查询任务详情 /api/userJob
 export async function apiGetUserJob(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return { content: DEMO_JOB_DETAIL_USER_JOB };
+  }
   return request('/api/job/training', {
     method: 'GET',
     ...(options || {}),
@@ -200,6 +246,9 @@ export async function apiGetUserJob(options?: { [key: string]: any }) {
 
 // 任务提交  /api/userJob
 export async function apiPostUserJob(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return Promise.resolve(undefined);
+  }
   return request('/api/job/training', {
     method: 'POST',
     ...(options || {}),
@@ -208,15 +257,11 @@ export async function apiPostUserJob(options?: { [key: string]: any }) {
 
 // 任务列表
 export const useApiGetUserJob = (options?: { [key: string]: any }) =>
-  useSWR(['/api/job/training', options], ([url, data]) => {
-    return request(url, {
-      method: 'GET',
-      ...(data || {}),
-    });
-  });
+  useSWR(['/api/job/training', options], () => apiGetUserJob(options));
 
 // 删除任务
 export async function apiDeleteUserJob(options?: { [key: string]: any }) {
+  if (isDemo) return Promise.resolve(undefined);
   return request('/api/userJob/job_del', {
     method: 'POST',
     ...(options || {}),
@@ -224,10 +269,22 @@ export async function apiDeleteUserJob(options?: { [key: string]: any }) {
 }
 
 // GPU 列表查询
+export async function apiGetGpuType(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_GPUS;
+  }
+  return request('/api/resource/gpus', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
 export const useApiGetGpuType = (options?: { [key: string]: any }) =>
   useSWR(
     ['/api/resource/gpus', options],
     ([url, data]) => {
+      if (isDemo && url === '/api/resource/gpus') {
+        return Promise.resolve(DEMO_GPUS);
+      }
       return request(url, {
         method: 'GET',
         ...(data || {}),
@@ -346,6 +403,9 @@ export const useGetApiUser = (options?: { [key: string]: any }) =>
 
 // 镜像列表
 export async function apiGetJobJupyterImage(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_JOB_JUPYTER_IMAGES;
+  }
   return request('/api/job/jupyter/image', {
     method: 'GET',
     ...(options || {}),
@@ -371,6 +431,7 @@ export const useApiGetJobJupyterImageversion = (options?: { [key: string]: any }
 
 // 镜像列表 删除
 export async function apiDeleteJobJupyterImage(options?: { [key: string]: any }) {
+  if (isDemo) return Promise.resolve(undefined);
   return request('/api/job/jupyter/image', {
     method: 'DELETE',
     ...(options || {}),
@@ -387,6 +448,9 @@ export async function apiPostJobJupyterImage(options?: { [key: string]: any }) {
 
 // 查询jupyterlab实例列表
 export async function apiGetJobJupyterlab(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return { data: DEMO_JUPYTERLAB_INSTANCES };
+  }
   return request('/api/job/jupyterlab', {
     method: 'GET',
     ...(options || {}),
@@ -508,6 +572,9 @@ export const useApiGetPayBillingTasks = (options?: { [key: string]: any }) =>
     return apiGetPayBillingTasks(options);
   });
 export async function apiClusterCpods(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return DEMO_CLUSTER_CPODS;
+  }
   return request('/api/cluster/cpods', {
     method: 'GET',
     ...(options || {}),
@@ -524,12 +591,13 @@ export async function apiClusterCpods(options?: { [key: string]: any }) {
   });
 }
 export const useApiClusterCpods = (options?: { [key: string]: any }) =>
-  useSWR(['/api/cluster/cpods', options], ([, options]) => {
-    return apiClusterCpods(options);
-  });
+  useSWR(['/api/cluster/cpods', options], ([, opts]) => apiClusterCpods(opts));
 
 // 查询应用
 export async function apiGetAppJob() {
+  if (isDemo) {
+    return { data: [] };
+  }
   return request('/api/app/job', {
     method: 'GET',
   });
@@ -553,6 +621,9 @@ export async function apiDeleteAppJob(options?: { [key: string]: any }) {
 
 // 应用注册列表
 export async function apiGetAppList() {
+  if (isDemo) {
+    return { data: DEMO_APPS };
+  }
   return request('/api/app/list', {
     method: 'GET',
   });
@@ -576,6 +647,7 @@ export async function apiDeleteAppList(options?: { [key: string]: any }) {
 
 // 修改集群名称
 export async function apiClusterCpodNamePut(options?: { [key: string]: any }) {
+  if (isDemo) return Promise.resolve(undefined);
   return request('/api/cluster/cpod/name', {
     method: 'PUT',
     ...(options || {}),
@@ -593,8 +665,11 @@ export const useApiClusterCpodNamePut = () => {
 };
 
 export async function apiInferencePlayground(options?: { [key: string]: any }) {
+  if (isDemo) {
+    return { data: DEMO_PLAYGROUND_MODELS };
+  }
   return request('/api/job/inference/playground', {
     method: 'GET',
     ...(options || {}),
-  });  
+  });
 }

@@ -10,4 +10,5 @@ export default {
   'pages.applicationMenu.appAddForm.form.app_name': '应用名称',
   'pages.applicationMenu.appAddForm.form.inference_select': '推理实例',
   'pages.applicationMenu.appAddForm.form.inference_select_placeholder': '请选择推理服务实例',
+  'pages.applicationMenu.appCard.integrationGuide': '查看集成指南',
 };

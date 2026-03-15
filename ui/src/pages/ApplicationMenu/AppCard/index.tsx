@@ -4,9 +4,10 @@ import { useIntl } from '@umijs/max';
 
 const Index: React.FC = ({ record, onDelete, createAppJobAction }: any) => {
   const intl = useIntl();
+  const isReference = record?.isReference === true;
 
   const isShowDeleteBtn =
-    record?.jobItem?.status === 'running' || record?.jobItem?.status === 'failed';
+    !isReference && (record?.jobItem?.status === 'running' || record?.jobItem?.status === 'failed');
 
   return (
     <Card
@@ -41,53 +42,64 @@ const Index: React.FC = ({ record, onDelete, createAppJobAction }: any) => {
         <Typography.Text>{record?.desc}</Typography.Text>
       </Row>
       <Row justify={'space-between'}>
-        {record?.jobItem?.status === 'running' && (
-          <Col>
-            {intl.formatMessage({
-              id: 'pages.applicationMenu.appCard.status',
-              defaultMessage: '状态',
-            })}
-            : {record?.jobItem?.status}
-          </Col>
-        )}
-        {record?.jobItem?.status === 'running' && (
-          <Col>
-            <Typography.Link
-              onClick={() => {
-                // 访问链接拼接规则：{job_name}.{domain_name}/qanything/?code={job_name}
-                // 示例：appjob-xxxxx.llm.sxwl.ai:30004/qanything/?code=appjob-xxxxx
-                // const url = `${record.job_name}.llm.sxwl.ai:30004/qanything/?code=${record.job_name}`;
-                console.log('访问知识库', record?.jobItem?.url);
-                window.open(record?.jobItem?.url);
-              }}
-            >
-              {intl.formatMessage({
-                id: 'pages.applicationMenu.appCard.access',
-                defaultMessage: '访问知识库',
-              })}
-            </Typography.Link>
-          </Col>
-        )}
-        {!!record?.jobItem ||
-          (record?.jobItem?.status !== 'running' && (
-            <Col style={{ marginLeft: 'auto' }}>
-              <Typography.Link onClick={() => createAppJobAction(record)}>
+        {isReference ? (
+          record?.docUrl && (
+            <Col>
+              <Typography.Link href={record.docUrl} target="_blank" rel="noopener noreferrer">
                 {intl.formatMessage({
-                  id: 'pages.applicationMenu.appCard.deployment',
-                  defaultMessage: '部署',
+                  id: 'pages.applicationMenu.appCard.integrationGuide',
+                  defaultMessage: '查看集成指南',
                 })}
               </Typography.Link>
             </Col>
-          ))}
-        {record?.jobItem && record?.jobItem?.status !== 'running' && (
-          <Col style={{ marginLeft: 'auto' }}>
-            <Typography.Link>
-              {intl.formatMessage({
-                id: 'pages.applicationMenu.appCard.onDeployment',
-                defaultMessage: '部署中',
-              })}
-            </Typography.Link>
-          </Col>
+          )
+        ) : (
+          <>
+            {record?.jobItem?.status === 'running' && (
+              <Col>
+                {intl.formatMessage({
+                  id: 'pages.applicationMenu.appCard.status',
+                  defaultMessage: '状态',
+                })}
+                : {record?.jobItem?.status}
+              </Col>
+            )}
+            {record?.jobItem?.status === 'running' && (
+              <Col>
+                <Typography.Link
+                  onClick={() => {
+                    window.open(record?.jobItem?.url);
+                  }}
+                >
+                  {intl.formatMessage({
+                    id: 'pages.applicationMenu.appCard.access',
+                    defaultMessage: '访问知识库',
+                  })}
+                </Typography.Link>
+              </Col>
+            )}
+            {!!record?.jobItem ||
+              (record?.jobItem?.status !== 'running' && (
+                <Col style={{ marginLeft: 'auto' }}>
+                  <Typography.Link onClick={() => createAppJobAction(record)}>
+                    {intl.formatMessage({
+                      id: 'pages.applicationMenu.appCard.deployment',
+                      defaultMessage: '部署',
+                    })}
+                  </Typography.Link>
+                </Col>
+              ))}
+            {record?.jobItem && record?.jobItem?.status !== 'running' && (
+              <Col style={{ marginLeft: 'auto' }}>
+                <Typography.Link>
+                  {intl.formatMessage({
+                    id: 'pages.applicationMenu.appCard.onDeployment',
+                    defaultMessage: '部署中',
+                  })}
+                </Typography.Link>
+              </Col>
+            )}
+          </>
         )}
       </Row>
     </Card>

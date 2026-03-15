@@ -1,4 +1,4 @@
-﻿import type { RequestOptions } from '@@/plugin-request/request';
+import type { RequestOptions } from '@@/plugin-request/request';
 import type { RequestConfig } from '@umijs/max';
 import { message, notification } from 'antd';
 import { getToken } from './utils';
@@ -73,7 +73,12 @@ export const errorConfig: RequestConfig = {
       } else if (error.response) {
         // Axios 的错误
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
-        if (error.response.status !== 401) {
+        const status = error.response.status;
+        const isDemo =
+          process.env.REACT_APP_DEMO === 'true' || process.env.UMI_APP_DEMO === 'true';
+        // 演示模式下不展示 504/5xx，避免无后端时刷屏
+        if (isDemo && status >= 500) return;
+        if (status !== 401) {
           message.error(
             error.response?.data?.message || `Response status:${error.response.status}`,
           );
