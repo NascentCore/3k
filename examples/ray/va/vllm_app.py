@@ -56,18 +56,9 @@ def parse_vllm_args(cli_args: Dict[str, str]):
     return parsed_args
 
 
-@serve.deployment(
-    name="VLLMDeployment",
-    # autoscaling_config={
-    #     "min_replicas": 1,
-    #     "max_replicas": 4,
-    #     "target_ongoing_requests": 3,
-    # },
-    # ray_actor_options={
-    #     "num_gpus": 4,  # 指定需要 1 个 GPU
-    # },
-    # max_ongoing_requests=5,
-)
+# https://docs.ray.io/en/latest/serve/api/doc/ray.serve.Deployment.html
+# Define a deployment template for RayServe to deploy, corresponding to a RayService.
+@serve.deployment(name="VLLMDeployment")
 @serve.ingress(app)
 class VLLMDeployment:
     def __init__(
