@@ -21,17 +21,3 @@ The five items that best show yzhao’s seniority are the Job abstraction on #23
 5. **[#334](https://github.com/NascentCore/3k/pull/334#discussion_r1411893298)** — the `podTemplate` argument list becomes `podTmplConfig`
    - Fields: dataset PVC and path, pretrained-model PVC and path, checkpoint path, model-save path, `withSHM`.
    - A new volume or path is one field, not a new parameter on every caller.
-
-## Why this order
-
-Rank 1 and 2 set direction for other people. Rank 3 is that same habit applied to the training reconciler, and the code still follows it. Rank 4 and 5 are the kept API-shape reviews: one name for a string that is used in more than one place, one struct when a parameter list becomes a configuration object.
-
-## Supporting authored pull requests
-
-The earlier authored set shows the same habits at smaller scale. Those support the record. The five above are the ones a staff reader would use to judge seniority.
-
-- **[#133](https://github.com/NascentCore/3k/pull/133)** — drop `market-manager/go.mod`; that tree joins the root module.
-- **[#114](https://github.com/NascentCore/3k/pull/114)** — golangci-lint workflow and the first cleanup of `cpodmanager`, `job.go`, and the MPIJob client.
-- **[#216](https://github.com/NascentCore/3k/pull/216)** — `K8S_LABEL_NV_GPU_PRODUCT` and `K8S_LABEL_NV_GPU_PRESENT` in `pkg/utils/consts/k8s.go`.
-- **[#473](https://github.com/NascentCore/3k/pull/473)** — `pkg/utils/config` file and env readers, each with a test.
-- **[#180](https://github.com/NascentCore/3k/pull/180)** — CephFS volume on the BERT MPIJob, applied in namespace `bert` on the LY cluster.
